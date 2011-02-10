@@ -1,0 +1,42 @@
+/* Javadoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+/* Page background color */
+body { background-color: #FFFFFF; font-family:Trebuchet MS,Helvetica,sans-serif;}
+
+/* Headings */
+h1 { font-size: 145% }
+
+/* Table colors */
+table[cellpadding='3'] { border: 1px solid #666; border-collapse: collapse}
+.TableHeadingColor     { background: #C72000; color: #FFFFFF; cellpadding: 1px}
+.TableSubHeadingColor  { background: #FFE7D0; cellpadding: 1px }
+.TableRowColor         { background: #FFFFFF; cellpadding: 1px }
+
+/* HTTP Parameter table */
+table.httpParam         { }
+table.httpParam tr.odd  { background: #FFF7F0}
+table.httpParam tr.even { background: #FFE7D0}
+table.httpParam .name   { font-weight: bold}
+
+/* Font used in left-hand frame lists */
+.FrameTitleFont   { font-size: 100%;}
+.FrameHeadingFont { font-size:  90%;}
+.FrameItemFont    { font-size:  90%;}
+
+/* Navigation bar fonts and colors */
+.NavBarCell1    { background-color: #FFE7A7;}
+.NavBarCell1Rev { background-color: #FF6700;}
+.NavBarFont1    { color:#000000;}
+.NavBarFont1Rev { color:#FFFFFF;}
+.NavBarCell2    { background-color:#FFFFFF;}
+.NavBarCell3    { background-color:#FFFFFF;}
+
+/* Links */
+a         {color:#004E9E; text-decoration: none}
+a:visited {color:#004E9E;}
+a:hover   {color:#004E9E; text-decoration: underline; background-color:#F0F7FF;}
+
+/* preformatted code */
+dd pre { background: #fff7df; border-left: 2px solid #ff3700; }

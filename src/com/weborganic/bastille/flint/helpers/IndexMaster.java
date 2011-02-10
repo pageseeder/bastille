@@ -1,0 +1,343 @@
+package com.weborganic.bastille.flint.helpers;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.store.Directory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.weborganic.flint.FlintTranslatorFactory;
+import org.weborganic.flint.Index;
+import org.weborganic.flint.IndexConfig;
+import org.weborganic.flint.IndexException;
+import org.weborganic.flint.IndexManager;
+import org.weborganic.flint.Requester;
+import org.weborganic.flint.IndexJob.Priority;
+import org.weborganic.flint.content.Content;
+import org.weborganic.flint.content.ContentFetcher;
+import org.weborganic.flint.content.ContentId;
+import org.weborganic.flint.log.PrintStreamListener;
+import org.weborganic.flint.query.SearchPaging;
+import org.weborganic.flint.query.SearchQuery;
+import org.weborganic.flint.query.SearchResults;
+import org.weborganic.flint.query.SuggestionQuery;
+import org.weborganic.flint.search.Facet;
+import org.weborganic.flint.search.FieldFacet;
+import org.weborganic.flint.util.Terms;
+
+/**
+ * Centralises all the indexing and searching function using Flint for one index.
+ * 
+ * <p>This class defines a singleton which can be access using the {@link #getInstance()} method.
+ * 
+ * @author Christophe Lauret
+ * @version 21 July 2010
+ */
+public final class IndexMaster {
+
+  /** Logger for this class */
+  private static Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
+  
+  /**
+   * The requester is always the index master.
+   */
+  private static final Requester REQUESTER = new Requester() {
+    public String getRequesterID() {
+      return "IndexMaster";
+    }
+  };
+
+  /**
+   * Sole instance.
+   */
+  private static final IndexMaster SINGLETON = new IndexMaster();
+
+  /**
+   * Returns the singleton.
+   * 
+   * @return the singleton.
+   */
+  public static IndexMaster getInstance() {
+    return SINGLETON;
+  }
+
+  /**
+   * Where the private files are.
+   */
+  private volatile IndexManager manager = null;
+
+  /**
+   * The underlying index used by this generator.
+   */
+  private volatile Index index = null;
+
+  /**
+   * The index config used by this generator.
+   */
+  private volatile IndexConfig config = null;
+
+  /**
+   * The last time this index was modified
+   */
+  private volatile long lastModified = -1;
+
+  /**
+   * Indicates whether the underlying index manager has been setup.
+   */
+  public boolean isSetup() {
+    return this.manager != null;
+  }
+
+  /**
+   * Sets up the index master.
+   * 
+   * @param indexDir the index directory
+   * @param xslt     the location of the XSLT generating the IXML.
+   */
+  public void setup(File indexDir, File xslt) {
+
+    ContentFetcher fetcher = new ContentFetcher() {
+      public Content getContent(ContentId id) {
+        FileContentId fid = (FileContentId)id;
+        return new FileContent(fid.file());
+      }
+    };
+
+    // Create the index
+    this.index = new LocalIndex(indexDir);
+
+    // Get the last modified from the index
+    try {
+      Directory directory = this.index.getIndexDirectory();
+      if (IndexReader.indexExists(directory))
+        this.lastModified = IndexReader.lastModified(directory);
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    // Create a Manager
+    this.manager = new IndexManager(fetcher, new PrintStreamListener(System.err));
+    this.manager.registerTranslatorFactory(new FlintTranslatorFactory());
+
+    // Setup the configuration
+    this.config = new IndexConfig();
+    this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
+
+    // Start the index manager
+    this.manager.start();
+  }
+
+  /**
+   * Returns the index instance this class operates on.
+   *  
+   * @return the index instance this class operates on.
+   */
+  public Index index() {
+    return this.index;
+  }
+
+  /**
+   * Returns the index config this class operates on.
+   *  
+   * @return the index config this class operates on.
+   */
+  public IndexConfig config() {
+    return this.config;
+  }
+
+  /**
+   * Returns the underlying Index Manager.
+   *  
+   * @return the underlying Index Manager.
+   */
+  public IndexManager manager() {
+    return this.manager;
+  }
+
+  /**
+   * Index the specified file with the given parameters.
+   * 
+   * @param file       The file to index.
+   * @param parameters The parameters to pass to the stylesheet.
+   */
+  public void index(File file, Map<String, String> parameters ) {
+    ContentId cid = new FileContentId(file);
+    this.lastModified = System.currentTimeMillis();
+    this.manager.index(cid, this.index, this.config, REQUESTER, Priority.HIGH, parameters);
+  }
+
+  /**
+   * Clears the content of the wrapped index. 
+   */
+  public void clear() {
+    this.manager.clear(this.index, REQUESTER, Priority.HIGH);
+  }
+
+  /**
+   * Makes a query to the wrapped index. 
+   * 
+   * @param query The query to make
+   * @return The search results
+   * 
+   * @throws IndexException Should any error while the query is made.
+   */
+  public SearchResults query(SearchQuery query) throws IndexException {
+    return this.manager.query(this.index, query);
+  }
+
+  /**
+   * Makes a query to the wrapped index. 
+   * 
+   * @param query  The query to make
+   * @param paging The paging configuration
+   * 
+   * @return The search results
+   * 
+   * @throws IndexException Should any error while the query is made.
+   */
+  public SearchResults query(SearchQuery query, SearchPaging paging) throws IndexException {
+    return this.manager.query(this.index, query, paging);
+  }
+
+  /**
+   * Returns the last time an index job was requested or if none was requested the last time 
+   * the index was updated. 
+   * 
+   * @return the last time an index job was requested.
+   */
+  public long lastModified() {
+    return this.lastModified;
+  }
+
+  /**
+   * Returns the list of term and how frequently they are used by performing a fuzzy match on the
+   * specified term.
+   */
+  public Facet getFacet(String field, int upTo, Query query) throws IOException {
+    FieldFacet facet = null;
+    IndexReader reader = null;
+    IndexSearcher searcher = null;
+    try {
+      // Retrieve all terms for the field
+      reader = this.manager.grabReader(index);
+      facet = FieldFacet.newFacet(field, reader);
+
+      // search
+      searcher = this.manager.grabSearcher(index);
+      facet.compute(searcher, query, upTo);
+
+    } catch (IndexException ex) {
+      throw new IOException(ex);
+    } finally {
+      this.manager.releaseQuietly(this.index, reader);
+      this.manager.releaseQuietly(this.index, searcher);
+    }
+    return facet;
+  }
+
+  /**
+   * Return an index reader on the index.
+   * 
+   * @return The index will need to be released.
+   */
+  public IndexReader grabReader() throws IndexException {
+    return this.manager.grabReader(this.index);
+  }
+
+  /**
+   * Returns the list of files containing ??
+   */
+  public List<File> list(Term t, String field) throws IOException {
+    List<File> files = new ArrayList<File>();
+    IndexReader reader = null;
+    try {
+      reader = this.manager.grabReader(this.index);
+      for (int i = 0; i < reader.numDocs(); i++) {
+        File f = FilePathRule.toFile(reader.document(i));
+        files.add(f);
+      }
+    } catch (IndexException ex) {
+      throw new IOException(ex);
+    } finally {
+      this.manager.releaseQuietly(this.index, reader);
+    }
+    return files;
+  }
+
+  /**
+   * Suggests results for the given fields and text.
+   * 
+   * @param fields    The list of fields to use.
+   * @param texts     The list of term texts to use.
+   * @param max       The maximum number of suggested results.
+   * @param predicate By default, assumes that it is the document type.
+   * 
+   * @return the suggestions in the form of search results.
+   */
+  public SearchResults getSuggestions(List<String> fields, List<String> texts, int max, String predicate) throws IOException, IndexException {
+    // Generate the list of terms
+    List<Term> terms = Terms.terms(fields, texts);
+
+    // Parse the condition query
+    Query condition = toQuery(predicate);
+
+    // Creates the suggestion query
+    SuggestionQuery query = new SuggestionQuery(terms, condition);
+    IndexReader reader = null;
+    try {
+      reader = this.manager.grabReader(this.index);
+      query.compute(reader);
+    } finally {
+      this.releaseSilently(reader);
+    }
+
+    // Pages
+    SearchPaging pages = new SearchPaging();
+    if (max > 0) pages.setHitsPerPage(max);
+    return this.manager.query(this.index, query, pages);
+  }
+
+  /**
+   * Returns the query for the specified predicate using the Query Parser.
+   * 
+   * @param predicate The predicate to parse
+   * @return the corresponding query object or <code>null</code>.
+   * @throws IndexException should any error occur
+   */
+  public Query toQuery(String predicate) throws IndexException {
+    // Parse the condition query
+    QueryParser parser = new QueryParser(IndexManager.LUCENE_VERSION, "type", this.index.getAnalyzer());
+    Query condition = null;
+    if (predicate != null && !"".equals(predicate)) {
+      try {
+        condition = parser.parse(predicate);
+      } catch (ParseException ex) {
+        throw new IndexException("Condition for the suggestion could not be parsed.", ex);
+      }
+    }
+    return condition;
+  }
+
+  /**
+   * Releases this reader for use by other threads silently (any exception will be ignored).
+   * 
+   * <p>Provided for convenience when used inside a <code>finally</code> block.
+   * 
+   * @param db     Database (only needed in case an instance needs to be created)  
+   * @param group  Group indexed.
+   * @param reader The Lucene index reader to release.
+   */
+  public void releaseSilently(IndexReader reader) {
+    this.manager.releaseQuietly(this.index, reader);
+  }
+
+}

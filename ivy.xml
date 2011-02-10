@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ivy-module version="2.0">
+  <info organisation="weborganic" module="wi-bastille">
+    <license name="Proprietary"/>
+    <description homepage="http://dev.pageseeder.com"/>
+  </info>
+  <configurations defaultconfmapping="core->default;runtime->runtime(default)">
+     <conf name="core" transitive="false" visibility="private" description="Always required"/>
+     <conf name="default" extends="core" transitive="false" description="Needed for compilation only"/>
+     <conf name="runtime" extends="core" transitive="true" description="Everything needed to run this module" />
+  </configurations>
+  <dependencies>
+
+    <!-- Generic Apache libraries-->
+    <dependency org="apache"     name="commons-io"   rev="1.4"    conf="core"/>
+    <dependency org="slf4j"      name="slf4j-api"    rev="1.6.1"  conf="core"/>
+    <dependency org="javax"      name="servlet-api"  rev="2.4"    conf="default"/>
+
+    <!-- Berlioz -->
+    <dependency org="weborganic" name="wo-berlioz"   rev="0.7.8+" conf="core"/>
+    <dependency org="weborganic" name="wo-furi"      rev="0.8+"   conf="core"/>
+    <dependency org="weborganic" name="wo-diffx"     rev="0.7+"   conf="core"/>
+
+    <!-- Indexing libraries -->
+    <dependency org="weborganic" name="wo-flint"     rev="1.7+"   conf="core"/>
+    <dependency org="apache"     name="lucene-core"  rev="3+"     conf="core"/>
+    <dependency org="apache"     name="lucene-misc"  rev="3+"     conf="core"/>
+
+    <!-- Caching -->
+    <dependency org="ehcache"    name="ehcache-core" rev="2+"     conf="core"/>
+
+  </dependencies>
+</ivy-module>

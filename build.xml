@@ -48,8 +48,7 @@
   <!-- release the current version in a jar -->
   <target name="integration" depends="init" description="build for continuous local integration">
     <ivy:buildnumber organisation="weborganic" module="${name.short}" resolver="local" />
-    <!--ivy:buildnumber organisation="weborganic" module="${name.short}" revision="${ivy.revision}" /-->
-  	<ivy:buildnumber organisation="weborganic" module="${name.short}" revision="0.5" />
+    <ivy:buildnumber organisation="weborganic" module="${name.short}" revision="${ivy.revision}"/>
     <antcall target="-publish">
       <param name="publish.status"   value="integration"/>
       <param name="publish.resolver" value="local"/>

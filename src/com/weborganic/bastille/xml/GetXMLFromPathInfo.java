@@ -13,7 +13,6 @@ import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -22,17 +21,25 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * <p>For example, if the Berlioz servlet is mapped to '/html/*', 'html/Ping/pong' will try to
  * look for XML file 'Ping/pong.xml' in the XML folder. 
- * 
- * <p>Sample Berlioz config:
- * {@code
- *   <generator class="org.weborganic.berlioz.ext.GetXMLFromPathInfo" name="xml-from-pathinfo" target="main"/>
- * }
+ *
+ * <h3>Configuration</h3>
+ * <p>The root XML folder can be configured globally using the Berlioz configuration:
+ * <p>For example:
+ * <pre>{@code
+ * <node name="bastille">
+ *   <map/>
+ *   <node name="xml">
+ *     <map>
+ *       <entry key="folder"     value="xml/content"/>
+ *     </map>
+ *   </node>
+ * </node>
+ * }</pre>
  * 
  * <p>To define the location of the XML folder, use the Berlioz config property:
- * <code>berlioz.ext.GetXMLFromPathInfo.folder</code>.
+ * <code>bastille.xml.root</code>.
  * 
- * <p>To disable caching of the XML, use the boolean Berlioz config property:
- * <code>berlioz.ext.GetXMLFromPathInfo.cache</code>.
+ * @since 0.5
  * 
  * @author Christophe Lauret
  * @version 5 July 2010
@@ -53,7 +60,7 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
    * {@inheritDoc}
    */
   public String getETag(ContentRequest req) {
-    File folder = getXMLFolder(req);
+    File folder = XMLConfiguration.getXMLRootFolder(req);
     String pathInfo = normalise(req.getPathInfo());
     File file = new File(folder, pathInfo+".xml");
     return pathInfo+"__"+file.length()+"x"+file.lastModified();
@@ -70,7 +77,7 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
 
     // Identify the file
     String pathInfo = normalise(req.getPathInfo());
-    File folder = getXMLFolder(req);
+    File folder = XMLConfiguration.getXMLRootFolder(req);
     File file = new File(folder, pathInfo+".xml");
 
     // Grab the data
@@ -100,12 +107,4 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
     return pathInfo;
   }
 
-  /**
-   * Returns the XML folder from the specified content request.
-   */
-  private File getXMLFolder(ContentRequest req) {
-    Environment env = req.getEnvironment();
-    String folderName = env.getProperty("berlioz.ext.GetXMLFromPathInfo.folder","xml");
-    return env.getPrivateFile(folderName);
-  }
 }

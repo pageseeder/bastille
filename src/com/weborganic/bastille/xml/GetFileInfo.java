@@ -18,12 +18,64 @@ import org.weborganic.berlioz.util.FileUtils;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * List the files corresponding to the specified directory.
+ * Returns information about the file specified by the path info in the public folder.
+ * 
+ * <p>If the file is a directory, lists the files corresponding to the specified directory.
+ * 
+ * <h3>Configuration</h3>
+ * <p>No configuration required for this generator.</p>
+ * 
+ * <h3>Parameters</h3>
+ * <p>No parameter needed for this generator.</p>
+ * 
+ * <h3>Returned XML</h3>
+ * <pre>{@code
+ *   <file name="[filename]"
+ *         path="[path_to_folder]"
+ *         type="file"
+ *         media-type="[media_type]"
+ *         length="[file_size]"
+ *         modified="[ISO8601_datetime]">
+ * }</pre>
+ *
+ * <p>For a folder:
+ * <pre>{@code
+ *   <file name="[filename]" path="[path_from_root]" type="folder">
+ *     <!-- for each file... -->
+ *     <file name="" ... />
+ *   </file>
+ * }</pre>
+ * 
+ * <p>If the file does not exist, 
+ * <pre>{@code
+ *   <file name="[filename]"
+ *         path="[path_to_folder]"
+ *         status="not-found">
+ * }</pre>
+ * 
+ * <h4>File attributes</h4>
+ * <ul>
+ *   <li><code>name</code>: the name of the file (including extension);</li>
+ *   <li><code>path</code>: the path from the root of the website;</li>
+ *   <li><code>type</code>: is either 'file' or 'folder';</li>
+ *   <li><code>length</code>: the full length of the file;</li>
+ *   <li><code>modified</code>: the last modified date and time of the file using ISO8601;</li>
+ *   <li><code>media-type</code>: the media type of the file based on the file extension as 
+ *   specified in Berlioz, if the file extension does not map to any media type returns
+ *   "application/octet-stream";</li>
+ *   <li><code>content-type</code>: same as media type (deprecated);</li>
+ *   <li><code>status</code> equals 'not-found</li>
+ * </ul>
+ * 
+ * <p>Since Version 0.6.1, this generator returns both the <code>media-type</code> and 
+ * <code>content-type</code> attributes. Use <code>media-type</code>.  
+ * 
+ * @since 0.5
  * 
  * @author Christophe Lauret 
  * @version 25 May 2010
  */
-public class GetFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable  {
+public final class GetFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable  {
 
   /**
    * Where the private files are.
@@ -82,7 +134,8 @@ public class GetFileInfo extends ContentGeneratorBase implements ContentGenerato
 
       } else {
         xml.attribute("type", "file");
-        xml.attribute("content-type", getMIME(f));
+        xml.attribute("content-type", getMediaType(f));
+        xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
         xml.attribute("modified", ISO8601Local.format(f.lastModified()));
       }
@@ -99,7 +152,7 @@ public class GetFileInfo extends ContentGeneratorBase implements ContentGenerato
    * @param f The file
    * @return the corresponding MIME type
    */
-  private String getMIME(File f) {
+  private String getMediaType(File f) {
     String mime = FileUtils.getMediaType(f);
     return (mime != null)? mime : "application/octet-stream";
   }

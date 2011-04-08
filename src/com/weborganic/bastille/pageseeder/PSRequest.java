@@ -22,6 +22,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * 
@@ -49,6 +50,11 @@ public final class PSRequest {
   private final Map<String, String> _parameters = new HashMap<String, String>();
 
   /**
+   * If specified, the request will be made on behalf of that user.
+   */
+  private PageSeederUser _user = null;
+
+  /**
    * Creates a new connection to the specified resource.
    * 
    * @param type     The type of resource.
@@ -57,6 +63,14 @@ public final class PSRequest {
   public PSRequest(PSResourceType type, String resource) {
     this._type = type;
     this._resource = resource;
+  }
+
+  /**
+   * Sets the user for this request.
+   * @param user the user for this request.
+   */
+  public void setUser(PageSeederUser user) {
+    this._user = user;
   }
 
   /**
@@ -75,6 +89,10 @@ public final class PSRequest {
       url.append(_resource);
     } else {
       url.append(_resource);
+    }
+    // If the session ID is available
+    if (this._user != null && this._user.getJSessionId() != null) {
+      url.append(';').append(this._user.getJSessionId());
     }
     url.append("?xformat=xml");
     for (Entry<String, String> p : this._parameters.entrySet()) {

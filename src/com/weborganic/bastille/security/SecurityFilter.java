@@ -16,19 +16,9 @@ import javax.servlet.http.HttpSession;
  * Filters request and check that the user has access to the underlying resource.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 8 April 2011
  */
-public class SecurityFilter implements Filter {
-
-  /**
-   * The URL to redirect to if the user is unauthorised.
-   */
-  private String unauthorized = null;
-
-  /**
-   * The URL to redirect to if the user is authorised but to .
-   */
-  private String forbidden = null;
+public final class SecurityFilter implements Filter {
 
   /**
    * Do nothing.
@@ -36,10 +26,6 @@ public class SecurityFilter implements Filter {
    * {@inheritDoc}
    */
   public void init(FilterConfig config) throws ServletException {
-    if (config != null) {
-      this.unauthorized = config.getInitParameter("unauthorized");
-      this.forbidden = config.getInitParameter("forbidden");
-    }
   }
 
   /**
@@ -48,8 +34,6 @@ public class SecurityFilter implements Filter {
    * {@inheritDoc}
    */
   public void destroy() {
-    this.unauthorized = null;
-    this.forbidden = null;
   }
 
   /**
@@ -58,33 +42,45 @@ public class SecurityFilter implements Filter {
    * {@inheritDoc}
    */
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    // Use HTTP specific requests.
+    doHttpFilter((HttpServletRequest)req, (HttpServletResponse)res, chain);
+  }
+
+  /**
+   * Does the filtering.
+   * 
+   * @param req   the HTTP servlet request
+   * @param res   the HTTP servlet response
+   * @param chain The filter chain
+   */
+  private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
 
     // Retrieve the user from the session
-    HttpSession session = ((HttpServletRequest)req).getSession(false);
-    Object o = session !=null? session.getAttribute(Constants.SESSION_USER_ATTRIBUTE) : null;
+    HttpSession session = req.getSession(true);
+    Object o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
 
     // The user is authenticated
     if (o instanceof User) {
 
-      // Get relevant URI.              
-      String URI = ((HttpServletRequest)req).getRequestURI();
+      // Get relevant URI.
+      String uri = req.getRequestURI();
 
-      // Invoke AuthorizationManager method to see if user can access resource.
-      boolean authorized = true;// authMgr.isUserAuthorized(currentUser, URI);
-      if (authorized) {
+      // Invoke Authorizer method to see if user can access resource.
+      Authorizer authorizer = LoggedInAuthorizer.getInstance();
+      AuthorizationResult result = authorizer.isUserAuthorized((User)o, uri);
+      if (result == AuthorizationResult.AUTHORIZED) {
         chain.doFilter(req, res);
       } else {
-        ((HttpServletResponse)res).sendError(HttpServletResponse.SC_FORBIDDEN);
+        res.sendError(HttpServletResponse.SC_FORBIDDEN);
       }
 
     // The user has not been authenticated yet
     } else {
-
-      session = ((HttpServletRequest)req).getSession(true);
-      session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, req);
-      ((HttpServletResponse)res).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+      session = req.getSession(true);
+      ProtectedRequest target = new ProtectedRequest(req.getRequestURL().toString());
+      session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
+      res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
   }
-
 }

@@ -15,30 +15,26 @@ import org.weborganic.berlioz.Beta;
 @Beta public interface Authenticator {
 
   /**
-   * @param req The user name
+   * Logs the specified user in.
    * 
-   * @return The corresponding user or <code>null</code>.
+   * <p>The servlet request must contain the details sufficient to login (eg. parameters, headers).
+   * 
+   * <p>Implementations should specify which details are required to login. 
+   * 
+   * @param req the HTTP Servlet Request that contains the details sufficient to login.
+   * 
+   * @return The result of this authentication process.
    * 
    * @throws IOException if any error occurs while trying to login.
    */
-  public boolean login(HttpServletRequest req) throws IOException;
+  public AuthenticationResult login(HttpServletRequest req) throws IOException;
 
   /**
    * Logs the specified user out.
    * 
-   * @return <code>true</code> if the logout request succeeded, <code>false</code> otherwise.
+   * @return The result of this authentication process..
    */
-  public boolean logout(HttpServletRequest req) throws IOException;
-
-  /**
-   * @param username The user name
-   * @param password the user password
-   * 
-   * @return The corresponding user or <code>null</code>.
-   * 
-   * @throws IOException if any error occurs while trying to login.
-   */
-  public User login(String username, String password) throws IOException;
+  public AuthenticationResult logout(HttpServletRequest req) throws IOException;
 
   /**
    * Logs the specified user out.

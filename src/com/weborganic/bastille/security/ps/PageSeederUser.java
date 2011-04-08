@@ -84,6 +84,13 @@ public final class PageSeederUser implements User, Serializable {
     return _email;
   }
 
+  /**
+   * @return same as username.
+   */
+  public String getName() {
+    return this._username;
+  }
+
   // Setters ======================================================================================
 
   public void setUsername(String _username) {

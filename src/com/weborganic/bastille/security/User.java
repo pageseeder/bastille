@@ -7,10 +7,17 @@ import com.topologi.diffx.xml.XMLWritable;
  * 
  * <p>To ease interoperability, the XML returned should match:
  * <pre>{@code <user type="[type]"> ... </user>}</pre>
+ *
+ * <p>All <code>User</code> implementations must be {@link java.io.Serializable}.
  * 
  * @author Christophe Lauret
  * @version 7 April 2011
  */
 public interface User extends XMLWritable {
+
+  /**
+   * @return the name of the user.
+   */
+  String getName();
 
 }

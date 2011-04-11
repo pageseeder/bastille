@@ -3,8 +3,10 @@ package com.weborganic.bastille.pageseeder;
 import org.weborganic.berlioz.Beta;
 
 /**
+ * Type for resource requested on PageSeeder used to simplify the creation of URLs.
  * 
- * @author Christophe Lauret 
+ * @author Christophe Lauret
+ * @version 11 April 2011
  */
 @Beta public enum PSResourceType {
 
@@ -17,16 +19,6 @@ import org.weborganic.berlioz.Beta;
    * A PageSeeder Service.
    */
   SERVICE,
-
-  /**
-   * A UI page (full page only).
-   */
-  PAGE,
-
-  /**
-   * A UI block.
-   */
-  BLOCK,
 
   /**
    * Another Resource.

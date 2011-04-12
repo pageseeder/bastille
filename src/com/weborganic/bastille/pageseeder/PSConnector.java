@@ -24,6 +24,7 @@ import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.xml.XMLCopy;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.topologi.diffx.xml.XMLWriterImpl;
@@ -39,10 +40,10 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * @author Christophe Lauret
  * @version 11 April 2011
  */
-public final class PSRequest {
+final class PSConnector {
 
   /** Logger for this class */
-  private static final Logger LOGGER = LoggerFactory.getLogger(PSRequest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PSConnector.class);
 
   /** Bastille version */
   private static final String BASTILLE_VERSION;
@@ -77,7 +78,7 @@ public final class PSRequest {
    * @param type     The type of resource.
    * @param resource The 
    */
-  public PSRequest(PSResourceType type, String resource) {
+  public PSConnector(PSResourceType type, String resource) {
     this._type = type;
     this._resource = resource;
   }
@@ -91,6 +92,16 @@ public final class PSRequest {
   }
 
   /**
+   * Add a parameter to this request.
+   * 
+   * @param name  The name of the parameter
+   * @param value The value of the parameter
+   */
+  public void addParameter(String name, String value) {
+    this._parameters.put(name, value);
+  }
+
+  /**
    * Returns the URL for this connection.
    * 
    * @return the URL for this connection.
@@ -101,9 +112,9 @@ public final class PSRequest {
     Properties pageseeder = GlobalSettings.getNode("bastille.pageseeder");
     // Start building the URL
     StringBuffer url = new StringBuffer();
-    url.append(pageseeder.getProperty("scheme",        "http")).append("://");
-    url.append(pageseeder.getProperty("host",          "localhost")).append(":");
-    url.append(pageseeder.getProperty("port",          "8080"));
+    url.append(pageseeder.getProperty("scheme", "http")).append("://");
+    url.append(pageseeder.getProperty("host",   "localhost")).append(":");
+    url.append(pageseeder.getProperty("port",   "8080"));
 
     // Decompose the resource (in case it contains a query or fragment part)
     String path  = getURLPath(this._resource);
@@ -112,7 +123,7 @@ public final class PSRequest {
 
     // Servlets
     if (this._type == PSResourceType.SERVLET) {
-      url.append(pageseeder.getProperty("servletprefix", "/ps/servlet"));
+      url.append(pageseeder.getProperty("servletprefix", "/ps/servlet")).append('/');
       url.append(path);
 
     // Services
@@ -147,7 +158,8 @@ public final class PSRequest {
       ex.printStackTrace();
     }
     // Fragment if any
-    url.append(frag);
+    if (frag != null)
+      url.append(frag);
     return new URL(url.toString());
   }
 
@@ -162,6 +174,23 @@ public final class PSRequest {
    *         <code>false</code> otherwise.
    */
   public boolean get(XMLWriter xml) throws IOException {
+    return get(xml, null);
+  }
+
+  /**
+   * Connect to PageSeeder and fetch the XML using the GET method. 
+   * 
+   * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
+   * 
+   * @param xml     the XML to copy from PageSeeder
+   * @param handler the handler for the XML (can be used to rewrite the XML) 
+   * 
+   * @throws IOException If an error occurs when trying to write the XML.
+   * 
+   * @return <code>true</code> if the request was processed without errors;
+   *         <code>false</code> otherwise.
+   */
+  public boolean get(XMLWriter xml, PSHandler handler) throws IOException {
 
     // Let's start
     xml.openElement("ps-"+this._type.toString().toLowerCase(), true);
@@ -201,10 +230,14 @@ public final class PSRequest {
 
         String contentType = connection.getContentType();
 
+        // Strip ";charset" declaration if any
+        if (contentType != null && contentType.indexOf(";charset=") > 0)
+          contentType = contentType.substring(0, contentType.indexOf(";charset="));
+
         // Return content is XML try to parse it
         if (isXML(contentType)) {
           xml.attribute("content-type", "application/xml");
-          ok = parseXML(connection, xml);
+          ok = parseXML(connection, xml, handler);
 
         // Text content
         } else if (contentType != null && contentType.startsWith("text/")) {
@@ -254,13 +287,14 @@ public final class PSRequest {
    * 
    * @param connection The HTTP URL connection.
    * @param xml        Where the final XML goes.
+   * @param handler    To transform the XML (optional).
    * 
    * @return <code>true</code> if the data was parsed without error;
    *         <code>false</code> otherwise.
    * 
    * @throws IOException If an error occurs while writing the XML.
    */
-  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml) throws IOException {
+  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, PSHandler handler) throws IOException {
     boolean ok = true;
 
     // Create an XML Buffer
@@ -268,7 +302,16 @@ public final class PSRequest {
     XMLWriter buffer = new XMLWriterImpl(w);
 
     // Parse with the XML Copy Handler
-    XMLCopy handler = new XMLCopy(buffer);
+    DefaultHandler h = null; 
+    if (handler != null) {
+      handler.setXMLWriter(xml);
+      h = handler;
+
+    // Parse with the XML Copy Handler
+    } else {
+      h = new XMLCopy(buffer);
+    }
+
     SAXParserFactory factory = SAXParserFactory.newInstance();
     factory.setValidating(false);
     factory.setNamespaceAware(false);
@@ -285,7 +328,7 @@ public final class PSRequest {
 
       // And parse!
       SAXParser parser = factory.newSAXParser();
-      parser.parse(source, handler);
+      parser.parse(source, h);
 
     } catch (IOException ex) {
       LOGGER.warn("Error while parsing XML data from URL", ex);
@@ -356,6 +399,8 @@ public final class PSRequest {
    * @param xml     The XML output.
    * @param error   The error code.
    * @param message The error message. 
+   * 
+   * @throws IOException If thrown while writing the XML.
    */
   private static void error(XMLWriter xml, String error, String message) throws IOException {
     xml.attribute("error", error);

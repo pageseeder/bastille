@@ -38,7 +38,7 @@ public final class GetMemberGroups implements ContentGenerator {
       // Setting up the request
       PageSeederUser user = (PageSeederUser)o;
       String url = "/members/"+user.id()+"/projects";
-      PSRequest tunnel = new PSRequest(PSResourceType.SERVICE, url);
+      PSConnector tunnel = new PSConnector(PSResourceType.SERVICE, url);
       tunnel.setUser(user);
 
       // Start Serialising as XML

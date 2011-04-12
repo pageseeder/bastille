@@ -1,6 +1,7 @@
 package com.weborganic.bastille.pageseeder;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpSession;
 
@@ -13,15 +14,18 @@ import com.weborganic.bastille.security.Constants;
 import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
- * A generator than can tunnel a request through to PageSeeder.
+ * A generator than can connect to a PageSeeder and call a servlet.
  * 
- * <p>Use this generator to connect to servlet, service, etc... when no other generator provides
+ * <p>Specify the service to call using the <code>ps-servlet</code> parameter. All other 
+ * parameters to this generator are transmitted to PageSeeder. 
+ * 
+ * <p>This is a generic generator; use this generator when no other specialised generator provides 
  * the same functionality. 
  * 
  * @author Christophe Lauret
- * @version 8 April 2011
+ * @version 12 April 2011
  */
-public final class TunnelGenerator implements ContentGenerator {
+public final class CallServlet implements ContentGenerator {
 
   /**
    * {@inheritDoc}
@@ -29,32 +33,30 @@ public final class TunnelGenerator implements ContentGenerator {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Determine what kind of request to make
-    String servlet = req.getParameter("servlet");
+    String servlet = req.getParameter("ps-servlet");
 
     // Create the request 
-    PSRequest tunnel = new PSRequest(PSResourceType.SERVLET, servlet);
+    PSConnector connector = new PSConnector(PSResourceType.SERVLET, servlet);
+
+    // Add parameters
+    Enumeration<String> names = req.getParameterNames();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      String value = req.getParameter(name);
+      if (!"ps-servlet".equals(name)) {
+        connector.addParameter(name, value);
+      }
+    }
 
     // Is the user logged in?
     HttpSession session = req.getSession();
     Object user = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
     if (user instanceof PageSeederUser) {
-      tunnel.setUser((PageSeederUser)user);
+      connector.setUser((PageSeederUser)user);
     }
 
-    // Start Serialising as XML
-    xml.openElement("tunnel", true);
-
-    // Resource
-    xml.openElement("resource");
-    xml.attribute("type", "servlet");
-    xml.attribute("name", servlet);
-    xml.closeElement();
-
     // Grab the XML form the PageSeeder request
-    tunnel.get(xml);
-
-    // Done!
-    xml.closeElement();
+    connector.get(xml);
   }
 
 }

@@ -40,7 +40,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * @author Christophe Lauret
  * @version 11 April 2011
  */
-final class PSConnector {
+public final class PSConnector {
 
   /** Logger for this class */
   private static final Logger LOGGER = LoggerFactory.getLogger(PSConnector.class);

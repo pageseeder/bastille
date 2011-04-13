@@ -50,7 +50,8 @@ public final class PageSeederUser implements User, Serializable {
   private String _jsessionid = null;
 
   /**
-   * Creates a new PageSeeder User
+   * Creates a new PageSeeder User.
+   * @param id the ID of the user in PageSeeder.
    */
   public PageSeederUser(Long id) {
     this._id = id;
@@ -65,21 +66,37 @@ public final class PageSeederUser implements User, Serializable {
 
   // Getters ======================================================================================
 
-  
+  /**
+   * @return the PageSeeder username for this user.
+   */
   public String getUsername() {
     return _username;
   }
 
-  public String getFirstname() {
-    return _firstname;
-  }
-  
+  /**
+   * @return the ID of this user session in PageSeeder (changes after each login) 
+   */
   public String getJSessionId() {
     return _jsessionid;
   }
+
+  /**
+   * @return the PageSeeder first name for this user.
+   */
+  public String getFirstname() {
+    return _firstname;
+  }
+
+  /**
+   * @return the PageSeeder surname for this user.
+   */
   public String getSurname() {
     return _surname;
   }
+
+  /**
+   * @return the PageSeeder email for this user.
+   */
   public String getEmail() {
     return _email;
   }
@@ -93,21 +110,39 @@ public final class PageSeederUser implements User, Serializable {
 
   // Setters ======================================================================================
 
-  public void setUsername(String _username) {
-    this._username = _username;
+  /**
+   * @param username the PageSeeder username for this user.
+   */
+  protected void setUsername(String username) {
+    this._username = username;
   }
 
-  public void setJSessionId(String _jsessionid) {
-    this._jsessionid = _jsessionid;
+  /**
+   * @param jsessionid the PageSeeder username for this user.
+   */
+  protected void setJSessionId(String jsessionid) {
+    this._jsessionid = jsessionid;
   }
-  public void setFirstname(String _firstname) {
-    this._firstname = _firstname;
+
+  /**
+   * @param firstname the PageSeeder username for this user.
+   */
+  protected void setFirstname(String firstname) {
+    this._firstname = firstname;
   }
-  public void setSurname(String _surname) {
-    this._surname = _surname;
+
+  /**
+   * @param surname the PageSeeder username for this user.
+   */
+  protected void setSurname(String surname) {
+    this._surname = surname;
   }
-  public void setEmail(String _email) {
-    this._email = _email;
+
+  /**
+   * @param email the PageSeeder username for this user.
+   */
+  protected void setEmail(String email) {
+    this._email = email;
   }
 
   // XML Writer ===================================================================================

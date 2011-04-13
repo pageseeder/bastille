@@ -27,20 +27,20 @@ import org.weborganic.berlioz.Beta;
    * 
    * @throws IOException if any error occurs while trying to login.
    */
-  public AuthenticationResult login(HttpServletRequest req) throws IOException;
+  AuthenticationResult login(HttpServletRequest req) throws IOException;
 
   /**
    * Logs the specified user out.
    * 
    * @return The result of this authentication process..
    */
-  public AuthenticationResult logout(HttpServletRequest req) throws IOException;
+  AuthenticationResult logout(HttpServletRequest req) throws IOException;
 
   /**
    * Logs the specified user out.
    * 
    * @return <code>true</code> if the logout request succeeded, <code>false</code> otherwise.
    */
-  public boolean logout(User user) throws IOException;
+  boolean logout(User user) throws IOException;
 
 }

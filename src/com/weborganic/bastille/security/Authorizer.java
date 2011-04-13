@@ -17,6 +17,6 @@ public interface Authorizer {
    * @return <code>true</code> is the user can access the resource;
    *         <code>false</code> otherwise.
    */
-  public AuthorizationResult isUserAuthorized(User user, String uri);
+  AuthorizationResult isUserAuthorized(User user, String uri);
 
 }

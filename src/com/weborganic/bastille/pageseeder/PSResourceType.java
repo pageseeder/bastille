@@ -21,7 +21,7 @@ import org.weborganic.berlioz.Beta;
   SERVICE,
 
   /**
-   * Another Resource.
+   * Any resource on PageSeeder.
    */
   RESOURCE
 

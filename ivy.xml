@@ -17,7 +17,7 @@
     <dependency org="javax"      name="servlet-api"  rev="2.4"    conf="default"/>
 
     <!-- Berlioz -->
-    <dependency org="weborganic" name="wo-berlioz"   rev="0.7.8+" conf="core"/>
+    <dependency org="weborganic" name="wo-berlioz"   rev="0.7.13+" conf="core"/>
     <dependency org="weborganic" name="wo-furi"      rev="0.8+"   conf="core"/>
     <dependency org="weborganic" name="wo-diffx"     rev="0.7+"   conf="core"/>
 

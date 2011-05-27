@@ -66,7 +66,7 @@ public final class TemplateFile {
       xml.writeText("Unable to read file: "+file.getName());
       LOGGER.debug("{} does not exist", file.getAbsolutePath());
     }
-    xml.closeElement();    
+    xml.closeElement();
   }
 
   /**

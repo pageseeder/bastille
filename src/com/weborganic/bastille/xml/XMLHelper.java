@@ -20,9 +20,9 @@ import net.sf.ehcache.CacheManager;
  * <p>Should not be public.
  * 
  * @author Christophe Lauret
- * @version 5 July 2010 
+ * @version 27 May 2011 
  */
-public class XMLHelper {
+public final class XMLHelper {
 
   /**
    * Name of the cache.
@@ -37,8 +37,9 @@ public class XMLHelper {
 
   /**
    * Initialises the cache.
+   * @return the Cache instance.
    */
-  public static final synchronized Cache initCache() {
+  public static synchronized Cache initCache() {
     // Create cache
     CacheManager manager = CacheManager.getInstance();
     // May have been created with another service.
@@ -50,7 +51,15 @@ public class XMLHelper {
   }
 
   /**
+   * Loads the specified XML file and returns it as a string.
    * 
+   * @param file   The file to load
+   * @param req    The content request to display the file in case of error.
+   * @param logger To log info on the correct logger. 
+   * 
+   * @return the content of the XML file.
+   * 
+   * @throws IOException If an error occurs while trying to read or write the XML. 
    */
   public static String load(File file, ContentRequest req, Logger logger) throws IOException {
     StringWriter w = new StringWriter();
@@ -68,7 +77,7 @@ public class XMLHelper {
     // The requested could not be found 
     } else {
       buffer.attribute("status", "not-found");
-      buffer.writeText("Unable to find file: "+req.getPathInfo());
+      buffer.writeText("Unable to find file: "+req.getBerliozPath()+".xml");
       logger.info("{} does not exist", file.getAbsolutePath());
     }
     buffer.closeElement();

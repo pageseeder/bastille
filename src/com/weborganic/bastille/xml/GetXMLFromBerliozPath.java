@@ -17,11 +17,14 @@ import org.weborganic.berlioz.content.ContentRequest;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * This generator returns the content of an XML file using the Berlioz servlet path info.
+ * This generator returns the content of an XML file using the Berlioz path.
  *
  * <p>For example, if the Berlioz servlet is mapped to '/html/*', 'html/Ping/pong' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder. 
+ * look for XML file 'Ping/pong.xml' in the XML folder.
  *
+ * <p>For example, if the Berlioz servlet is mapped to '*.html', 'Ping/pong.html' will try to
+ * look for XML file 'Ping/pong.xml' in the XML folder.
+ * 
  * <h3>Configuration</h3>
  * <p>The root XML folder can be configured globally using the Berlioz configuration:
  * <p>For example:
@@ -30,7 +33,7 @@ import com.topologi.diffx.xml.XMLWriter;
  *   <map/>
  *   <node name="xml">
  *     <map>
- *       <entry key="root"     value="xml/content"/>
+ *       <entry key="folder"     value="xml/content"/>
  *     </map>
  *   </node>
  * </node>
@@ -39,17 +42,17 @@ import com.topologi.diffx.xml.XMLWriter;
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
  * 
- * @since 0.5
+ * @since 0.6
  * 
  * @author Christophe Lauret
- * @version 5 July 2010
+ * @version 25 May 2011
  */
-public final class GetXMLFromPathInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public final class GetXMLFromBerliozPath extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLFromPathInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLFromBerliozPath.class);
 
   /**
    * Stores the XML.
@@ -62,9 +65,9 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
   public String getETag(ContentRequest req) {
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
-    String pathInfo = normalise(req.getPathInfo());
-    File file = new File(folder, pathInfo + ext);
-    return pathInfo+"__"+file.length()+"x"+file.lastModified();
+    String berliozPath = normalise(req.getBerliozPath());
+    File file = new File(folder, berliozPath + ext);
+    return berliozPath+"__"+file.length()+"x"+file.lastModified();
   }
 
   /**
@@ -77,17 +80,17 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
     if (this.cache == null) this.cache = XMLHelper.initCache();
 
     // Identify the file
-    String pathInfo = normalise(req.getPathInfo());
+    String berliozPath = normalise(req.getBerliozPath());
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
-    File file = new File(folder, pathInfo + ext);
+    File file = new File(folder, berliozPath + ext);
 
     // Grab the data
-    Element cached = this.cache.get(pathInfo);
+    Element cached = this.cache.get(berliozPath);
     String data = null;
     if (cached == null || cached.getLastUpdateTime() < file.lastModified()) {
       data = XMLHelper.load(file, req, LOGGER);
-      this.cache.put(new Element(pathInfo, data));
+      this.cache.put(new Element(berliozPath, data));
     } else {
       data = (String)cached.getObjectValue();
     }
@@ -101,12 +104,15 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
 
   /**
    * Filters and normalises the value in the path informations.
+   * 
+   * @param path The path to normalise.
+   * @return The same path without an '/' at the end. 
    */
-  private String normalise(String pathInfo) {
-    if (pathInfo.endsWith("/")) {
-      return pathInfo.substring(0, pathInfo.length()-1);
+  private String normalise(String path) {
+    if (path.endsWith("/")) {
+      return path.substring(0, path.length()-1);
     }
-    return pathInfo;
+    return path;
   }
 
 }

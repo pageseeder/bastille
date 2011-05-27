@@ -102,7 +102,7 @@ public class GetXMLFileInfo extends ContentGeneratorBase implements ContentGener
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLFromPathInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLFileInfo.class);
 
   /**
    * {@inheritDoc}

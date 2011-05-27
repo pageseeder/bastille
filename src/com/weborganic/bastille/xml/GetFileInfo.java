@@ -68,7 +68,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * </ul>
  * 
  * <p>Since Version 0.6.1, this generator returns both the <code>media-type</code> and 
- * <code>content-type</code> attributes. Use <code>media-type</code>.  
+ * <code>content-type</code> attributes. Use <code>media-type</code>.
  * 
  * @since 0.5
  * 
@@ -85,7 +85,7 @@ public final class GetFileInfo extends ContentGeneratorBase implements ContentGe
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetXMLFromPathInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetFileInfo.class);
 
   /**
    * {@inheritDoc}

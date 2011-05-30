@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import org.weborganic.berlioz.GlobalSettings;
-
 import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
@@ -116,7 +114,7 @@ public final class PSResource {
    * @throws MalformedURLException If the URL is not well-formed
    */
   public URL toURL(PageSeederUser user) throws MalformedURLException {
-    Properties pageseeder = GlobalSettings.getNode("bastille.pageseeder");
+    Properties pageseeder = PSConfiguration.getProperties();
 
     // Start building the URL
     StringBuffer url = new StringBuffer();

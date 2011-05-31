@@ -32,7 +32,7 @@ import com.weborganic.bastille.security.User;
  * An authenticator that uses PageSeeder to authenticate users.
  * 
  * @author Christophe Lauret
- * @version 8 April 2011
+ * @version 30 May 2011
  */
 public final class PageSeederAuthenticator implements Authenticator {
 
@@ -111,16 +111,16 @@ public final class PageSeederAuthenticator implements Authenticator {
   /**
    * Logins the user using their username and password. 
    * 
-   * @param username
-   * @param password
-   * @return
-   * @throws IOException
+   * @param username The username of the user to login
+   * @param password The password of the user to login
+   * @return The corresponding user or <code>null</code>
+   * @throws IOException Should any I/O error occurs while connecting to the server.
    */
-  public User login(String username, String password) throws IOException {
+  public static PageSeederUser login(String username, String password) throws IOException {
 
     // Set up the URL
     URL url = toLoginURL(username, password);
-    User user = null;
+    PageSeederUser user = null;
 
     // Create the connection
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -137,21 +137,26 @@ public final class PageSeederAuthenticator implements Authenticator {
     // Retrieve the content of the response
     int status = connection.getResponseCode();
 
-    if (status == 200) {
+    // If OK parse the response and get the user
+    if (status == HttpURLConnection.HTTP_OK) {
       InputStream is = connection.getInputStream();
       InputSource source = new InputSource(is);
       user = parse(source);
       is.close();
 
-    } else if (status >= 400 && status < 500) {
+    // If a client error occurs
+    } else if (status >= HttpURLConnection.HTTP_BAD_REQUEST
+            && status < HttpURLConnection.HTTP_INTERNAL_ERROR) {
       LOGGER.debug("PageSeeder returned {}: {}", status, connection.getResponseMessage());
+
+    // If a server error occurs
     } else {
       LOGGER.warn("PageSeeder returned {}: {}", status, connection.getResponseMessage());
       throw new IOException("Unable to connect to Remote PageSeeder Server");
     }
 
+    // Disconnect and return the user if there is one
     connection.disconnect();
-
     return user;
   }
 
@@ -160,6 +165,9 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     return false;
   }
+
+  // Private helpers
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * Returns the URL used to login to PageSeeder.
@@ -171,7 +179,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    * 
    * @throws MalformedURLException If the
    */
-  private URL toLoginURL(String username, String password) throws MalformedURLException {
+  private static URL toLoginURL(String username, String password) throws MalformedURLException {
     Properties pageseeder = GlobalSettings.getNode("bastille.pageseeder");
     StringBuffer url = new StringBuffer();
     url.append(pageseeder.getProperty("scheme",        "http")).append("://");
@@ -186,9 +194,10 @@ public final class PageSeederAuthenticator implements Authenticator {
   }
 
   /**
+   * Parse the XML returned by PageSeeder and return the corresponding user.
    * 
-   * @param is
-   * @return
+   * @param source the XML returned by the login servlet.
+   * @return the corresponding PageSeeder user.
    */
   private static PageSeederUser parse(InputSource source) throws IOException {
     PSUserHandler handler = new PSUserHandler();

@@ -14,16 +14,57 @@ import com.weborganic.bastille.security.Constants;
 import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
- * A generator than can connect to a PageSeeder and call a PageSeeder service.
+ * A generator than can connect to PageSeeder and call a PageSeeder service.
  * 
- * <p>Specify the service to call using the <code>ps-service</code> parameter. All other 
- * parameters to this generator are transmitted to PageSeeder. 
+ * <h3>Configuration</h3>
+ * <p>There is no configuration directly required with this generator; however since this generator
+ * connects to PageSeeder the <code>bastille.pageseeder</code> properties must setup in order
+ * to defined which server to connect to.</p>
  * 
+ * <h3>Parameters</h3>
+ * <p>The following parameter is required:</p>
+ * <table>
+ *   <tbody>
+ *   <tr><th>ps-service</th><td>The name of the service to connect to (required)</td></tr>
+ *   </tbody>
+ * </table>
+ * 
+ * <p>The following parameters can also be specified:</p>
+ * <table>
+ *   <tbody>
+ *   <tr><th>ps-method</th><td>The HTTP method to use to connect to PageSeeder, must be either
+ *   <code>GET</code>|</code>POST</code>; <code>GET</code> is the default is this parameter is not
+ *   specified
+ *   </td></tr>
+ *   </tbody>
+ * </table>
+ * <p>Any other parameter will automatically be transmitted to the PageSeeder service.
+ * 
+ * <h3>Returned XML</h3>
+ * <p>TODO</p>
+ * 
+ * <h4>Error handling</h4>
+ * <p>If an error occurs while invoking the service, the XML will also include the 
+ * <code>error</code> and <code>message</code> attributes. The HTTP status should 
+ * correspond to an HTTP error code.
+ * <pre>{@code <ps-service resource="/members/[member id]/projects" 
+ *         http-status="[error]"
+ *        content-type="application/xml"
+ *               error="[error-type]"
+ *             message="[error-message]">
+ * </ps-service>}</pre>
+ * 
+ * <h3>Permission</h3>
+ * <p>This generator will attempt to use the user currently logged in.
+ * <p>If the current user is not PageSeeder user or if there is no user currently logged in, the
+ * request will be made anonymously.
+ * 
+ * <h3>Usage</h3>
  * <p>This is a generic generator; use this generator when no other specialised generator provides 
  * the same functionality.
  * 
  * @author Christophe Lauret
- * @version 12 April 2011
+ * @version 3 June 2011
  */
 public final class CallService implements ContentGenerator {
 
@@ -35,7 +76,7 @@ public final class CallService implements ContentGenerator {
 
     // Determine what kind of request to make
     String service = req.getParameter("ps-service");
-    String method = req.getParameter("method", "GET");
+    String method = req.getParameter("ps-method", "GET");
 
     // Create the request
     PSConnector connector = new PSConnector(PSResourceType.SERVICE, service);

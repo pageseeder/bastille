@@ -30,10 +30,12 @@ public final class CallService implements ContentGenerator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Determine what kind of request to make
     String service = req.getParameter("ps-service");
+    String method = req.getParameter("method", "GET");
 
     // Create the request
     PSConnector connector = new PSConnector(PSResourceType.SERVICE, service);
@@ -56,7 +58,15 @@ public final class CallService implements ContentGenerator {
     }
 
     // Grab the XML form the PageSeeder request
-    connector.get(xml);
+    if (method.equalsIgnoreCase("GET")) {
+      connector.get(xml);
+    } else if (method.equalsIgnoreCase("POST")) {
+      connector.post(xml);
+    } else {
+      // default
+      connector.get(xml);
+    }
+
   }
 
 }

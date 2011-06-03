@@ -302,7 +302,7 @@ public final class PSConnection {
       int status = this._connection.getResponseCode();
       xml.attribute("http-status", status);
 
-      if (status == HttpURLConnection.HTTP_OK) {
+      if (status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_MULT_CHOICE) {
 
         String contentType = this._connection.getContentType();
 
@@ -338,7 +338,7 @@ public final class PSConnection {
       }
 
     } finally {
-      // Disconnect (???)
+      // TODO Disconnect (???)
       if (this._connection != null) this._connection.disconnect();
       xml.closeElement();
     }

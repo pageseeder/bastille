@@ -6,8 +6,15 @@ package com.weborganic.bastille.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Properties;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.GlobalSettings;
@@ -15,6 +22,7 @@ import org.weborganic.berlioz.util.MD5;
 import org.weborganic.berlioz.xml.XMLCopy;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.topologi.diffx.xml.XMLWriterImpl;
 
 /**
  * A utility class for templates files.
@@ -29,6 +37,11 @@ public final class TemplateFile {
    * Logger to use for this file
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateFile.class); 
+
+  /**
+   * The name of the cache.
+   */
+  private static final String CACHE_NAME = "XMLWebTemplates"; 
 
   /**
    * The template configuration.
@@ -61,9 +74,31 @@ public final class TemplateFile {
     // All good, print to the XML stream
     if (file.exists()) {
       xml.attribute("status", "ok");
-      boolean cache = GlobalSettings.get("berlioz.cache.xml", true);
-      XMLCopy.copyTo(file, xml);
-      LOGGER.debug("loaded {}", file.getAbsolutePath());
+      Cache cache = getCache();
+      Element element = cache.get(file.getAbsolutePath());
+      long version = file.lastModified();
+      String data = null;
+      if (element == null || element.getVersion() != version) {
+
+        // Read the file
+        LOGGER.debug("Loading Template File '{}' from file system", file.getName());
+        StringWriter w = new StringWriter();
+        XMLWriter buffer = new XMLWriterImpl(w);
+        XMLCopy.copyTo(file, buffer);
+        buffer.flush();
+        data = w.toString();
+
+        LOGGER.debug("Storing Template File data in Cache (version={})", version);
+        element = new Element(file.getAbsolutePath(), data, version);
+        cache.put(element);
+        element.setVersion(version);
+
+      } else {
+        LOGGER.debug("Retrieving Template File data from Cache (version={})", version);
+        data = (String)element.getObjectValue();
+      }
+
+      xml.writeXML(data);
 
     // The requested could not be found 
     } else {
@@ -121,15 +156,33 @@ public final class TemplateFile {
     File file = new File(GlobalSettings.getRepository(), "conf/template-config.prp");
     if (conf == null) conf = file;
     Properties p = new Properties();
+    FileInputStream in = null;
     try {
       LOGGER.info("Loading conf properties for template from {}", file.getAbsolutePath());
-      FileInputStream in = new FileInputStream(file); 
+      in = new FileInputStream(file); 
       p.load(in);
-      in.close();
     } catch (IOException ex) {
       LOGGER.warn("Unable to read conf properties for template: {}", ex.getLocalizedMessage());
+    } finally {
+      IOUtils.closeQuietly(in);
     }
     return p;
   }
 
+  /**
+   * Initialise the cache.
+   * 
+   * @return the cache for the template files.
+   */
+  private static synchronized Cache getCache() {
+    CacheManager manager = CacheManager.getInstance();
+    Cache cache = manager.getCache(CACHE_NAME);
+    if (cache == null) {
+      manager.addCache(CACHE_NAME);
+      cache = manager.getCache(CACHE_NAME);
+      CacheConfiguration config = cache.getCacheConfiguration();
+      config.setEternal(true);
+    }
+    return cache;
+  }
 }

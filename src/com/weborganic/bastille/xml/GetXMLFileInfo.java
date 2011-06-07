@@ -87,7 +87,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.5 - 23 May 2010
  * @since 0.6.0
  */
-public class GetXMLFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public final class GetXMLFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 
   /**
    * Filters XML files only.

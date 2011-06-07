@@ -10,8 +10,8 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.GlobalSettings;
+import org.weborganic.berlioz.util.MD5;
 import org.weborganic.berlioz.xml.XMLCopy;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -20,7 +20,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * A utility class for templates files.
  * 
  * @author Christophe Lauret
- * @version 0.6.5
+ * @version 0.6.8 - 7 June 2011
  * @since 0.6.0
  */
 public final class TemplateFile {
@@ -51,8 +51,10 @@ public final class TemplateFile {
    * 
    * @param xml  The XML writer the file should be written to.
    * @param file The file to write.
+   * 
+   * @throws IOException If Berlioz was unable to write on the XML writer.
    */
-  public static void write(XMLWriter xml, File file) throws BerliozException, IOException {
+  public static void write(XMLWriter xml, File file) throws IOException {
     xml.openElement("template-file");
     xml.attribute("name", file.getName());
 
@@ -66,7 +68,7 @@ public final class TemplateFile {
     // The requested could not be found 
     } else {
       xml.attribute("status", "not-found");
-      xml.writeText("Unable to read file: "+file.getName());
+      xml.writeText("Unable to find file: "+file.getName());
       LOGGER.debug("{} does not exist", file.getAbsolutePath());
     }
     xml.closeElement();
@@ -75,7 +77,7 @@ public final class TemplateFile {
   /**
    * Returns the template file.
    * 
-   * @param name   The name of the template file property.
+   * @param name   The name of the template file property ("header", "footer", etc...).
    * @param reload Whether to reload the configuration. 
    * 
    * @return the corresponding file.
@@ -94,11 +96,17 @@ public final class TemplateFile {
   /**
    * Returns the Etag for the given template file name.
    * 
+   * <p>The ETag is a weak etag based on the length and last modified date of both the config file
+   * and the actual file to load.
+   *
+   * @param name the name of the file property ("header", "footer", etc...)
+   * @param reload Whether to reload the configuration. 
+   * 
    * @return the Etag for the given template file name.
    */
   public static String getETag(String name, boolean reload) {
     File f = getFile(name, reload);
-    return conf.length() + "x" + conf.lastModified() + "|" + f.length() + "x" + f.lastModified();
+    return MD5.hash(conf.length() + "x" + conf.lastModified() + "|" + f.length() + "x" + f.lastModified());
   }
 
   // Private helpers
@@ -110,7 +118,6 @@ public final class TemplateFile {
    * @return Properties. Always.
    */
   private static Properties loadConf() {
-    // TODO use properties or prp extension instead
     File file = new File(GlobalSettings.getRepository(), "conf/template-config.prp");
     if (conf == null) conf = file;
     Properties p = new Properties();
@@ -119,8 +126,8 @@ public final class TemplateFile {
       FileInputStream in = new FileInputStream(file); 
       p.load(in);
       in.close();
-    } catch (Exception ex) {
-      LOGGER.warn("Unable to read conf properties for template", ex);
+    } catch (IOException ex) {
+      LOGGER.warn("Unable to read conf properties for template: {}", ex.getLocalizedMessage());
     }
     return p;
   }

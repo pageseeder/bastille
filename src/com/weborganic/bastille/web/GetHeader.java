@@ -22,7 +22,7 @@ import org.weborganic.berlioz.content.ContentGenerator;
  * <table>
  *   <tbody>
  *   <tr><th>reload-conf-properties</th><td>Reloads the properties where the path to the 
- *   website header, header and navigation is stored in case the website has been re-published
+ *   Website header, header and navigation is stored in case the Website has been re-published
  *   by PageSeeder.</td></tr>
  *   </tbody>
  * </table>
@@ -52,13 +52,17 @@ import org.weborganic.berlioz.content.ContentGenerator;
  * standard format.</p>
  *
  * <h4>Error handling</h4>
- * <p>TODO</pre>
+ * <p>If the file could not be found, the status will be <code>not-found</code>.
  *
  * <h3>Usage</h3>
  * <p>To use this generator in Berlioz (in <code>/WEB-INF/config/services.xml</code>):
  * <pre>{@code <generator class="com.weborganic.bastille.web.Getheader" 
  *            name="[name]" target="[target]"/>}</pre>
  * 
+ * <h3>ETag</h3>
+ * <p>The etag for this generator is a weak etag based on the XML file loaded as well as that of the
+ * Website properties configuration file <code>template-config.prp</code>.
+ *
  * @author Christophe Lauret
  * @version 0.6.5 - 25 May 2010
  * @since 0.6.0

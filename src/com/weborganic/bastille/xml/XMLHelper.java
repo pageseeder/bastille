@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -20,7 +23,8 @@ import net.sf.ehcache.CacheManager;
  * <p>Should not be public.
  * 
  * @author Christophe Lauret
- * @version 27 May 2011 
+ * @version 0.6.6 - 27 May 2011 
+ * @since 0.6.0
  */
 public final class XMLHelper {
 

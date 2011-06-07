@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -19,9 +22,10 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
  * A servlet to login.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2 - 7 April 2011
+ * @since 0.6.2
  */
-public class LoginServlet extends HttpServlet {
+public final class LoginServlet extends HttpServlet {
 
   /**
    * The logger.

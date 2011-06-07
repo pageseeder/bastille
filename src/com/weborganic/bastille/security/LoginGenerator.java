@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -16,9 +19,10 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
  * A generator to Login.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2 - 7 April 2011
+ * @since 0.6.2
  */
-@Beta public class LoginGenerator implements ContentGenerator {
+@Beta public final class LoginGenerator implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
@@ -39,7 +43,7 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
     }
 
     // Perform login
-    user = authenticator.login(username, password);
+    user = PageSeederAuthenticator.login(username, password);
     session.setAttribute(Constants.SESSION_USER_ATTRIBUTE, user);
 
     // XML
@@ -48,7 +52,7 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
       xml.attribute("status", "ok");
       user.toXML(xml);
     } else  {
-      xml.attribute("status", "ok");  
+      xml.attribute("status", "ok");
     }
     xml.closeElement();
 

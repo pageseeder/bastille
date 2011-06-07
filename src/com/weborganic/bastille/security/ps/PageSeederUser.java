@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security.ps;
 
 import java.io.IOException;
@@ -10,7 +13,8 @@ import com.weborganic.bastille.security.User;
  * Represents a PageSeeder User.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2 - 7 April 2011
+ * @since 0.6.2
  */
 public final class PageSeederUser implements User, Serializable {
 

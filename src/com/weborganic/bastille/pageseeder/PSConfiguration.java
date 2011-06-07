@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.util.Properties;
@@ -35,7 +38,8 @@ import org.weborganic.berlioz.GlobalSettings;
  * <p>For example: <code>GlobalSettings.get("bastille.pageseeder.host")</code>
  * 
  * @author Christophe Lauret
- * @version 30 May 2011
+ * @version 0.6.5 - 30 May 2011
+ * @since 0.6.5
  */
 public final class PSConfiguration {
 

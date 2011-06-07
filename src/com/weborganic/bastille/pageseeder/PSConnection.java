@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.io.DataOutputStream;
@@ -34,7 +37,8 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * Wraps an HTTP connection to PageSeeder.
  * 
  * @author Christophe Lauret
- * @version 30 May 2011
+ * @version 0.6.7 - 30 May 2011
+ * @since 0.6.7
  */
 public final class PSConnection {
 

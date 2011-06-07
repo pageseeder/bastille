@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -23,7 +26,8 @@ import com.weborganic.bastille.flint.helpers.IndexMaster;
  * <p>This is a simple and efficient generator that is most useful for use with autocomplete. 
  * 
  * @author Christophe Lauret 
- * @version 26 July 2010
+ * @version 0.6.0 - 26 July 2010
+ * @since 0.6.0
  */
 public final class GetFacets implements ContentGenerator, Cacheable {
 

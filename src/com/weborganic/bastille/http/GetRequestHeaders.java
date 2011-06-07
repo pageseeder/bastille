@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.http;
 
 import java.io.IOException;
@@ -55,7 +58,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * HTTP request.
  * 
  * @author Christophe Lauret
- * @version 31 May 2011
+ * @version 0.6.7 - 31 May 2011
+ * @since 0.6.3
  */
 public final class GetRequestHeaders implements ContentGenerator {
 

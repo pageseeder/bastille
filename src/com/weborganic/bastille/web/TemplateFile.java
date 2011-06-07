@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.web;
 
 import java.io.File;
@@ -17,8 +20,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * A utility class for templates files.
  * 
  * @author Christophe Lauret
- * 
- * @version 31 May 2010
+ * @version 0.6.5
+ * @since 0.6.0
  */
 public final class TemplateFile {
 

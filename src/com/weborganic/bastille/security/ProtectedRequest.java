@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.Serializable;
@@ -6,6 +9,8 @@ import java.io.Serializable;
  * A URL to save.
  * 
  * @author Christophe Lauret
+ * @version 0.6.2 - 12 April 2011
+ * @since 0.6.2
  */
 public final class ProtectedRequest implements Serializable {
 

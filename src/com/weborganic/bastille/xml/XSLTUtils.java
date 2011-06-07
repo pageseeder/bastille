@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.IOException;
@@ -21,7 +24,8 @@ import org.weborganic.berlioz.BerliozException;
  * A utility class to help with XSLT operations. 
  * 
  * @author Christophe Lauret 
- * @version 13 April 2011 
+ * @version 0.6.3 - 13 April 2011
+ * @since 0.6.0
  */
 public final class XSLTUtils {
 

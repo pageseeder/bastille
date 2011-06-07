@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
@@ -14,7 +17,8 @@ import org.weborganic.flint.Index;
  * Represents the local index. 
  * 
  * @author Christophe Lauret
- * @version 27 May 2010
+ * @version 0.6.0 - 27 May 2010
+ * @since 0.6.0 
  */
 public final class LocalIndex implements Index {
 

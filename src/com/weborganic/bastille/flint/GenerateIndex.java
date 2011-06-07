@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.File;
@@ -39,7 +42,8 @@ import com.weborganic.bastille.flint.helpers.IndexUpdateFilter.Action;
  * <p>Note: access to this is generator should be made secured in the Web descriptor.   
  * 
  * @author Christophe Lauret 
- * @version 26 July 2010
+ * @version 0.6.0 - 26 July 2010
+ * @since 0.6.0
  */
 public class GenerateIndex extends ContentGeneratorBase implements ContentGenerator  {
 

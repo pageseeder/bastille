@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -21,10 +24,11 @@ import org.weborganic.berlioz.content.Environment;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * Print some information about the index
+ * Print some information about the index.
  * 
  * @author Christophe Lauret 
- * @version 31 May 2010
+ * @version 0.6.0 - 31 May 2010
+ * @since 0.6.0
  */
 public class GetIndexStats extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 

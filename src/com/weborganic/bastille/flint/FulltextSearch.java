@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -22,6 +25,13 @@ import org.weborganic.flint.search.Facet;
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 
+/**
+ * TODO Javadoc.
+ * 
+ * @author Christophe Lauret
+ * @version 0.6.0 - 2 June 2010
+ * @since 0.6.0
+ */
 public class FulltextSearch extends ContentGeneratorBase implements ContentGenerator {
 
   /**

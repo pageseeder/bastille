@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -23,7 +26,8 @@ import com.weborganic.bastille.flint.helpers.IndexMaster;
  * Lookup the similar terms for the specified term.
  * 
  * @author Christophe Lauret 
- * @version 28 May 2010
+ * @version 0.6.0 - 28 May 2010
+ * @since 0.6.0
  */
 public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
 

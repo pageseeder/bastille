@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.IOException;
@@ -34,7 +37,8 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  * A content generator that can be used to get content from a URI template.
  * 
  * @author Christophe Lauret
- * @version 19 July 2010
+ * @version 0.6.0 - 19 July 2010
+ * @since 0.6.0
  */
 public class GetXMLFromURITemplate implements ContentGenerator {
 

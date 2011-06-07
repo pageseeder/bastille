@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
@@ -40,13 +43,14 @@ import org.weborganic.flint.util.Terms;
  * <p>This class defines a singleton which can be access using the {@link #getInstance()} method.
  * 
  * @author Christophe Lauret
- * @version 21 July 2010
+ * @version 0.6.0 - 21 July 2010
+ * @since 0.6.0
  */
 public final class IndexMaster {
 
   /** Logger for this class */
   private static Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
-  
+
   /**
    * The requester is always the index master.
    */

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -10,7 +13,8 @@ import org.weborganic.berlioz.Beta;
  * Must provide the login and logout mechanisms.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2 - 7 April 2011
+ * @since 0.6.2
  */
 @Beta public interface Authenticator {
 

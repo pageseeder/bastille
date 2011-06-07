@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -12,12 +15,11 @@ import org.weborganic.berlioz.content.Environment;
  * <p>This class is used to ensure that the same configuration options are used by all generators
  * in this package. 
  * 
- * @since 0.6.1
- * 
  * @author Christophe Lauret
- * @version 19 February 2011
+ * @version 0.6.1
+ * @since 0.6.1
  */
-final class XMLConfiguration {
+public final class XMLConfiguration {
 
   /** Utility class */
   private XMLConfiguration() {

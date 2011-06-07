@@ -1,9 +1,10 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.xml.transform.Templates;
 
@@ -46,7 +47,8 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * </pre>
  * 
  * @author Christophe Lauret
- * @version 30 May 2011
+ * @version 0.6.5 - 30 May 2011
+ * @since 0.6.3
  */
 public final class PSConnector {
 

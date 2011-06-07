@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
 
 import java.io.BufferedInputStream;
@@ -14,7 +17,8 @@ import org.weborganic.flint.content.DeleteRule;
  * Content sourced from a file.
  * 
  * @author Christophe Lauret
- * @version 2 June 2010
+ * @version 0.6.0 - 2 June 2010
+ * @since 0.6.0
  */
 public final class FileContent implements Content {
 

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import org.weborganic.berlioz.Beta;
@@ -13,7 +16,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * {@link #setOutput(XMLWriter)} method. This method is called before the handler starts parsing.
  * 
  * @author Christophe Lauret
- * @version 12 April 2011
+ * @version 0.6.2 - 12 April 2011
+ * @since 0.6.2
  */
 @Beta public abstract class PSHandler extends DefaultHandler implements ContentHandler {
 

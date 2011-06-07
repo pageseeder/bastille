@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -9,14 +12,17 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.pageseeder.PSConnected;
 import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
 
 /**
  * A generator to Logout.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2 - 7 April 2011
+ * @since 0.6.2
  */
+@PSConnected
 public class LogoutGenerator implements ContentGenerator {
 
   @Override

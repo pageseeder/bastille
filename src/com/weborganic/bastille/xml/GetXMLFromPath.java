@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -30,7 +33,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * 
  * 
  * @author Christophe Lauret
- * @version 5 July 2010
+ * @version 0.6.0 - 5 July 2010
+ * @since 0.6.0
  */
 public final class GetXMLFromPath extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.io.IOException;
@@ -64,8 +67,10 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * the same functionality.
  * 
  * @author Christophe Lauret
- * @version 3 June 2011
+ * @version 0.6.7 - 3 June 2011
+ * @since 0.6.3
  */
+@PSConnected 
 public final class CallServlet implements ContentGenerator {
 
   /**

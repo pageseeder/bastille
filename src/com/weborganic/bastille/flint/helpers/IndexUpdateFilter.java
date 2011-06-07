@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
@@ -13,7 +16,8 @@ import java.util.Map.Entry;
  * Filter to only select files that have been modified since a specified date.
  * 
  * @author Christophe Lauret
- * @version 2 June 2010
+ * @version 0.6.0 - 2 June 2010
+ * @since 0.6.0
  */
 public final class IndexUpdateFilter implements FileFilter {
 

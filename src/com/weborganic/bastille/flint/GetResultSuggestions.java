@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -15,7 +18,6 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchResults;
-import org.weborganic.flint.util.Beta;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
@@ -31,7 +33,8 @@ import com.weborganic.bastille.flint.helpers.IndexMaster;
  * </ul>
  * 
  * @author Christophe Lauret
- * @version 26 July 2010
+ * @version 0.6.0 - 26 July 2010
+ * @since 0.6.0
  */
 public class GetResultSuggestions implements ContentGenerator, Cacheable {
 

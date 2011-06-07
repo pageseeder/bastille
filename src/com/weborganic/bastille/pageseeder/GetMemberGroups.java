@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.io.IOException;
@@ -83,8 +86,10 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  *            name="[name]" target="[target]"/>}</pre>
  * 
  * @author Christophe Lauret
- * @version 11 April 2011
+ * @version 0.6.2 - 11 April 2011
+ * @since 0.6.2
  */
+@PSConnected(login = true)
 public final class GetMemberGroups implements ContentGenerator {
 
   /**

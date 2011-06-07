@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.web;
 
 import java.io.File;
@@ -17,7 +20,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * <p>It is designed to be used as a base class, it cannot be instantiated without arguments.
  * 
  * @author Christophe Lauret
- * @version 31 May 2010
+ * @version 0.6.0 - 31 May 2010
+ * @since 0.6.0
  */
 public abstract class GetTemplateFile extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 

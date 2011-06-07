@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint;
 
 import java.io.IOException;
@@ -19,6 +22,13 @@ import org.weborganic.flint.query.TermParameter;
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 
+/**
+ * TODO Javadoc.
+ * 
+ * @author Christophe Lauret
+ * @version 0.6.0 - 2 June 2010
+ * @since 0.6.0
+ */
 public class WildcardSearch extends ContentGeneratorBase implements ContentGenerator {
 
   /**
@@ -26,6 +36,9 @@ public class WildcardSearch extends ContentGeneratorBase implements ContentGener
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(WildcardSearch.class);
 
+  /**
+   * {@inheritDoc}
+   */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     final Environment env = req.getEnvironment();

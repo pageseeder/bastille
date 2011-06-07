@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security.ps;
 
 import java.io.IOException;
@@ -32,7 +35,8 @@ import com.weborganic.bastille.security.User;
  * An authenticator that uses PageSeeder to authenticate users.
  * 
  * @author Christophe Lauret
- * @version 30 May 2011
+ * @version 0.6.5 - 30 May 2011
+ * @since 0.6.2
  */
 public final class PageSeederAuthenticator implements Authenticator {
 
@@ -198,6 +202,8 @@ public final class PageSeederAuthenticator implements Authenticator {
    * 
    * @param source the XML returned by the login servlet.
    * @return the corresponding PageSeeder user.
+   * 
+   * @throws IOException If thrown by the parser.
    */
   private static PageSeederUser parse(InputSource source) throws IOException {
     PSUserHandler handler = new PSUserHandler();
@@ -237,18 +243,29 @@ public final class PageSeederAuthenticator implements Authenticator {
    */
   private static class PSUserHandler extends DefaultHandler {
 
+    /** Member element */
     private static final String MEMBER = "mem";
+    /** Member's ID element */
     private static final String ID = "id";
+    /** Member's surname element */
     private static final String SURNAME = "surname";
+    /** Member's username element */
     private static final String USERNAME = "username";
+    /** Member's first name element */
     private static final String FIRSTNAME = "firstname";
+    /** Member's email element */
     private static final String EMAIL = "memberemail";
+    /** Member's JSession ID element */
     private static final String JSESSIONID = "wo-jsessionid";
 
+    /** State variable to indicate whether we are within the Member element */
     private boolean inMem = false;
+    /** State variable to indicate whether to record character data in the buffer */
     private boolean record = false;
+    /** A buffer for character data */
     private StringBuffer buffer = new StringBuffer();
-    private Map<String,String> map = new HashMap<String,String>();
+    /** Stores the member's information */
+    private Map<String, String> map = new HashMap<String, String>();
 
     /**
      * {@inheritDoc}

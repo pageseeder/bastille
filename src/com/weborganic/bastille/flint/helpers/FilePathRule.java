@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
@@ -19,7 +22,8 @@ import org.weborganic.flint.util.Beta;
  * - public: any file directly accessible via the Web
  * 
  * @author Christophe Lauret 
- * @version 30 July 2010
+ * @version 0.6.0 - 30 July 2010
+ * @since 0.6.0
  */
 @Beta public final class FilePathRule {
 

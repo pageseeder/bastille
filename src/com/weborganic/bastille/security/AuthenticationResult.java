@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 /**
  * An enumeration for the results of authentication methods such as login and logout. 
  * 
  * @author Christophe Lauret
- * @version 8 April 2011
+ * @version 0.6.2 - 8 April 2011
+ * @since 0.6.2
  */
 public enum AuthenticationResult {
 

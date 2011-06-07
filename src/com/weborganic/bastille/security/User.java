@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import com.topologi.diffx.xml.XMLWritable;
@@ -11,7 +14,8 @@ import com.topologi.diffx.xml.XMLWritable;
  * <p>All <code>User</code> implementations must be {@link java.io.Serializable}.
  * 
  * @author Christophe Lauret
- * @version 7 April 2011
+ * @version 0.6.2
+ * @since 0.6.2
  */
 public interface User extends XMLWritable {
 

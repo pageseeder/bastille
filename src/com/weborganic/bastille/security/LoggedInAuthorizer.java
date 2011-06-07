@@ -1,17 +1,21 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 /**
  * An authorizer which only requires the user to be logged in.
  * 
  * @author Christophe Lauret
- * @version 8 April 2011
+ * @version 0.6.2 - 8 April 2011
+ * @since 0.6.2
  */
 public final class LoggedInAuthorizer implements Authorizer {
 
   /**
    * The singleton instance.
    */
-  private final static LoggedInAuthorizer SINGLETON = new LoggedInAuthorizer();
+  private static final LoggedInAuthorizer SINGLETON = new LoggedInAuthorizer();
 
   /**
    * No need to allow creation of this class. 

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import java.io.UnsupportedEncodingException;
@@ -16,7 +19,8 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * Defines a resource to retrieve from PageSeeder.
  * 
  * @author Christophe Lauret
- * @version 13 April 2011
+ * @version 0.6.3 - 13 April 2011
+ * @since 0.6.2
  */
 public final class PSResource {
 

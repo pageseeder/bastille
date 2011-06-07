@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -70,10 +73,9 @@ import com.topologi.diffx.xml.XMLWriter;
  * <p>Since Version 0.6.1, this generator returns both the <code>media-type</code> and 
  * <code>content-type</code> attributes. Use <code>media-type</code>.
  * 
- * @since 0.5
- * 
  * @author Christophe Lauret 
- * @version 25 May 2010
+ * @version 0.6.5 - 25 May 2010
+ * @since 0.6.0
  */
 public final class GetFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable  {
 

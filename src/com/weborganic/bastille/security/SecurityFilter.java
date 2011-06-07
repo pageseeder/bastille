@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -16,7 +19,8 @@ import javax.servlet.http.HttpSession;
  * Filters request and check that the user has access to the underlying resource.
  * 
  * @author Christophe Lauret
- * @version 8 April 2011
+ * @version 0.6.2 - 8 April 2011
+ * @since 0.6.2
  */
 public final class SecurityFilter implements Filter {
 
@@ -41,7 +45,8 @@ public final class SecurityFilter implements Filter {
    * 
    * {@inheritDoc}
    */
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) 
+     throws IOException, ServletException {
     // Use HTTP specific requests.
     doHttpFilter((HttpServletRequest)req, (HttpServletResponse)res, chain);
   }
@@ -53,7 +58,8 @@ public final class SecurityFilter implements Filter {
    * @param res   the HTTP servlet response
    * @param chain The filter chain
    */
-  private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+  private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) 
+     throws IOException, ServletException {
 
     // Retrieve the user from the session
     HttpSession session = req.getSession(true);

@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2011 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -42,10 +45,9 @@ import com.topologi.diffx.xml.XMLWriter;
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
  * 
- * @since 0.6
- * 
  * @author Christophe Lauret
- * @version 25 May 2011
+ * @version 0.6.5 - 25 May 2011
+ * @since 0.6.0
  */
 public final class GetXMLFromBerliozPath extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 

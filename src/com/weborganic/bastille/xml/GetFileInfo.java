@@ -6,7 +6,6 @@ package com.weborganic.bastille.xml;
 import java.io.File;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,8 @@ import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.util.FileUtils;
+import org.weborganic.berlioz.util.ISO8601;
+import org.weborganic.berlioz.util.MD5;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -74,7 +75,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * <code>content-type</code> attributes. Use <code>media-type</code>.
  * 
  * @author Christophe Lauret 
- * @version 0.6.5 - 25 May 2010
+ * @version 0.6.8 - 7 June 2011
  * @since 0.6.0
  */
 public final class GetFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable  {
@@ -90,12 +91,14 @@ public final class GetFileInfo extends ContentGeneratorBase implements ContentGe
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFileInfo.class);
 
   /**
+   * Returns a weak Etag based on the file path, length and last modified date.
+   * 
    * {@inheritDoc}
    */
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
     File file = env.getPublicFile(req.getPathInfo());
-    return req.getPathInfo()+"_"+file.length()+"x"+file.lastModified();
+    return MD5.hash(req.getPathInfo()+"_"+file.length()+"x"+file.lastModified());
   }
 
   /**
@@ -126,7 +129,6 @@ public final class GetFileInfo extends ContentGeneratorBase implements ContentGe
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(this.folder, f));
     if (f.exists()) {
-      SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
@@ -139,7 +141,7 @@ public final class GetFileInfo extends ContentGeneratorBase implements ContentGe
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", ISO8601Local.format(f.lastModified()));
+        xml.attribute("modified", ISO8601.format(f.lastModified(), ISO8601.DATETIME));
       }
 
     } else {
@@ -149,7 +151,9 @@ public final class GetFileInfo extends ContentGeneratorBase implements ContentGe
   }
 
   /**
-   * Returns the MIME type of the given file based on the global MIME properties
+   * Returns the MIME type of the given file based on the global MIME properties.
+   * 
+   * <p>Falls back on <code>"application/octet-stream"</code> if the MIME type is unknown.
    * 
    * @param f The file
    * @return the corresponding MIME type

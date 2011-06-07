@@ -51,7 +51,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * <h4>Error handling</h4>
  * <p>If an error occurs while invoking the service, the XML will also include the 
  * <code>error</code> and <code>message</code> attributes. The HTTP status should 
- * correspond to an HTTP error code.  
+ * correspond to an HTTP error code.
  * <pre>{@code <ps-service resource="/members/[member id]/projects" 
  *         http-status="[error]"
  *        content-type="application/xml"

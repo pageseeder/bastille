@@ -35,9 +35,9 @@ public final class FileContentId implements ContentId {
    * 
    * @param file The file to index.
    */
-  public FileContentId(File f) {
-    this._id = toID(f);
-    this._file = f;
+  public FileContentId(File file) {
+    this._id = toID(file);
+    this._file = file;
   }
 
   /**

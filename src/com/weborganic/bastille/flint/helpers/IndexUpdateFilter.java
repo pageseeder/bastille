@@ -53,12 +53,13 @@ public final class IndexUpdateFilter implements FileFilter {
   /**
    * Creates a new filter.
    * 
-   * @param since The date form which files are included.
+   * @param since   The date form which files are included.
+   * @param indexed The list of files to process. 
    */
   public IndexUpdateFilter(long since, List<File> indexed) throws IOException {
     this._since = since;
     System.err.println("INIT FILTER: ! "+indexed.size());
-    for (File i : indexed){
+    for (File i : indexed) {
       String path = i.getCanonicalPath();
       System.err.println("INIT FILTER: "+path);
       this._files.put(path, i);
@@ -79,7 +80,7 @@ public final class IndexUpdateFilter implements FileFilter {
         if (f.lastModified() > this._since) {
           this._actions.put(canonical, Action.UPDATE);
         } else {
-          this._actions.put(canonical, Action.IGNORE);          
+          this._actions.put(canonical, Action.IGNORE);
         }
 
       // A new file: register and INSERT

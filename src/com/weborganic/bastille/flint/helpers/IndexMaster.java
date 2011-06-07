@@ -16,8 +16,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.weborganic.flint.FlintTranslatorFactory;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
@@ -47,9 +45,6 @@ import org.weborganic.flint.util.Terms;
  * @since 0.6.0
  */
 public final class IndexMaster {
-
-  /** Logger for this class */
-  private static Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
 
   /**
    * The requester is always the index master.
@@ -96,6 +91,9 @@ public final class IndexMaster {
 
   /**
    * Indicates whether the underlying index manager has been setup.
+   * 
+   * @return <code>true</code> if the manager was setup;
+   *         <code>false</code> otherwise.
    */
   public boolean isSetup() {
     return this.manager != null;
@@ -142,7 +140,7 @@ public final class IndexMaster {
 
   /**
    * Returns the index instance this class operates on.
-   *  
+   *
    * @return the index instance this class operates on.
    */
   public Index index() {
@@ -151,7 +149,7 @@ public final class IndexMaster {
 
   /**
    * Returns the index config this class operates on.
-   *  
+   *
    * @return the index config this class operates on.
    */
   public IndexConfig config() {
@@ -160,7 +158,7 @@ public final class IndexMaster {
 
   /**
    * Returns the underlying Index Manager.
-   *  
+   *
    * @return the underlying Index Manager.
    */
   public IndexManager manager() {
@@ -173,7 +171,7 @@ public final class IndexMaster {
    * @param file       The file to index.
    * @param parameters The parameters to pass to the stylesheet.
    */
-  public void index(File file, Map<String, String> parameters ) {
+  public void index(File file, Map<String, String> parameters) {
     ContentId cid = new FileContentId(file);
     this.lastModified = System.currentTimeMillis();
     this.manager.index(cid, this.index, this.config, REQUESTER, Priority.HIGH, parameters);
@@ -336,8 +334,6 @@ public final class IndexMaster {
    * 
    * <p>Provided for convenience when used inside a <code>finally</code> block.
    * 
-   * @param db     Database (only needed in case an instance needs to be created)  
-   * @param group  Group indexed.
    * @param reader The Lucene index reader to release.
    */
   public void releaseSilently(IndexReader reader) {

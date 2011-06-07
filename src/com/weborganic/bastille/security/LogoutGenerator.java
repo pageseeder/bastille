@@ -19,11 +19,11 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
  * A generator to Logout.
  * 
  * @author Christophe Lauret
- * @version 0.6.2 - 7 April 2011
+ * @version 0.6.8 - 7 June 2011
  * @since 0.6.2
  */
 @PSConnected
-public class LogoutGenerator implements ContentGenerator {
+public final class LogoutGenerator implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {

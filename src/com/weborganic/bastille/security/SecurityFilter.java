@@ -57,6 +57,9 @@ public final class SecurityFilter implements Filter {
    * @param req   the HTTP servlet request
    * @param res   the HTTP servlet response
    * @param chain The filter chain
+   * 
+   * @throws IOException      If thrown by any of the underlying filters or servlets.
+   * @throws ServletException If thrown by any of the underlying filters or servlets.
    */
   private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) 
      throws IOException, ServletException {

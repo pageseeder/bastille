@@ -16,7 +16,7 @@ import org.weborganic.berlioz.content.Environment;
  * in this package. 
  * 
  * @author Christophe Lauret
- * @version 0.6.1
+ * @version 0.6.8 - 8 June 2011
  * @since 0.6.1
  */
 public final class XMLConfiguration {

@@ -81,6 +81,7 @@ public final class XMLHelper {
     // The requested could not be found 
     } else {
       buffer.attribute("status", "not-found");
+      // TODO FIX error message
       buffer.writeText("Unable to find file: "+req.getBerliozPath()+".xml");
       logger.info("{} does not exist", file.getAbsolutePath());
     }

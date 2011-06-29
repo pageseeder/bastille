@@ -13,7 +13,6 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
-import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentGeneratorBase;
@@ -33,7 +32,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * 
  * 
  * @author Christophe Lauret
- * @version 0.6.0 - 5 July 2010
+ * @version 0.6.8 - 29 June 2011
  * @since 0.6.0
  */
 public final class GetXMLFromPath extends ContentGeneratorBase implements ContentGenerator, Cacheable {
@@ -52,32 +51,36 @@ public final class GetXMLFromPath extends ContentGeneratorBase implements Conten
    * {@inheritDoc}
    */
   public String getETag(ContentRequest req) {
-    File folder = new File(GlobalSettings.getRepository(), "xml");
-    String pathInfo = normalise(req.getPathInfo());
-    File file = new File(folder, pathInfo+".xml");
-    return pathInfo+"__"+file.length()+"x"+file.lastModified();
+    String path = req.getParameter("path");
+    if (path == null) return null;
+    File folder = XMLConfiguration.getXMLRootFolder(req);
+    String ext = XMLConfiguration.getXMLExtension(req);
+    File file = new File(folder, path + ext);
+    return path+"__"+file.length()+"x"+file.lastModified();
   }
 
   /**
    * {@inheritDoc}
    */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    LOGGER.debug(req.getPathInfo());
+    String path = req.getParameter("path");
+    if (path == null) throw new BerliozException("Path parameter is missing");
 
     // Setup the cache
     if (this.cache == null) this.cache = XMLHelper.initCache();
 
     // Identify the file
-    String pathInfo = normalise(req.getPathInfo());
-    File folder = new File(GlobalSettings.getRepository(), req.getParameter("folder", "xml"));
-    File file = new File(folder, pathInfo+".xml");
+    path = normalise(path);
+    File folder = XMLConfiguration.getXMLRootFolder(req);
+    String ext = XMLConfiguration.getXMLExtension(req);
+    File file = new File(folder, path + ext);
 
     // Grab the data
-    Element cached = this.cache.get(pathInfo);
+    Element cached = this.cache.get(path);
     String data = null;
     if (cached == null || cached.getLastUpdateTime() < file.lastModified()) {
       data = XMLHelper.load(file, req, LOGGER);
-      this.cache.put(new Element(pathInfo, data));
+      this.cache.put(new Element(path, data));
     } else {
       data = (String)cached.getObjectValue();
     }

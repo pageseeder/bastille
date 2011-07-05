@@ -18,6 +18,7 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchResults;
+import org.weborganic.flint.util.Documents;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
@@ -99,7 +100,9 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
 
   /**
    * Tokenizes the terms and returns a list of terms.
+   * 
    * @param terms the untokenised string.
+   * 
    * @return the list of terms
    */
   private List<String> asList(String terms, String regex) {
@@ -107,43 +110,19 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
     return Arrays.asList(t.split(regex));
   }
 
-  
   /**
    * Returns the XML for a document.
+   * 
+   * @deprecated New part of Flint in {@link Documents#toXML(XMLWriter, Document)}/
    * 
    * @param xml The XML writer.
    * @param doc Lucene document to serialise as XML.
    * 
    * @throws IOException Any I/O error thrown by the XML writer.
    */
+  @Deprecated
   public static void toXML(XMLWriter xml, Document doc) throws IOException {
-    // TODO Will be part of Flint 1.6.2
-    xml.openElement("document", true);
-    // display the value of each field
-    for (Fieldable f : doc.getFields()) {
-      String value = f.stringValue();
-      // is it a compressed field?
-      if (value == null && f.getBinaryLength() > 0) {
-        try {
-          value = CompressionTools.decompressString(f.getBinaryValue());
-        } catch (DataFormatException ex) {
-//            LOGGER.warn("Failed to decompress field value", ex);
-          continue;
-        }
-      }
-      // TODO: date formatting
-
-      // unnecessary to return the full value of long fields
-      if (value.length() < 100) {
-        xml.openElement("field");
-        xml.attribute("name", f.name());
-        xml.writeText(value);
-        xml.closeElement();
-      }
-    }
-    // close 'document'
-    xml.closeElement();
+    Documents.toXML(xml, doc);
   }
 
-  
 }

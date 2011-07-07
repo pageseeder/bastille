@@ -23,7 +23,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * This generator returns the content of an XML file using the Berlioz servlet path info.
  *
  * <p>For example, if the Berlioz servlet is mapped to '/html/*', 'html/Ping/pong' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder. 
+ * look for XML file 'Ping/pong.xml' in the XML folder.
  *
  * <h3>Configuration</h3>
  * <p>The root XML folder can be configured globally using the Berlioz configuration:
@@ -61,6 +61,7 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getETag(ContentRequest req) {
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
@@ -72,6 +73,7 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     LOGGER.debug(req.getPathInfo());
 
@@ -105,7 +107,7 @@ public final class GetXMLFromPathInfo extends ContentGeneratorBase implements Co
    * Filters and normalises the value in the path informations.
    */
   private String normalise(String pathInfo) {
-    if (pathInfo.endsWith("/")) {
+    if (pathInfo!=null && pathInfo.endsWith("/")) {
       return pathInfo.substring(0, pathInfo.length()-1);
     }
     return pathInfo;

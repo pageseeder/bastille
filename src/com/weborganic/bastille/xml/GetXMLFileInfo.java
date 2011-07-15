@@ -115,7 +115,7 @@ public final class GetXMLFileInfo extends ContentGeneratorBase implements Conten
     if (this.folder == null) {
       this.folder = XMLConfiguration.getXMLRootFolder(req);
     }
-    File file = new File(this.folder, req.getPathInfo());
+    File file = new File(this.folder, req.getParameter("path", req.getPathInfo()));
     return req.getPathInfo()+"_"+file.length()+"x"+file.lastModified();
   }
 

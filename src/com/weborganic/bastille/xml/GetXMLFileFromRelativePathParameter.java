@@ -29,6 +29,16 @@ import com.topologi.diffx.xml.XMLWriter;
  * <p>Use the element <code>parameter<code> to define <code>relative-path</code> in server.xml. </p>
  * 
  * 
+ * <p>Sample Berlioz config:</p>
+ * <pre>
+ * {@code
+ *   <generator class="com.weborganic.bastille.xml.GetXMLFileFromRelativePathParameter" name="navigation" target="navigation">
+ *     <parameter name="relative-path" value="config/navigation.xml" />
+ *   </generator>
+ * }
+ * </pre>
+ * 
+ * 
  * @author Christophe Lauret
  * @author Ciber Cai
  * @version 8 July 2011

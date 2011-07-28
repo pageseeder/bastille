@@ -34,7 +34,7 @@ import com.weborganic.bastille.pageseeder.PSResourceType;
  * <node name="pageseeder">
  *   <map>
  *     <entry key="scheme" value="http" />
- *     <entry key="host" value="remotephcmanuals.pageseeder.com" />
+ *     <entry key="host" value="www.pageseeder.com" />
  *     <entry key="port" value="80" />
  *     <entry key="siteprefix" value="/ps" />
  *     <entry key="servletprefix" value="/ps/servlet" />

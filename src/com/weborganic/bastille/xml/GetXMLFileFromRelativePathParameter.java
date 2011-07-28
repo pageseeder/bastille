@@ -26,7 +26,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * <li><code>relative-path</code>: The request relative path.</li>
  * </ul>
  * 
- * <p>Use the element <code>parameter<code> to define <code>relative-path</code> in server.xml. </p>
+ * <p>Use the element <code>parameter</code> to define <code>relative-path</code> in server.xml. </p>
  * 
  * 
  * <p>Sample Berlioz config:</p>

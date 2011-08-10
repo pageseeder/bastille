@@ -85,8 +85,10 @@ public final class SecurityFilter implements Filter {
 
     // The user has not been authenticated yet
     } else {
-      session = req.getSession(true);
-      ProtectedRequest target = new ProtectedRequest(req.getRequestURL().toString());
+      String url  = req.getRequestURI();
+      String query = req.getQueryString();
+      if (query != null) url = url + '?' +query;
+      ProtectedRequest target = new ProtectedRequest(url);
       session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
       res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }

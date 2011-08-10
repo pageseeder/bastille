@@ -126,6 +126,8 @@ public final class PSConnection {
    * 
    * @param part     The encoding to specify in the Part's header
    * @param headers A list of headers added to this XML Part ('content-type' header is ignored)
+   * 
+   * @throws IOException Should any error occur while writing
    */
   public void addXMLPart(String part, Map<String, String> headers) throws IOException {
     if (this.out == null) {
@@ -148,9 +150,9 @@ public final class PSConnection {
       IOUtils.write(part, this.out, UTF8);
       IOUtils.write("\r\n", this.out, UTF8);
 
-    } catch (IOException e) {
+    } catch (IOException ex) {
       this._connection.disconnect();
-      throw e;
+      throw ex;
     }
   }
 
@@ -240,7 +242,7 @@ public final class PSConnection {
    *         <code>false</code> otherwise.
    */
   public boolean process(XMLWriter xml) throws IOException {
-    return process(xml, null, null);
+    return process(xml, null, null, null);
   }
 
   /**
@@ -257,7 +259,7 @@ public final class PSConnection {
    *         <code>false</code> otherwise.
    */
   public boolean process(XMLWriter xml, PSHandler handler) throws IOException {
-    return process(xml, handler, null);
+    return process(xml, handler, null, null);
   }
 
   /**
@@ -274,7 +276,25 @@ public final class PSConnection {
    *         <code>false</code> otherwise.
    */
   public boolean process(XMLWriter xml, Templates templates) throws IOException {
-    return process(xml, null, templates);
+    return process(xml, null, templates, null);
+  }
+
+  /**
+   * Process the specified PageSeeder connection.
+   * 
+   * <p>Templates can be specified to transform the XML. 
+   * 
+   * @param xml        The XML to copy from PageSeeder
+   * @param templates  A set of templates to process the XML (optional)
+   * @param parameters Parameters to send to the XSLT transformer (optional)
+   * 
+   * @throws IOException If an error occurs when trying to write the XML.
+   * 
+   * @return <code>true</code> if the request was processed without errors;
+   *         <code>false</code> otherwise.
+   */
+  public boolean process(XMLWriter xml, Templates templates, Map<String, String> parameters) throws IOException {
+    return process(xml, null, templates, parameters);
   }
 
   /**
@@ -287,13 +307,14 @@ public final class PSConnection {
    * @param xml        The XML to copy from PageSeeder
    * @param handler    The handler for the XML (can be used to rewrite the XML)
    * @param templates  A set of templates to process the XML (optional)
+   * @param parameters Parameters to send to the transformer (optional).
    * 
    * @throws IOException If an error occurs when trying to write the XML.
    * 
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
-  protected boolean process(XMLWriter xml, PSHandler handler, Templates templates) 
+  protected boolean process(XMLWriter xml, PSHandler handler, Templates templates, Map<String, String> parameters) 
       throws IOException {
     // Let's start
     xml.openElement("ps-"+this._resource.type().toString().toLowerCase(), true);
@@ -318,7 +339,7 @@ public final class PSConnection {
         if (isXML(contentType)) {
           xml.attribute("content-type", "application/xml");
           if (templates != null) {
-            ok = parseXML(this._connection, xml, templates);
+            ok = parseXML(this._connection, xml, templates, parameters);
           } else {
             ok = parseXML(this._connection, xml, handler);
           }
@@ -481,13 +502,15 @@ public final class PSConnection {
    * @param connection The HTTP URL connection.
    * @param xml        Where the final XML goes.
    * @param templates  To transform the XML.
+   * @param parameters Parameters to send to the transformer (optional).
    * 
    * @return <code>true</code> if the data was parsed without error;
    *         <code>false</code> otherwise.
    * 
    * @throws IOException If an error occurs while writing the XML.
    */
-  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, Templates templates) throws IOException {
+  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, Templates templates, 
+      Map<String, String> parameters) throws IOException {
     boolean ok = true;
 
     // Create an XML Buffer
@@ -506,6 +529,13 @@ public final class PSConnection {
 
       // Create a transformer from the templates
       Transformer transformer = templates.newTransformer();
+
+      // Add parameters
+      if (parameters != null) {
+        for (Entry<String, String> p : parameters.entrySet()) {
+          transformer.setParameter(p.getKey(), p.getValue());
+        }
+      }
 
       // Process, write directly to the result
       transformer.transform(source, result);

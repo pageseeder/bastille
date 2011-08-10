@@ -5,6 +5,7 @@ package com.weborganic.bastille.pageseeder;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import javax.xml.transform.Templates;
 
@@ -47,7 +48,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * </pre>
  * 
  * @author Christophe Lauret
- * @version 0.6.5 - 30 May 2011
+ * @version 0.6.10 - 10 August 2011
  * @since 0.6.3
  */
 public final class PSConnector {
@@ -124,7 +125,7 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean get(XMLWriter xml) throws IOException {
-    return simple(xml, Type.GET, null, null);
+    return simple(xml, Type.GET, null, null, null);
   }
 
   /**
@@ -141,7 +142,7 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean get(XMLWriter xml, PSHandler handler) throws IOException {
-    return simple(xml, Type.GET, handler, null);
+    return simple(xml, Type.GET, handler, null, null);
   }
 
   /**
@@ -158,7 +159,25 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean get(XMLWriter xml, Templates templates) throws IOException {
-    return simple(xml, Type.GET, null, templates);
+    return simple(xml, Type.GET, null, templates, null);
+  }
+
+  /**
+   * Connect to PageSeeder and fetch the XML using the GET method. 
+   * 
+   * <p>Templates can be specified to transform the XML. 
+   * 
+   * @param xml       The XML to copy from PageSeeder
+   * @param templates A set of templates to process the XML (optional)
+   * @param parameters Parameters to send to the XSLT transformer (optional)
+   * 
+   * @throws IOException If an error occurs when trying to write the XML.
+   * 
+   * @return <code>true</code> if the request was processed without errors;
+   *         <code>false</code> otherwise.
+   */
+  public boolean get(XMLWriter xml, Templates templates, Map<String, String> parameters) throws IOException {
+    return simple(xml, Type.GET, null, templates, parameters);
   }
 
   /**
@@ -172,7 +191,7 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean post(XMLWriter xml) throws IOException {
-    return simple(xml, Type.POST, null, null);
+    return simple(xml, Type.POST, null, null, null);
   }
 
   /**
@@ -189,7 +208,7 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean post(XMLWriter xml, PSHandler handler) throws IOException {
-    return simple(xml, Type.POST, handler, null);
+    return simple(xml, Type.POST, handler, null, null);
   }
 
   /**
@@ -206,7 +225,25 @@ public final class PSConnector {
    *         <code>false</code> otherwise.
    */
   public boolean post(XMLWriter xml, Templates templates) throws IOException {
-    return simple(xml, Type.POST, null, templates);
+    return simple(xml, Type.POST, null, templates, null);
+  }
+
+  /**
+   * Connect to PageSeeder and fetch the XML using the POST method. 
+   * 
+   * <p>Templates can be specified to transform the XML. 
+   * 
+   * @param xml       The XML to copy from PageSeeder
+   * @param templates A set of templates to process the XML (optional)
+   * @param parameters Parameters to send to the XSLT transformer (optional)
+   * 
+   * @throws IOException If an error occurs when trying to write the XML.
+   * 
+   * @return <code>true</code> if the request was processed without errors;
+   *         <code>false</code> otherwise.
+   */
+  public boolean post(XMLWriter xml, Templates templates, Map<String, String> parameters) throws IOException {
+    return simple(xml, Type.POST, null, templates, parameters);
   }
 
   /**
@@ -220,13 +257,16 @@ public final class PSConnector {
    * @param type      The type of connection
    * @param handler   The handler for the XML (can be used to rewrite the XML)
    * @param templates A set of templates to process the XML (optional)
+   * @param parameters Parameters to send to the XSLT transformer (optional)
    * 
    * @throws IOException If an error occurs when trying to write the XML.
    * 
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
-  private boolean simple(XMLWriter xml, Type type, PSHandler handler, Templates templates) throws IOException {
+  private boolean simple(XMLWriter xml, Type type, PSHandler handler, Templates templates, 
+      Map<String, String> parameters) throws IOException {
+
     // Build the resource
     PSResource r = this._resource.build();
 
@@ -244,10 +284,10 @@ public final class PSConnector {
     }
 
     // Process the content
-    boolean ok = connection.process(xml, handler, templates);
+    boolean ok = connection.process(xml, handler, templates, parameters);
 
     // Disconnect
-    if (connection != null) connection.disconnect();
+    connection.disconnect();
 
     // Return the final status
     return ok;

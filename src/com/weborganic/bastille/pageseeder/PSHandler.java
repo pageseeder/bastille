@@ -16,10 +16,11 @@ import com.topologi.diffx.xml.XMLWriter;
  * {@link #setOutput(XMLWriter)} method. This method is called before the handler starts parsing.
  * 
  * @author Christophe Lauret
- * @version 0.6.2 - 12 April 2011
+ * @version 0.6.11 - 15 August 2011
  * @since 0.6.2
  */
-@Beta public abstract class PSHandler extends DefaultHandler implements ContentHandler {
+@Beta
+public abstract class PSHandler extends DefaultHandler implements ContentHandler {
 
   /**
    * The XML writer to use. 

@@ -35,7 +35,7 @@ import com.weborganic.bastille.security.User;
  * An authenticator that uses PageSeeder to authenticate users.
  * 
  * @author Christophe Lauret
- * @version 0.6.5 - 30 May 2011
+ * @version 0.6.11 - 15 August 2011
  * @since 0.6.2
  */
 public final class PageSeederAuthenticator implements Authenticator {
@@ -69,7 +69,7 @@ public final class PageSeederAuthenticator implements Authenticator {
       if (o instanceof PageSeederUser) {
         PageSeederUser current = (PageSeederUser)o;
         // Already logged in and it is the current user
-        if (username != null && username.equals(current.getUsername())) {
+        if (username.equals(current.getUsername())) {
           return AuthenticationResult.ALREADY_LOGGED_IN;
 
         // Already logged in as a different user

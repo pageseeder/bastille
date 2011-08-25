@@ -106,11 +106,22 @@ public final class DetectBrowserFilter implements Filter{
   public void doHTTPFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
   throws ServletException, IOException {
     String userAgent = req.getHeader("User-Agent").toLowerCase();
+    String requrl = req.getRequestURL().toString();
 
     if (isMobile(userAgent) && this.mobile!=null && !this.mobile.isEmpty()){
-      res.sendRedirect(this.mobile);
+      // protect die loop
+      if (requrl.toLowerCase().contains(this.mobile.toLowerCase())){
+        chain.doFilter(req, res);
+      } else {
+        res.sendRedirect(this.mobile);
+      }
     } else if (!isMobile(userAgent) && this.normal!=null && !this.normal.isEmpty()){
-      res.sendRedirect(this.normal);
+      // protect die loop
+      if (requrl.toLowerCase().contains(this.normal.toLowerCase())){
+        chain.doFilter(req, res);
+      } else {
+        res.sendRedirect(this.normal);
+      }
     } else {
       chain.doFilter(req, res);
     }

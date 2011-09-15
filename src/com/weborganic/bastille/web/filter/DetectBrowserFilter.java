@@ -42,9 +42,10 @@ import javax.servlet.http.HttpServletResponse;
  * @author Christophe Lauret
  * @author Ciber Cai
  * 
- * @version 25 August 2011
+ * @version 0.6.13 - 15 September 2011
+ * @since 0.6.13
  */
-public final class DetectBrowserFilter implements Filter{
+public final class DetectBrowserFilter implements Filter {
 
   /**
    * Mobile user agents match this pattern.
@@ -54,38 +55,44 @@ public final class DetectBrowserFilter implements Filter{
   /**
    * The mobile site address
    */
-  private  String mobile="";
+  private String mobile="";
 
   /**
    * The normal site address
    */
-  private  String normal= "";
+  private String normal= "";
 
   /**
-   * Initialises the Redirector Servlet.
+   * Initialises the filter.
    * 
-   * <p>This servlet accepts the following init parameters:
+   * <p>This servlet accepts the following initialisation parameters:
    * <ul>
-   *   <li><code>mobile</code> The mobile site address (eg. 'http://m.pbs.gov.au')
-   *   <li><code>normal</code> The normal site address (eg. 'http://www.pbs.gov.au')
+   *   <li><code>mobile</code> The mobile site address (eg. 'http://m.acme.gov.au')
+   *   <li><code>normal</code> The normal site address (eg. 'http://www.acme.gov.au')
    * </ul>
    * 
+   * <p>Both parameters MUST be valid URLs.
    * 
    * @param config The filter configuration.
    */
   @Override
   public void init(FilterConfig config) throws ServletException {
-    this.mobile= config.getInitParameter("mobile");
+    this.mobile = config.getInitParameter("mobile");
     this.normal = config.getInitParameter("normal");
-
   }
 
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void destroy() {
-
+    this.mobile = null;
+    this.normal = null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
     if (req instanceof HttpServletRequest && res instanceof HttpServletResponse) {
@@ -108,24 +115,27 @@ public final class DetectBrowserFilter implements Filter{
     String userAgent = req.getHeader("User-Agent").toLowerCase();
     String requrl = req.getRequestURL().toString();
 
-    if (isMobile(userAgent) && this.mobile!=null && !this.mobile.isEmpty()){
+    // A Mobile and there is a mobile Website
+    if (isMobile(userAgent) && this.mobile != null && !this.mobile.isEmpty()){
       // protect die loop
       if (requrl.toLowerCase().contains(this.mobile.toLowerCase())){
         chain.doFilter(req, res);
       } else {
         res.sendRedirect(this.mobile);
       }
-    } else if (!isMobile(userAgent) && this.normal!=null && !this.normal.isEmpty()){
+
+    // A Desktop and there is a desktop Website
+    } else if (!isMobile(userAgent) && this.normal != null && !this.normal.isEmpty()){
       // protect die loop
       if (requrl.toLowerCase().contains(this.normal.toLowerCase())){
         chain.doFilter(req, res);
       } else {
         res.sendRedirect(this.normal);
       }
+
     } else {
       chain.doFilter(req, res);
     }
-
   }
 
   /**

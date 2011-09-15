@@ -8,9 +8,12 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -35,13 +38,20 @@ import com.weborganic.bastille.security.User;
  * An authenticator that uses PageSeeder to authenticate users.
  * 
  * @author Christophe Lauret
- * @version 0.6.11 - 15 August 2011
+ * @version 0.6.13 - 15 September 2011
  * @since 0.6.2
  */
 public final class PageSeederAuthenticator implements Authenticator {
 
   /** Logger for this class */
   private static final Logger LOGGER = LoggerFactory.getLogger(PageSeederAuthenticator.class);
+
+  /**
+   * Simply to guess if the specified username was an email address.
+   * 
+   * <p>Must match all e-mail addresses, but can include false positives.
+   */
+  private static final Pattern MAYBE_EMAIL = Pattern.compile("^.+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$");
 
   /**
    * The PageSeeder login requires a username and password and checks them against the members on
@@ -53,11 +63,17 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     // Grab the username and password
     String username = req.getParameter("username");
+    String email = req.getParameter("email");
     String password = req.getParameter("password");
 
     // Required details
-    if (username == null || password == null) {
+    if ((username == null && email == null) || password == null) {
       return AuthenticationResult.INSUFFICIENT_DETAILS;
+    }
+
+    // If the username given was an email address
+    if (email == null && MAYBE_EMAIL.matcher(username).matches()) {
+      email = username;
     }
 
     // Get the session
@@ -70,6 +86,9 @@ public final class PageSeederAuthenticator implements Authenticator {
         PageSeederUser current = (PageSeederUser)o;
         // Already logged in and it is the current user
         if (username.equals(current.getUsername())) {
+          return AuthenticationResult.ALREADY_LOGGED_IN;
+
+        } else if (email != null && email.equals(current.getEmail())) {
           return AuthenticationResult.ALREADY_LOGGED_IN;
 
         // Already logged in as a different user
@@ -190,7 +209,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     url.append(pageseeder.getProperty("host",          "localhost")).append(":");
     url.append(pageseeder.getProperty("port",          "8080"));
     url.append(pageseeder.getProperty("servletprefix", "/ps/servlet"));
-    url.append("/com.pageseeder.ChangeDetailsForm");
+    url.append("/com.pageseeder.SubscriptionForm");
     url.append("?username=").append(username);
     url.append("&password=").append(password);
     url.append("&xformat=xml");
@@ -224,7 +243,7 @@ public final class PageSeederAuthenticator implements Authenticator {
   // Inner class ==================================================================================
 
   /**
-   * Parses the XML returned the ChangeDetailsForm Servlet.
+   * Parses the XML returned the <code>com.pageseeder.SubscriptionForm</code> Servlet.
    * 
    * <pre>{@code
    *   <wo-jsessionid>76AF8EDE185D6D0F34DFD53982BC0570</wo-jsessionid>
@@ -239,7 +258,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    * }</pre>
    * 
    * @author Christophe Lauret
-   * @version 7 April 2011
+   * @version 15 September 2011
    */
   private static class PSUserHandler extends DefaultHandler {
 
@@ -257,6 +276,8 @@ public final class PageSeederAuthenticator implements Authenticator {
     private static final String EMAIL = "memberemail";
     /** Member's JSession ID element */
     private static final String JSESSIONID = "wo-jsessionid";
+    /** Member's JSession ID element */
+    private static final String GROUPNAME = "controlgroupname";
 
     /** State variable to indicate whether we are within the Member element */
     private boolean inMem = false;
@@ -267,6 +288,11 @@ public final class PageSeederAuthenticator implements Authenticator {
     /** Stores the member's information */
     private Map<String, String> map = new HashMap<String, String>();
 
+    /** List of group the user is a member of */
+    private List<String> memberOf = new ArrayList<String>();
+
+    private final String[] groups = GlobalSettings.get("bastille.authenticator.member-of", "").split(",");
+    
     /**
      * {@inheritDoc}
      */
@@ -275,7 +301,7 @@ public final class PageSeederAuthenticator implements Authenticator {
       if (this.inMem) {
         this.record = ID.equals(name) || SURNAME.equals(name) || USERNAME.equals(name) || FIRSTNAME.equals(name);
       } else {
-        this.record = EMAIL.equals(name) || JSESSIONID.equals(name);
+        this.record = EMAIL.equals(name) || JSESSIONID.equals(name) || GROUPNAME.equals(name);
       }
     }
 
@@ -296,6 +322,16 @@ public final class PageSeederAuthenticator implements Authenticator {
       } else if (JSESSIONID.equals(name)) {
         this.map.put(JSESSIONID, this.buffer.toString());
         this.buffer.setLength(0);
+      } else if (GROUPNAME.equals(name) && groups.length > 0) {
+        // Only record matching groups
+        String group = this.buffer.toString();
+        for (String g : groups) {
+          if (g.equals(group)) {
+            this.memberOf.add(group);
+            break;
+          }
+        }
+        this.buffer.setLength(0);
       }
     }
 
@@ -310,6 +346,7 @@ public final class PageSeederAuthenticator implements Authenticator {
      * @return a new PageSeeder User from the values parsed.
      */
     private PageSeederUser getUser() {
+      if (groups.length > 0 && this.memberOf.size() == 0) return null;
       Long id = Long.parseLong(this.map.get(ID));
       PageSeederUser user = new PageSeederUser(id);
       user.setEmail(this.map.get(EMAIL));
@@ -317,6 +354,7 @@ public final class PageSeederAuthenticator implements Authenticator {
       user.setSurname(this.map.get(SURNAME));
       user.setFirstname(this.map.get(FIRSTNAME));
       user.setJSessionId(this.map.get(JSESSIONID));
+      user.setMemberOf(this.memberOf);
       return user;
     }
   }

@@ -5,6 +5,8 @@ package com.weborganic.bastille.security.ps;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.security.User;
@@ -13,7 +15,7 @@ import com.weborganic.bastille.security.User;
  * Represents a PageSeeder User.
  * 
  * @author Christophe Lauret
- * @version 0.6.2 - 7 April 2011
+ * @version 0.6.13 - 15 September 2011
  * @since 0.6.2
  */
 public final class PageSeederUser implements User, Serializable {
@@ -52,6 +54,11 @@ public final class PageSeederUser implements User, Serializable {
    * The Member's jsession id.
    */
   private String _jsessionid = null;
+
+  /**
+   * The groups the user is a member of.
+   */
+  private String[] _memberOf = null;
 
   /**
    * Creates a new PageSeeder User.
@@ -112,6 +119,13 @@ public final class PageSeederUser implements User, Serializable {
     return this._username;
   }
 
+  /**
+   * @return the group the user is a member of.
+   */
+  public List<String> memberOf() {
+    return Arrays.asList(this._memberOf);
+  }
+
   // Setters ======================================================================================
 
   /**
@@ -147,6 +161,13 @@ public final class PageSeederUser implements User, Serializable {
    */
   protected void setEmail(String email) {
     this._email = email;
+  }
+
+  /**
+   * @param groups the PageSeeder groups the user is a member of.
+   */
+  protected void setMemberOf(List<String> groups) {
+    this._memberOf = groups.toArray(new String[]{});
   }
 
   // XML Writer ===================================================================================

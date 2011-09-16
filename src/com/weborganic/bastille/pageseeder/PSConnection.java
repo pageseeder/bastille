@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -37,7 +38,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * Wraps an HTTP connection to PageSeeder.
  * 
  * @author Christophe Lauret
- * @version 0.6.11 - 15 August 2011
+ * @version 0.6.15 - 16 September 2011
  * @since 0.6.7
  */
 public final class PSConnection {
@@ -361,6 +362,13 @@ public final class PSConnection {
         error(xml, "http-error", this._connection.getResponseMessage());
         ok = false;
       }
+
+    // Could not connect to the server
+    } catch (ConnectException ex) {
+      String message = ex.getMessage();
+      LOGGER.info("Unable to connect to PageSeeder: {}", message);
+      error(xml, "connection-error", message != null? message : "Unable to connect");
+      ok = false;
 
     } finally {
       // TODO Disconnect (???)

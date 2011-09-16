@@ -4,9 +4,9 @@
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
+import java.net.ConnectException;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +21,21 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
 /**
  * A servlet to login.
  * 
+ * <p>This servlet actually performs the login using an authenticator. 
+ * 
+ * <h3>Initialisation parameters</h3>
+ * <p>See {@link #init(ServletConfig)}.
+ * 
  * @author Christophe Lauret
- * @version 0.6.2 - 7 April 2011
+ * @version 0.6.15 - 16 September 2011 
  * @since 0.6.2
  */
 public final class LoginServlet extends HttpServlet {
+
+  /**
+   * As per requirement for the Serializable interface.
+   */
+  private static final long serialVersionUID = -5279152811865484362L;
 
   /**
    * The logger.
@@ -33,27 +43,41 @@ public final class LoginServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
 
   /**
-   * Servlet context to get the dispatcher.
+   * The URI of the default target page.
    */
-  private ServletContext context = null;
+  protected static final String DEFAULT_TARGET = "/";
 
   /**
    * The URI of the login page.
    */
   private String loginPage = null;
 
+  /**
+   * The URI of the default target page.
+   */
+  private String defaultTarget = DEFAULT_TARGET;
+
+  /**
+   * This Servlet accepts two initialisation parameters.
+   * 
+   * <p><code>login-page</code> is required and should point to the login page.
+   * <p><code>default-target</code> is optional and should point to the default target after login,
+   * defaults to "/".
+   * 
+   * {@inheritDoc}
+   */
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    this.context = config.getServletContext();
     this.loginPage = config.getInitParameter("login-page");
+    this.defaultTarget = config.getInitParameter("default-target");
   }
 
   @Override
   public void destroy() {
-    // TODO Auto-generated method stub
     super.destroy();
-    this.context = null;
+    this.loginPage = null;
+    this.defaultTarget = DEFAULT_TARGET;
   }
 
   @Override
@@ -79,31 +103,43 @@ public final class LoginServlet extends HttpServlet {
     Object target = session.getAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
 
     // Perform login
-    PageSeederAuthenticator authenticator = new PageSeederAuthenticator();
-    AuthenticationResult result = authenticator.login(req);
-    LOGGER.debug("Login User: {}", result);
+    try {
+      PageSeederAuthenticator authenticator = new PageSeederAuthenticator();
+      AuthenticationResult result = authenticator.login(req);
+      LOGGER.debug("Login User: {}", result);
 
-    // Logged in successfully
-    if (result == AuthenticationResult.LOGGED_IN || result == AuthenticationResult.ALREADY_LOGGED_IN) {
+      // Logged in successfully
+      if (result == AuthenticationResult.LOGGED_IN || result == AuthenticationResult.ALREADY_LOGGED_IN) {
 
-      // Forward the original request
-      if (target != null) {
-        LOGGER.debug("Redirecting to {}", target.toString());
-        res.sendRedirect(target.toString());
+        // Forward the original request
+        if (target != null) {
+          LOGGER.debug("Redirecting to {}", target.toString());
+          res.sendRedirect(target.toString());
 
+        } else {
+          LOGGER.debug("Redirecting to {}", this.defaultTarget);
+          res.sendRedirect(this.defaultTarget);
+        }
+
+      // Login failed
       } else {
-        LOGGER.debug("Redirecting to /");
-        res.sendRedirect("/");
+        if (target != null) {
+          session = req.getSession(true);
+          session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
+        }
+        if (this.loginPage != null) {
+          LOGGER.debug("Redirecting to "+this.loginPage+"?message=Login failed");
+          res.sendRedirect(this.loginPage+"?message=Login failed");
+        } else {
+          res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Login failed");
+        }
       }
 
-    // Login failed
-    } else {
-      if (target != null) {
-        session = req.getSession(true);
-        session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
-      }
-      LOGGER.debug("Redirecting to "+this.loginPage+"?message=Login failed");
-      res.sendRedirect(this.loginPage+"?message=Login failed");
+    } catch (ConnectException ex) {
+
+      // Unable to connect to PageSeeder
+      final int badGateway = 502; 
+      res.sendError(badGateway, ex.getMessage());
     }
 
   }

@@ -38,8 +38,9 @@ import com.weborganic.bastille.pageseeder.PSResourceType;
  * 
  * <h3>Parameters</h3>
  * <ul>
- *  <li><code>ps-servlet</code> The request PageSeeder Servlet. (Default:com.pageseeder.ResetPassword)</li>
- *  <li><code>ps-email</code> The Reset EMail Address.
+ *  <li><code>email</code> The Reset EMail Address.
+ *  <li><code>group</code> The group the user is a member of, use this to use a specific email 
+ *  template (optional).
  * </ul>
  * 
  * <h3>Returned XML</h3>
@@ -54,7 +55,9 @@ import com.weborganic.bastille.pageseeder.PSResourceType;
  * </pre>
  * 
  * @author Christophe Lauret
- * @version 15 September 2011
+ * @version 16 September 2011
+ * 
+ * @since 0.6.14
  */
 @Beta
 public final class ResetPassword implements ContentGenerator {
@@ -77,13 +80,21 @@ public final class ResetPassword implements ContentGenerator {
     // Reset the password on PageSeeder
     PSConnector connector = new PSConnector(PSResourceType.SERVLET, SERVLET);
     connector.addParameter("email", email);
+    String group = req.getParameter("group");
+    if (group != null) {
+      connector.addParameter("group", group);
+    }
     connector.post(xml);
   }
 
   /**
+   * Write response for missing required parameter.
+   * 
    * @param req  The content request
    * @param xml  The XML writer
-   * @param name The name of tyhe missing parameter.
+   * @param name The name of the missing parameter.
+   * 
+   * @throws IOException If thrown by XML writer
    */
   private static void missing(ContentRequest req, XMLWriter xml, String name) throws IOException {
     xml.openElement("error");

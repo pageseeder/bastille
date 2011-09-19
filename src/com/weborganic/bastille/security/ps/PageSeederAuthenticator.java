@@ -290,8 +290,17 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     /** List of group the user is a member of */
     private List<String> memberOf = new ArrayList<String>();
-
-    private final String[] groups = GlobalSettings.get("bastille.authenticator.member-of", "").split(",");
+    /** List of groups from the configuration */
+    private final String[] groups;
+    
+    /**
+     * Build a new handler.
+     */
+    public PSUserHandler() {
+      String mof = GlobalSettings.get("bastille.authenticator.member-of");
+      if (mof == null) this.groups = new String[0];
+      else this.groups = mof.split(",");
+    }
     
     /**
      * {@inheritDoc}

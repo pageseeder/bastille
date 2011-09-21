@@ -7,10 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.weborganic.flint.Index;
 
 /**
@@ -26,6 +24,11 @@ public final class LocalIndex implements Index {
    * The location of the index.
    */
   private final File _location;
+  /**
+   * This index's analyser
+   * If this is modified, the method toQuery in IndexMaster will have to be modified to use the correct analyser.
+   */
+  private final Analyzer _analyzer;
 
   /**
    * Create a new local index.
@@ -34,6 +37,7 @@ public final class LocalIndex implements Index {
    */
   protected LocalIndex(File location) {
     this._location = location;
+    this._analyzer = IndexMaster.getNewAnalyzer();
   }
 
   /**
@@ -61,7 +65,7 @@ public final class LocalIndex implements Index {
    * {@inheritDoc}
    */
   public Analyzer getAnalyzer() {
-    return new StandardAnalyzer(Version.LUCENE_30);
+    return this._analyzer;
   }
 
   @Override

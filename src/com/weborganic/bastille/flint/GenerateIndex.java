@@ -28,9 +28,14 @@ import com.weborganic.bastille.flint.helpers.FilePathRule;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter.Action;
+import com.weborganic.bastille.flint.helpers.MultipleIndex;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * List the files corresponding to the specified directory.
+ * 
+ * <p>If there is a <code>index</code> parameter, then only the index with this ID will be created.
+ * <p>If there is a <code>folder</code> parameter, only XML files that are descendants of this folder are indexed.
  * 
  * <p>This content generator is not cacheable because it causes the index to be updated using a
  * separate thread.
@@ -59,22 +64,27 @@ public class GenerateIndex extends ContentGeneratorBase implements ContentGenera
 
     // Getting the index
     final Environment env = req.getEnvironment();
-    IndexMaster master = IndexMaster.getInstance();
+    IndexMaster master;
     long modified = 0;
     List<File> indexed = new ArrayList<File>();
-    
-    // Set up the Index
-    if (!master.isSetup()) {
-      LOGGER.debug("Setting up Index.");
-      master.setup(env.getPrivateFile("index"), env.getPrivateFile("ixml/default.xsl"));
-    } else {
+
+    String index = req.getParameter("index");
+    String folder = req.getParameter("folder");
+    if (index == null) {
+      master = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
       modified = master.lastModified();
-      indexed.addAll(master.list(new Term("visibility", "private"), "path"));
+      indexed.addAll(master.list(new Term("visibility", "private")));
+    } else {
+      // retrieve it from the multiple indexes
+      File indexDir = env.getPrivateFile("index/"+index);
+      master = MultipleIndex.setupMaster(indexDir, env.getPrivateFile("ixml/default.xsl"));
+      modified = master.lastModified();
+      indexed.addAll(master.list(new Term("visibility", "private")));
     }
 
     // Scanning the directory
-    File root = env.getPrivateFile("xml");
-    LOGGER.debug("Scanning XML directory.");
+    File root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
+    LOGGER.debug("Scanning XML directory {}", root);
 
     IndexUpdateFilter filter = new IndexUpdateFilter(modified, indexed);
     int updated = FileCollector.list(root, filter).size();
@@ -82,6 +92,7 @@ public class GenerateIndex extends ContentGeneratorBase implements ContentGenera
 
     // Send the files for indexing
     xml.openElement("index-job", true);
+    if (index != null) xml.attribute("index", index);
     xml.attribute("last-modified", ISO8601.format(modified, ISO8601.DATETIME));
     for (Entry<File, Action> entry : files.entrySet()) {
       File f = entry.getKey();
@@ -116,26 +127,6 @@ public class GenerateIndex extends ContentGeneratorBase implements ContentGenera
     xml.attribute("last-modified", modified);
     xml.attribute("action", action);
     xml.closeElement();
-  }
-
-  public List<File> toFiles(File root, List<String> paths) {
-    List<File> files = new ArrayList<File>();
-    for (String path : paths) {
-      files.add(new File(root, path));
-    }
-    return files;
-  }
-
-  /**
-   * Returns the specified date as ISO 8601 format.
-   *  
-   * @deprecated Use {@link ISO8601#format(long, ISO8601)} instead.
-   *  
-   * @param date the specified date.
-   * @return the date formatted using ISO 8601.
-   */
-  public static String toISO8601(long date) {
-    return ISO8601.format(date, ISO8601.DATETIME);
   }
 
 }

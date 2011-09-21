@@ -3,7 +3,11 @@
  */
 package com.weborganic.bastille.flint;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Query;
@@ -13,12 +17,15 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
+import org.weborganic.berlioz.content.ContentStatus;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.search.Facet;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.MultipleIndex;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Returns the facets from a query.
@@ -44,10 +51,17 @@ public final class GetFacets implements ContentGenerator, Cacheable {
     // Get relevant parameters
     etag.append(req.getParameter("field", "keyword")).append('%');
     etag.append(req.getParameter("predicate", "")).append('%');
-    // Get last time index was modified
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
-      etag.append(master.lastModified());
+    String index = req.getParameter("index");
+    if (index != null) {
+      for (String ind : index.split(",")) {
+        etag.append(MultipleIndex.getMaster(req.getEnvironment().getPrivateFile("index/"+ind)).lastModified()).append('%');
+      }
+    } else {
+      // Get last time index was modified
+      IndexMaster master = SingleIndex.master();
+      if (master != null) {
+        etag.append(master.lastModified()).append('%');
+      }
     }
     // MD5 of computed etag value
     return MD5.hash(etag.toString());
@@ -60,34 +74,70 @@ public final class GetFacets implements ContentGenerator, Cacheable {
     // Create a new query object
     String base = req.getParameter("base", "");
     String facets = req.getParameter("facets", "");
+    
+    // make sure condition is valid
+    Query query;
+    try {
+      query = IndexMaster.toQuery(base);
+    } catch (IndexException ex) {
+      LOGGER.error("Unable to parse query", ex);
+      xml.openElement("error");
+      xml.attribute("type", "invalid-parameter");
+      xml.attribute("message", "Unable to create query from condition "+base);
+      xml.closeElement();
+      req.setStatus(ContentStatus.BAD_REQUEST);
+      return;
+    }
 
     LOGGER.debug("Computing facets {} for {}", facets, base);
     xml.openElement("facets");
     xml.attribute("for", base);
 
-    // Start the search
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
-      IndexReader reader = null;
-      try {
-        Query q = master.toQuery(base);
-
+    // check if there is one or more index specified
+    String index = req.getParameter("index");
+    try {
+      if (index != null) {
+        String[] indexeNames = index.split(",");
+        List<File> indexDirectories = new ArrayList<File>();
+        for (String ind : indexeNames) {
+          indexDirectories.add(req.getEnvironment().getPrivateFile("index/"+ind));
+        }
+        MultipleIndex indexes = new MultipleIndex(indexDirectories);
         // facets
-        for (String f : facets.split(",")) {
-          if (f.length() > 0) {
-            Facet facet = master.getFacet(f, 10, q);
+        try {
+          List<String> fields = Arrays.asList(facets.split(","));
+          List<Facet> fieldFacets = indexes.getFacets(fields, 10, query);
+          for (Facet facet : fieldFacets) {
             facet.toXML(xml);
           }
+        } catch (IndexException ex) {
+          LOGGER.error("Unable to load facets", ex);
         }
-
-      } catch (IndexException ex) {
-        LOGGER.error("Unable to parse query", ex);
-      } finally {
-        master.releaseSilently(reader);
+      } else {
+        // Make sure there is an index
+        IndexMaster master = SingleIndex.master();
+        if (master != null) {
+          IndexReader reader = null;
+          try {
+    
+            // facets
+            for (String f : facets.split(",")) {
+              if (f.length() > 0) {
+                Facet facet = master.getFacet(f, 10, query);
+                facet.toXML(xml);
+              }
+            }
+    
+          } catch (IndexException ex) {
+            LOGGER.error("Unable to load facets", ex);
+          } finally {
+            master.releaseSilently(reader);
+          }
+        }
       }
+    } finally {
+      xml.closeElement();
     }
-
-    xml.closeElement();
   }
 
 }

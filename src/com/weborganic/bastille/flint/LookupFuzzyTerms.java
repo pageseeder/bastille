@@ -3,7 +3,10 @@
  */
 package com.weborganic.bastille.flint;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -16,11 +19,13 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.util.Bucket;
-import org.weborganic.flint.util.Terms;
 import org.weborganic.flint.util.Bucket.Entry;
+import org.weborganic.flint.util.Terms;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.MultipleIndex;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Lookup the fuzzy terms for the specified term.
@@ -47,8 +52,8 @@ public final class LookupFuzzyTerms implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("term", "keyword")).append('%');
     etag.append(req.getParameter("field", "")).append('%');
     // Get last time index was modified
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
+    IndexMaster master = SingleIndex.master();
+    if (master != null) {
       etag.append(master.lastModified());
     }
     // MD5 of computed etag value
@@ -67,12 +72,19 @@ public final class LookupFuzzyTerms implements ContentGenerator, Cacheable {
     xml.openElement("fuzzy-terms");
 
     // Start the search
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
-      IndexReader reader = null;
+    String index = req.getParameter("index", "");
+    if (index.length() > 0) {
+      // find all indexes specified
+      String[] indexeNames = index.split(",");
+      List<File> indexDirectories = new ArrayList<File>();
+      for (String ind : indexeNames) {
+        indexDirectories.add(req.getEnvironment().getPrivateFile("index/"+ind));
+      }
+      MultipleIndex indexes = new MultipleIndex(indexDirectories);
+      MultipleIndex.MultipleIndexReader multiReader = indexes.getMultiReader();
       try {
+        IndexReader reader = multiReader.grab();
         Bucket<Term> bucket = new Bucket<Term>(20);
-        reader = master.grabReader();
         Terms.fuzzy(reader, bucket, term);
         for (Entry<Term> e : bucket.entrySet()) {
           Terms.toXML(xml, e.item(), e.count());
@@ -82,7 +94,26 @@ public final class LookupFuzzyTerms implements ContentGenerator, Cacheable {
       } catch (IndexException ex) {
         throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
       } finally {
-        master.releaseSilently(reader);
+        multiReader.releaseSilently();
+      }
+    } else {
+      IndexMaster master = SingleIndex.master();
+      if (master != null) {
+        IndexReader reader = null;
+        try {
+          Bucket<Term> bucket = new Bucket<Term>(20);
+          reader = master.grabReader();
+          Terms.fuzzy(reader, bucket, term);
+          for (Entry<Term> e : bucket.entrySet()) {
+            Terms.toXML(xml, e.item(), e.count());
+          }
+        } catch (IOException ex) {
+          throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
+        } catch (IndexException ex) {
+          throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
+        } finally {
+          master.releaseSilently(reader);
+        }
       }
     }
 

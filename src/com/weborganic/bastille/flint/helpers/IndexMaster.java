@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
@@ -16,6 +18,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.util.Version;
 import org.weborganic.flint.FlintTranslatorFactory;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
@@ -38,9 +41,8 @@ import org.weborganic.flint.util.Terms;
 /**
  * Centralises all the indexing and searching function using Flint for one index.
  * 
- * <p>This class defines a singleton which can be access using the {@link #getInstance()} method.
- * 
  * @author Christophe Lauret
+ * @author Jean-Baptiste Reure
  * @version 0.6.0 - 21 July 2010
  * @since 0.6.0
  */
@@ -54,20 +56,6 @@ public final class IndexMaster {
       return "IndexMaster";
     }
   };
-
-  /**
-   * Sole instance.
-   */
-  private static final IndexMaster SINGLETON = new IndexMaster();
-
-  /**
-   * Returns the singleton.
-   * 
-   * @return the singleton.
-   */
-  public static IndexMaster getInstance() {
-    return SINGLETON;
-  }
 
   /**
    * Where the private files are.
@@ -90,22 +78,20 @@ public final class IndexMaster {
   private volatile long lastModified = -1;
 
   /**
-   * Indicates whether the underlying index manager has been setup.
+   * Sets up the index master.
    * 
-   * @return <code>true</code> if the manager was setup;
-   *         <code>false</code> otherwise.
+   * @param indexDir the index directory
    */
-  public boolean isSetup() {
-    return this.manager != null;
+  public IndexMaster(File indexDir) {
+    this(indexDir, null);
   }
-
   /**
    * Sets up the index master.
    * 
    * @param indexDir the index directory
    * @param xslt     the location of the XSLT generating the IXML.
    */
-  public void setup(File indexDir, File xslt) {
+  public IndexMaster(File indexDir, File xslt) {
 
     ContentFetcher fetcher = new ContentFetcher() {
       public Content getContent(ContentId id) {
@@ -132,10 +118,18 @@ public final class IndexMaster {
 
     // Setup the configuration
     this.config = new IndexConfig();
-    this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
+    if (xslt != null)
+      this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
 
     // Start the index manager
     this.manager.start();
+  }
+  
+  /**
+   * @return an analyzer similar to the one used in all indexes
+   */
+  public static Analyzer getNewAnalyzer() {
+    return new StandardAnalyzer(Version.LUCENE_30);
   }
 
   /**
@@ -223,8 +217,14 @@ public final class IndexMaster {
   /**
    * Returns the list of term and how frequently they are used by performing a fuzzy match on the
    * specified term.
+   * 
+   * @param field      the field to use as a facet
+   * @param upTo       the max number of values to return
+   * @param condition  a predicate to apply on the facet (can be null or empty)
+   * 
+   * @throws IndexException if there was an error reading the index or creating the condition query
    */
-  public Facet getFacet(String field, int upTo, Query query) throws IOException {
+  public Facet getFacet(String field, int upTo, Query query) throws IndexException, IOException {
     FieldFacet facet = null;
     IndexReader reader = null;
     IndexSearcher searcher = null;
@@ -237,8 +237,6 @@ public final class IndexMaster {
       searcher = this.manager.grabSearcher(index);
       facet.compute(searcher, query, upTo);
 
-    } catch (IndexException ex) {
-      throw new IOException(ex);
     } finally {
       this.manager.releaseQuietly(this.index, reader);
       this.manager.releaseQuietly(this.index, searcher);
@@ -256,9 +254,18 @@ public final class IndexMaster {
   }
 
   /**
+   * Return an index searcher on the index.
+   * 
+   * @return The index searcher that will need to be released.
+   */
+  public IndexSearcher grabSearcher() throws IndexException {
+    return this.manager.grabSearcher(this.index);
+  }
+
+  /**
    * Returns the list of files containing ??
    */
-  public List<File> list(Term t, String field) throws IOException {
+  public List<File> list(Term t) throws IOException {
     List<File> files = new ArrayList<File>();
     IndexReader reader = null;
     try {
@@ -315,9 +322,9 @@ public final class IndexMaster {
    * @return the corresponding query object or <code>null</code>.
    * @throws IndexException should any error occur
    */
-  public Query toQuery(String predicate) throws IndexException {
+  public static Query toQuery(String predicate) throws IndexException {
     // Parse the condition query
-    QueryParser parser = new QueryParser(IndexManager.LUCENE_VERSION, "type", this.index.getAnalyzer());
+    QueryParser parser = new QueryParser(IndexManager.LUCENE_VERSION, "type", getNewAnalyzer());
     Query condition = null;
     if (predicate != null && !"".equals(predicate)) {
       try {
@@ -338,6 +345,17 @@ public final class IndexMaster {
    */
   public void releaseSilently(IndexReader reader) {
     this.manager.releaseQuietly(this.index, reader);
+  }
+
+  /**
+   * Releases this searcher for use by other threads silently (any exception will be ignored).
+   * 
+   * <p>Provided for convenience when used inside a <code>finally</code> block.
+   * 
+   * @param reader The Lucene index searcher to release.
+   */
+  public void releaseSilently(IndexSearcher searcher) {
+    this.manager.releaseQuietly(this.index, searcher);
   }
 
 }

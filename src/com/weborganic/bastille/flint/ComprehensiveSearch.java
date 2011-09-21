@@ -24,6 +24,7 @@ import org.weborganic.flint.query.TermParameter;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * TODO Javadoc.
@@ -31,6 +32,8 @@ import com.weborganic.bastille.flint.helpers.IndexMaster;
  * @author Christophe Lauret
  * @version 0.6.0 - 2 June 2010
  * @since 0.6.0
+ * 
+ * @deprecated
  */
 public class ComprehensiveSearch implements ContentGenerator, Cacheable {
 
@@ -48,8 +51,8 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("field", "keyword")).append('%');
     etag.append(req.getParameter("predicate", "")).append('%');
     // Get last time index was modified
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
+    IndexMaster master = SingleIndex.master();
+    if (master != null) {
       etag.append(master.lastModified());
     }
     // MD5 of computed etag value
@@ -62,9 +65,9 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     final Environment env = req.getEnvironment();
-    IndexMaster central = IndexMaster.getInstance();
-    if (!central.isSetup()) {
-      central.setup(env.getPrivateFile("index"), env.getPrivateFile("ixml/default.xsl"));
+    IndexMaster central = SingleIndex.master();
+    if (central == null) {
+      central = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
     }
 
     // Create a new query object using HTTP parameters

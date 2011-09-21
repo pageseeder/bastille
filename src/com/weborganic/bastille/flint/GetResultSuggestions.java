@@ -6,11 +6,8 @@ package com.weborganic.bastille.flint;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
-import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Fieldable;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -22,6 +19,7 @@ import org.weborganic.flint.util.Documents;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Returns the search results suggestions from a list of terms.
@@ -49,8 +47,8 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("field", "")).append('%');
     etag.append(req.getParameter("predicate", "")).append('%');
     // Get last time index was modified
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
+    IndexMaster master = SingleIndex.master();
+    if (master != null) {
       etag.append(master.lastModified());
     }
     // MD5 of computed etag value
@@ -82,8 +80,8 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
       xml.attribute("predicate", predicate);
 
       // Start the search
-      IndexMaster master = IndexMaster.getInstance();
-      if (master.isSetup()) {
+      IndexMaster master = SingleIndex.master();
+      if (master != null) {
         try {
           // Get the suggestions
           SearchResults results = master.getSuggestions(fields, texts, 10, predicate);

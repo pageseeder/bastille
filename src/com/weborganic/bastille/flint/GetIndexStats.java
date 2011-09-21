@@ -3,6 +3,8 @@
  */
 package com.weborganic.bastille.flint;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,7 +12,6 @@ import java.text.SimpleDateFormat;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,11 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
+import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.MultipleIndex;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Print some information about the index.
@@ -45,10 +49,14 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
   private static final Logger LOGGER = LoggerFactory.getLogger(GetIndexStats.class);
 
   /**
-   * The index reader.
+   * To list only folders
    */
-  private IndexReader _reader = null;
-
+  private static final FileFilter FOLDERS_ONLY = new FileFilter() {
+    public boolean accept(File d) {
+      return d.isDirectory();
+    }
+  };
+  
   /**
    * {@inheritDoc} 
    */
@@ -56,8 +64,23 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
     Environment env = req.getEnvironment();
     String etag = null;
     try {
-      FSDirectory directory = FSDirectory.open(env.getPrivateFile("index"));
-      etag = env.getPrivateFile("index").getName()+"-"+IndexReader.lastModified(directory);
+      File index = env.getPrivateFile("index");
+      FSDirectory directory = FSDirectory.open(index);
+      if (IndexReader.indexExists(directory)) {
+        long modified = IndexReader.lastModified(directory);
+        etag = env.getPrivateFile("index").getName()+"-"+modified;
+      } else {
+        File[] indexes = index.listFiles(FOLDERS_ONLY);
+        if (indexes != null) {
+          etag = "";
+          for (File indexDir : indexes) {
+            FSDirectory fsd = FSDirectory.open(index);
+            if (IndexReader.indexExists(fsd))
+              etag = indexDir.getName()+"-"+IndexReader.lastModified(fsd);
+          }
+          if (etag.length() == 0) etag = null;
+        }
+      }
     } catch (IOException ex) {
       LOGGER.debug("Error while trying to get last modified date of index", ex);
       return etag = null;
@@ -71,24 +94,57 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Getting the index
-    Environment env = req.getEnvironment();
-    FSDirectory directory = FSDirectory.open(env.getPrivateFile("index"));
-    IndexReader reader = initIndexReader(directory);
-
     xml.openElement("index-stats");
-    
+    File xslt = req.getEnvironment().getPrivateFile("ixml/default.xsl");
+    File indexRoot = req.getEnvironment().getPrivateFile("index");
+    FSDirectory directory = FSDirectory.open(indexRoot);
+    if (IndexReader.indexExists(directory)) {
+      // single index, output it
+      indexToXML(indexRoot, xslt, null, xml);
+    } else {
+      // multiple indexes maybe
+      File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
+      if (dirs != null && dirs.length > 0) {
+        for (File d : dirs)
+          indexToXML(indexRoot, xslt, d.getName(), xml);
+      } else {
+        xml.openElement("index");
+        xml.attribute("exists", "false");
+        xml.closeElement();
+      }
+    }
+    xml.closeElement();
+  }
+  /**
+   * Output the given index as XML
+   * @param env
+   * @param name
+   * @param xml
+   * @throws IOException
+   * @throws IndexException 
+   */
+  private void indexToXML(File indexRoot, File xsl, String name, XMLWriter xml) throws IOException {
     xml.openElement("index");
-    xml.attribute("location", env.getPrivateFile("index").getName());
-    xml.attribute("exists", Boolean.toString(reader != null));
+    if (name != null) xml.attribute("name", name);
+    File root = null;
+    IndexReader reader = null;
+    try {
+      if (name == null) {
+        root = indexRoot;
+        reader = SingleIndex.master().grabReader();
+      } else {
+        root = new File(indexRoot, name);
+        reader = MultipleIndex.getMaster(root).grabReader();
+      }
+    } catch (IndexException e) {
+      xml.attribute("error", "Failed to load reader: "+e.getMessage());
+    }
     if (reader != null) {
       DateFormat iso = new SimpleDateFormat(ISO8601_DATETIME);
       xml.attribute("last-modified", iso.format(IndexReader.lastModified(reader.directory())));
       xml.attribute("current", Boolean.toString(reader.isCurrent()));
       xml.attribute("optimized", Boolean.toString(reader.isOptimized()));
-    }
-    xml.closeElement();
-
-    if (reader != null) {
+      // list docs
       xml.openElement("documents");
       xml.attribute("count", reader.numDocs());
       xml.closeElement();
@@ -105,31 +161,16 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
         }
       } catch (Exception ex) {
         LOGGER.error("Error while extracting term statistics", ex);
+      } finally {
+        if (name == null) {
+          SingleIndex.master().releaseSilently(reader);
+        } else if (root != null) {
+          MultipleIndex.getMaster(root).releaseSilently(reader);
+        }
       }
-
       xml.closeElement();
     }
-
     xml.closeElement();
-  }
 
-  /**
-   * 
-   */
-  private IndexReader initIndexReader(Directory directory) throws IOException {
-    boolean exists = IndexReader.indexExists(directory);
-    if (exists) {
-      if (this._reader == null) {
-        this._reader = IndexReader.open(directory, true);
-      } else {
-        IndexReader newReader = this._reader.reopen();
-        if (newReader != this._reader) {
-          // reader was reopened
-          this._reader.close(); 
-        }
-        this._reader = newReader;        
-      }
-    } else this._reader = null;
-    return this._reader;
   }
 }

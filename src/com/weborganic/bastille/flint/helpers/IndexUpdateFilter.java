@@ -42,12 +42,17 @@ public final class IndexUpdateFilter implements FileFilter {
   private final Map<String, Action> _actions = new HashMap<String, Action>();
 
   /**
+   * Used to filter out the files not supposed to be indexed.
+   */
+  private final FileFilter _innerFilter;
+  /**
    * Creates a new filter.
    * 
    * @param since The date form which files are included.
    */
   public IndexUpdateFilter(long since) {
     this._since = since;
+    this._innerFilter = null;
   }
 
   /**
@@ -58,13 +63,29 @@ public final class IndexUpdateFilter implements FileFilter {
    */
   public IndexUpdateFilter(long since, List<File> indexed) throws IOException {
     this._since = since;
-    System.err.println("INIT FILTER: ! "+indexed.size());
     for (File i : indexed) {
       String path = i.getCanonicalPath();
-      System.err.println("INIT FILTER: "+path);
       this._files.put(path, i);
       this._actions.put(path, Action.DELETE);
     }
+    this._innerFilter = null;
+  }
+
+  /**
+   * Creates a new filter.
+   * 
+   * @param since   The date form which files are included.
+   * @param indexed The list of files to process.
+   * @param filter  Used to filter out the files not supposed to be indexed.
+   */
+  public IndexUpdateFilter(long since, List<File> indexed, FileFilter filter) throws IOException {
+    this._since = since;
+    for (File i : indexed) {
+      String path = i.getCanonicalPath();
+      this._files.put(path, i);
+      this._actions.put(path, Action.DELETE);
+    }
+    this._innerFilter = filter;
   }
 
   /**
@@ -73,6 +94,9 @@ public final class IndexUpdateFilter implements FileFilter {
    * {@inheritDoc}
    */
   public boolean accept(File f) {
+    // make sure this file is supposed to be indexed
+    if (this._innerFilter != null && !this._innerFilter.accept(f))
+      return false;
     try {
       String canonical = f.getCanonicalPath();
       // A file already indexed: UPDATE or IGNORE

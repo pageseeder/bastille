@@ -21,6 +21,7 @@ import org.weborganic.flint.query.TermParameter;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * TODO Javadoc.
@@ -28,6 +29,8 @@ import com.weborganic.bastille.flint.helpers.IndexMaster;
  * @author Christophe Lauret
  * @version 0.6.0 - 2 June 2010
  * @since 0.6.0
+ * 
+ * @deprecated
  */
 public class WildcardSearch extends ContentGeneratorBase implements ContentGenerator {
 
@@ -42,9 +45,9 @@ public class WildcardSearch extends ContentGeneratorBase implements ContentGener
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     final Environment env = req.getEnvironment();
-    IndexMaster central = IndexMaster.getInstance();
-    if (!central.isSetup()) {
-      central.setup(env.getPrivateFile("index"), env.getPrivateFile("ixml/default.xsl"));
+    IndexMaster central = SingleIndex.master();
+    if (central == null) {
+      central = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
     }
 
     String field = req.getParameter("field", "keyword");

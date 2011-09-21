@@ -3,7 +3,10 @@
  */
 package com.weborganic.bastille.flint;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -21,6 +24,8 @@ import org.weborganic.flint.util.Bucket.Entry;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
+import com.weborganic.bastille.flint.helpers.MultipleIndex;
+import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Lookup the similar terms for the specified term.
@@ -43,11 +48,11 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
     etag.append(req.getParameter("term", "keyword")).append('%');
-    etag.append(req.getParameter("field", "")).append('%');
+    etag.append(req.getParameter("field", "fulltext")).append('%');
     // Get last time index was modified
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
-      etag.append(master.lastModified());
+    IndexMaster central = SingleIndex.master();
+    if (central != null) {
+      etag.append(central.lastModified());
     }
     // MD5 of computed etag value
     return MD5.hash(etag.toString());
@@ -58,21 +63,35 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
    */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Create a new query object
-    String field = req.getParameter("field", "keyword");
-    Term term = new Term(field, req.getParameter("term"));
+    String[] fields = req.getParameter("field", "fulltext").split(",");
+    String text = req.getParameter("term", "keyword");
 
-    LOGGER.debug("Looking up fuzzy terms for "+term);
+    LOGGER.debug("Looking up fuzzy terms for {} in {}", text, fields);
     xml.openElement("similar-terms");
 
     // Start the search
-    IndexMaster master = IndexMaster.getInstance();
-    if (master.isSetup()) {
-      IndexReader reader = null;
+    String index = req.getParameter("index", "");
+    if (index.length() > 0) {
+      // find all indexes specified
+      String[] indexeNames = index.split(",");
+      List<File> indexDirectories = new ArrayList<File>();
+      for (String ind : indexeNames) {
+        indexDirectories.add(req.getEnvironment().getPrivateFile("index/"+ind));
+      }
+      MultipleIndex indexes = new MultipleIndex(indexDirectories);
+      // grab a reader
+      MultipleIndex.MultipleIndexReader multiReader = indexes.getMultiReader();
       try {
+        IndexReader reader = multiReader.grab();
         Bucket<Term> bucket = new Bucket<Term>(20);
-        reader = master.grabReader();
-        Terms.fuzzy(reader, bucket, term);
-        Terms.prefix(reader, bucket, term);
+        // run fuzzy and prefix searches
+        // search in all fields
+        for (String field : fields) {
+          Term term = new Term(field, text);
+          Terms.fuzzy(reader, bucket, term);
+          Terms.prefix(reader, bucket, term);
+        }
+        // output to XML
         for (Entry<Term> e : bucket.entrySet()) {
           Terms.toXML(xml, e.item(), e.count());
         }
@@ -81,7 +100,36 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
       } catch (IndexException ex) {
         throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
       } finally {
-        master.releaseSilently(reader);
+        // release the reader
+        multiReader.releaseSilently();
+      }
+    } else {
+      IndexMaster master = SingleIndex.master();
+      if (master != null) {
+        IndexReader reader = null;
+        try {
+          Bucket<Term> bucket = new Bucket<Term>(20);
+          // grab a reader
+          reader = master.grabReader();
+          // run fuzzy and prefix searches
+          // search in all fields
+          for (String field : fields) {
+            Term term = new Term(field, text);
+            Terms.fuzzy(reader, bucket, term);
+            Terms.prefix(reader, bucket, term);
+          }
+          // output to XML
+          for (Entry<Term> e : bucket.entrySet()) {
+            Terms.toXML(xml, e.item(), e.count());
+          }
+        } catch (IOException ex) {
+          throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
+        } catch (IndexException ex) {
+          throw new BerliozException("Exception thrown while fetching fuzzy terms", ex);
+        } finally {
+          // release the reader
+          master.releaseSilently(reader);
+        }
       }
     }
 

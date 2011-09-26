@@ -124,7 +124,7 @@ public final class IndexMaster {
     // Start the index manager
     this.manager.start();
   }
-  
+
   /**
    * @return an analyzer similar to the one used in all indexes
    */
@@ -218,9 +218,9 @@ public final class IndexMaster {
    * Returns the list of term and how frequently they are used by performing a fuzzy match on the
    * specified term.
    * 
-   * @param field      the field to use as a facet
-   * @param upTo       the max number of values to return
-   * @param condition  a predicate to apply on the facet (can be null or empty)
+   * @param field  the field to use as a facet
+   * @param upTo   the max number of values to return
+   * @param query  a predicate to apply on the facet (can be null or empty)
    * 
    * @throws IndexException if there was an error reading the index or creating the condition query
    */
@@ -352,7 +352,7 @@ public final class IndexMaster {
    * 
    * <p>Provided for convenience when used inside a <code>finally</code> block.
    * 
-   * @param reader The Lucene index searcher to release.
+   * @param searcher The Lucene index searcher to release.
    */
   public void releaseSilently(IndexSearcher searcher) {
     this.manager.releaseQuietly(this.index, searcher);

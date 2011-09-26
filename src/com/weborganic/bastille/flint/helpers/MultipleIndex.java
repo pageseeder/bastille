@@ -29,16 +29,20 @@ import org.weborganic.flint.search.FieldFacet;
  * Handles multiple Index Masters, each master is specified by its index directory.
  * 
  * @author Jean-Baptiste Reure
+ * 
+ * @version 0.6.20 - 26 September 2011
+ * @since 0.6.18
  */
 public final class MultipleIndex {
-  
-  // ---------------------------------------- static methods ----------------------------------------
+
+  // static methods 
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * The list of all masters created.
    */
   private static final Map<File, IndexMaster> MASTERS = new HashMap<File, IndexMaster>();
-  
+
   /**
    * @param indexDir The root directory for the index to return
    * 
@@ -53,9 +57,9 @@ public final class MultipleIndex {
     }
     return master;
   }
-  
+
   /**
-   * If the master already exists, it is re-used
+   * If the master already exists, it is re-used.
    * 
    * @param indexDir The root directory for the index to return
    * @param xslt     The XSLT script used to produce iXML data
@@ -71,16 +75,17 @@ public final class MultipleIndex {
     }
     return master;
   }
-  
-  // ---------------------------------------- non-static methods ----------------------------------------
-  
+
+  // non-static methods
+  // ----------------------------------------------------------------------------------------------
+
   /**
    * The list of indexes for this MultipleIndex
    */
   private final List<File> indexDirs = new ArrayList<File>();
-  
+
   /**
-   * Build a new multiple index
+   * Build a new multiple index.
    * 
    * @param indexDirectories the root folders for all indexes
    */
@@ -88,48 +93,53 @@ public final class MultipleIndex {
     if (indexDirectories != null)
       this.indexDirs.addAll(indexDirectories);
   }
+
   /**
-   * Build a new multiple index
+   * Build a new multiple index.
    * 
    * @param indexDirectories the root folders for all indexes
+   * @param xslt The XSLT to use to produce iXML.
    */
   public MultipleIndex(List<File> indexDirectories, File xslt) {
     if (indexDirectories != null) {
       this.indexDirs.addAll(indexDirectories);
       // make sure all the masters are setup.
-      for (File d : indexDirectories)
+      for (File d : indexDirectories) {
         setupMaster(d, xslt);
+      }
     }
   }
-  
+
   /**
    * Perform a query on multiple indexes.
-   * Note that all the indexes MUST be initialised before calling this method.
+   * 
+   * <p>Note that all the indexes MUST be initialised before calling this method.
    * 
    * @param query     the query to perform.
    * 
    * @return The search results
    * 
-   * @throws IndexException If the query failed
-   * @throws IllegalArgumentException if one of the indexes is not initialised
+   * @throws IndexException        If the query failed
+   * @throws IllegalStateException If one of the indexes is not initialised
    */
-  public MultiSearchResults query(SearchQuery query) throws IndexException, IllegalArgumentException {
+  public MultiSearchResults query(SearchQuery query) throws IndexException {
     return query(query, new SearchPaging());
   }
-  
+
   /**
    * Perform a query on multiple indexes.
-   * Note that all the indexes MUST be initialised before calling this method.
+   * 
+   * <p>Note that all the indexes MUST be initialised before calling this method.
    * 
    * @param query     the query to perform.
    * @param paging    the paging mechanism
    * 
    * @return The search results
    * 
-   * @throws IndexException If the query failed
-   * @throws IllegalArgumentException if one of the indexes is not initialised
+   * @throws IndexException        If the query failed
+   * @throws IllegalStateException If one of the indexes is not initialised
    */
-  public MultiSearchResults query(SearchQuery query, SearchPaging paging) throws IndexException, IllegalArgumentException {
+  public MultiSearchResults query(SearchQuery query, SearchPaging paging) throws IndexException {
     // retrieve all searchers
     IndexSearcher[] searchers = new IndexSearcher[this.indexDirs.size()];
     Map<IndexMaster, IndexSearcher> indexes = new HashMap<IndexMaster, IndexSearcher>();
@@ -137,7 +147,7 @@ public final class MultipleIndex {
     for (int i = 0; i < this.indexDirs.size(); i++) {
       IndexMaster master = getMaster(this.indexDirs.get(i));
       // make sure index has been setup
-      if (master == null) throw new IllegalArgumentException("Cannot search on an index before it has been initialised");
+      if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
       // grab a searcher
       IndexSearcher searcher = master.manager().grabSearcher(master.index());
       searchers[i] = searcher;
@@ -164,12 +174,12 @@ public final class MultipleIndex {
    * Returns the list of term and how frequently they are used by performing a fuzzy match on the
    * specified term.
    * 
-   * @param field      the field to use as a facet
-   * @param upTo       the max number of values to return
-   * @param condition  a predicate to apply on the facet (can be null or empty)
+   * @param fields the fields to use as facets
+   * @param upTo   the max number of values to return
+   * @param query  a predicate to apply on the facet (can be null or empty)
    * 
    * @throws IndexException if there was an error reading the indexes or creating the condition query
-   * @throws IllegalArgumentException if one of the indexes is not initialised
+   * @throws IllegalStateException If one of the indexes is not initialised
    */
   public List<Facet> getFacets(List<String> fields, int upTo, Query query) throws IOException, IndexException {
     // parameter checks
@@ -180,8 +190,8 @@ public final class MultipleIndex {
       List<Facet> facets = new ArrayList<Facet>();
       IndexMaster master = getMaster(this.indexDirs.get(0));
       // make sure index has been setup
-      if (master == null) throw new IllegalArgumentException("Cannot search on an index before it has been initialised");
-      for (String field: fields) {
+      if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
+      for (String field : fields) {
         if (field.length() > 0) {
           facets.add(master.getFacet(field, upTo, query));
         }
@@ -196,7 +206,7 @@ public final class MultipleIndex {
     for (int i = 0; i < this.indexDirs.size(); i++) {
       IndexMaster master = getMaster(this.indexDirs.get(i));
       // make sure index has been setup
-      if (master == null) throw new IllegalArgumentException("Cannot search on an index before it has been initialised");
+      if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
       // grab what we need
       IndexSearcher searcher = master.manager().grabSearcher(master.index());
       IndexReader reader = master.manager().grabReader(master.index());
@@ -206,11 +216,10 @@ public final class MultipleIndex {
     }
     List<Facet> facets = new ArrayList<Facet>();
     try {
-      
       // Retrieve all terms for the field
       IndexReader multiReader = new MultiReader(readers);
       ParallelMultiSearcher multiSearcher = new ParallelMultiSearcher(searchers);
-      for (String field: fields) {
+      for (String field : fields) {
         if (field.length() > 0) {
           FieldFacet facet = FieldFacet.newFacet(field, multiReader);
           // search
@@ -228,14 +237,14 @@ public final class MultipleIndex {
     }
     return facets;
   }
-  
+
   /**
    * @return a new reader reading all indexes.
    */
   public MultipleIndexReader getMultiReader() {
     return new MultipleIndexReader();
   }
-  
+
   /**
    * Handle a list of readers.
    * 
@@ -243,13 +252,16 @@ public final class MultipleIndex {
    * @version 20 September 2011
    *
    */
-  public class MultipleIndexReader {
+  public final class MultipleIndexReader {
+
     /**
-     * List of open readers
+     * List of open readers.
      */
     private final Map<IndexMaster, IndexReader> indexes = new HashMap<IndexMaster, IndexReader>();
+
     /**
-     * Grab a new index reader
+     * Grab a new index reader.
+     * 
      * @throws IndexException 
      */
     public IndexReader grab() throws IndexException {
@@ -258,7 +270,7 @@ public final class MultipleIndex {
       for (int i = 0; i < indexDirs.size(); i++) {
         IndexMaster master = getMaster(indexDirs.get(i));
         // make sure index has been setup
-        if (master == null) throw new IllegalArgumentException("Cannot search on an index before it has been initialised");
+        if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
         // grab what we need
         IndexReader reader = master.manager().grabReader(master.index());
         readers[i] = reader;
@@ -267,8 +279,9 @@ public final class MultipleIndex {
       }
       return new MultiReader(readers);
     }
+
     /**
-     * Release all the open readers we have listed
+     * Release all the open readers we have listed.
      */
     public void releaseSilently() {
       // now release everything we used

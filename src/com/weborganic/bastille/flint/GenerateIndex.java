@@ -67,6 +67,7 @@ public final class GenerateIndex extends ContentGeneratorBase implements Content
     long modified = 0;
     List<File> indexed = new ArrayList<File>();
 
+    // Index template
     String index = req.getParameter("index");
     String folder = req.getParameter("folder");
     if (index == null) {

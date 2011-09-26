@@ -90,6 +90,7 @@ public final class SecurityFilter implements Filter {
       if (query != null) url = url + '?' +query;
       ProtectedRequest target = new ProtectedRequest(url);
       session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
+      res.setHeader("WWW-Authenticate", "FORM");
       res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 

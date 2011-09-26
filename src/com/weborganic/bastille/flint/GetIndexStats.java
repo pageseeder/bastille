@@ -6,8 +6,6 @@ package com.weborganic.bastille.flint;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -21,6 +19,7 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
+import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -35,13 +34,6 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @since 0.6.0
  */
 public class GetIndexStats extends ContentGeneratorBase implements ContentGenerator, Cacheable {
-
-  /**
-   * The ISO 8601 Date and time format
-   * 
-   * @see <a href="http://www.iso.org/iso/date_and_time_format">ISO: Numeric representation of Dates and Time</a>
-   */
-  private static final String ISO8601_DATETIME = "yyyy-MM-dd'T'HH:mm:ssZ";
 
   /**
    * Logger for debugging
@@ -140,8 +132,7 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
       xml.attribute("error", "Failed to load reader: "+e.getMessage());
     }
     if (reader != null) {
-      DateFormat iso = new SimpleDateFormat(ISO8601_DATETIME);
-      xml.attribute("last-modified", iso.format(IndexReader.lastModified(reader.directory())));
+      xml.attribute("last-modified", ISO8601.DATETIME.format(IndexReader.lastModified(reader.directory())));
       xml.attribute("current", Boolean.toString(reader.isCurrent()));
       xml.attribute("optimized", Boolean.toString(reader.isOptimized()));
       // list docs

@@ -81,7 +81,6 @@ public final class Obfuscator {
     long r = Math.round(Math.random() * Long.MAX_VALUE);
     final int maxbase = 36;
     obfuscated.append(Long.toString(r, maxbase));
-    System.err.println(obfuscated.toString());
     return toMixCase(reverse(obfuscated)).toString();
   }
 

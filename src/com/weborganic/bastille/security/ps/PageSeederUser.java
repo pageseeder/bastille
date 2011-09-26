@@ -8,7 +8,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.weborganic.berlioz.GlobalSettings;
+
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.security.Obfuscator;
 import com.weborganic.bastille.security.User;
 
 /**
@@ -120,10 +125,50 @@ public final class PageSeederUser implements User, Serializable {
   }
 
   /**
-   * @return the group the user is a member of.
+   * @return the groups the user is a member of.
    */
   public List<String> memberOf() {
     return Arrays.asList(this._memberOf);
+  }
+
+  /**
+   * Indicates whether the user is a member of the specified group.
+   * 
+   * @param group The group to check membership of.
+   * @return the group the user is a member of.
+   */
+  public boolean isMemberOf(String group) {
+    if (this._memberOf == null) return false;
+    for (String g : this._memberOf) {
+      if (g.equals(group)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns the user from the property stored in the global settings.
+   * 
+   * <p>This class will log the user to PageSeeder to retrieve his info.
+   * 
+   * <p>If the password is using some
+   * 
+   * @param property The property of the PageSeeder user.
+   * 
+   * @return The user or <code>null</code> if it is not configured properly or could not login.
+   * 
+   * @throws IOException Should an error occur while attempting login
+   */
+  public static PageSeederUser get(String property) throws IOException {
+    String username = GlobalSettings.get(property+".username");
+    String password = GlobalSettings.get(property+".password");
+    if (password.startsWith("OB1:")) {
+      password = Obfuscator.clear(password.substring(4));
+    } else {
+      Logger logger = LoggerFactory.getLogger(PageSeederUser.class);
+      logger.warn("Config property \""+property+".password\" left in clear - consider obfuscating.");
+    }
+    PageSeederUser user = (PageSeederUser)PageSeederAuthenticator.login(username, password);
+    return user;
   }
 
   // Setters ======================================================================================
@@ -175,6 +220,8 @@ public final class PageSeederUser implements User, Serializable {
   /**
    * A PageSeeder User as XML.
    * 
+   * <p>Note: The password is never included.
+   * 
    * <pre>{@code
    *  <user type="pageseeder">
    *    <id>[member_id]</id>
@@ -182,6 +229,7 @@ public final class PageSeederUser implements User, Serializable {
    *    <firstname>[member_firstname]</firstname>
    *    <surname>[member_surname]</surname>
    *    <email>[member_email]</email>
+   *    <member-of groups="[group0],[group1]"/>
    *  </user>
    * }</pre>
    * 
@@ -195,6 +243,17 @@ public final class PageSeederUser implements User, Serializable {
     if (this._firstname != null) xml.element("firstname", this._firstname);
     if (this._surname != null) xml.element("surname", this._surname);
     if (this._email != null) xml.element("email", this._email);
+    if (this._memberOf != null) {
+      String[] memberOf = this._memberOf;
+      xml.openElement("member-of");
+      StringBuilder groups = new StringBuilder();
+      for (int i = 0; i < memberOf.length; i++) {
+        if (i > 0) groups.append(',');
+        groups.append(memberOf[i]);
+      }
+      xml.attribute("groups", groups.toString());
+      xml.closeElement();
+    }
     xml.closeElement();
   }
 

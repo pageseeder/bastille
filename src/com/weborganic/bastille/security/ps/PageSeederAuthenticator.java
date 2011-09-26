@@ -258,9 +258,9 @@ public final class PageSeederAuthenticator implements Authenticator {
    * }</pre>
    * 
    * @author Christophe Lauret
-   * @version 15 September 2011
+   * @version 26 September 2011
    */
-  private static class PSUserHandler extends DefaultHandler {
+  private static final class PSUserHandler extends DefaultHandler {
 
     /** Member element */
     private static final String MEMBER = "mem";
@@ -292,7 +292,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     private List<String> memberOf = new ArrayList<String>();
     /** List of groups from the configuration */
     private final String[] groups;
-    
+
     /**
      * Build a new handler.
      */
@@ -301,10 +301,11 @@ public final class PageSeederAuthenticator implements Authenticator {
       if (mof == null) this.groups = new String[0];
       else this.groups = mof.split(",");
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public void startElement(String uri, String local, String name, Attributes attributes) throws SAXException {
       if (MEMBER.equals(name)) this.inMem = true;
       if (this.inMem) {
@@ -317,6 +318,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void endElement(String uri, String local, String name) throws SAXException {
       if (MEMBER.equals(name)) this.inMem = false;
       if (this.inMem) {
@@ -335,7 +337,8 @@ public final class PageSeederAuthenticator implements Authenticator {
         // Only record matching groups
         String group = this.buffer.toString();
         for (String g : groups) {
-          if (g.equals(group)) {
+          // Subscriptions may contain the same group multiple times
+          if (g.equals(group) && !this.memberOf.contains(g)) {
             this.memberOf.add(group);
             break;
           }
@@ -347,6 +350,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
       if (this.record) this.buffer.append(ch, start, length);
     }

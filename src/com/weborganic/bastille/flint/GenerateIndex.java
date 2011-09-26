@@ -42,15 +42,14 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * 
  * <p>The index must be located in the '/index' directory. 
  * The IXML stylesheet must be 'ixml/default.xsl'.
-
  * 
- * <p>Note: access to this is generator should be made secured in the Web descriptor.   
+ * <p>Note: access to this is generator should be made secured in the Web descriptor.
  * 
  * @author Christophe Lauret 
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
  */
-public class GenerateIndex extends ContentGeneratorBase implements ContentGenerator  {
+public final class GenerateIndex extends ContentGeneratorBase implements ContentGenerator  {
 
   /**
    * Logger for debugging
@@ -116,9 +115,13 @@ public class GenerateIndex extends ContentGeneratorBase implements ContentGenera
   }
 
   /**
-   * XML for a file to be indexed 
-   * @param xml  the XML writer
-   * @param path the path to the file.
+   * XML for a file to be indexed.
+   * 
+   * @param xml      the XML writer.
+   * @param modified when the file was last modified.
+   * @param path     the path to the file.
+   * @param action   the action the indexer should take.
+   * 
    * @throws IOException If thrown by the xml writer
    */
   public void toXML(XMLWriter xml, String path, String modified, String action) throws IOException {

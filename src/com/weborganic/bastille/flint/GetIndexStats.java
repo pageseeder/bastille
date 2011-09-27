@@ -29,11 +29,12 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 /**
  * Print some information about the index.
  * 
- * @author Christophe Lauret 
- * @version 0.6.0 - 31 May 2010
+ * @author Christophe Lauret
+ * 
+ * @version 0.6.20 - 27 September 2011
  * @since 0.6.0
  */
-public class GetIndexStats extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public final class GetIndexStats extends ContentGeneratorBase implements ContentGenerator, Cacheable {
 
   /**
    * Logger for debugging
@@ -48,7 +49,7 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
       return d.isDirectory();
     }
   };
-  
+
   /**
    * {@inheritDoc} 
    */
@@ -75,7 +76,6 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
       }
     } catch (IOException ex) {
       LOGGER.debug("Error while trying to get last modified date of index", ex);
-      return etag = null;
     }
     return etag;
   }
@@ -84,21 +84,23 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
    * {@inheritDoc}
    */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-
     // Getting the index
     xml.openElement("index-stats");
     File xslt = req.getEnvironment().getPrivateFile("ixml/default.xsl");
     File indexRoot = req.getEnvironment().getPrivateFile("index");
     FSDirectory directory = FSDirectory.open(indexRoot);
+
     if (IndexReader.indexExists(directory)) {
       // single index, output it
       indexToXML(indexRoot, xslt, null, xml);
+
     } else {
       // multiple indexes maybe
       File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
       if (dirs != null && dirs.length > 0) {
-        for (File d : dirs)
+        for (File d : dirs) {
           indexToXML(indexRoot, xslt, d.getName(), xml);
+        }
       } else {
         xml.openElement("index");
         xml.attribute("exists", "false");
@@ -107,6 +109,7 @@ public class GetIndexStats extends ContentGeneratorBase implements ContentGenera
     }
     xml.closeElement();
   }
+
   /**
    * Output the given index as XML
    * @param env

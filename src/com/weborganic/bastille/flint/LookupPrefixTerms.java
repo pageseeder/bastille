@@ -26,12 +26,15 @@ import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
 import com.weborganic.bastille.flint.helpers.SingleIndex;
+import com.weborganic.bastille.util.Errors;
 
 /**
  * Lookup the fuzzy term for the specified term.
  * 
- * @author Christophe Lauret 
- * @version 0.6.0 - 23 May 2010
+ * @author Christophe Lauret
+ * @author Jean-Baptiste Reure
+ * 
+ * @version 0.6.20 - 27 September 2011
  * @since 0.6.0
  */
 public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
@@ -43,12 +46,15 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
 
   /**
    * Generate an ETag based on the parameters and the last modified date of the index.
+   * 
+   * {@inheritDoc}
    */
-  @Override public String getETag(ContentRequest req) {
+  @Override
+  public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
-    etag.append(req.getParameter("term", "keyword")).append('%');
-    etag.append(req.getParameter("field", "")).append('%');
+    etag.append(req.getParameter("field", "keyword")).append('%');
+    etag.append(req.getParameter("term", "")).append('%');
     // Get last time index was modified
     IndexMaster master = SingleIndex.master();
     if (master != null) {
@@ -62,6 +68,13 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
    * {@inheritDoc}
    */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+
+    // Check parameters
+    String t = req.getParameter("term");
+    if (t == null || t.length() == 0) {
+      Errors.noParameter(req, xml, "term");
+      return;
+    }
 
     // Create a new query object
     String field = req.getParameter("field", "keyword");

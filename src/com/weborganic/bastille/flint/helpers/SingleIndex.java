@@ -21,9 +21,6 @@ import org.weborganic.berlioz.GlobalSettings;
  */
 public final class SingleIndex {
 
-  /** Where the index is located */
-  private static File directory = null;
-
   /**
    * Utility class.
    */
@@ -36,8 +33,7 @@ public final class SingleIndex {
    * @return the master or null if it doesn't exist.
    */
   public static IndexMaster master() {
-    if (directory == null) directory = new File(GlobalSettings.getRepository(), "index");
-    return MultipleIndex.getMaster(directory);
+    return MultipleIndex.getMaster(FlintConfig.directory());
   }
 
   /**
@@ -48,7 +44,7 @@ public final class SingleIndex {
    * @return the master
    */
   public static IndexMaster setupMaster(File xslt) {
-    if (directory == null) directory = new File(GlobalSettings.getRepository(), "index");
-    return MultipleIndex.setupMaster(directory, xslt);
+    return MultipleIndex.setupMaster(FlintConfig.directory(), xslt);
   }
+
 }

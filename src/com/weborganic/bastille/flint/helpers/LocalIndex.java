@@ -12,7 +12,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.weborganic.flint.Index;
 
 /**
- * Represents the local index. 
+ * A basic implementation of a local index. 
  * 
  * @author Christophe Lauret
  * @version 0.6.0 - 27 May 2010
@@ -24,6 +24,7 @@ public final class LocalIndex implements Index {
    * The location of the index.
    */
   private final File _location;
+
   /**
    * This index's analyser
    * If this is modified, the method toQuery in IndexMaster will have to be modified to use the correct analyser.

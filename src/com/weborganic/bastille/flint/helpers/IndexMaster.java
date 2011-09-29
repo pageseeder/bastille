@@ -85,6 +85,7 @@ public final class IndexMaster {
   public IndexMaster(File indexDir) {
     this(indexDir, null);
   }
+
   /**
    * Sets up the index master.
    * 
@@ -118,8 +119,9 @@ public final class IndexMaster {
 
     // Setup the configuration
     this.config = new IndexConfig();
-    if (xslt != null)
+    if (xslt != null) {
       this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
+    }
 
     // Start the index manager
     this.manager.start();

@@ -52,7 +52,7 @@ public final class MultipleIndex {
     if (indexDir == null) return null;
     IndexMaster master = MASTERS.get(indexDir);
     if (master == null) {
-      master = new IndexMaster(indexDir);
+      master = new IndexMaster(indexDir, FlintConfig.itemplates());
       MASTERS.put(indexDir, master);
     }
     return master;

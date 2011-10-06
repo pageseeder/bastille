@@ -86,6 +86,12 @@ public final class GenerateIndex extends ContentGeneratorBase implements Content
     File root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
     LOGGER.debug("Scanning XML directory {}", root);
 
+    // Force index all
+    if ("true".equals(req.getParameter("all"))) {
+      modified = 0;
+    }
+
+    // Identify the files
     IndexUpdateFilter filter = new IndexUpdateFilter(modified, indexed);
     int updated = FileCollector.list(root, filter).size();
     Map<File, Action> files = filter.getActions();

@@ -27,6 +27,19 @@ public final class IndexUpdateFilter implements FileFilter {
   public enum Action {INSERT, UPDATE, DELETE, IGNORE};
 
   /**
+   * The default filter to use when no filter is specified.
+   * 
+   * <p>Ignores hidden files and files starting with "."
+   */
+  private static final FileFilter DEFAULT_FILTER = new FileFilter() {
+
+    @Override
+    public boolean accept(File f) {
+      return !f.isHidden() & !f.getName().startsWith(".");
+    }
+  };
+
+  /**
    * Files modified after this date will be accepted.
    */
   private final long _since;
@@ -45,6 +58,7 @@ public final class IndexUpdateFilter implements FileFilter {
    * Used to filter out the files not supposed to be indexed.
    */
   private final FileFilter _innerFilter;
+
   /**
    * Creates a new filter.
    * 
@@ -52,7 +66,7 @@ public final class IndexUpdateFilter implements FileFilter {
    */
   public IndexUpdateFilter(long since) {
     this._since = since;
-    this._innerFilter = null;
+    this._innerFilter = DEFAULT_FILTER;
   }
 
   /**
@@ -68,7 +82,7 @@ public final class IndexUpdateFilter implements FileFilter {
       this._files.put(path, i);
       this._actions.put(path, Action.DELETE);
     }
-    this._innerFilter = null;
+    this._innerFilter = DEFAULT_FILTER;
   }
 
   /**
@@ -85,7 +99,7 @@ public final class IndexUpdateFilter implements FileFilter {
       this._files.put(path, i);
       this._actions.put(path, Action.DELETE);
     }
-    this._innerFilter = filter;
+    this._innerFilter = filter != null? filter : DEFAULT_FILTER;
   }
 
   /**

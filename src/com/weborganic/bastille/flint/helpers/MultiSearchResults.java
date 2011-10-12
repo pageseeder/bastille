@@ -196,7 +196,7 @@ public final class MultiSearchResults implements XMLWritable {
    *         <code>false</code> if there is more than one hit.
    */
   public boolean isEmpty() {
-    return this.totalNbOfResults > 0;
+    return this.totalNbOfResults == 0;
   }
 
   /**

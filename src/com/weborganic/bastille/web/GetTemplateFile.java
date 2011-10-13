@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -23,7 +22,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.0 - 31 May 2010
  * @since 0.6.0
  */
-public abstract class GetTemplateFile extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public abstract class GetTemplateFile implements ContentGenerator, Cacheable {
 
   /**
    * The template name (eg. "header", "footer", etc...) 

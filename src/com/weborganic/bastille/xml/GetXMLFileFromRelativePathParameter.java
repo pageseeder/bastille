@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 
@@ -45,7 +44,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * 
  * 
  */
-public final class GetXMLFileFromRelativePathParameter extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public final class GetXMLFileFromRelativePathParameter implements ContentGenerator, Cacheable {
 
   /**
    * Logger for debugging

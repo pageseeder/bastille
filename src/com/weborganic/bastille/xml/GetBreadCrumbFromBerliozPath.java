@@ -10,12 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
-
-import com.weborganic.bastille.xml.XMLConfiguration;
 
 /**
  * <p>This generator returns the breadcrumb status based on Berlioz path.<p>
@@ -88,7 +85,7 @@ import com.weborganic.bastille.xml.XMLConfiguration;
  * @author Ciber Cai
  * @version 14 July 2011
  */
-public class GetBreadCrumbFromBerliozPath extends ContentGeneratorBase implements ContentGenerator{
+public class GetBreadCrumbFromBerliozPath implements ContentGenerator{
 
   /**
    * Logger for debugging

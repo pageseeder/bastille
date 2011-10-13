@@ -64,10 +64,10 @@ public final class XSLTUtils {
       templates = factory.newTemplates(source);
     } catch (TransformerConfigurationException ex) {
       LOGGER.error("Transformer exception: {}", ex);
-      throw new BerliozException("Transformer exception while trying to load XSLT templates", url.toString(), ex);
+      throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url.toString(), ex);
     } catch (IOException ex) {
       LOGGER.error("IO error while trying to load template: {}", url);
-      throw new BerliozException("IO error while trying to load XSLT templates", url.toString(), ex);
+      throw new BerliozException("IO error while trying to load XSLT templates"+ url.toString(), ex);
     } finally {
       IOUtils.closeQuietly(in);
     }

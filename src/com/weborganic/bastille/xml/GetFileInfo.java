@@ -4,7 +4,6 @@
 package com.weborganic.bastille.xml;
 
 import java.io.File;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.util.FileUtils;
@@ -78,7 +76,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.8 - 7 June 2011
  * @since 0.6.0
  */
-public final class GetFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable  {
+public final class GetFileInfo implements ContentGenerator, Cacheable  {
 
   /**
    * Where the private files are.

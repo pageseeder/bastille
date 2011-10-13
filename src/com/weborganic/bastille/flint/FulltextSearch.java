@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
@@ -50,7 +49,7 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @version 20 September 2011
  * @since 0.6.0
  */
-public class FulltextSearch extends ContentGeneratorBase implements ContentGenerator {
+public class FulltextSearch implements ContentGenerator {
 
   /**
    * Logger for debugging

@@ -5,7 +5,6 @@ package com.weborganic.bastille.xml;
 
 import java.io.File;
 import java.io.FileFilter;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.FileUtils;
 
@@ -87,7 +85,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.5 - 23 May 2010
  * @since 0.6.0
  */
-public final class GetXMLFileInfo extends ContentGeneratorBase implements ContentGenerator, Cacheable {
+public final class GetXMLFileInfo implements ContentGenerator, Cacheable {
 
   /**
    * Filters XML files only.

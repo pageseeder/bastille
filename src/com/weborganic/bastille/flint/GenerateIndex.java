@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
-import org.weborganic.berlioz.content.ContentGeneratorBase;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.util.ISO8601;
@@ -49,7 +48,7 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
  */
-public final class GenerateIndex extends ContentGeneratorBase implements ContentGenerator  {
+public final class GenerateIndex implements ContentGenerator  {
 
   /**
    * Logger for debugging

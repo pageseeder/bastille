@@ -24,15 +24,18 @@ public final class ObfuscatorGenerator implements ContentGenerator {
     String password = req.getParameter("password", "");
     if (password.length() > 0) {
 
-      // Get the clear version of the password
-      String clear = Obfuscator.clear(password);
+      String clear = password;
+      String obscur = password;
 
-      // If the password was clear obfuscate it; otherwise assume already obfuscated
-      String obf = clear.equals(password)? Obfuscator.obfuscate(password) : password;
+      if (password.startsWith("OB1:")) {
+        clear = Obfuscator.clear(password);
+      } else {
+        obscur = Obfuscator.obfuscate(password);
+      }
 
       xml.openElement("password", false);
       xml.attribute("clear", clear);
-      xml.attribute("obfuscated", obf);
+      xml.attribute("obscur", "OB1:"+obscur);
       xml.closeElement();
     } else {
       xml.emptyElement("no-password");

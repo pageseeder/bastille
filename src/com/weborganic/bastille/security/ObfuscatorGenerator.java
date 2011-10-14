@@ -32,7 +32,7 @@ public final class ObfuscatorGenerator implements ContentGenerator {
 
       xml.openElement("password", false);
       xml.attribute("clear", clear);
-      xml.attribute("obsfuscated", obf);
+      xml.attribute("obfuscated", obf);
       xml.closeElement();
     } else {
       xml.emptyElement("no-password");

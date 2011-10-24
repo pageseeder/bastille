@@ -59,6 +59,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    * 
    * {@inheritDoc}
    */
+  @Override
   public AuthenticationResult login(HttpServletRequest req) throws IOException {
 
     // Grab the username and password
@@ -91,7 +92,7 @@ public final class PageSeederAuthenticator implements Authenticator {
         } else if (email != null && email.equals(current.getEmail())) {
           return AuthenticationResult.ALREADY_LOGGED_IN;
 
-        // Already logged in as a different user
+          // Already logged in as a different user
         } else {
           logout(current);
           session.invalidate();
@@ -113,6 +114,7 @@ public final class PageSeederAuthenticator implements Authenticator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public AuthenticationResult logout(HttpServletRequest req) throws IOException {
     // Get the session
     HttpSession session = req.getSession();
@@ -132,7 +134,7 @@ public final class PageSeederAuthenticator implements Authenticator {
   }
 
   /**
-   * Logins the user using their username and password. 
+   * Logins the user using their username and password.
    * 
    * @param username The username of the user to login
    * @param password The password of the user to login
@@ -167,12 +169,12 @@ public final class PageSeederAuthenticator implements Authenticator {
       user = parse(source);
       is.close();
 
-    // If a client error occurs
+      // If a client error occurs
     } else if (status >= HttpURLConnection.HTTP_BAD_REQUEST
-            && status < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+        && status < HttpURLConnection.HTTP_INTERNAL_ERROR) {
       LOGGER.debug("PageSeeder returned {}: {}", status, connection.getResponseMessage());
 
-    // If a server error occurs
+      // If a server error occurs
     } else {
       LOGGER.warn("PageSeeder returned {}: {}", status, connection.getResponseMessage());
       throw new IOException("Unable to connect to Remote PageSeeder Server");
@@ -277,7 +279,9 @@ public final class PageSeederAuthenticator implements Authenticator {
     /** Member's JSession ID element */
     private static final String JSESSIONID = "wo-jsessionid";
     /** Member's JSession ID element */
-    private static final String GROUPNAME = "controlgroupname";
+    //private static final String GROUPNAME = "controlgroupname";
+    /** Member's groupname element */
+    private static final String GROUPNAME = "name";
 
     /** State variable to indicate whether we are within the Member element */
     private boolean inMem = false;
@@ -333,10 +337,10 @@ public final class PageSeederAuthenticator implements Authenticator {
       } else if (JSESSIONID.equals(name)) {
         this.map.put(JSESSIONID, this.buffer.toString());
         this.buffer.setLength(0);
-      } else if (GROUPNAME.equals(name) && groups.length > 0) {
+      } else if (GROUPNAME.equals(name) && this.groups.length > 0) {
         // Only record matching groups
         String group = this.buffer.toString();
-        for (String g : groups) {
+        for (String g : this.groups) {
           // Subscriptions may contain the same group multiple times
           if (g.equals(group) && !this.memberOf.contains(g)) {
             this.memberOf.add(group);
@@ -359,7 +363,7 @@ public final class PageSeederAuthenticator implements Authenticator {
      * @return a new PageSeeder User from the values parsed.
      */
     private PageSeederUser getUser() {
-      if (groups.length > 0 && this.memberOf.size() == 0) return null;
+      if (this.groups.length > 0 && this.memberOf.size() == 0) return null;
       Long id = Long.parseLong(this.map.get(ID));
       PageSeederUser user = new PageSeederUser(id);
       user.setEmail(this.map.get(EMAIL));

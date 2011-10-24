@@ -282,9 +282,23 @@ public final class PageSeederAuthenticator implements Authenticator {
     //private static final String GROUPNAME = "controlgroupname";
     /** Member's groupname element */
     private static final String GROUPNAME = "name";
+    /** Member's current group element */
+    private static final String CURRENTGROUPS = "currentgroups";
+    /** Member's group element */
+    private static final String CURRENTGROUP = "group";
+
+
 
     /** State variable to indicate whether we are within the Member element */
     private boolean inMem = false;
+
+    /** State variable to indicate whether we are within in the currentgroups element*/
+    private boolean inCurrentgroups = false;
+
+    /** State variable to indicate whether we are within in the group element*/
+    private boolean inGroup = false;
+
+
     /** State variable to indicate whether to record character data in the buffer */
     private boolean record = false;
     /** A buffer for character data */
@@ -312,6 +326,9 @@ public final class PageSeederAuthenticator implements Authenticator {
     @Override
     public void startElement(String uri, String local, String name, Attributes attributes) throws SAXException {
       if (MEMBER.equals(name)) this.inMem = true;
+      if (CURRENTGROUPS.equals(name)) this.inCurrentgroups = true;
+      if (CURRENTGROUP.equals(name)) this.inGroup = true;
+
       if (this.inMem) {
         this.record = ID.equals(name) || SURNAME.equals(name) || USERNAME.equals(name) || FIRSTNAME.equals(name);
       } else {
@@ -325,6 +342,10 @@ public final class PageSeederAuthenticator implements Authenticator {
     @Override
     public void endElement(String uri, String local, String name) throws SAXException {
       if (MEMBER.equals(name)) this.inMem = false;
+      if (CURRENTGROUPS.equals(name)) this.inCurrentgroups = false;
+      if (this.inCurrentgroups && CURRENTGROUP.equals(name)) this.inGroup = false;
+
+
       if (this.inMem) {
         if (ID.equals(name)) this.map.put(ID, this.buffer.toString());
         else if (SURNAME.equals(name)) this.map.put(SURNAME, this.buffer.toString());
@@ -337,17 +358,21 @@ public final class PageSeederAuthenticator implements Authenticator {
       } else if (JSESSIONID.equals(name)) {
         this.map.put(JSESSIONID, this.buffer.toString());
         this.buffer.setLength(0);
-      } else if (GROUPNAME.equals(name) && this.groups.length > 0) {
-        // Only record matching groups
-        String group = this.buffer.toString();
-        for (String g : this.groups) {
-          // Subscriptions may contain the same group multiple times
-          if (g.equals(group) && !this.memberOf.contains(g)) {
-            this.memberOf.add(group);
-            break;
+      }
+      // check current group contains the specified group name
+      if (this.inCurrentgroups && this.inGroup){
+        if (GROUPNAME.equals(name) ){
+          String group = this.buffer.toString();
+          LOGGER.debug("current group {} ",  group);
+          for (String g : this.groups) {
+            // Subscriptions may contain the same group multiple times
+            if (g.equals(group) && !this.memberOf.contains(g)) {
+              this.memberOf.add(group);
+              break;
+            }
           }
+          this.buffer.setLength(0);
         }
-        this.buffer.setLength(0);
       }
     }
 

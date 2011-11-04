@@ -63,9 +63,9 @@ public final class PageSeederAuthenticator implements Authenticator {
   public AuthenticationResult login(HttpServletRequest req) throws IOException {
 
     // Grab the username and password
-    String username = req.getParameter("username");
-    String email = req.getParameter("email");
-    String password = req.getParameter("password");
+    String username = req.getParameter("username") !=null ? req.getParameter("username").trim() : null;
+    String email = req.getParameter("email") !=null ? req.getParameter("email").trim() : null ;
+    String password = req.getParameter("password") !=null ? req.getParameter("password").trim(): null;
 
     // Required details
     if ((username == null && email == null) || password == null) {

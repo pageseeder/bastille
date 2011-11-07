@@ -71,6 +71,8 @@ public final class LoginServlet extends HttpServlet {
     super.init(config);
     this.loginPage = config.getInitParameter("login-page");
     this.defaultTarget = config.getInitParameter("default-target");
+    if (this.defaultTarget == null)
+      this.defaultTarget = DEFAULT_TARGET;
   }
 
   @Override

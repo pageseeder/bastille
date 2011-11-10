@@ -43,11 +43,6 @@ public final class PredicateSearch implements ContentGenerator  {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Create a new query object using HTTP parameters
-    String field = req.getParameter("field", "");
-    if (field.isEmpty()) {
-      Errors.noParameter(req, xml, "field");
-      return;
-    }
     String predicate = req.getParameter("predicate", "");
     if (predicate.isEmpty()) {
       Errors.noParameter(req, xml, "predicate");

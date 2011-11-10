@@ -18,7 +18,6 @@ import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
-import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -26,7 +25,7 @@ import com.weborganic.bastille.flint.helpers.MultipleIndex;
 import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
- * Print some information about the index.
+ * List the terms from the index.
  * 
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
@@ -34,12 +33,12 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @version 0.6.20 - 27 September 2011
  * @since 0.6.0
  */
-public final class GetIndexStats implements ContentGenerator, Cacheable {
+public final class GetIndexTerms implements ContentGenerator, Cacheable {
 
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetIndexStats.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetIndexTerms.class);
 
   /**
    * To list only folders
@@ -92,34 +91,32 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
    */
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
-    xml.openElement("index-stats");
     File xslt = req.getEnvironment().getPrivateFile("ixml/default.xsl");
     File indexRoot = req.getEnvironment().getPrivateFile("index");
     FSDirectory directory = FSDirectory.open(indexRoot);
 
     if (IndexReader.indexExists(directory)) {
       // single index, output it
-      indexToXML(indexRoot, xslt, null, true, xml);
+      termsToXML(indexRoot, xslt, null, xml);
 
     } else {
       String indexName = req.getParameter("index");
       if (indexName != null) {
-        indexToXML(indexRoot, xslt, indexName, false, xml);
+        termsToXML(indexRoot, xslt, indexName, xml);
       } else {
         // multiple indexes maybe
         File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
-            indexToXML(indexRoot, xslt, d.getName(), false, xml);
+            termsToXML(indexRoot, xslt, d.getName(), xml);
           }
         } else {
-          xml.openElement("index");
-          xml.attribute("exists", "false");
+          xml.openElement("terms");
+          xml.attribute("error", "No index");
           xml.closeElement();
         }
       }
     }
-    xml.closeElement();
   }
 
   /**
@@ -130,9 +127,8 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
    * @throws IOException
    * @throws IndexException 
    */
-  private void indexToXML(File indexRoot, File xsl, String name, boolean terms, XMLWriter xml) throws IOException {
-    xml.openElement("index");
-    if (name != null) xml.attribute("name", name);
+  private void termsToXML(File indexRoot, File xsl, String name, XMLWriter xml) throws IOException {
+    xml.openElement("terms");
     File root = null;
     IndexReader reader = null;
     try {
@@ -148,29 +144,17 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
     }
     if (reader != null) {
       try {
-        xml.attribute("last-modified", ISO8601.DATETIME.format(IndexReader.lastModified(reader.directory())));
-        xml.attribute("current", Boolean.toString(reader.isCurrent()));
-        xml.attribute("optimized", Boolean.toString(reader.isOptimized()));
-        // list docs
-        xml.openElement("documents");
-        xml.attribute("count", reader.numDocs());
-        xml.closeElement();
-        // terms
-        if (terms) {
-          xml.openElement("terms");
-          TermEnum e = reader.terms();
-          while (e.next()) {
-            Term t = e.term();
-            xml.openElement("term");
-            xml.attribute("field", t.field());
-            xml.attribute("text", t.text());
-            xml.attribute("doc-freq", e.docFreq());
-            xml.closeElement();
-          }
+        TermEnum e = reader.terms();
+        while (e.next()) {
+          Term t = e.term();
+          xml.openElement("term");
+          xml.attribute("field", t.field());
+          xml.attribute("text", t.text());
+          xml.attribute("doc-freq", e.docFreq());
           xml.closeElement();
         }
       } catch (Exception ex) {
-        LOGGER.error("Error while extracting index statistics", ex);
+        LOGGER.error("Error while extracting term statistics", ex);
       } finally {
         if (name == null) {
           SingleIndex.master().releaseSilently(reader);
@@ -179,9 +163,8 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
         }
       }
     } else {
-      xml.attribute("error", "Null reader");
+      xml.attribute("error", "Reader is null");
     }
     xml.closeElement();
-
   }
 }

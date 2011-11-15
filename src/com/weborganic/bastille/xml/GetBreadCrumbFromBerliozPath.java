@@ -85,7 +85,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @author Ciber Cai
  * @version 14 July 2011
  */
-public class GetBreadCrumbFromBerliozPath implements ContentGenerator{
+public final class GetBreadCrumbFromBerliozPath implements ContentGenerator {
 
   /**
    * Logger for debugging
@@ -98,17 +98,18 @@ public class GetBreadCrumbFromBerliozPath implements ContentGenerator{
 
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);
     String path = req.getBerliozPath();
-    String subpath = "";
+    StringBuilder subpath = new StringBuilder();
 
     xml.openElement("breadcrumbs");
 
-    for (String p: path.split("/")){
-      if (!p.isEmpty()){
-        subpath +=  "/" + p;
+    for (String p : path.split("/")) {
+      if (!p.isEmpty()) {
+        subpath.append('/').append(p);
+        String current = subpath.toString();
         xml.openElement("breadcrumb");
         xml.attribute("name", p);
-        xml.attribute("path", subpath);
-        xml.attribute("exist", String.valueOf(fileisExist(rootfolder, subpath)));
+        xml.attribute("path", current);
+        xml.attribute("exist", String.valueOf(fileisExist(rootfolder, current)));
         xml.closeElement();
       }
     }
@@ -121,20 +122,19 @@ public class GetBreadCrumbFromBerliozPath implements ContentGenerator{
    * @param path
    * @return
    */
-  private boolean fileisExist(File rootfolder, String path){
-    File file = new File (rootfolder, path + ".xml");
-    File folder = new File (rootfolder, path );
+  private boolean fileisExist(File rootfolder, String path) {
+    File file = new File(rootfolder, path + ".xml");
+    File folder = new File(rootfolder, path);
 
     // request file exists
-    if (file.exists()){
+    if (file.exists()) {
       return true;
     } else {
       // request file is a directory
-      if (folder.isDirectory()){
+      if (folder.isDirectory()) {
         return true;
       }
     }
     return false;
   }
-
 }

@@ -12,8 +12,6 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.ContentStatus;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.pageseeder.PSConnector;
-import com.weborganic.bastille.pageseeder.PSResourceType;
 
 /**
  * Invokes PageSeeder to reset the password for the user.

@@ -79,7 +79,7 @@ public final class Base32 {
   /**
    * Decodes the given Base32 String to a raw byte array.
    * 
-   * @param base32
+   * @param base32 A string encoded as base32.
    * @return Decoded <code>base32</code> String as a raw byte array.
    */
   public static byte[] decode(final String base32) {

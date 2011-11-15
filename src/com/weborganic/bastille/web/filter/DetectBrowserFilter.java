@@ -55,12 +55,12 @@ public final class DetectBrowserFilter implements Filter {
   /**
    * The mobile site address
    */
-  private String mobile="";
+  private String mobile = "";
 
   /**
    * The normal site address
    */
-  private String normal= "";
+  private String normal = "";
 
   /**
    * Initialises the filter.
@@ -116,18 +116,18 @@ public final class DetectBrowserFilter implements Filter {
     String requrl = req.getRequestURL().toString();
 
     // A Mobile and there is a mobile Website
-    if (isMobile(userAgent) && this.mobile != null && !this.mobile.isEmpty()){
+    if (isMobile(userAgent) && this.mobile != null && !this.mobile.isEmpty()) {
       // protect die loop
-      if (requrl.toLowerCase().contains(this.mobile.toLowerCase())){
+      if (requrl.toLowerCase().contains(this.mobile.toLowerCase())) {
         chain.doFilter(req, res);
       } else {
         res.sendRedirect(this.mobile);
       }
 
     // A Desktop and there is a desktop Website
-    } else if (!isMobile(userAgent) && this.normal != null && !this.normal.isEmpty()){
+    } else if (!isMobile(userAgent) && this.normal != null && !this.normal.isEmpty()) {
       // protect die loop
-      if (requrl.toLowerCase().contains(this.normal.toLowerCase())){
+      if (requrl.toLowerCase().contains(this.normal.toLowerCase())) {
         chain.doFilter(req, res);
       } else {
         res.sendRedirect(this.normal);

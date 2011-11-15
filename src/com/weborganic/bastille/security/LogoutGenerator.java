@@ -37,7 +37,6 @@ public final class LogoutGenerator implements ContentGenerator {
     if (user != null) {
       authenticator.logout(user);
       session.invalidate();
-      session = req.getSession();
     }
 
     // XML

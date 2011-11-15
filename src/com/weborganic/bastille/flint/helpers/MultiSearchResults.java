@@ -318,7 +318,7 @@ public final class MultiSearchResults implements XMLWritable {
   }
 
   /**
-   * Return the results
+   * Return the results.
    * 
    * @return the search results
    * @throws IndexException
@@ -351,14 +351,15 @@ public final class MultiSearchResults implements XMLWritable {
   }
 
   /**
-   * Release all references to all the searchers used
+   * Release all references to all the searchers used.
    * 
    * @throws IndexException
    */
   public void terminate() throws IndexException {
     if (this.searchers.isEmpty()) return;
-    for (Map.Entry<IndexMaster, IndexSearcher> entry : this.searchers.entrySet())
+    for (Map.Entry<IndexMaster, IndexSearcher> entry : this.searchers.entrySet()) {
       entry.getKey().releaseSilently(entry.getValue());
+    }
     this.terminated = true;
   }
 

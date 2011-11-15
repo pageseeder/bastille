@@ -64,8 +64,8 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     // Grab the username and password
     String username = req.getParameter("username") != null ? req.getParameter("username").trim() : null;
-    String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null ;
-    String password = req.getParameter("password") != null ? req.getParameter("password").trim(): null;
+    String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null;
+    String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
 
     // Required details
     if ((username == null && email == null) || password == null) {
@@ -125,7 +125,6 @@ public final class PageSeederAuthenticator implements Authenticator {
       }
       // Invalidate the session and create a new one
       session.invalidate();
-      session = req.getSession(true);
       return AuthenticationResult.LOGGED_OUT;
     }
 
@@ -357,10 +356,9 @@ public final class PageSeederAuthenticator implements Authenticator {
         this.buffer.setLength(0);
       }
       // check current group contains the specified group name
-      if (this.inCurrentgroups && this.inGroup){
+      if (this.inCurrentgroups && this.inGroup) {
         if (GROUPNAME.equals(name)) {
           String group = this.buffer.toString();
-          LOGGER.debug("current group {} ",  group);
           for (String g : this.groups) {
             // Subscriptions may contain the same group multiple times
             if (g.equals(group) && !this.memberOf.contains(g)) {

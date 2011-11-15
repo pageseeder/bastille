@@ -3,6 +3,8 @@
  */
 package com.weborganic.bastille.pageseeder;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.xml.XMLCopy;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,7 +41,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * Wraps an HTTP connection to PageSeeder.
  * 
  * @author Christophe Lauret
- * @version 0.6.15 - 16 September 2011
+ * @version 0.6.25 - 15 November 2011
  * @since 0.6.7
  */
 public final class PSConnection {
@@ -229,7 +232,6 @@ public final class PSConnection {
     return this._type;
   }
 
-
   /**
    * Process the specified PageSeeder connection. 
    * 
@@ -328,7 +330,7 @@ public final class PSConnection {
       int status = this._connection.getResponseCode();
       xml.attribute("http-status", status);
 
-      if (status >= HttpURLConnection.HTTP_OK && status < HttpURLConnection.HTTP_MULT_CHOICE) {
+      if (isOK(status) || (this._resource.includeErrorContent() && isError(status))) {
 
         String contentType = this._connection.getContentType();
 
@@ -359,7 +361,7 @@ public final class PSConnection {
 
       } else {
         LOGGER.info("PageSeeder returned {}: {}", status, this._connection.getResponseMessage());
-        error(xml, "http-error", this._connection.getResponseMessage());
+        psError(xml, "pageseeder-error", this._connection);
         ok = false;
       }
 
@@ -467,7 +469,7 @@ public final class PSConnection {
     InputStream in = null;
     try {
       // Get the source as input stream
-      in = connection.getInputStream();
+      in = isOK(connection.getResponseCode())? connection.getInputStream() : connection.getErrorStream();
       InputSource source = new InputSource(in);
 
       // Ensure the encoding is correct
@@ -526,7 +528,7 @@ public final class PSConnection {
 
     InputStream in = null;
     try {
-      in = connection.getInputStream();
+      in = isOK(connection.getResponseCode())? connection.getInputStream() : connection.getErrorStream();
 
       // Setup the source
       StreamSource source = new StreamSource(in);
@@ -586,7 +588,7 @@ public final class PSConnection {
     boolean ok = true;
 
     try {
-      in = connection.getInputStream();
+      in = isOK(connection.getResponseCode())? connection.getInputStream() : connection.getErrorStream();
       String encoding = connection.getContentEncoding();
       IOUtils.copy(in, buffer, encoding);
     } catch (IOException ex) {
@@ -606,6 +608,28 @@ public final class PSConnection {
   }
 
   /**
+   * Indicates whether the response was successful based on the HTTP code.
+   * 
+   * @param code the HTTP status code.
+   * @return <code>true</code> if the code is between 200 and 299 (included);
+   *         <code>false</code>.
+   */
+  private static boolean isOK(int code) {
+    return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_MULT_CHOICE; 
+  }
+
+  /**
+   * Indicates whether the response failed based on the HTTP code.
+   * 
+   * @param code the HTTP status code.
+   * @return <code>true</code> if the code is greater than 400 (included);
+   *         <code>false</code>.
+   */
+  private static boolean isError(int code) {
+    return code >= HttpURLConnection.HTTP_BAD_REQUEST;
+  }
+
+  /**
    * Adds the attributes for when error occurs
    * 
    * @param xml     The XML output.
@@ -618,4 +642,146 @@ public final class PSConnection {
     xml.attribute("error", error);
     xml.attribute("message", message);
   }
+
+  /**
+   * Adds the attributes for when error occurs
+   * 
+   * @param xml        The XML output.
+   * @param error      The error code.
+   * @param connection The PS Connection.
+   * 
+   * @throws IOException If thrown while writing the XML.
+   */
+  private static void psError(XMLWriter xml, String error, HttpURLConnection connection) throws IOException {
+    xml.attribute("error", error);
+    String message = null;
+    InputStream err = null;
+    try {
+      err = getErrorStream(connection);
+
+      // Setup the input source
+      InputSource source = new InputSource(err);
+      String encoding = connection.getContentEncoding();
+      if (encoding != null) source.setEncoding(encoding);
+
+      // And parse!
+      message = ErrorMessageGrabber.getMessage(source);
+
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    } finally {
+      IOUtils.closeQuietly(err);
+    }
+
+    if (message == null || "".equals(message)) message = connection.getResponseMessage();
+    xml.attribute("message", message);
+  }
+
+  /**
+   * Returns the error stream to parse.
+   * 
+   * <p>If debug is enabled, the content of the error stream is printed onto the System error stream.
+   * 
+   * @param connection HTTP connection.
+   * 
+   * @return the error stream.
+   * 
+   * @throws IOException If thrown while writing the XML.
+   */
+  private static InputStream getErrorStream(HttpURLConnection connection) throws IOException {
+    InputStream err = null;
+    if (LOGGER.isDebugEnabled()) {
+      InputStream tmp = connection.getErrorStream();
+      try {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
+        IOUtils.copy(tmp, buffer);
+        buffer.writeTo(System.err);
+        err = new ByteArrayInputStream(buffer.toByteArray());
+      } finally {
+        IOUtils.closeQuietly(tmp);
+      }
+    } else {
+      err = connection.getErrorStream();
+    }
+    return err;
+  }
+
+  /**
+   * Extracts the error message from the "message" element in the XML response returned by PageSeeder.
+   * 
+   * @author Christophe Lauret
+   * @version 15 November 2011
+   */
+  private static class ErrorMessageGrabber extends DefaultHandler {
+
+    /**
+     * Name of the message element.
+     */
+    private static final String MESSAGE_ELEMENT = "message";
+
+    /**
+     * The error message.
+     */
+    private final StringBuilder message = new StringBuilder();
+
+    /** State: Within "message" element. */
+    private boolean isMessage = false;
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+      if (MESSAGE_ELEMENT.equals(localName) || MESSAGE_ELEMENT.equals(qName)) {
+        this.isMessage = true;
+      }
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) {
+      if (MESSAGE_ELEMENT.equals(localName) || MESSAGE_ELEMENT.equals(qName)) {
+        this.isMessage = false;
+      }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) {
+      if (this.isMessage) this.message.append(ch, start, length);
+    }
+
+    /**
+     * Returns the error message found in the XML.
+     *
+     * @return the error message found in the XML.
+     */
+    public String getMessage() {
+      return this.message.toString();
+    }
+
+    /**
+     * Returns the error message found in the specified XML Input Source.
+     *
+     * @param source the XML input source to parse.
+     * @return the error message found in the specified XML Input Source.
+     * 
+     * @throws IOException If unable to parse response due to IO error.
+     */
+    public static String getMessage(InputSource source) throws IOException {
+      String message = null;
+      try {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setValidating(false);
+        factory.setNamespaceAware(false);
+
+        // And parse!
+        SAXParser parser = factory.newSAXParser();
+        ErrorMessageGrabber grabber = new ErrorMessageGrabber();
+        parser.parse(source, grabber);
+        message = grabber.getMessage();
+      } catch (SAXException ex) {
+        LOGGER.warn("Unable to parse error message from PS Response", ex);
+      } catch (ParserConfigurationException ex) {
+        LOGGER.warn("Unable to parse error message from PS Response", ex);
+      }
+      return message;
+    }
+  }
+
 }

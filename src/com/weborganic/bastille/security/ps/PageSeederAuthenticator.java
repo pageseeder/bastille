@@ -63,9 +63,9 @@ public final class PageSeederAuthenticator implements Authenticator {
   public AuthenticationResult login(HttpServletRequest req) throws IOException {
 
     // Grab the username and password
-    String username = req.getParameter("username") !=null ? req.getParameter("username").trim() : null;
-    String email = req.getParameter("email") !=null ? req.getParameter("email").trim() : null ;
-    String password = req.getParameter("password") !=null ? req.getParameter("password").trim(): null;
+    String username = req.getParameter("username") != null ? req.getParameter("username").trim() : null;
+    String email = req.getParameter("email") != null ? req.getParameter("email").trim() : null ;
+    String password = req.getParameter("password") != null ? req.getParameter("password").trim(): null;
 
     // Required details
     if ((username == null && email == null) || password == null) {
@@ -278,8 +278,6 @@ public final class PageSeederAuthenticator implements Authenticator {
     private static final String EMAIL = "memberemail";
     /** Member's JSession ID element */
     private static final String JSESSIONID = "wo-jsessionid";
-    /** Member's JSession ID element */
-    //private static final String GROUPNAME = "controlgroupname";
     /** Member's groupname element */
     private static final String GROUPNAME = "name";
     /** Member's current group element */
@@ -345,7 +343,6 @@ public final class PageSeederAuthenticator implements Authenticator {
       if (CURRENTGROUPS.equals(name)) this.inCurrentgroups = false;
       if (this.inCurrentgroups && CURRENTGROUP.equals(name)) this.inGroup = false;
 
-
       if (this.inMem) {
         if (ID.equals(name)) this.map.put(ID, this.buffer.toString());
         else if (SURNAME.equals(name)) this.map.put(SURNAME, this.buffer.toString());
@@ -361,7 +358,7 @@ public final class PageSeederAuthenticator implements Authenticator {
       }
       // check current group contains the specified group name
       if (this.inCurrentgroups && this.inGroup){
-        if (GROUPNAME.equals(name) ){
+        if (GROUPNAME.equals(name)) {
           String group = this.buffer.toString();
           LOGGER.debug("current group {} ",  group);
           for (String g : this.groups) {

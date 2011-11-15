@@ -94,6 +94,18 @@ public final class PSConnector {
     this._resource.addParameter(name, value);
   }
 
+  /**
+   * Sets whether this resource should include the error content.
+   * 
+   * @param include <code>true</code> to include the content of response even when the response code 
+   *                is greater than 400 (included);
+   *                <code>false</code> to only include the response when the response code is 
+   *                between 200 and 299.
+   */
+  public void includeErrorContent(boolean include) {
+    this._resource.includeErrorContent(include);
+  }
+
   // Connection
   // ----------------------------------------------------------------------------------------------
 

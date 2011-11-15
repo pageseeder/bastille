@@ -19,7 +19,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * Defines a resource to retrieve from PageSeeder.
  * 
  * @author Christophe Lauret
- * @version 0.6.3 - 13 April 2011
+ * @version 0.6.25 - 15 November 2011
  * @since 0.6.2
  */
 public final class PSResource {
@@ -40,6 +40,11 @@ public final class PSResource {
   private final Map<String, String> _parameters;
 
   /**
+   * The name of the resource to access.
+   */
+  private final boolean _includeErrorContent;
+
+  /**
    * Creates a new connection to the specified resource.
    * 
    * @param type The type of resource.
@@ -49,6 +54,7 @@ public final class PSResource {
     this._type = type;
     this._name = name;
     this._parameters = Collections.emptyMap();
+    this._includeErrorContent = false;
   }
 
   /**
@@ -57,11 +63,13 @@ public final class PSResource {
    * @param type       The type of resource.
    * @param name       The name of the resource to access (depends on the type of resource)
    * @param parameters The parameters to access the resource.
+   * @param include    Whether to include the response content. 
    */
-  private PSResource(PSResourceType type, String name, Map<String, String> parameters) {
+  private PSResource(PSResourceType type, String name, Map<String, String> parameters, boolean include) {
     this._type = type;
     this._name = name;
     this._parameters = parameters;
+    this._includeErrorContent = include;
   }
 
   // Getters
@@ -100,6 +108,16 @@ public final class PSResource {
    */
   public void addParameter(String name, String value) {
     this._parameters.put(name, value);
+  }
+
+  /**
+   * Indicates whether this resource should include the error content.
+   * 
+   * @return <code>true</code> to include the content of response even when the response code is greater than 400;
+   *         <code>false</code> to only include the response when the response code is between 200 and 299.
+   */
+  protected boolean includeErrorContent() {
+    return this._includeErrorContent;
   }
 
   // Private helpers
@@ -235,6 +253,11 @@ public final class PSResource {
     private String _name;
 
     /**
+     * The name of the resource to access.
+     */
+    private boolean _includeError = false;
+
+    /**
      * The parameters to send.
      */
     private Map<String, String> _parameters = new HashMap<String, String>();
@@ -277,6 +300,16 @@ public final class PSResource {
     }
 
     /**
+     * Indicates whether this resource should include the error content.
+     * 
+     * @param include <code>true</code> to include the content of response even when the response code is greater than 400;
+     *                <code>false</code> to only include the response when the response code is between 200 and 299.
+     */
+    protected void includeErrorContent(boolean include) {
+      this._includeError = include;
+    }
+
+    /**
      * Add a parameter to this request.
      * 
      * @param name  The name of the parameter
@@ -295,12 +328,13 @@ public final class PSResource {
     public PSResource build() {
       if (this._type == null) throw new IllegalStateException("Unable to build PSResource, type is not set.");
       if (this._name == null) throw new IllegalStateException("Unable to build PSResource, name is not set.");
+      Map<String, String> parameters = null;
       if (this._parameters.isEmpty()) {
-        return new PSResource(this._type, this._name);
+        parameters = Collections.<String, String>emptyMap();
       } else {
-        // Make parameters immutable
-        return new PSResource(this._type, this._name, new HashMap<String, String>(this._parameters));
+        parameters = new HashMap<String, String>(this._parameters);
       }
+      return new PSResource(this._type, this._name, parameters, this._includeError);
     }
 
   }

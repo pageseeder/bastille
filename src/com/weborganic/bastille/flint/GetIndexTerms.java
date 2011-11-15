@@ -54,36 +54,34 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
    */
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
-    String etag = null;
+    StringBuilder etag = new StringBuilder();
     try {
       File index = env.getPrivateFile("index");
       FSDirectory directory = FSDirectory.open(index);
       if (IndexReader.indexExists(directory)) {
         long modified = IndexReader.lastModified(directory);
-        etag = env.getPrivateFile("index").getName()+"-"+modified;
+        etag.append(env.getPrivateFile("index").getName()).append('-').append(modified);
       } else {
         String indexName = req.getParameter("index");
         if (indexName != null) {
           FSDirectory fsd = FSDirectory.open(index);
           if (IndexReader.indexExists(fsd))
-            etag = indexName+"-"+IndexReader.lastModified(fsd);
+            etag.append(indexName).append('-').append(IndexReader.lastModified(fsd));
         } else {
           File[] indexes = index.listFiles(FOLDERS_ONLY);
           if (indexes != null) {
-            etag = "";
             for (File indexDir : indexes) {
               FSDirectory fsd = FSDirectory.open(index);
               if (IndexReader.indexExists(fsd))
-                etag += indexDir.getName()+"-"+IndexReader.lastModified(fsd);
+                etag.append(indexDir.getName()).append('-').append(IndexReader.lastModified(fsd));
             }
-            if (etag.length() == 0) etag = null;
           }
         }
       }
     } catch (IOException ex) {
       LOGGER.debug("Error while trying to get last modified date of index", ex);
     }
-    return etag;
+    return etag.length() > 0? etag.toString() : null;
   }
 
   /**

@@ -49,24 +49,38 @@ import com.topologi.diffx.xml.XMLWriter;
  *                         name="[name]" target="[target]"/>}</pre>
  *
  * @author Christophe Lauret (Weborganic)
- * @version 0.6.2 - 7 April 2011
+ * @version 0.6.27 - 29 November 2011
  * @since 0.6.2
  */
-public final class GetUser implements ContentGenerator {
+public class GetUser implements ContentGenerator {
 
   /**
    * Retrieves the user from the session.
    * 
    * {@inheritDoc}
    */
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    HttpSession session = req.getSession();
-    Object o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
-    if (o instanceof User) {
-      ((User)o).toXML(xml);
+  public final void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+    User user = getUser(req);
+    if (user != null) {
+      user.toXML(xml);
     } else {
       xml.emptyElement("no-user");
     }
+  }
+
+  /**
+   * Returns the user stored in the session.
+   * 
+   * @param req the content request.
+   * @return the user if any or <code>null</code>.
+   */
+  protected static User getUser(ContentRequest req) {
+    HttpSession session = req.getSession();
+    if (session == null) return null;
+    Object o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
+    if (o instanceof User) return (User)o;
+    // No match or not a user
+    return null;
   }
 
 }

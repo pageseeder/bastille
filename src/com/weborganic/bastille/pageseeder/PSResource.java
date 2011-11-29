@@ -120,9 +120,6 @@ public final class PSResource {
     return this._includeErrorContent;
   }
 
-  // Private helpers
-  // ----------------------------------------------------------------------------------------------
-
   /**
    * Returns the URL to access this resource.
    * 
@@ -136,6 +133,23 @@ public final class PSResource {
    * @throws MalformedURLException If the URL is not well-formed
    */
   public URL toURL(PageSeederUser user) throws MalformedURLException {
+    return toURL(user, true);
+  }
+
+  /**
+   * Returns the URL to access this resource.
+   * 
+   * <p>If the user is specified, its details will be included in the URL so that the resource can
+   * be accessed on his behalf.
+   * 
+   * @param user                  A PageSeeder to access this resource.
+   * @param includePOSTParameters Whether to include the parameters for POST requests.
+   * 
+   * @return the URL to access this resource.
+   * 
+   * @throws MalformedURLException If the URL is not well-formed
+   */
+  protected URL toURL(PageSeederUser user, boolean includePOSTParameters) throws MalformedURLException {
     Properties pageseeder = PSConfiguration.getProperties();
 
     // Start building the URL
@@ -164,6 +178,7 @@ public final class PSResource {
     } else {
       url.append(path);
     }
+
     // If the session ID is available
     if (user != null && user.getJSessionId() != null) {
       url.append(";jsessionid=").append(user.getJSessionId());
@@ -175,20 +190,45 @@ public final class PSResource {
     } else {
       url.append("?xformat=xml");
     }
-    try {
-      for (Entry<String, String> p : this._parameters.entrySet()) {
-        URLEncoder.encode(p.getKey(), "utf-8");
-        url.append("&").append(URLEncoder.encode(p.getKey(), "utf-8"));
-        url.append("=").append(URLEncoder.encode(p.getValue(), "utf-8"));
+    // When not using the "application/x-www-form-urlencoded"
+    if (includePOSTParameters) {
+      try {
+        for (Entry<String, String> p : this._parameters.entrySet()) {
+          url.append("&").append(URLEncoder.encode(p.getKey(), "utf-8"));
+          url.append("=").append(URLEncoder.encode(p.getValue(), "utf-8"));
+        }
+      } catch (UnsupportedEncodingException ex) {
+        // Should never happen as UTF-8 is supported
+        ex.printStackTrace();
       }
-    } catch (UnsupportedEncodingException ex) {
-      // Should never happen as UTF-8 is supported
-      ex.printStackTrace();
     }
     // Fragment if any
     if (frag != null)
       url.append(frag);
     return new URL(url.toString());
+  }
+
+  // Private helpers
+  // ----------------------------------------------------------------------------------------------
+
+  /**
+   * Returns the string to write the parameters sent via POST as <code>application/x-www-form-urlencoded</code>.
+   * 
+   * @return the string to write the parameters sent via POST.
+   */
+  protected String getPOSTFormURLEncodedContent() {
+    StringBuilder q = new StringBuilder();
+    try {
+      for (Entry<String, String> p : this._parameters.entrySet()) {
+        if (q.length() > 0) q.append("&");
+        q.append(URLEncoder.encode(p.getKey(), "utf-8"));
+        q.append("=").append(URLEncoder.encode(p.getValue(), "utf-8"));
+      }
+    } catch (UnsupportedEncodingException ex) {
+      // Should never happen as UTF-8 is supported
+      ex.printStackTrace();
+    }
+    return q.toString();
   }
 
   // Private helpers

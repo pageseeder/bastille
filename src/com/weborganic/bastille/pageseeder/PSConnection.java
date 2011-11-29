@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -415,18 +416,50 @@ public final class PSConnection {
    * @throws IOException Should an exception be returns while opening the connection 
    */
   protected static PSConnection connect(PSResource resource, Type type, PageSeederUser user) throws IOException {
-    URL url = resource.toURL(user);
+    URL url = resource.toURL(user, type == Type.POST? false : true);
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setDoOutput(true);
     connection.setInstanceFollowRedirects(true);
     connection.setRequestMethod(type == Type.GET? "GET" : "POST");
     connection.setDefaultUseCaches(false);
-    if (type == Type.MULTIPART) {
+    connection.setRequestProperty("X-Requester", "Bastille-"+BASTILLE_VERSION);
+
+    // POST using "application/x-www-form-urlencoded"
+    if (type == Type.POST) {
+      String parameters = resource.getPOSTFormURLEncodedContent();
+      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+      connection.setRequestProperty("Content-Length", Integer.toString(parameters.length()));
+      connection.setDoInput(true);
+      writePOSTData(connection, parameters);
+
+    // POST using "multipart/form-data"
+    } else if (type == Type.MULTIPART) {
       connection.setDoInput(true);
       connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
     }
-    connection.setRequestProperty("X-Requester", "Bastille-"+BASTILLE_VERSION);
     return new PSConnection(connection, resource, type);
+  }
+
+  /**
+   * Write the POST content.
+   * 
+   * @param connection The URL connection
+   * @param data       The data to write
+   * 
+   * @throws IOException Should any error occur while writing.
+   */
+  private static void writePOSTData(HttpURLConnection connection, String data) 
+      throws IOException {
+    OutputStream post = null;
+    try {
+      post = connection.getOutputStream();
+      post.write(data.getBytes(UTF8));
+      post.flush();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      IOUtils.closeQuietly(post);
+      throw ex;
+    }
   }
 
   // Processors

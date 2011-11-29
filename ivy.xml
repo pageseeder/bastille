@@ -17,7 +17,7 @@
     <dependency org="javax"      name="servlet-api"  rev="2.4"    conf="default"/>
 
     <!-- Berlioz -->
-    <dependency org="weborganic" name="wo-berlioz"   rev="0.8+" conf="core"/>
+    <dependency org="weborganic" name="wo-berlioz"   rev="0.9+" conf="core"/>
     <dependency org="weborganic" name="wo-furi"      rev="0.8+"   conf="core"/>
     <dependency org="weborganic" name="wo-diffx"     rev="0.7+"   conf="core"/>
 
@@ -27,7 +27,7 @@
     <dependency org="apache"     name="lucene-misc"  rev="3.0+"     conf="core"/>
 
     <!-- Caching -->
-    <dependency org="ehcache"    name="ehcache-core" rev="2+"     conf="core"/>
+    <dependency org="ehcache"    name="ehcache-core" rev="2.5+"     conf="core"/>
 
   </dependencies>
 </ivy-module>

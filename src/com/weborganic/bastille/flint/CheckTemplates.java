@@ -44,20 +44,20 @@ public final class CheckTemplates implements ContentGenerator  {
     xml.openElement("index-templates");
     xml.attribute("name", def != null? def.getName() : "null");
     if (def == null || !def.exists()) {
-      xml.attribute("status","error");
-      xml.attribute("cause","not-found");
+      xml.attribute("status", "error");
+      xml.attribute("cause", "not-found");
     } else {
       try {
         compile(def);
-        xml.attribute("status","ok");
+        xml.attribute("status", "ok");
       } catch (IOException ex) {
-        xml.attribute("status","error");
-        xml.attribute("cause","io-exception");
+        xml.attribute("status", "error");
+        xml.attribute("cause", "io-exception");
         String message = ex.getMessage();
         xml.element("message", message != null? message : "");
       } catch (TransformerException ex) {
-        xml.attribute("status","error");
-        xml.attribute("cause","transformer-exception");
+        xml.attribute("status", "error");
+        xml.attribute("cause", "transformer-exception");
         String message = ex.getMessageAndLocation();
         xml.element("message", message != null? message : "");
       }
@@ -87,5 +87,5 @@ public final class CheckTemplates implements ContentGenerator  {
     }
     return templates;
   }
-  
+
 }

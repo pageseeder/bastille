@@ -106,7 +106,7 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
    * Filters and normalises the value in the path informations.
    */
   private String normalise(String pathInfo) {
-    if (pathInfo!=null && pathInfo.endsWith("/")) {
+    if (pathInfo != null && pathInfo.endsWith("/")) {
       return pathInfo.substring(0, pathInfo.length()-1);
     }
     return pathInfo;

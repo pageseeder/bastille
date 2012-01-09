@@ -19,6 +19,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weborganic.flint.FlintTranslatorFactory;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
@@ -29,7 +31,7 @@ import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.ContentFetcher;
 import org.weborganic.flint.content.ContentId;
-import org.weborganic.flint.log.PrintStreamListener;
+import org.weborganic.flint.log.SLF4JListener;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchQuery;
 import org.weborganic.flint.query.SearchResults;
@@ -48,6 +50,11 @@ import org.weborganic.flint.util.Terms;
  */
 public final class IndexMaster {
 
+  /**
+   * A logger for this class and to provide for Flint.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
+  
   /**
    * The requester is always the index master.
    */
@@ -114,7 +121,7 @@ public final class IndexMaster {
     }
 
     // Create a Manager
-    this.manager = new IndexManager(fetcher, new PrintStreamListener(System.err));
+    this.manager = new IndexManager(fetcher, new SLF4JListener(LOGGER));
     this.manager.registerTranslatorFactory(new FlintTranslatorFactory());
 
     // Setup the configuration

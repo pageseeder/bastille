@@ -63,6 +63,8 @@ public final class IndexMaster {
       return "IndexMaster";
     }
   };
+  
+  private static AnalyzerProvider analyzerProvider = null;
 
   /**
    * Where the private files are.
@@ -133,12 +135,21 @@ public final class IndexMaster {
     // Start the index manager
     this.manager.start();
   }
+  /**
+   * Set the new Analyzer Provider.
+   * @param providore the new Analyzer Provider.
+   */
+  public static void setAnalyzerProvider(AnalyzerProvider providore) {
+    analyzerProvider = providore;
+  }
 
   /**
    * @return an analyzer similar to the one used in all indexes
    */
   public static Analyzer getNewAnalyzer() {
-    return new StandardAnalyzer(Version.LUCENE_30);
+    if (analyzerProvider == null)
+      return new StandardAnalyzer(Version.LUCENE_30);
+    return analyzerProvider.getAnalyzer();
   }
 
   /**

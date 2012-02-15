@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flint library.
- * 
+ *
  * For licensing information please see the file license.txt included in the release. A copy of this licence can also be
  * found at http://www.opensource.org/licenses/artistic-license-2.0.php
  */
@@ -41,16 +41,16 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * A container for search results of a query ran on multiple indexes.
- * 
+ *
  * <p>Use this class to serialise Lucene Search results as XML.
- * 
- * <p>Note: the current implementation is a "throw away" object, once the toXML method has been 
+ *
+ * <p>Note: the current implementation is a "throw away" object, once the toXML method has been
  * called, this instance is useless.
- * 
+ *
  * @author Christophe Lauret (Weborganic)
  * @author Jean-Baptiste Reure (Weborganic)
  * @author William Liem (Allette Systems)
- * 
+ *
  * @version 16 September 2011
  */
 public final class MultiSearchResults implements XMLWritable {
@@ -62,7 +62,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * The ISO 8601 Date and time format
-   * 
+   *
    * @see <a href="http://www.iso.org/iso/date_and_time_format">ISO: Numeric representation of Dates and Time</a>
    */
   private static final String ISO8601_DATETIME = "yyyy-MM-dd'T'HH:mm:ssZ";
@@ -119,7 +119,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Creates a new SearchResults.
-   * 
+   *
    * @param fielddocs The actual search results from Lucene in TopFieldDocs.
    * @param paging The paging configuration.
    * @param io The IndexIO object, used to release the searcher when terminated
@@ -133,7 +133,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Creates a new SearchResults.
-   * 
+   *
    * @param hits The actual search results from Lucene in ScoreDoc.
    * @param paging The paging configuration.
    * @param io The IndexIO object, used to release the searcher when terminated
@@ -151,17 +151,17 @@ public final class MultiSearchResults implements XMLWritable {
   public SearchPaging getPaging() {
     return this.paging;
   }
-  
+
   /**
    * Creates a new SearchResults.
-   * 
+   *
    * @param hits The actual search results from Lucene in ScoreDoc.
    * @param sortf The Field used to sort the results
    * @param paging The paging configuration.
    * @param searcher The Lucene searcher.
    * @throws IndexException if the documents could not be retrieved from the Index
    */
-  private MultiSearchResults(SearchQuery query, ScoreDoc[] hits, SortField[] sortf, int totalResults, SearchPaging paging, 
+  private MultiSearchResults(SearchQuery query, ScoreDoc[] hits, SortField[] sortf, int totalResults, SearchPaging paging,
       MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes) throws IndexException {
     this.query = query;
     this.scoredocs = hits;
@@ -182,7 +182,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Returns the total number of results.
-   * 
+   *
    * @return the total number of results.
    */
   public int getTotalNbOfResults() {
@@ -191,7 +191,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Indicates whether the search results are empty.
-   * 
+   *
    * @return <code>true</code> if the results are empty;
    *         <code>false</code> if there is more than one hit.
    */
@@ -201,7 +201,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Sets the time zone to use when formatting the results as XML.
-   * 
+   *
    * @param timezoneInMinutes the timezone offset in minutes (difference with GMT)
    */
   public void setTimeZone(int timezoneInMinutes) {
@@ -210,17 +210,17 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Serialises the search results as XML.
-   * 
+   *
    * @param xml The XML writer.
-   * 
+   *
    * @throws IOException Should there be any I/O exception while writing the XML.
    */
+  @Override
   public void toXML(XMLWriter xml) throws IOException {
     xml.openElement("search-results", true);
     // Check whether it's equally distribute mode, if yes then calculate num of hits for each page
     int length = this.totalNbOfResults;
-    int hitsperpage = (this.paging.checkEqDist())? ((int)Math.ceil((double)length / (double)this.paging.getTotalPage()))
-        : this.paging.getHitsPerPage();
+    int hitsperpage = this.paging.getHitsPerPage();
     int firsthit = hitsperpage * (this.paging.getPage() - 1) + 1;
     int lasthit = Math.min(length, firsthit + hitsperpage - 1);
 
@@ -265,7 +265,7 @@ public final class MultiSearchResults implements XMLWritable {
       Document doc = this.searcher.doc(this.scoredocs[i].doc);
 
       // Find the extract only applies to TermExtractable queries
-      if (query instanceof TermExtractable) {
+      if (this.query instanceof TermExtractable) {
         TermExtractable q = (TermExtractable)this.query;
         Set<Term> terms = new HashSet<Term>();
         q.extractTerms(terms);
@@ -319,7 +319,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Return the results.
-   * 
+   *
    * @return the search results
    * @throws IndexException
    */
@@ -331,7 +331,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Load a document from the index.
-   * 
+   *
    * @param id the id of the document
    * @return the document object loaded from the index, could be null
    * @throws IndexException if the index is invalid
@@ -352,7 +352,7 @@ public final class MultiSearchResults implements XMLWritable {
 
   /**
    * Release all references to all the searchers used.
-   * 
+   *
    * @throws IndexException
    */
   public void terminate() throws IndexException {
@@ -370,7 +370,7 @@ public final class MultiSearchResults implements XMLWritable {
   }
 
   /**
-   * 
+   *
    * @param value  the value from the index
    * @param iso    the ISO 8601 date formatter
    * @param offset the timezone offset
@@ -402,7 +402,7 @@ public final class MultiSearchResults implements XMLWritable {
     if (value == null && f.getBinaryLength() > 0) try {
       value = CompressionTools.decompressString(f.getBinaryValue());
     } catch (DataFormatException ex) {
-      // strange but true, unable to decompress 
+      // strange but true, unable to decompress
       LOGGER.error("Failed to decompress field value", ex);
       return null;
     }

@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security;
 
@@ -9,12 +13,12 @@ import com.weborganic.bastille.util.Base32;
 
 /**
  * A utility class to obfuscate passwords.
- * 
+ *
  * <p>Use this class to avoid leaving the password in clear in the configuration.
- * 
+ *
  * <p>Note that this class is not meant to provide any strong cryptography, but is merely there to
  * make passwords harder to guess.
- * 
+ *
  * @author Christophe Lauret
  * @version 26 September 2011
  */
@@ -31,8 +35,8 @@ public final class Obfuscator {
 
   /**
    * Return the given password to its clear form.
-   * 
-   * <p><i>Implementation note:</i> this method performs the following transformation: 
+   *
+   * <p><i>Implementation note:</i> this method performs the following transformation:
    * <pre>
    *   1. "4zh8zUxn1Yug11VtM5ak34tkDOB" (Obfuscated password)
    *   2. "VtM5ak34tkDOB"               (Grab characters after last '1')
@@ -40,7 +44,7 @@ public final class Obfuscator {
    *   4. "OBQxg43xn5ZgI"               (Perform ROT13 transformation)
    *   5. "password"                    (Decode in Base32 as UTF-8 bytes)
    * </pre>
-   * 
+   *
    * @param obfuscated the obfuscated password
    * @return The password in clear.
    */
@@ -58,8 +62,8 @@ public final class Obfuscator {
 
   /**
    * Obfuscate the given password.
-   * 
-   * <p><i>Implementation note:</i> this method performs the following transformation: 
+   *
+   * <p><i>Implementation note:</i> this method performs the following transformation:
    * <pre>
    *   1. "password"                    (Original, password in clear)
    *   2. "OBQXG43XN5ZGI"               (Encode in Base32 from UTF-8 bytes)
@@ -69,7 +73,7 @@ public final class Obfuscator {
    *   6. "4ZH8ZUXN1YUG11VTM5AK34TKDOB" (Reverse character sequence)
    *   7. "4zh8zUxn1Yug11VtM5ak34tkDOB" (Convert to Mixed case)
    * </pre>
-   * 
+   *
    * @param clear the password in clear
    * @return The obfuscated password
    */
@@ -86,12 +90,12 @@ public final class Obfuscator {
 
   /**
    * To obfuscate passwords.
-   * 
+   *
    * <p>Use this class as:
    * <pre>
    *   java -cp bastille.jar com.weborganic.bastille.security.Obfuscator [password]
    * </pre>
-   * 
+   *
    * @param args Command line arguments.
    */
   public static void main(String[] args) {
@@ -106,7 +110,7 @@ public final class Obfuscator {
 
   /**
    * Reverse the characters in the specified character sequence.
-   * 
+   *
    * @param word The word to process.
    * @return The sequence in reverse order.
    */
@@ -120,14 +124,14 @@ public final class Obfuscator {
 
   /**
    * Randomly turn characters in the specified sequence to upper or lower case.
-   * 
+   *
    * @param word The word to process.
    * @return The same sequence in mixed case.
    */
   private static CharSequence toMixCase(CharSequence word) {
     StringBuilder mixed = new StringBuilder();
-    final int length = word.length(); 
-    final double fifty_percent = 0.5; 
+    final int length = word.length();
+    final double fifty_percent = 0.5;
     for (int i = 0; i < length; i++) {
       boolean up = Math.random() > fifty_percent;
       mixed.append(up? Character.toUpperCase(word.charAt(i)) : Character.toLowerCase(word.charAt(i)));
@@ -137,7 +141,7 @@ public final class Obfuscator {
 
   /**
    * Performs a ROT13 transformation of the specified string (handles mixed case)
-   * 
+   *
    * @param word The word to process.
    * @return The sequence in mixed case.
    */

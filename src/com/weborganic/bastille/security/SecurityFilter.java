@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security;
 
@@ -17,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Filters request and check that the user has access to the underlying resource.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.2 - 8 April 2011
  * @since 0.6.2
@@ -26,26 +30,29 @@ public final class SecurityFilter implements Filter {
 
   /**
    * Do nothing.
-   * 
+   *
    * {@inheritDoc}
    */
+  @Override
   public void init(FilterConfig config) throws ServletException {
   }
 
   /**
    * Do nothing.
-   * 
+   *
    * {@inheritDoc}
    */
+  @Override
   public void destroy() {
   }
 
   /**
    * Does the filtering.
-   * 
+   *
    * {@inheritDoc}
    */
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) 
+  @Override
+  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
      throws IOException, ServletException {
     // Use HTTP specific requests.
     doHttpFilter((HttpServletRequest)req, (HttpServletResponse)res, chain);
@@ -53,15 +60,15 @@ public final class SecurityFilter implements Filter {
 
   /**
    * Does the filtering.
-   * 
+   *
    * @param req   the HTTP servlet request
    * @param res   the HTTP servlet response
    * @param chain The filter chain
-   * 
+   *
    * @throws IOException      If thrown by any of the underlying filters or servlets.
    * @throws ServletException If thrown by any of the underlying filters or servlets.
    */
-  private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) 
+  private void doHttpFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
      throws IOException, ServletException {
 
     // Retrieve the user from the session

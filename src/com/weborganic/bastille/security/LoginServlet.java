@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security;
 
@@ -20,14 +24,14 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
 
 /**
  * A servlet to login.
- * 
- * <p>This servlet actually performs the login using an authenticator. 
- * 
+ *
+ * <p>This servlet actually performs the login using an authenticator.
+ *
  * <h3>Initialisation parameters</h3>
  * <p>See {@link #init(ServletConfig)}.
- * 
+ *
  * @author Christophe Lauret
- * @version 0.6.15 - 16 September 2011 
+ * @version 0.6.15 - 16 September 2011
  * @since 0.6.2
  */
 public final class LoginServlet extends HttpServlet {
@@ -59,11 +63,11 @@ public final class LoginServlet extends HttpServlet {
 
   /**
    * This Servlet accepts two initialisation parameters.
-   * 
+   *
    * <p><code>login-page</code> is required and should point to the login page.
    * <p><code>default-target</code> is optional and should point to the default target after login,
    * defaults to "/".
-   * 
+   *
    * {@inheritDoc}
    */
   @Override
@@ -140,7 +144,7 @@ public final class LoginServlet extends HttpServlet {
     } catch (ConnectException ex) {
 
       // Unable to connect to PageSeeder
-      final int badGateway = 502; 
+      final int badGateway = 502;
       res.sendError(badGateway, ex.getMessage());
     }
 

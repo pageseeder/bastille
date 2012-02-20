@@ -1,13 +1,19 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security.ps;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +42,9 @@ import com.weborganic.bastille.security.User;
 
 /**
  * An authenticator that uses PageSeeder to authenticate users.
- * 
+ *
  * @author Christophe Lauret
- * @version 0.6.13 - 15 September 2011
+ * @version 0.6.29 - 20 February 2012
  * @since 0.6.2
  */
 public final class PageSeederAuthenticator implements Authenticator {
@@ -48,7 +54,7 @@ public final class PageSeederAuthenticator implements Authenticator {
 
   /**
    * Simply to guess if the specified username was an email address.
-   * 
+   *
    * <p>Must match all e-mail addresses, but can include false positives.
    */
   private static final Pattern MAYBE_EMAIL = Pattern.compile("^.+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$");
@@ -56,7 +62,7 @@ public final class PageSeederAuthenticator implements Authenticator {
   /**
    * The PageSeeder login requires a username and password and checks them against the members on
    * a PageSeeder Server.
-   * 
+   *
    * {@inheritDoc}
    */
   @Override
@@ -134,7 +140,7 @@ public final class PageSeederAuthenticator implements Authenticator {
 
   /**
    * Logins the user using their username and password.
-   * 
+   *
    * @param username The username of the user to login
    * @param password The password of the user to login
    * @return The corresponding user or <code>null</code>
@@ -198,9 +204,9 @@ public final class PageSeederAuthenticator implements Authenticator {
    *
    * @param username the PageSeeder username to login with.
    * @param password the corresponding PageSeeder password.
-   * 
+   *
    * @return the corresponding URL
-   * 
+   *
    * @throws MalformedURLException If the
    */
   private static URL toLoginURL(String username, String password) throws MalformedURLException {
@@ -211,18 +217,18 @@ public final class PageSeederAuthenticator implements Authenticator {
     url.append(pageseeder.getProperty("port",          "8080"));
     url.append(pageseeder.getProperty("servletprefix", "/ps/servlet"));
     url.append("/com.pageseeder.SubscriptionForm");
-    url.append("?username=").append(username);
-    url.append("&password=").append(password);
+    url.append("?username=").append(encode(username));
+    url.append("&password=").append(encode(password));
     url.append("&xformat=xml");
     return new URL(url.toString());
   }
 
   /**
    * Parse the XML returned by PageSeeder and return the corresponding user.
-   * 
+   *
    * @param source the XML returned by the login servlet.
    * @return the corresponding PageSeeder user.
-   * 
+   *
    * @throws IOException If thrown by the parser.
    */
   private static PageSeederUser parse(InputSource source) throws IOException {
@@ -241,11 +247,27 @@ public final class PageSeederAuthenticator implements Authenticator {
     return handler.getUser();
   }
 
+  /**
+   * Encode the specified parameter for a URL using utf-8.
+   *
+   * @param parameter the parameter to URL encode.
+   * @return the encoded parameter.
+   */
+  private static String encode(String parameter) {
+    try {
+      return URLEncoder.encode(parameter, "utf-8");
+    } catch (UnsupportedEncodingException ex) {
+      // Should never happen!
+      LOGGER.error("Unable to URL encode characters", ex);
+      return "";
+    }
+  }
+
   // Inner class ==================================================================================
 
   /**
    * Parses the XML returned the <code>com.pageseeder.SubscriptionForm</code> Servlet.
-   * 
+   *
    * <pre>{@code
    *   <wo-jsessionid>76AF8EDE185D6D0F34DFD53982BC0570</wo-jsessionid>
    *   <mem>
@@ -257,7 +279,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    *   </mem>
    *   <memberemail>jsmith@email.com</memberemail>
    * }</pre>
-   * 
+   *
    * @author Christophe Lauret
    * @version 26 September 2011
    */

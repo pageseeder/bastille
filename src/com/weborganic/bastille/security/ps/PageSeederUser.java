@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security.ps;
 
@@ -18,7 +22,7 @@ import com.weborganic.bastille.security.User;
 
 /**
  * Represents a PageSeeder User.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.13 - 15 September 2011
  * @since 0.6.2
@@ -86,40 +90,41 @@ public final class PageSeederUser implements User, Serializable {
    * @return the PageSeeder username for this user.
    */
   public String getUsername() {
-    return _username;
+    return this._username;
   }
 
   /**
-   * @return the ID of this user session in PageSeeder (changes after each login) 
+   * @return the ID of this user session in PageSeeder (changes after each login)
    */
   public String getJSessionId() {
-    return _jsessionid;
+    return this._jsessionid;
   }
 
   /**
    * @return the PageSeeder first name for this user.
    */
   public String getFirstname() {
-    return _firstname;
+    return this._firstname;
   }
 
   /**
    * @return the PageSeeder surname for this user.
    */
   public String getSurname() {
-    return _surname;
+    return this._surname;
   }
 
   /**
    * @return the PageSeeder email for this user.
    */
   public String getEmail() {
-    return _email;
+    return this._email;
   }
 
   /**
    * @return same as username.
    */
+  @Override
   public String getName() {
     return this._username;
   }
@@ -133,7 +138,7 @@ public final class PageSeederUser implements User, Serializable {
 
   /**
    * Indicates whether the user is a member of the specified group.
-   * 
+   *
    * @param group The group to check membership of.
    * @return the group the user is a member of.
    */
@@ -147,15 +152,15 @@ public final class PageSeederUser implements User, Serializable {
 
   /**
    * Returns the user from the property stored in the global settings.
-   * 
+   *
    * <p>This class will log the user to PageSeeder to retrieve his info.
-   * 
+   *
    * <p>If the password is using some
-   * 
+   *
    * @param property The property of the PageSeeder user.
-   * 
+   *
    * @return The user or <code>null</code> if it is not configured properly or could not login.
-   * 
+   *
    * @throws IOException Should an error occur while attempting login
    */
   public static PageSeederUser get(String property) throws IOException {
@@ -167,7 +172,7 @@ public final class PageSeederUser implements User, Serializable {
       Logger logger = LoggerFactory.getLogger(PageSeederUser.class);
       logger.warn("Config property \""+property+".password\" left in clear - consider obfuscating.");
     }
-    PageSeederUser user = (PageSeederUser)PageSeederAuthenticator.login(username, password);
+    PageSeederUser user = PageSeederAuthenticator.login(username, password);
     return user;
   }
 
@@ -219,9 +224,9 @@ public final class PageSeederUser implements User, Serializable {
 
   /**
    * A PageSeeder User as XML.
-   * 
+   *
    * <p>Note: The password is never included.
-   * 
+   *
    * <pre>{@code
    *  <user type="pageseeder">
    *    <id>[member_id]</id>
@@ -232,9 +237,10 @@ public final class PageSeederUser implements User, Serializable {
    *    <member-of groups="[group0],[group1]"/>
    *  </user>
    * }</pre>
-   * 
+   *
    * {@inheritDoc}
    */
+  @Override
   public void toXML(XMLWriter xml) throws IOException {
     xml.openElement("user");
     xml.attribute("type", "pageseeder");

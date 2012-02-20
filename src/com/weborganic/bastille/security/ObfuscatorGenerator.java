@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -10,7 +17,7 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * A generator to obfuscate or see passwords in clear.
- * 
+ *
  * @version 14 October 2011
  * @author Christophe Lauret
  */

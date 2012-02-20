@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.security;
 
 import java.io.IOException;
@@ -14,7 +21,7 @@ import com.weborganic.bastille.util.Resources;
 
 /**
  * A Servlet to log the user out by invalidating the session.
- * 
+ *
  * @author Christophe Lauret
  * @version 9 January 2011
  */
@@ -49,7 +56,7 @@ public final class LogoutServlet extends HttpServlet {
 
   /**
    * Logs the user out by invalidating the session.
-   * 
+   *
    * {@inheritDoc}
    */
   @Override
@@ -68,7 +75,7 @@ public final class LogoutServlet extends HttpServlet {
     res.setHeader("Cache-Control", "no-cache, no-store");
 
     // If the data is defined and found
-    if (data != null) {
+    if (this.data != null) {
 
       // Set the headers
       res.setContentType(this.contentType);
@@ -76,7 +83,7 @@ public final class LogoutServlet extends HttpServlet {
 
       // Copy the data
       ServletOutputStream out = res.getOutputStream();
-      out.write(data);
+      out.write(this.data);
       out.close();
 
     } else {
@@ -91,7 +98,7 @@ public final class LogoutServlet extends HttpServlet {
 
   /**
    * Same as when using GET.
-   * 
+   *
    * {@inheritDoc}
    */
   @Override

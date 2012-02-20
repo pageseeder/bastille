@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.security;
 
@@ -7,7 +11,7 @@ import java.io.Serializable;
 
 /**
  * A URL to save.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.2 - 12 April 2011
  * @since 0.6.2
@@ -34,14 +38,14 @@ public final class ProtectedRequest implements Serializable {
   }
 
   /**
-   * @return The protected URL to access. 
+   * @return The protected URL to access.
    */
   public String url() {
     return this._url;
   }
 
   /**
-   * @return Same as {@link #url()} 
+   * @return Same as {@link #url()}
    */
   @Override
   public String toString() {

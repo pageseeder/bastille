@@ -17,8 +17,9 @@ import org.weborganic.berlioz.util.MD5;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * <p>This generator returns the static content by providing relative path parameter.</p>
- * <p>Only return the content under the website root folder, by default ( WEB-INF/xml ).
+ * This generator returns the static content by providing relative path parameter.
+ * 
+ * <p>Only return the content under the website root folder, by default ( WEB-INF/xml ).</p>
  * 
  * <h3>Parameter</h3>
  * <ul>
@@ -41,8 +42,6 @@ import com.topologi.diffx.xml.XMLWriter;
  * @author Christophe Lauret
  * @author Ciber Cai
  * @version 8 July 2011
- * 
- * 
  */
 public final class GetXMLFileFromRelativePathParameter implements ContentGenerator, Cacheable {
 
@@ -113,7 +112,7 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
   /***
    * Add extension ".xml" to request parameter.
    * @param path
-   * @return
+   * @return path somewhat normalised
    */
   public static String addXMLExtension(String file) {
 

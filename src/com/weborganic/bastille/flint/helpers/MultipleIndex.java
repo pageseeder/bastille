@@ -50,10 +50,13 @@ public final class MultipleIndex {
    */
   public static IndexMaster getMaster(File indexDir) {
     if (indexDir == null) return null;
-    IndexMaster master = MASTERS.get(indexDir);
-    if (master == null) {
-      master = new IndexMaster(indexDir, FlintConfig.itemplates());
-      MASTERS.put(indexDir, master);
+    IndexMaster master;
+    synchronized (MASTERS) {
+      master = MASTERS.get(indexDir);
+      if (master == null) {
+        master = new IndexMaster(indexDir, FlintConfig.itemplates());
+        MASTERS.put(indexDir, master);
+      }
     }
     return master;
   }
@@ -68,10 +71,13 @@ public final class MultipleIndex {
    */
   public static IndexMaster setupMaster(File indexDir, File xslt) {
     if (indexDir == null) return null;
-    IndexMaster master = MASTERS.get(indexDir);
-    if (master == null) {
-      master = new IndexMaster(indexDir, xslt);
-      MASTERS.put(indexDir, master);
+    IndexMaster master;
+    synchronized (MASTERS) {
+      master = MASTERS.get(indexDir);
+      if (master == null) {
+        master = new IndexMaster(indexDir, xslt);
+        MASTERS.put(indexDir, master);
+      }
     }
     return master;
   }

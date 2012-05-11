@@ -5,3 +5,7 @@ syntax: regexp
 ^release$
 syntax: regexp
 ^lib$
+syntax: regexp
+^build\.number$
+syntax: regexp
+^doc$

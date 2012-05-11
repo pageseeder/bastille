@@ -23,20 +23,16 @@ import com.topologi.diffx.xml.XMLWriter;
  * 
  * <h3>Parameter</h3>
  * <ul>
- * <li><code>relative-path</code>: The request relative path.</li>
+ * <li><code>relative-path</code> defines the request relative path from the berlioz website root.</li>
  * </ul>
- * 
  * <p>Use the element <code>parameter</code> to define <code>relative-path</code> in server.xml. </p>
  * 
- * 
  * <p>Sample Berlioz config:</p>
- * <pre>
- * {@code
+ * <pre> {@code
  *   <generator class="com.weborganic.bastille.xml.GetXMLFileFromRelativePathParameter" name="navigation" target="navigation">
  *     <parameter name="relative-path" value="config/navigation.xml" />
  *   </generator>
- * }
- * </pre>
+ * } </pre>
  * 
  * 
  * @author Christophe Lauret
@@ -64,8 +60,12 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     etag.append(req.getParameter("relative-path", "")).append("%");
     etag.append(XMLConfiguration.getXMLRootFolder(req)).append("%");
     File file = new File(XMLConfiguration.getXMLRootFolder(req), addXMLExtension(req.getParameter("relative-path", "")));
-    etag.append(file.length()).append("%");
-    etag.append(file.lastModified()).append("%");
+    if (file != null && file.exists()) {
+      etag.append(file.length()).append("%");
+      etag.append(file.lastModified()).append("%");
+    } else {
+      etag.append("not-found").append("%");
+    }
     return MD5.hash(etag.toString());
 
   }
@@ -76,12 +76,11 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     String relativepath = addXMLExtension(req.getParameter("relative-path", ""));
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);
 
-
-    LOGGER.debug("relative path  {} " , relativepath);
-    LOGGER.debug("root folder {} " , rootfolder);
+    LOGGER.debug("relative path  {} ", relativepath);
+    LOGGER.debug("root folder {} ", rootfolder);
 
     // Setup the cache
-    if (this.cache == null){
+    if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }
 
@@ -91,13 +90,13 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     // only process if the variable relativepath is not empty.
     if (!relativepath.isEmpty()) {
       File reqfile = new File(rootfolder, relativepath);
-      LOGGER.debug("request file {} " , reqfile);
+      LOGGER.debug("request file {} ", reqfile);
 
       if (cached == null || cached.getLastUpdateTime() < reqfile.lastModified()) {
         data = XMLHelper.load(reqfile, req, LOGGER);
         this.cache.put(new Element(reqfile.getAbsolutePath(), data));
       } else {
-        data = (String)cached.getObjectValue();
+        data = (String) cached.getObjectValue();
       }
     }
 
@@ -105,33 +104,29 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     xml.writeXML(data);
   }
 
-
   // private functions
   // ----------------------------------------------------------------------------------------------
 
   /***
-   * Add extension ".xml" to request parameter.
-   * @param path
+   * Add the extension ".xml" to request value.
+   * @param loc defines the request location file.
    * @return path somewhat normalised
    */
-  public static String addXMLExtension(String file) {
+  public static String addXMLExtension(String loc) {
 
-    /**
-     *  Return empty
-     *  if empty and if request parameter try to reach parent location.
-     */
+    // Return empty
+    // if empty
+    // or if request tries to reach parent location.
 
-    if (file == null || file.isEmpty() || file.contains("..")){
+    if (loc == null || loc.isEmpty() || loc.contains("..")) {
       return "";
     }
 
-    /**
-     * Add .xml extension
-     */
-    if (file.toLowerCase().endsWith(".xml")) {
-      return file.substring(0, file.lastIndexOf(".xml")) + ".xml";
+    // Add .xml extension
+    if (loc != null && loc.toLowerCase().endsWith(".xml")) {
+      return loc.substring(0, loc.lastIndexOf(".xml")) + ".xml";
     } else {
-      return file + ".xml";
+      return loc + ".xml";
     }
   }
 

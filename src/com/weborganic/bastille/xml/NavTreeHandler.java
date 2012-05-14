@@ -68,13 +68,16 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
   /*** The website root path in PageSeeder ***/
   private String psWebSiteRoot;
 
+  /*** The website content folder in PageSeeder ***/
+  private String psWebSiteContent;
+
   /**
    * @param dr defines the Object of DocumentRoot
    * @param maxlevel defines the maximum leve of tree.
    * @param xml defines the XMLWriter.
    */
   public NavTreeHandler(DocumentRoot dr, int maxlevel, XMLWriter xml) {
-    this(xml, dr.getBerliozXMLRoot(), dr.getPSWebsiteRoot(), 1, maxlevel);
+    this(xml, dr.getBerliozXMLRoot(), dr.getPSWebsiteRoot(), dr.getPSWebsiteContent(), 1, maxlevel);
   }
 
   /**
@@ -83,10 +86,11 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
    * @param xml defines the XML Writer.
    * @param rootfolder defines the XML ROOT Folder in berlioz.
    * @param documentroot defines the website root path in PageSeeder
+   * @param content defines the website content in PageSeeder
    * @param level the current level of tree.
    * @param maxlevel defines the maximum level of tree.
    */
-  private NavTreeHandler(XMLWriter xml, File rootfolder, String documentroot, int level, int maxlevel) {
+  private NavTreeHandler(XMLWriter xml, File rootfolder, String documentroot, String content, int level, int maxlevel) {
     this.to = xml;
     this.element = "xref";
     this.rootFolder = rootfolder;
@@ -102,6 +106,17 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
         this.psWebSiteRoot = documentroot;
       }
     }
+
+    if (content == null) {
+      this.psWebSiteContent = "";
+    } else {
+      if (!content.endsWith("/")) {
+        this.psWebSiteContent = content + "/";
+      } else {
+        this.psWebSiteContent = content;
+      }
+    }
+
   }
 
   /* (non-Javadoc)
@@ -128,7 +143,16 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
           this.to.attribute("title", atts.getValue("urititle"));
         }
 
-        String path = atts.getValue("href").replace(this.psWebSiteRoot, "");
+        // remove the PS website root folder
+        String path = "";
+        if (this.psWebSiteRoot != null) {
+          path = atts.getValue("href").replace(this.psWebSiteRoot, "");
+        }
+
+        // remove the PS website content folder
+        if (this.psWebSiteContent != null) {
+          path = path.replace(this.psWebSiteContent, "");
+        }
 
         File reqfile = new File(this.rootFolder, path);
         String status = reqfile != null && reqfile.exists() ? "true" : "false";
@@ -157,18 +181,19 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
       if (this.inElem) {
         // resolve the xref
         File hrefFile = new File(this.rootFolder, this.xref);
-        if (hrefFile.exists() && this.level < this.maxLevel) {
-          DefaultHandler handler = new NavTreeHandler(this.to, this.rootFolder, this.psWebSiteRoot, (this.level + 1), this.maxLevel);
+
+        if (hrefFile != null && hrefFile.exists() && this.level < this.maxLevel) {
+
+          DefaultHandler handler = new NavTreeHandler(this.to, this.rootFolder, this.psWebSiteRoot, this.psWebSiteContent, (this.level + 1), this.maxLevel);
           parseXML(hrefFile, handler, this.to);
           hrefFile = null;
         }
       }
 
-      if (this.element.equals(qName)) {
+      if (this.element.equals(qName) && isMaster) {
         this.inElem = false;
         this.to.closeElement();
       }
-
     } catch (IOException ex) {
       throw new SAXException(ex);
     }

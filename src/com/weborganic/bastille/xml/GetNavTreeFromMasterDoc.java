@@ -28,6 +28,7 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  * <li><code>master-file</code> defines the location of master file.</li>
  * <li><code>display-level</code> (optional) defines the resolve level. (default: 2)</li>
  * <li><code>pswebsite-root</code> (optional) defines the path of website root in PageSeeder. </li>
+ * <li><code>pswebsite-content</code> (optional) defines the content folder in PageSeeder. </li>
  * </ul>
  * 
  * <h3>Returned XML</h3>
@@ -72,6 +73,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("master-file", "/"));
     etag.append(req.getParameter("pswebsite-root", "/"));
     etag.append(req.getIntParameter("display-level", 2));
+    etag.append(req.getParameter("pswebsite-content", ""));
 
     try {
       // get the content as a etag
@@ -85,9 +87,15 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    String treeData = buildNavTree(req);
-    String status = treeData != null && !treeData.isEmpty() ? "true" : "false";
+    String treeData = "";
+    try {
+      // get the content as a etag
+      treeData = buildNavTree(req);
+    } catch (IOException e) {
+      treeData = "";
+    }
 
+    String status = treeData != null && !treeData.isEmpty() ? "true" : "false";
     // output master doc tree
     xml.openElement("navs");
     xml.attribute("status", status);
@@ -111,9 +119,10 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
     String reqFilePath = req.getParameter("master-file", "");
     String psWebsiteRoot = req.getParameter("pswebsite-root", "/");
+    String psWebsiteContent = req.getParameter("pswebsite-content", "");
     int displaylevel = req.getIntParameter("display-level", 2);
 
-    DocumentRoot dr = new DocumentRoot(psWebsiteRoot, XMLConfiguration.getXMLRootFolder(req));
+    DocumentRoot dr = new DocumentRoot(psWebsiteRoot, psWebsiteContent, XMLConfiguration.getXMLRootFolder(req));
 
     // add extension
     if (reqFilePath != null && !reqFilePath.contains(".xml")) {
@@ -125,12 +134,8 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
     File navFile = new File(dr.getBerliozXMLRoot(), reqFilePath);
     LOGGER.debug("Nav File {} exists {} ", navFile, navFile.exists());
-
-    xml.writeComment("Look for master file " + navFile + " in XML ROOT");
-
-    if (navFile.exists()) {
-      DefaultHandler handler = new NavTreeHandler(new DocumentRoot(psWebsiteRoot, XMLConfiguration.getXMLRootFolder(req)),
-                                                  displaylevel, xml);
+    if (navFile != null && navFile.exists()) {
+      DefaultHandler handler = new NavTreeHandler(dr, displaylevel, xml);
       NavTreeHandler.parseXML(navFile, handler, xml);
     }
     return output.toString();
@@ -141,21 +146,28 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
  * The helper object class to contain the information for Berlioz and PageSeeder ***
  * <ul>
  * <li><code>psWebsiteRoot</code> defines the PageSeeder Website Root Folder.</li>
+ * <li><code>psWebsiteContent</code> defines the PageSeeder Website Content Folder.</li>
  * <li><code>berliozXMLRoot</code> defines the Berlioz XML Folder.</li>
  * </ul>
  * 
  */
 class DocumentRoot {
   String psWebsiteRoot;
+  String psWebsiteContent;
   File berliozXMLRoot;
 
-  DocumentRoot(String r, File rp) {
+  DocumentRoot(String r, String ct, File rp) {
     this.psWebsiteRoot = r;
+    this.psWebsiteContent = ct;
     this.berliozXMLRoot = rp;
   }
 
   String getPSWebsiteRoot() {
     return this.psWebsiteRoot;
+  }
+
+  String getPSWebsiteContent() {
+    return this.psWebsiteContent;
   }
 
   File getBerliozXMLRoot() {

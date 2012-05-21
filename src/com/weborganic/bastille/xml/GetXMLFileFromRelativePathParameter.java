@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -18,23 +25,23 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * This generator returns the static content by providing relative path parameter.
- * 
+ *
  * <p>Only return the content under the website root folder, by default ( WEB-INF/xml ).</p>
- * 
+ *
  * <h3>Parameter</h3>
  * <ul>
  * <li><code>relative-path</code> defines the request relative path from the berlioz website root.</li>
  * </ul>
  * <p>Use the element <code>parameter</code> to define <code>relative-path</code> in server.xml. </p>
- * 
+ *
  * <p>Sample Berlioz config:</p>
  * <pre> {@code
  *   <generator class="com.weborganic.bastille.xml.GetXMLFileFromRelativePathParameter" name="navigation" target="navigation">
  *     <parameter name="relative-path" value="config/navigation.xml" />
  *   </generator>
  * } </pre>
- * 
- * 
+ *
+ *
  * @author Christophe Lauret
  * @author Ciber Cai
  * @version 8 July 2011
@@ -51,9 +58,6 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
    */
   private volatile Cache cache = null;
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();

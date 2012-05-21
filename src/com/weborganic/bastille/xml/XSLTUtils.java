@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -21,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 
 /**
- * A utility class to help with XSLT operations. 
- * 
- * @author Christophe Lauret 
+ * A utility class to help with XSLT operations.
+ *
+ * @author Christophe Lauret
  * @version 0.6.3 - 13 April 2011
  * @since 0.6.0
  */
@@ -47,7 +51,7 @@ public final class XSLTUtils {
    * @param url A URL to a template.
    *
    * @return the corresponding XSLT templates object or <code>null</code> if the URL was <code>null</code>.
-   * 
+   *
    * @throws BerliozException If XSLT templates could not be loaded from the specified URL.
    */
   public static Templates getTemplates(URL url) throws BerliozException {
@@ -58,7 +62,7 @@ public final class XSLTUtils {
     try {
       LOGGER.debug("Loading templates from URL: {}", url);
       in = url.openStream();
-      Source source = new StreamSource(in); 
+      Source source = new StreamSource(in);
       source.setSystemId(url.toString());
       TransformerFactory factory = TransformerFactory.newInstance();
       templates = factory.newTemplates(source);
@@ -79,10 +83,10 @@ public final class XSLTUtils {
    *
    * @param url   A URL to a template.
    * @param cache <code>true</code> to load and store from the cache or not;
-   *              <code>false</code> to force load from the URL and clear the cache entry for this URL. 
+   *              <code>false</code> to force load from the URL and clear the cache entry for this URL.
    *
    * @return the corresponding XSLT templates object or <code>null</code> if the URL was <code>null</code>.
-   * 
+   *
    * @throws BerliozException If XSLT templates could not be loaded from the specified URL.
    */
   public static Templates getTemplates(URL url, boolean cache) throws BerliozException {
@@ -101,16 +105,16 @@ public final class XSLTUtils {
 
   /**
    * Return the XSLT templates from the given style.
-   * 
+   *
    * <p>This method will firt try to load the resource using the class loader used for this class.
-   * 
+   *
    * <p>Use this class to load XSLT from the system.
    *
    * @param resource The path to a resource.
    *
    * @return the corresponding XSLT templates object;
    *         or <code>null</code> if the resource could not be found.
-   * 
+   *
    * @throws BerliozException If the loading fails.
    */
   public static Templates getTemplatesFromResource(String resource) throws BerliozException {
@@ -121,18 +125,18 @@ public final class XSLTUtils {
 
   /**
    * Return the XSLT templates from the given style.
-   * 
+   *
    * <p>This method will firt try to load the resource using the class loader used for this class.
-   * 
+   *
    * <p>Use this class to load XSLT from the system.
    *
    * @param resource The path to a resource.
    * @param cache <code>true</code> to load and store from the cache or not;
-   *              <code>false</code> to load from the URL and clear the cache entry for this resource. 
+   *              <code>false</code> to load from the URL and clear the cache entry for this resource.
    *
    * @return the corresponding XSLT templates object;
    *         or <code>null</code> if the resource could not be found.
-   * 
+   *
    * @throws BerliozException If the loading fails.
    */
   public static Templates getTemplatesFromResource(String resource, boolean cache) throws BerliozException {

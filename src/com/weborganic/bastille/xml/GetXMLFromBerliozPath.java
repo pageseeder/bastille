@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -26,7 +30,7 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * <p>For example, if the Berlioz servlet is mapped to '*.html', 'Ping/pong.html' will try to
  * look for XML file 'Ping/pong.xml' in the XML folder.
- * 
+ *
  * <h3>Configuration</h3>
  * <p>The root XML folder can be configured globally using the Berlioz configuration:
  * <p>For example:
@@ -40,10 +44,10 @@ import com.topologi.diffx.xml.XMLWriter;
  *   </node>
  * </node>
  * }</pre>
- * 
+ *
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.5 - 25 May 2011
  * @since 0.6.0
@@ -60,9 +64,7 @@ public final class GetXMLFromBerliozPath implements ContentGenerator, Cacheable 
    */
   private volatile Cache cache = null;
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public String getETag(ContentRequest req) {
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
@@ -71,9 +73,7 @@ public final class GetXMLFromBerliozPath implements ContentGenerator, Cacheable 
     return berliozPath+"__"+file.length()+"x"+file.lastModified();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     LOGGER.debug(req.getPathInfo());
 
@@ -105,9 +105,9 @@ public final class GetXMLFromBerliozPath implements ContentGenerator, Cacheable 
 
   /**
    * Filters and normalises the value in the path informations.
-   * 
+   *
    * @param path The path to normalise.
-   * @return The same path without an '/' at the end. 
+   * @return The same path without an '/' at the end.
    */
   private String normalise(String path) {
     if (path.endsWith("/")) {

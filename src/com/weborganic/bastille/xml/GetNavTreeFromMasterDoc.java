@@ -1,4 +1,10 @@
-/* Copyright (c) 2011 Allette Systems pty. ltd. */
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -18,11 +24,11 @@ import com.topologi.diffx.xml.XMLWriter;
 import com.topologi.diffx.xml.XMLWriterImpl;
 
 /**
- * 
+ *
  * Generate the Navigation Tree.
  * <h3>Configuration</h3>
  * <p>No configuration required for this generator.</p>
- * 
+ *
  * <h3>Parameters</h3>
  * <ul>
  * <li><code>master-file</code> defines the location of master file.</li>
@@ -30,13 +36,13 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  * <li><code>pswebsite-root</code> (optional) defines the path of website root in PageSeeder. </li>
  * <li><code>pswebsite-content</code> (optional) defines the content folder in PageSeeder. </li>
  * </ul>
- * 
+ *
  * <h3>Returned XML</h3>
  * <pre>{@code
  *  <navs>
  *    <nav level="1" title="1 Introduction" href="/publications/wbm/1_Introduction/1_Introduction.xml">
  *      <nav level="2" title="Introduction" href="/publications/wbm/1_Introduction/Introduction_women_s_health.xml"/>
- *      <nav level="2" title="Looking after women’s health" href="/publications/wbm/1_Introduction/Looking_after_women_s_health.xml"/>
+ *      <nav level="2" title="Looking after women's health" href="/publications/wbm/1_Introduction/Looking_after_women_s_health.xml"/>
  *    </nav>
  *    <nav level="1" title="2  Emergencies" href="/publications/wbm/2_Emergencies/2_Emergencies.xml">
  *      <nav level="2" title="Coping after emergencies" href="/publications/wbm/2_Emergencies/Coping_with_emergencies.xml"/>
@@ -44,9 +50,9 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  *      ...
  *      <nav level="2" title="Heavy vaginal bleeding" href="/publications/wbm/2_Emergencies/Heavy_vaginal_bleeding.xml"/>
  *    </nav>
- *  <navs> 
+ *  <navs>
  * }</pre>
- * 
+ *
  * <h3>Configuration </h3>
  * <pre>{@code
  * <generator class="com.weborganic.bastille.xml.GetNavTreeFromMasterDoc" name="sourcemasterxml" target="main">
@@ -55,10 +61,10 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  *   <parameter name="display-level" value="3"/>
  * </generator>
  * }</pre>
- * 
+ *
  * @author Ciber Cai
  * @version 11 May 2011
- * 
+ *
  */
 
 public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
@@ -149,7 +155,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
  * <li><code>psWebsiteContent</code> defines the PageSeeder Website Content Folder.</li>
  * <li><code>berliozXMLRoot</code> defines the Berlioz XML Folder.</li>
  * </ul>
- * 
+ *
  */
 class DocumentRoot {
   String psWebsiteRoot;

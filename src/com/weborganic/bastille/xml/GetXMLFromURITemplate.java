@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -8,7 +12,6 @@ import java.io.StringWriter;
 import java.net.URI;
 
 import javax.xml.parsers.SAXParser;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +38,7 @@ import com.topologi.diffx.xml.XMLWriterImpl;
 
 /**
  * A content generator that can be used to get content from a URI template.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 19 July 2010
  * @since 0.6.0
@@ -50,6 +53,7 @@ public class GetXMLFromURITemplate implements ContentGenerator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // The URI template
     String template = req.getParameter("uri-template");
@@ -78,8 +82,8 @@ public class GetXMLFromURITemplate implements ContentGenerator {
 
   /**
    * Returns the PageSeeder Service data as XML.
-   * 
-   * @param url The PageSeeder URL to invoke. 
+   *
+   * @param url The PageSeeder URL to invoke.
    */
   protected static String get(String url) throws IOException, BerliozException {
     StringWriter w = new StringWriter();
@@ -114,10 +118,10 @@ public class GetXMLFromURITemplate implements ContentGenerator {
 
   /**
    * Parses the specified file using the given handler.
-   * 
+   *
    * @param url     The XML file to parse.
    * @param handler The content handler to use.
-   * 
+   *
    * @throws BerliozException Should something unexpected happen.
    */
   private static void parse(String url, ContentHandler handler) throws SAXException, IOException, BerliozException {
@@ -134,10 +138,10 @@ public class GetXMLFromURITemplate implements ContentGenerator {
 
   /**
    * Reports an error as XML on a string writer.
-   * 
+   *
    * @param url     The URL causing the problem.
    * @param message The error message.
-   * 
+   *
    * @return the XML as a string writer.
    */
   private static StringWriter error(String url, String message) throws IOException {

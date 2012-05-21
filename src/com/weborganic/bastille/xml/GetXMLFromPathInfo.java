@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -37,10 +41,10 @@ import com.topologi.diffx.xml.XMLWriter;
  *   </node>
  * </node>
  * }</pre>
- * 
+ *
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 5 July 2010
  * @since 0.6.0
@@ -57,9 +61,6 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
    */
   private volatile Cache cache = null;
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getETag(ContentRequest req) {
     File folder = XMLConfiguration.getXMLRootFolder(req);
@@ -69,9 +70,6 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
     return pathInfo+"__"+file.length()+"x"+file.lastModified();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     LOGGER.debug(req.getPathInfo());

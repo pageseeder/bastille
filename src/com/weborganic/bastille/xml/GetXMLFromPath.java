@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -20,15 +24,15 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * This generator returns the content of an XML file from the specified path.
- * 
+ *
  * <p>Sample Berlioz config:
  * {@code
  *   <generator class="org.weborganic.berlioz.ext.GetXMLFromPath" name="xml-from-path" target="main">
  *     <parameter name="path" source="uri" value="path"/>
  *   </generator>
  * }
- * 
- * 
+ *
+ *
  * @author Christophe Lauret
  * @version 0.6.8 - 29 June 2011
  * @since 0.6.0
@@ -45,9 +49,7 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
    */
   private volatile Cache cache = null;
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
@@ -57,9 +59,7 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
     return path+"__"+file.length()+"x"+file.lastModified();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     String path = req.getParameter("path");
     if (path == null) throw new BerliozException("Path parameter is missing");

@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2012 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -32,7 +36,7 @@ import com.topologi.diffx.xml.XMLStringWriter;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * Returns an overview of the folder by path info.
+ * Returns an overview of the folder by Berlioz path.
  *
  * <p>The overview is generated from the first header and the first paragraph from each PageSeeder XML.
  *
@@ -59,7 +63,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * }</pre>
  *
  * @author Christophe Lauret
- * @version 14 May 2012
+ * @version 0.6.35 - 21 May 2012
+ * @since 0.6.33
  */
 public class GetFolderOverview implements ContentGenerator, Cacheable {
 
@@ -78,15 +83,15 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
     File dir = getDirectory(req);
     List<File> files = getContents(dir);
     long mostrecent = lastModified(files);
-    return normalise(req.getPathInfo()) + '_' + mostrecent;
+    return normalise(req.getBerliozPath()) + '_' + mostrecent;
   }
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    LOGGER.debug(req.getPathInfo());
+    LOGGER.debug(req.getBerliozPath());
 
     // Get all the files
-    String pathInfo = normalise(req.getPathInfo());
+    String pathInfo = normalise(req.getBerliozPath());
     File dir = getDirectory(req);
     if (dir.exists() && dir.isDirectory()) {
       List<File> files = getContents(dir);
@@ -166,7 +171,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
    * @return the list of XML files in the directory.
    */
   private static File getDirectory(ContentRequest req) {
-    String pathInfo = normalise(req.getPathInfo());
+    String pathInfo = normalise(req.getBerliozPath());
     File folder = XMLConfiguration.getXMLRootFolder(req);
     File dir = new File(folder, pathInfo);
     return dir;

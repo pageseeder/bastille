@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
@@ -11,10 +15,10 @@ import org.weborganic.berlioz.content.Environment;
 
 /**
  * Centralises the configuration options for this package.
- * 
+ *
  * <p>This class is used to ensure that the same configuration options are used by all generators
- * in this package. 
- * 
+ * in this package.
+ *
  * @author Christophe Lauret
  * @version 0.6.8 - 8 June 2011
  * @since 0.6.1
@@ -37,10 +41,10 @@ public final class XMLConfiguration {
 
   /**
    * Returns the XML Root folder used by generators in this package.
-   * 
+   *
    * <p>The XML root folder can be defined in the <code>config-[mode].xml</code> using the key
    * {@value BASTILLE_XML_ROOT}.
-   * 
+   *
    * @param req The content request.
    * @return the XML Root folder as defined in the configuration or "xml" if undefined.
    */
@@ -52,10 +56,10 @@ public final class XMLConfiguration {
 
   /**
    * Returns the XML extension used by generators in this package.
-   * 
+   *
    * <p>The XML extension can be defined in the <code>config-[mode].xml</code> using the key
    * {@value BASTILLE_XML_EXTENSION}.
-   * 
+   *
    * @param req The content request.
    * @return the XML extension as defined in the configuration or ".xml" if undefined.
    */

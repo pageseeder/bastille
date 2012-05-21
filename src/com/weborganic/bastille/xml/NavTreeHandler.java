@@ -1,4 +1,10 @@
-/* Copyright (c) 2011 Allette Systems pty. ltd. */
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
@@ -23,7 +29,7 @@ import com.topologi.diffx.xml.XMLWriter;
 /**
  * This is a SAX extension handler.
  * It is to resolve the cross reference and process the xml tree based on cross reference links.
- * 
+ *
  * <h3>The XML Tree Structure</h3>
  * <pre> {@code
  * <navs>
@@ -35,12 +41,12 @@ import com.topologi.diffx.xml.XMLWriter;
  *  </nav>
  *  ....
  *  </navs>
- * 
+ *
  * } </pre>
- * 
+ *
  * @author Ciber Cai
  * @version 11 May 2011
- * 
+ *
  */
 public class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
@@ -82,7 +88,7 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
   /**
    * The private constructor for inner loop use.
-   * 
+   *
    * @param xml defines the XML Writer.
    * @param rootfolder defines the XML ROOT Folder in berlioz.
    * @param documentroot defines the website root path in PageSeeder
@@ -119,9 +125,6 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
   }
 
-  /* (non-Javadoc)
-   * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
-   */
   @Override
   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
     try {
@@ -171,9 +174,6 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
   }
 
-  /* (non-Javadoc)
-   * @see org.xml.sax.helpers.DefaultHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
-   */
   @Override
   public void endElement(String uri, String localName, String qName) throws SAXException {
     try {
@@ -200,9 +200,6 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
   }
 
-  /* (non-Javadoc)
-   * @see org.xml.sax.helpers.DefaultHandler#characters(char[], int, int)
-   */
   @Override
   public void characters(char[] ch, int start, int length) throws SAXException {
     if (this.inProp) {
@@ -214,15 +211,16 @@ public class NavTreeHandler extends DefaultHandler implements ContentHandler {
     }
   }
 
-  /***
-   * Parase the XML
+  /**
+   * Parse the XML.
+   *
    * @param file defines the souce.
    * @param handler defines the handler
    * @param xml define the XML Writer.
-   * @throws NullPointerException
+   *
    * @throws IOException
    */
-  public synchronized static void parseXML(File file, DefaultHandler handler, XMLWriter xml) throws NullPointerException, IOException {
+  public synchronized static void parseXML(File file, DefaultHandler handler, XMLWriter xml) throws IOException {
     LOGGER.debug("Prase file {} ", file.getAbsoluteFile());
 
     SAXParserFactory factory = SAXParserFactory.newInstance();

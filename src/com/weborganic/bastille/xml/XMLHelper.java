@@ -1,11 +1,18 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.xml;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.weborganic.berlioz.content.ContentRequest;
@@ -14,16 +21,13 @@ import org.weborganic.berlioz.xml.XMLCopy;
 import com.topologi.diffx.xml.XMLWriter;
 import com.topologi.diffx.xml.XMLWriterImpl;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 /**
  * Utility class providing useful functions for content generators.
- * 
+ *
  * <p>Should not be public.
- * 
+ *
  * @author Christophe Lauret
- * @version 0.6.6 - 27 May 2011 
+ * @version 0.6.6 - 27 May 2011
  * @since 0.6.0
  */
 public final class XMLHelper {
@@ -34,7 +38,7 @@ public final class XMLHelper {
   public static final String CACHE_NAME = "XMLFileContent";
 
   /**
-   * No constructor. 
+   * No constructor.
    */
   private XMLHelper() {
   }
@@ -56,14 +60,14 @@ public final class XMLHelper {
 
   /**
    * Loads the specified XML file and returns it as a string.
-   * 
+   *
    * @param file   The file to load
    * @param req    The content request to display the file in case of error.
-   * @param logger To log info on the correct logger. 
-   * 
+   * @param logger To log info on the correct logger.
+   *
    * @return the content of the XML file.
-   * 
-   * @throws IOException If an error occurs while trying to read or write the XML. 
+   *
+   * @throws IOException If an error occurs while trying to read or write the XML.
    */
   public static String load(File file, ContentRequest req, Logger logger) throws IOException {
     StringWriter w = new StringWriter();
@@ -78,7 +82,7 @@ public final class XMLHelper {
       XMLCopy.copyTo(file, buffer);
       logger.info("loaded {}", file.getAbsolutePath());
 
-    // The requested could not be found 
+    // The requested could not be found
     } else {
       buffer.attribute("status", "not-found");
       // TODO FIX error message

@@ -1,27 +1,27 @@
 /*
  * CSSMin Copyright License Agreement (BSD License)
- * 
+ *
  * Copyright (c) 2011, Barry van Oudtshoorn
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * * Redistributions of source code must retain the above
  *   copyright notice, this list of conditions and the
  *   following disclaimer.
- * 
+ *
  * * Redistributions in binary form must reproduce the above
  *   copyright notice, this list of conditions and the
  *   following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
- * 
+ *
  * * Neither the name of Barryvan nor the names of its
  *   contributors may be used to endorse or promote products
  *   derived from this software without specific prior
  *   written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,7 +32,7 @@
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE. 
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.weborganic.bastille.util;
 
@@ -50,7 +50,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * CSSMin takes in well-formed, human-readable CSS and reduces its size substantially.
- * 
+ *
  * It removes unnecessary whitespace and comments, and orders the contents of CSS
  * selectors alphabetically to enhance GZIP compression.
  *
@@ -115,7 +115,7 @@ public final class CSSMin {
   /**
    * Process input from a reader.
    * @param input Where to read the CSS from
-   * @param output Where to send the result
+   * @param out   Where to send the result
    */
   public static void formatFile(Reader input, OutputStream out) {
     formatFile(input, new PrintStream(out));
@@ -193,8 +193,9 @@ public final class CSSMin {
         }
       }
 
+      out.println();
       for (Selector selector : selectors) {
-        out.print(selector.toString());
+        out.println(selector.toString());
       }
       out.print("\r\n");
 
@@ -266,6 +267,7 @@ class Selector {
    * Prints out this selector and its contents nicely, with the contents sorted alphabetically.
    * @returns A string representing this selector, minified.
    */
+  @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append(this.selector).append("{");
@@ -380,6 +382,7 @@ class Property implements Comparable<Property> {
    * Prints out this property nicely.
    * @returns A string representing this property, minified.
    */
+  @Override
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append(this.property).append(":");
@@ -397,6 +400,7 @@ class Property implements Comparable<Property> {
   /**
    * Compare this property with another.
    */
+  @Override
   public int compareTo(Property other) {
     // We can't just use String.compareTo(), because we need to sort properties that have hack prefixes last -- eg, *display should come after display.
     String thisProp = this.property;
@@ -431,7 +435,7 @@ class Property implements Comparable<Property> {
 
     for (int i = 0; i < parts.length; i++) {
       try {
-        results[i] = new Part(parts[i], property);
+        results[i] = new Part(parts[i], this.property);
       } catch (Exception e) {
         System.out.println(e.getMessage());
         results[i] = null;
@@ -629,6 +633,7 @@ class Part {
    * Returns itself.
    * @returns this part's string representation.
    */
+  @Override
   public String toString() {
     return this.contents;
   }

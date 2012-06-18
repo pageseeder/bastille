@@ -223,7 +223,7 @@ public final class WebBundleTool {
       StringReader reader = new StringReader(writer.toString());
       file = new File(this._bundles, filename);
       if (minimize) {
-        CSSMin.formatFile(reader, new PrintStream(file));
+        CSSMin.minimize(reader, new PrintStream(file));
       } else {
         IOUtils.copy(reader, new FileOutputStream(file), "utf8");
       }
@@ -386,7 +386,16 @@ public final class WebBundleTool {
             m.reset();
             StringBuffer sb = new StringBuffer();
             while (m.find()) {
-              m.appendReplacement(sb, "url("+getLocation(file, virtual, m.group(1))+")");
+              String url = m.group(1);
+              String query = "";
+              if (url.length() > 2 && url.charAt(0) == '\'' && url.charAt(url.length()-1) == '\'') url = url.substring(1, url.length()-1);
+              if (url.length() > 2 && url.charAt(0) == '"' && url.charAt(url.length()-1) == '"') url = url.substring(1, url.length()-1);
+              int q = url.indexOf('?');
+              if (q > 0) {
+                query = url.substring(q);
+                url = url.substring(0, q);
+              }
+              m.appendReplacement(sb, "url("+getLocation(file, virtual, url)+query+")");
             }
             m.appendTail(sb);
             out.write(sb.toString());

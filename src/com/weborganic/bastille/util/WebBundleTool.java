@@ -100,6 +100,13 @@ public final class WebBundleTool {
   }
 
   /**
+   * @return Where the bundles are being stored.
+   */
+  public File getBundlesDir() {
+    return this._bundles;
+  }
+
+  /**
    * Return the file bundling the specified list of files.
    *
    * @param files    The list of files to bundle together.
@@ -111,6 +118,7 @@ public final class WebBundleTool {
    * @throws IOException should an error occur while reading the files or writing the bundle.
    */
   public File getBundle(List<File> files, String prefix, boolean minimize) throws IOException {
+    if (files.isEmpty()) return null;
     String filename = new WebBundle(prefix, files, minimize).getFileName();
     return new File(this._bundles, filename);
   }
@@ -388,8 +396,10 @@ public final class WebBundleTool {
             while (m.find()) {
               String url = m.group(1);
               String query = "";
-              if (url.length() > 2 && url.charAt(0) == '\'' && url.charAt(url.length()-1) == '\'') url = url.substring(1, url.length()-1);
-              if (url.length() > 2 && url.charAt(0) == '"' && url.charAt(url.length()-1) == '"') url = url.substring(1, url.length()-1);
+              if (url.length() > 2 && url.charAt(0) == '\'' && url.charAt(url.length()-1) == '\'')
+                url = url.substring(1, url.length()-1);
+              if (url.length() > 2 && url.charAt(0) == '"' && url.charAt(url.length()-1) == '"')
+                url = url.substring(1, url.length()-1);
               int q = url.indexOf('?');
               if (q > 0) {
                 query = url.substring(q);

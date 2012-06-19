@@ -86,6 +86,35 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
 
   @Override
   public String getETag(ContentRequest req) {
+    HttpContentRequest hreq = (HttpContentRequest)req;
+    Service service = hreq.getService();
+    Environment env = req.getEnvironment();
+    init(env);
+    boolean doBundle = !"false".equals(req.getParameter("berlioz-bundle", "true"));
+    if (doBundle) {
+      try {
+        long etag = 0L;
+        Properties js = getJSConfig();
+        for (Entry<Object, Object> bundle : js.entrySet()) {
+          boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
+          String name = replaceTokens(bundle.getKey().toString(), service);
+          List<File> files = getFiles(bundle.getValue().toString(), service, env);
+          File b = this.jstool.getBundle(files, name, min);
+          if (b != null && b.lastModified() > etag) etag = b.lastModified();
+        }
+        Properties css = getCSSConfig();
+        for (Entry<Object, Object> bundle : css.entrySet()) {
+          boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
+          String name = replaceTokens(bundle.getKey().toString(), service);
+          List<File> files = getFiles(bundle.getValue().toString(), service, env);
+          File b = this.jstool.getBundle(files, name, min);
+          if (b != null && b.lastModified() > etag) etag = b.lastModified();
+        }
+        return Long.toString(etag);
+      } catch (IOException ex) {
+        LOGGER.warn("Unable to generate ETag", ex);
+      }
+    }
     return null;
   }
 
@@ -94,15 +123,12 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     HttpContentRequest hreq = (HttpContentRequest)req;
     Service service = hreq.getService();
     Environment env = req.getEnvironment();
-    init(env);
 
     // Parameters
     boolean doBundle = !"false".equals(req.getParameter("berlioz-bundle", "true"));
 
     // Scripts
-    Properties js = GlobalSettings.getNode("bastille.jsbundler.bundles");
-    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
-    if (js == null || js.isEmpty()) js = DEFAULT_JS_BUNDLE;
+    Properties js = getJSConfig();
     for (Entry<Object, Object> bundle : js.entrySet()) {
       String name = replaceTokens(bundle.getKey().toString(), service);
       if (doBundle) {
@@ -119,8 +145,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     }
 
     // Styles
-    Properties css = GlobalSettings.getNode("bastille.cssbundler.bundles");
-    if (css == null || css.isEmpty()) css = DEFAULT_CSS_BUNDLE;
+    Properties css = getCSSConfig();
     for (Entry<Object, Object> bundle : css.entrySet()) {
       String name = replaceTokens(bundle.getKey().toString(), service);
       if (doBundle) {
@@ -136,6 +161,9 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       }
     }
   }
+
+  // Private helpers
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * Bundles the scripts using the specified bundler
@@ -269,6 +297,24 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       out = out.replace("{SERVICE}", service.id());
     }
     return out;
+  }
+
+  /**
+   * @return the configuration for the JavaScript bundle.
+   */
+  private static Properties getJSConfig() {
+    Properties js = GlobalSettings.getNode("bastille.jsbundler.bundles");
+    if (js == null || js.isEmpty()) js = DEFAULT_JS_BUNDLE;
+    return js;
+  }
+
+  /**
+   * @return the configuration for the CSS bundle.
+   */
+  private static Properties getCSSConfig() {
+    Properties css = GlobalSettings.getNode("bastille.cssbundler.bundles");
+    if (css == null || css.isEmpty()) css = DEFAULT_CSS_BUNDLE;
+    return css;
   }
 
 }

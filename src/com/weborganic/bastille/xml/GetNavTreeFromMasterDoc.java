@@ -34,17 +34,17 @@ import com.topologi.diffx.xml.XMLWriter;
 import com.topologi.diffx.xml.XMLWriterImpl;
 
 /**
- *
  * Generate the Navigation Tree.
+ *
  * <h3>Configuration</h3>
  * <p>No configuration required for this generator.</p>
  *
  * <h3>Parameters</h3>
  * <ul>
- * <li><code>master-file</code> defines the location of master file.</li>
- * <li><code>display-level</code> (optional) defines the resolve level. (default: 2)</li>
- * <li><code>pswebsite-root</code> (optional) defines the path of website root in PageSeeder. </li>
- * <li><code>pswebsite-content</code> (optional) defines the content folder in PageSeeder. </li>
+ *   <li><code>master-file</code> defines the location of master file.</li>
+ *   <li><code>display-level</code> (optional) defines the resolve level. (default: 2)</li>
+ *   <li><code>pswebsite-root</code> (optional) defines the path of website root in PageSeeder. </li>
+ *   <li><code>pswebsite-content</code> (optional) defines the content folder in PageSeeder. </li>
  * </ul>
  *
  * <h3>Returned XML</h3>
@@ -94,27 +94,26 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
     try {
       // get the content as a etag
       etag.append(buildNavTree(req));
-    } catch (IOException e) {
+    } catch (IOException ex) {
       etag.append("incorrect");
     }
     return MD5.hash(etag.toString());
-
   }
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    String treeData = "";
+    String treeData;
     try {
       // get the content as a etag
       treeData = buildNavTree(req);
-    } catch (IOException e) {
+    } catch (IOException ex) {
       treeData = "";
     }
 
     String status = treeData != null && !treeData.isEmpty() ? "true" : "false";
     // output master doc tree
     xml.openElement("navs");
-    xml.attribute("status", status);
+    xml.attribute("exists", status);
     xml.writeXML(treeData);
     xml.closeElement();
     xml.close();
@@ -122,6 +121,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   /***
    * Build the Navigation Tree based on master document.
+   *
    * @param req defines the content request.
    * @return return the content of the whole tree in string type.
    * @throws IOException
@@ -165,28 +165,41 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
    *   <li><code>psWebsiteContent</code> defines the PageSeeder Website Content Folder.</li>
    *   <li><code>berliozXMLRoot</code> defines the Berlioz XML Folder.</li>
    * </ul>
-   *
    */
   private static class DocumentRoot {
-    String psWebsiteRoot;
-    String psWebsiteContent;
-    File berliozXMLRoot;
 
-    DocumentRoot(String r, String ct, File rp) {
-      this.psWebsiteRoot = r;
-      this.psWebsiteContent = ct;
-      this.berliozXMLRoot = rp;
+    /** The root folder for the website on PageSeeder (for example "website") */
+    private final String psWebsiteRoot;
+
+    /** The root folder for the content on PageSeeder (for example "content") */
+    private String psWebsiteContent;
+
+    /** The root folder for the XML files on Berlioz (for example "xml") */
+    private File berliozXMLRoot;
+
+    /**
+     * @param root    the name of the root folder for the website on PageSeeder (for example "website")
+     * @param content the name of the root folder for the content on PageSeeder (for example "content")
+     * @param xml     The name of the root folder for the XML files on Berlioz (for example "xml")
+     */
+    public DocumentRoot(String root, String content, File xml) {
+      this.psWebsiteRoot = root;
+      this.psWebsiteContent = content;
+      this.berliozXMLRoot = xml;
     }
 
-    String getPSWebsiteRoot() {
+    /** @return The root folder for the website on PageSeeder (for example "website") */
+    public String getPSWebsiteRoot() {
       return this.psWebsiteRoot;
     }
 
-    String getPSWebsiteContent() {
+    /** @return The root folder for the content on PageSeeder (for example "content") */
+    public String getPSWebsiteContent() {
       return this.psWebsiteContent;
     }
 
-    File getBerliozXMLRoot() {
+    /** @return The root folder for the XML files on Berlioz (for example "xml") */
+    public File getBerliozXMLRoot() {
       return this.berliozXMLRoot;
     }
 
@@ -216,32 +229,50 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
    */
   private static class NavTreeHandler extends DefaultHandler implements ContentHandler {
 
-    /*** The document type of master document ***/
-    private static final String DOCUMENT_TYPE = "master";
+    /** The default document type to match. */
+    private static final String DEFAULT_DOCUMENT_TYPE = "master";
 
+    /** The default element to follow. */
+    private static final String DEFAULT_ELEMENT = "xref";
+
+    /** Logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NavTreeHandler.class);
 
-    /*** Is the master document **/
-    private static boolean isMaster = false;
+    /** The XML Writer. */
+    private final XMLWriter _xml;
 
-    /*** The XML Writer **/
-    private final XMLWriter to;
+    /** The maximum depth of links. */
+    private final int _maxLevel;
 
-    private boolean inProp = false;
-    private boolean inElem = false;
-    private String element;
+    /** The element to follow for (e.g. "xref") */
+    private final String _element;
+
+    /** The current level of link depth (starts at 1). */
+    private final int _level;
+
+    /** The XML ROOT Folder in Berlioz. */
+    private final File _rootFolder;
+
+    /** The Website root path in PageSeeder. */
+    private final String _psWebSiteRoot;
+
+    /** The Website content folder in PageSeeder. */
+    private final String _psWebSiteContent;
+
+    /** The relative path of the current XRef from the document root. */
     private String xref;
-    private int level;
-    private int maxLevel;
 
-    /** The XML ROOT Folder in Berlioz **/
-    private File rootFolder;
+    /** State variable indicating whether we are inside the document type property. */
+    private boolean inProperty = false;
 
-    /** The website root path in PageSeeder **/
-    private String psWebSiteRoot;
+    /** State variable indicating whether we are inside the correct type of document. */
+    private boolean isMaster = false;
 
-    /** The website content folder in PageSeeder **/
-    private String psWebSiteContent;
+    /** State variable indicating whether we are inside the element to follow AND the correct type of document. */
+    private boolean inElement = false;
+
+    /** The buffer to use when grabbing text content. */
+    private StringBuilder buffer = new StringBuilder();
 
     /**
      * @param dr defines the Object of DocumentRoot
@@ -255,125 +286,98 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
     /**
      * The private constructor for inner loop use.
      *
-     * @param xml defines the XML Writer.
-     * @param rootfolder defines the XML ROOT Folder in berlioz.
+     * @param xml          defines the XML Writer.
+     * @param rootfolder   defines the XML ROOT Folder in berlioz.
      * @param documentroot defines the website root path in PageSeeder
-     * @param content defines the website content in PageSeeder
-     * @param level the current level of tree.
-     * @param maxlevel defines the maximum level of tree.
+     * @param content      defines the website content in PageSeeder
+     * @param level        the current level of tree.
+     * @param maxlevel     defines the maximum level of tree.
      */
     private NavTreeHandler(XMLWriter xml, File rootfolder, String documentroot, String content, int level, int maxlevel) {
-      this.to = xml;
-      this.element = "xref";
-      this.rootFolder = rootfolder;
-      this.level = level;
-      this.maxLevel = maxlevel;
-
-      if (documentroot == null) {
-        this.psWebSiteRoot = "";
-      } else {
-        if (!documentroot.endsWith("/")) {
-          this.psWebSiteRoot = documentroot + "/";
-        } else {
-          this.psWebSiteRoot = documentroot;
-        }
-      }
-
-      if (content == null || content.isEmpty()) {
-        this.psWebSiteContent = "";
-      } else {
-        if (!content.endsWith("/")) {
-          this.psWebSiteContent = content + "/";
-        } else {
-          this.psWebSiteContent = content;
-        }
-      }
-
+      this._xml = xml;
+      this._level = level;
+      this._maxLevel = maxlevel;
+      this._element = DEFAULT_ELEMENT;
+      this._rootFolder = rootfolder;
+      this._psWebSiteRoot = toNormalisedFolderPath(documentroot);
+      this._psWebSiteContent = toNormalisedFolderPath(content);
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
       try {
-        if ("property".equals(qName) && "document-type".equalsIgnoreCase(atts.getValue("name"))) {
-          this.inProp = true;
-        }
+        if ("property".equals(qName) && "document-type".equals(atts.getValue("name"))) {
+          // We've found the document type property, flag it!
+          this.inProperty = true;
+        } else if (this.isMaster && this._element.equals(qName)) {
 
-        if (this.element.equals(qName) && isMaster) {
-          this.inElem = true;
-        }
+          // An xref to follow
+          this.inElement = true;
 
-        if (this.inElem) {
-          this.to.openElement("nav");
-          this.to.attribute("level", this.level);
+          // Remove the PS website root folder and content folder
+          String path = atts.getValue("href").replace(this._psWebSiteRoot, "");
+          path = path.replace(this._psWebSiteContent, "");
 
-          if (atts.getValue("title") != null && !atts.getValue("title").isEmpty()) {
-            this.to.attribute("title", atts.getValue("title"));
-          } else {
-            this.to.attribute("title", atts.getValue("urititle"));
-          }
-
-          // remove the PS website root folder
-          String path = "";
-          if (this.psWebSiteRoot != null) {
-            path = atts.getValue("href").replace(this.psWebSiteRoot, "");
-          }
-
-          // remove the PS website content folder
-          if (this.psWebSiteContent != null) {
-            path = path.replace(this.psWebSiteContent, "");
-          }
-
-          File reqfile = new File(this.rootFolder, path);
-          String status = reqfile != null && reqfile.exists() ? "true" : "false";
-
+          // Check if target file exists
+          File reqfile = new File(this._rootFolder, path);
+          boolean exists = reqfile != null && reqfile.exists();
           this.xref = path;
-          this.to.attribute("href", path);
-          this.to.attribute("status", status);
-          if (reqfile != null && reqfile.exists()) {
-            this.to.attribute("lastmodifed", String.valueOf(reqfile.lastModified()));
+
+          // Write the XML
+          this._xml.openElement("nav");
+          this._xml.attribute("level", this._level);
+          this._xml.attribute("href", path);
+          this._xml.attribute("exists", exists? "true" : "false");
+          if (exists) {
+            this._xml.attribute("timestamp", String.valueOf(reqfile.lastModified()));
           }
 
         }
       } catch (IOException ex) {
         throw new SAXException(ex);
       }
-
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
       try {
-        // close element.
-        if (this.inElem) {
-          // resolve the xref
-          File hrefFile = new File(this.rootFolder, this.xref);
+        // Close element.
+        if (this.isMaster && this._element.equals(qName)) {
 
-          if (hrefFile != null && hrefFile.exists() && this.level < this.maxLevel) {
+          // Grab the title and reset the buffer
+          String title = this.buffer.toString();
+          this._xml.attribute("title", title);
+          this.buffer.setLength(0);
 
-            DefaultHandler handler = new NavTreeHandler(this.to, this.rootFolder, this.psWebSiteRoot, this.psWebSiteContent, (this.level + 1), this.maxLevel);
-            parseXML(hrefFile, handler, this.to);
-            hrefFile = null;
+          // Resolve the xref
+          File target = new File(this._rootFolder, this.xref);
+          if (target != null && target.exists() && this._level < this._maxLevel) {
+            DefaultHandler handler = new NavTreeHandler(this._xml, this._rootFolder, this._psWebSiteRoot, this._psWebSiteContent, (this._level + 1), this._maxLevel);
+            parseXML(target, handler, this._xml);
+            target = null;
           }
-        }
 
-        if (this.element.equals(qName) && isMaster) {
-          this.inElem = false;
-          this.to.closeElement();
+          // Wrap up
+          this.inElement = false;
+          this._xml.closeElement();
         }
       } catch (IOException ex) {
         throw new SAXException(ex);
       }
-
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-      if (this.inProp) {
-        StringBuffer st = new StringBuffer();
-        st.append(ch, start, length);
-        if (st.toString().equalsIgnoreCase(DOCUMENT_TYPE)) {
-          isMaster = true;
+      if (this.inProperty) {
+        // Grab the document type and check we have a match
+        String doctype = new String(ch, start, length);
+        if (DEFAULT_DOCUMENT_TYPE.equals(doctype)) {
+          this.isMaster = true;
         }
+        this.inProperty = false;
+      } else if (this.inElement) {
+        // Grab the title
+        this.buffer.append(ch, start, length);
       }
     }
 
@@ -387,8 +391,8 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
      * @throws NullPointerException
      * @throws IOException
      */
-    public synchronized static void parseXML(File file, DefaultHandler handler, XMLWriter xml) throws IOException {
-      LOGGER.debug("Prase file {} ", file.getAbsoluteFile());
+    public static synchronized void parseXML(File file, DefaultHandler handler, XMLWriter xml) throws IOException {
+      LOGGER.debug("Parse file {} ", file.getAbsoluteFile());
 
       SAXParserFactory factory = SAXParserFactory.newInstance();
       factory.setValidating(false);
@@ -404,11 +408,11 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
           source.setEncoding("utf-8");
           SAXParser parser = factory.newSAXParser();
           parser.parse(source, handler);
-
         }
       } catch (ParserConfigurationException ex) {
         LOGGER.error("Error ", ex);
       } catch (SAXException ex) {
+        xml.writeComment("Unable to parse "+file.getName());
         LOGGER.error("Error ", ex);
       } finally {
         if (in != null) {
@@ -418,6 +422,17 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
       }
     }
 
+    /**
+     * Normalises the path to a folder.
+     *
+     * @param path The path to normalise
+     * @return "" if path is <code>null</code> and add trailing '/' if necessary.
+     */
+    private static String toNormalisedFolderPath(String path) {
+      if (path == null) return "";
+      if (path.length() > 0 && path.charAt(path.length()-1) != '/') return path + '/';
+      return path;
+    }
   }
 }
 

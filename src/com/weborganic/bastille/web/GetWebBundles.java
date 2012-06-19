@@ -53,10 +53,10 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetWebBundles.class);
 
   /** Where the bundled scripts should be located */
-  private static final String DEFAULT_BUNDLED_SCRIPTS = "/script/bundle/";
+  private static final String DEFAULT_BUNDLED_SCRIPTS = "/script/_/";
 
   /** Where the bundled styles should be located */
-  private static final String DEFAULT_BUNDLED_STYLES = "/style/bundle/";
+  private static final String DEFAULT_BUNDLED_STYLES = "/style/_/";
 
   /** The default JavaScript bundle. */
   private static final Properties DEFAULT_JS_BUNDLE = new Properties();
@@ -107,7 +107,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
           boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
           String name = replaceTokens(bundle.getKey().toString(), service);
           List<File> files = getFiles(bundle.getValue().toString(), service, env);
-          File b = this.jstool.getBundle(files, name, min);
+          File b = this.csstool.getBundle(files, name, min);
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
         return Long.toString(etag);
@@ -180,7 +180,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
     File bundle = bundler.bundle(files, name, min);
     LOGGER.debug("{} -> {}", files, bundle.getName());
-    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_STYLES);
+    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
     xml.openElement("script", false);
     xml.attribute("src", jsbundles+bundle.getName());
     xml.closeElement();
@@ -198,7 +198,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    */
   private void bundleStyles(WebBundleTool bundler, List<File> files, String name, XMLWriter xml) throws IOException {
     if (files.isEmpty()) return;
-    boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
+    boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
     File bundle = bundler.bundle(files, name, min);
     LOGGER.debug("{} -> {}", files, bundle.getName());
     String cssbundles = GlobalSettings.get("bastille.cssbundler.location", DEFAULT_BUNDLED_STYLES);
@@ -214,7 +214,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    */
   private void init(Environment env) {
     // Initialise the JavaScript bundling tool
-    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_STYLES);
+    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
     File bundles = env.getPublicFile(jsbundles);
     if (!bundles.exists()) bundles.mkdirs();
     if (this.jstool == null)

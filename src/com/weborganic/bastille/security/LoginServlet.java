@@ -31,7 +31,8 @@ import com.weborganic.bastille.security.ps.PageSeederAuthenticator;
  * <p>See {@link #init(ServletConfig)}.
  *
  * @author Christophe Lauret
- * @version 0.6.15 - 16 September 2011
+ * @author Jean-Baptiste Reure
+ * @version 0.6.38 - 20 June 2012
  * @since 0.6.2
  */
 public final class LoginServlet extends HttpServlet {
@@ -79,6 +80,9 @@ public final class LoginServlet extends HttpServlet {
       this.defaultTarget = DEFAULT_TARGET;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void destroy() {
     super.destroy();
@@ -86,6 +90,9 @@ public final class LoginServlet extends HttpServlet {
     this.defaultTarget = DEFAULT_TARGET;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     // Get the authenticator
@@ -101,6 +108,9 @@ public final class LoginServlet extends HttpServlet {
     res.setHeader("X-Bastille-User", "Anonymous");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
@@ -124,7 +134,8 @@ public final class LoginServlet extends HttpServlet {
 
         } else {
           LOGGER.debug("Redirecting to {}", this.defaultTarget);
-          res.sendRedirect(this.defaultTarget);
+          String ctxt = req.getContextPath() == null ? "" : req.getContextPath();
+          res.sendRedirect(ctxt+this.defaultTarget);
         }
 
       // Login failed
@@ -134,8 +145,9 @@ public final class LoginServlet extends HttpServlet {
           session.setAttribute(Constants.SESSION_REQUEST_ATTRIBUTE, target);
         }
         if (this.loginPage != null) {
-          LOGGER.debug("Redirecting to "+this.loginPage+"?message=Login failed");
-          res.sendRedirect(this.loginPage+"?message=Login failed");
+          String ctxt = req.getContextPath() == null ? "" : req.getContextPath();
+          LOGGER.debug("Redirecting to "+ctxt+this.loginPage+"?message=Login failed");
+          res.sendRedirect(ctxt+this.loginPage+"?message=Login failed");
         } else {
           res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Login failed");
         }

@@ -141,9 +141,9 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   /** The default CSS bundle. */
   private static final Properties DEFAULT_CSS_BUNDLE = new Properties();
   static {
-    DEFAULT_JS_BUNDLE.setProperty("global",    "/style/global.css");
-    DEFAULT_JS_BUNDLE.setProperty("{GROUP}",   "/style/{GROUP}.css");
-    DEFAULT_JS_BUNDLE.setProperty("{SERVICE}", "/style/{GROUP}/{SERVICE}.css");
+    DEFAULT_CSS_BUNDLE.setProperty("global",    "/style/global.css");
+    DEFAULT_CSS_BUNDLE.setProperty("{GROUP}",   "/style/{GROUP}.css");
+    DEFAULT_CSS_BUNDLE.setProperty("{SERVICE}", "/style/{GROUP}/{SERVICE}.css");
   }
 
   /**

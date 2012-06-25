@@ -329,7 +329,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       // only one path
       String p = replaceTokens(paths, service);
       File file = env.getPublicFile(p);
-      if (file.exists()) return Collections.singletonList(paths);
+      if (file.exists()) return Collections.singletonList(p);
     }
     return Collections.emptyList();
   }

@@ -26,16 +26,88 @@ import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.util.WebBundleTool;
 
 /**
- * This generator returns the XML for the Footer.
+ * This generator returns the list of timestamped scripts and styles for a given service.
+ *
+ * <p>It will assemble and minimize the scripts and styles together as much as possible and return the
+ * list of bundles. Because the name each bundle includes unique stamp, they can be cached for a long periods.
+ * When files included in a bundle are modified, this generator will automatically produce a new bundle
+ * with a new stamp so that it results in a different URL.
+ *
+ * <h4>Bundling</h4>
+ * <p>Scripts are simply concatenated. Styles are concatenated and import rules will automatically include
+ * the imported styles into the main file.
+ *
+ * <h4>Minimization</h4>
+ * <p>Both styles and scripts can be minimised after the bundling. Minimized bundles will be saved using the
+ * following extensions <code>.min.js</code> and <code>.min.css</code>. If files to be bundled already use the
+ * <code>*.min.*</code> extension, it will be considered to be already minimised and won't be minimised again.
+ *
+ * <h4>File naming</h4>
+ * <p>Bundled files are automatically named as:</p>
+ * <pre>[bundlename]-[date]-[etag].[ext]</pre>
+ * <p>The <i>bundle name</i> is specified in the configuration; the <i>date</i> is the creation date of the
+ * bundle; the etag is the 4-character alphanumerical stamp; and the extension depends on the MIME type and
+ * minimization options.
+ *
  *
  * <h3>Configuration</h3>
+ * <p>This generator is highly configurable and the configuration properties are specific (but similar)
+ * for styles and scripts.
+ *
+ * <p>Properties pertaining to scripts and styles are prefixed by respectively <code>bastille.jsbundler</code>
+ * and <code>bastille.cssbundler</code>.
+ *
+ * <p>The <code>minimize</code> property can be used to control minimization of the code.
+ *
+ * <p>The <code>location</code> property can be used to define where the bundled files should be stored.
+ *
+ * <p>Each bundle is specified using the <code>bundles</code> property node where the bundle names are mapped
+ * to the comma separated list of paths to include.
+ *
+ * <h4>Default configuration</h4>
+ * <p>The default configuration is the equivalent of:</p>
+ * <p><i>(Use curly brackets instead of square brackets)</i></p>
+ * <pre>{@code
+ * <node name="bastille.cssbundler">
+ *   <map>
+ *     <entry key="minimize"  value="true"/>
+ *     <entry key="location"  value="/style/_/"/>
+ *   </map>
+ *   <node name="bundles">
+ *     <map>
+ *        <entry key="global"    value="/style/global.css"/>
+ *        <entry key="[GROUP]"   value="/style/[GROUP].css"/>
+ *        <entry key="[SERVICE]" value="/style/[GROUP]/[SERVICE].css"/>
+ *      </map>
+ *   </node>
+ * </node>
+ * <node name="bastille.jsbundler">
+ *   <map>
+ *     <entry key="minimize"  value="true"/>
+ *     <entry key="location"  value="/script/_/"/>
+ *   </map>
+ *   <node name="bundles">
+ *   <map>
+ *     <entry key="global"    value="/script/global.js"/>
+ *     <entry key="[GROUP]"   value="/script/[GROUP].js"/>
+ *     <entry key="[SERVICE]" value="/script/[GROUP]/[SERVICE].js"/>
+ *   </map>
+ * </node>
+ * }</pre>
  *
  *
  * <h3>Parameters</h3>
- *
+ * <p>No parameters are required for this generator, but the bundling can be disabled by setting the
+ * <code>berlioz-bundle</code> parameter to <code>true</code>
  *
  * <h3>Returned XML</h3>
- *
+ * <p>The XML returns the scripts and styles in the order in which they are defined.
+ * <pre>{@code
+ * <script src="[jslocation]/[bundle].js" bundled="[true|false]" minimized="[true|false]" />
+ * ...
+ * <style  src="[csslocation]/[bundle].css" bundled="[true|false]" minimized="[true|false]" />
+ * ...
+ * }</pre>
  *
  * <h4>Error handling</h4>
  *
@@ -44,7 +116,7 @@ import com.weborganic.bastille.util.WebBundleTool;
  * <h3>ETag</h3>
  *
  * @author Christophe Lauret
- * @version 0.6.5 - 31 May 2010
+ * @version 0.6.40 - 25 June 2012
  * @since 0.6.0
  */
 public final class GetWebBundles implements ContentGenerator, Cacheable {
@@ -139,6 +211,8 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
         for (String path : paths) {
           xml.openElement("script", false);
           xml.attribute("src", path);
+          xml.attribute("bundled", "false");
+          xml.attribute("minimized", "false");
           xml.closeElement();
         }
       }
@@ -156,6 +230,8 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
         for (String path : paths) {
           xml.openElement("style", false);
           xml.attribute("src", path);
+          xml.attribute("bundled", "false");
+          xml.attribute("minimized", "false");
           xml.closeElement();
         }
       }
@@ -183,6 +259,8 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
     xml.openElement("script", false);
     xml.attribute("src", jsbundles+bundle.getName());
+    xml.attribute("bundled", "true");
+    xml.attribute("minimized", Boolean.toString(min));
     xml.closeElement();
   }
 
@@ -204,6 +282,8 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     String cssbundles = GlobalSettings.get("bastille.cssbundler.location", DEFAULT_BUNDLED_STYLES);
     xml.openElement("style", false);
     xml.attribute("src", cssbundles+bundle.getName());
+    xml.attribute("bundled", "true");
+    xml.attribute("minimized", Boolean.toString(min));
     xml.closeElement();
   }
 
@@ -246,8 +326,9 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       }
       return existing;
     } else {
-      // only one paths
-      File file = env.getPublicFile(paths);
+      // only one path
+      String p = replaceTokens(paths, service);
+      File file = env.getPublicFile(p);
       if (file.exists()) return Collections.singletonList(paths);
     }
     return Collections.emptyList();

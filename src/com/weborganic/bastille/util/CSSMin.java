@@ -119,8 +119,8 @@ public final class CSSMin {
   public static void minimize(String filename, OutputStream out) {
     try {
       minimize(new FileReader(filename), out);
-    } catch (java.io.FileNotFoundException e) {
-      System.out.println(e.getMessage());
+    } catch (java.io.FileNotFoundException ex) {
+      LOGGER.debug("Unable to find file", ex);
     }
   }
 
@@ -143,7 +143,7 @@ public final class CSSMin {
     try {
       StringBuilder buffer = toBuffer(input);
       String comment = stripComments(buffer);
-      LOGGER.debug("Parsing and processing selectors...");
+      LOGGER.debug("Parsing and processing selectors.");
 
       // Reset for selector
       List<Rule> selectors = new ArrayList<Rule>();
@@ -201,7 +201,6 @@ public final class CSSMin {
    private static StringBuilder toBuffer(Reader input) throws IOException {
      BufferedReader br = new BufferedReader(input);
      StringBuilder buffer = new StringBuilder();
-     LOGGER.debug("Reading file into StringBuffer...");
      String s;
      while ((s = br.readLine()) != null) {
        if (s.trim().length() > 0) {
@@ -221,7 +220,6 @@ public final class CSSMin {
     * @throws ParsingException Should an error occur while reading the file.
     */
   private static String stripComments(StringBuilder buffer) throws ParsingException {
-    LOGGER.debug("Removing comments...");
     int n = 0;
     int k = 0;
     boolean keep = false;
@@ -320,7 +318,6 @@ public final class CSSMin {
         }
       } else {
         String contents = parts[parts.length - 1].trim();
-        LOGGER.debug("Parsing selector: {}", this._selector);
         if (contents.charAt(contents.length() - 1) != '}') { // Ensure that we have a leading and trailing brace.
           throw new ParsingException("Unterminated selector: " + selector, -1, -1);
         }
@@ -445,8 +442,6 @@ public final class CSSMin {
         boolean splitable = true;
         int j = 0;
         String substr;
-        LOGGER.debug("Examining property: " + property);
-
         for (int i = 0; i < property.length(); i++) {
           if (!splitable) { // If we're inside a string
             splitable = (property.charAt(i) == '"');
@@ -492,7 +487,6 @@ public final class CSSMin {
       }
       min.deleteCharAt(min.length() - 1); // Delete the trailing comma.
       min.append(";");
-      LOGGER.debug(min.toString());
       return min;
     }
 
@@ -534,8 +528,8 @@ public final class CSSMin {
       for (int i = 0; i < parts.length; i++) {
         try {
           results[i] = new Part(parts[i], this._property);
-        } catch (Exception e) {
-          LOGGER.warn(e.getMessage());
+        } catch (Exception ex) {
+          LOGGER.warn(ex.getMessage());
           results[i] = null;
         }
       }

@@ -34,6 +34,7 @@
   <target name="init" depends="-load-ivy-properties">
     <tstamp/>
     <mkdir dir="${dir.bin}"/>
+    <mkdir dir="${dir.lib}"/>
     <ivy:settings url="${ivy.settings.url}"/>
   </target>
 

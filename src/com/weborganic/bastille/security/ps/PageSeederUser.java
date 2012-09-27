@@ -12,11 +12,15 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.GlobalSettings;
+import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.security.Constants;
 import com.weborganic.bastille.security.Obfuscator;
 import com.weborganic.bastille.security.User;
 
@@ -218,6 +222,27 @@ public final class PageSeederUser implements User, Serializable {
    */
   protected void setMemberOf(List<String> groups) {
     this._memberOf = groups.toArray(new String[]{});
+  }
+
+  /**
+   * Returns the PageSeeder user that is currently logged in.
+   *
+   * @param req the content request.
+   * @return The PageSeeder user or <code>null</code> if it is not configured properly or could not login.
+   */
+  public static PageSeederUser getUser(ContentRequest req) {
+    HttpSession session = req.getSession();
+    Object o = null;
+    // Try to get the user from the session (if logged in)
+    if (session != null) {
+      o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
+    }
+    // try to cast from PageSeeder user
+    if (o instanceof PageSeederUser) {
+      return (PageSeederUser)o;
+    } else {
+      return null;
+    }
   }
 
   // XML Writer ===================================================================================

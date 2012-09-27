@@ -21,11 +21,70 @@ public final class PSServices {
   }
 
   /**
+   * Returns the URL to invoke the service that returns the list of discussions for a group.
+   *
+   * @param group The name of the group
+   *
+   * @return <code>/groups/[group]/discussions</code>.
+   */
+  public static String toGetDiscussions(String group) {
+    return "/groups/"+group+"/discussions";
+  }
+
+  /**
+   * Returns the URL to invoke the service to reply to a comment
+   *
+   * @param group The name of the group
+   * @param id    The ID of the discussion to reply to
+   *
+   * @return <code>/groups/[group]/comments/[id]/reply</code>.
+   */
+  public static String toReplyToComment(String group, String id) {
+    return "/groups/"+group+"/comments/"+id+"/reply";
+  }
+
+  /**
    * Returns the URL to invoke the group member creation service.
    *
    * @param group The name of the group
    *
-   * @return <code>/groups/[groupname]/members/create</code>.
+   * @return <code>/groups/[group]/comments</code>.
+   */
+  public static String toCreateComment(String group) {
+    return "/groups/"+group+"/comments";
+  }
+
+  /**
+   * Returns the URL to invoke the group member creation service.
+   *
+   * @param user  The username or user ID
+   * @param group The name of the group
+   *
+   * @return <code>/groups/[group]/comments</code>.
+   */
+  public static String toMemberCreateComment(String user, String group) {
+    return "/members/"+user+"/groups/"+group+"/comments";
+  }
+
+  /**
+   * Returns the URL to invoke the service to reply to a comment
+   *
+   * @param user  The username or user ID
+   * @param group The name of the group
+   * @param id    The ID of the discussion to reply to
+   *
+   * @return <code>/members/[user]/groups/[group]/discussions/[id]</code>.
+   */
+  public static String toMemberReplyToComment(String user, String group, String id) {
+    return "/members/"+user+"/groups/"+group+"/comments/"+id+"/reply";
+  }
+
+  /**
+   * Returns the URL to invoke the group member creation service.
+   *
+   * @param group The name of the group
+   *
+   * @return <code>/groups/[group]/members/create</code>.
    */
   public static String toCreateGroupMember(String group) {
     return "/groups/"+group+"/members/create";

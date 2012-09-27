@@ -25,13 +25,8 @@
   <!-- other properties -->
   <loadfile property="version" srcfile="version.txt" description="Version to build"/>
 
-  <!-- Only load Ivy properties if not defined globally -->
-  <target name="-load-ivy-properties" unless="ivy.settings.url">
-    <loadproperties srcFile="ivy.properties"/>
-  </target>
-
   <!-- initialise -->
-  <target name="init" depends="-load-ivy-properties">
+  <target name="init">
     <tstamp/>
     <mkdir dir="${dir.bin}"/>
     <mkdir dir="${dir.lib}"/>

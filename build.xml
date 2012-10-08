@@ -30,7 +30,7 @@
     <tstamp/>
     <mkdir dir="${dir.bin}"/>
     <mkdir dir="${dir.lib}"/>
-    <ivy:settings url="${ivy.settings.url}"/>
+    <ivy:settings url="http://ivy.pageseeder.com/settings/ivysettings.xml"/>
   </target>
 
   <!-- retrieve dependencies with Ivy -->
@@ -68,15 +68,15 @@
   <!-- generate the documentation -->
   <target name="javadoc" depends="compile" description="generate the java documentation">
     <mkdir dir="${dir.doc}"/>
-    <javadoc destdir="${dir.doc}" access="public" 
-                                  use="true" 
-                                  notree="false" 
-                                  nonavbar="false" 
-                                  noindex="false" 
-                                  splitindex="true" 
-                                  author="false" version="false" 
-                                  nodeprecatedlist="false" 
-                                  nodeprecated="false" 
+    <javadoc destdir="${dir.doc}" access="public"
+                                  use="true"
+                                  notree="false"
+                                  nonavbar="false"
+                                  noindex="false"
+                                  splitindex="true"
+                                  author="false" version="false"
+                                  nodeprecatedlist="false"
+                                  nodeprecated="false"
                                   sourcepath="${dir.src}"
                                   stylesheetfile="${dir.resource}/javadoc.css"
                                   doctitle="${name.display} ${version} API">
@@ -111,8 +111,8 @@
         <attribute name="Implementation-URL"     value="http://www.weborganic.com/"/>
       </manifest>
     </jar>
-    <zip zipfile="${dir.release}/${DSTAMP}/${name.short}-${version}-all.zip" 
-         basedir="." 
+    <zip zipfile="${dir.release}/${DSTAMP}/${name.short}-${version}-all.zip"
+         basedir="."
          includes="${dir.src}/**, ${dir.bin}/**, ${dir.doc}/**,${dir.resource}/**"/>
    </target>
 
@@ -121,7 +121,7 @@
     <delete dir="${dir.bin}"/>
   </target>
 
-  <!-- 
+  <!--
     Publish the build on the Ivy, must specify
     - publish.status    ('milestone' or 'integration')
     - publish.resolver  ('shared' or 'local')
@@ -151,7 +151,7 @@
     <ivy:resolve revision="${publish.revision}" log="quiet"/>
     <ivy:publish resolver="${publish.resolver}"
                  module="${name.short}"
-                 artifactspattern="release/${DSTAMP}/[artifact]-[revision].[ext]" 
+                 artifactspattern="release/${DSTAMP}/[artifact]-[revision].[ext]"
                  revision="${publish.revision}"
                  status="${publish.status}"/>
     <echo message="Published ${publish.status} release as ${publish.revision}"/>

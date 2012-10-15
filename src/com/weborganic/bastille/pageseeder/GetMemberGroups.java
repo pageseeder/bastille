@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -17,22 +21,22 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * A generator that returns the list of projects and groups a user is a member of.
- * 
+ *
  * <h3>Configuration</h3>
  * <p>There is no configuration associated with this generator.</p>
- * 
+ *
  * <h3>Parameters</h3>
  * <p>No parameter required, however, the user does need to be logged in as a PageSeeder User.
- * 
+ *
  * <h3>Returned XML</h3>
  * <p>This generator invokes a PageSeeder service and returns the content of this service verbatim.
  * <p>The content is wrapped in:
- * <pre>{@code <ps-service resource="/members/[member id]/projects" 
+ * <pre>{@code <ps-service resource="/members/[member id]/projects"
  *         http-status="[status code]"
  *        content-type="application/xml">
  *   <!-- XML returned by PageSeeder Service -->
  * </ps-service>}</pre>
- * 
+ *
  * <p>The PageSeeder service returns the projects and group in hierarchical form.
  * <pre>{@code <projects for="[user email]">
  *   <!-- for each project -->
@@ -49,10 +53,10 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * </projects>}</pre>
  *
  * <h4>Error handling</h4>
- * <p>If an error occurs while invoking the service, the XML will also include the 
- * <code>error</code> and <code>message</code> attributes. The HTTP status should 
+ * <p>If an error occurs while invoking the service, the XML will also include the
+ * <code>error</code> and <code>message</code> attributes. The HTTP status should
  * correspond to an HTTP error code.
- * <pre>{@code <ps-service resource="/members/[member id]/projects" 
+ * <pre>{@code <ps-service resource="/members/[member id]/projects"
  *         http-status="[error]"
  *        content-type="application/xml"
  *               error="[error-type]"
@@ -62,16 +66,16 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  * <h4>Sample output</h4>
  * <pre>{@code <content generator="com.weborganic.bastille.pageseeder.GetMemberGroups"
  *              name="classes" target="main" status="ok">
- *   <ps-service resource="/members/123/projects" http-status="200" 
+ *   <ps-service resource="/members/123/projects" http-status="200"
  *           content-type="application/xml">
  *     <projects for="No Email">
- *       <project id="5" name="Project X" 
+ *       <project id="5" name="Project X"
  *             owner="XYZ" owner-directory="project_x"
  *       description="This is Project X">
  *         <project id="6" name="project_x-2011"
  *         description="Project X in 2011 (Sub-project)"
  *               owner="XYZ" owner-directory="project_x-2011">
- *           <group id="7" name="project_x-2011-dev" 
+ *           <group id="7" name="project_x-2011-dev"
  *         description="Dev group on project X in 2011"
  *               owner="XYZ" owner-directory="project_x-2011"/>
  *         </project>
@@ -79,12 +83,12 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  *     </projects>
  *   </ps-service>
  * </content>}</pre>
- * 
+ *
  * <h3>Usage</h3>
  * <p>To use this generator in Berlioz (in <code>/WEB-INF/config/services.xml</code>):
- * <pre>{@code <generator class="com.weborganic.bastille.pageseeder.GetMemberGroups" 
+ * <pre>{@code <generator class="com.weborganic.bastille.pageseeder.GetMemberGroups"
  *            name="[name]" target="[target]"/>}</pre>
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.2 - 11 April 2011
  * @since 0.6.2
@@ -95,6 +99,7 @@ public final class GetMemberGroups implements ContentGenerator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Is the user logged in?

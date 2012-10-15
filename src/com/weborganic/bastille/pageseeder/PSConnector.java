@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -18,35 +22,35 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * Represents a request made to the PageSeeder Server.
- * 
- * <p>By default the request is made anonymously. In order to make a request on behalf of a 
+ *
+ * <p>By default the request is made anonymously. In order to make a request on behalf of a
  * PageSeeder user, use the {@link #setUser(PageSeederUser)} method - this is required for any page
  * that needs login access.
- * 
+ *
  * <p>For simple PageSeeder connections via GET or POST, this class provides convenience methods
  * which will open and close the connections and capture any error in XML.
- * 
+ *
  * <p>For example:</p>
  * <pre>
  * PSConnector connector = new PSConnector(PSResourceType.SERVICE, "/groups/123/members");
  * connector.setUser(user);
  * boolean ok = connector.get(xml);
  * </pre>
- * 
- * <p>For more complex connections, involving multipart queries or if any of the default properties 
- * of the connection need to be changed, this class can be used to create the connection to 
+ *
+ * <p>For more complex connections, involving multipart queries or if any of the default properties
+ * of the connection need to be changed, this class can be used to create the connection to
  * PageSeeder, for example:</p>
  * <pre>
  * PSConnector connector = new PSConnector(PSResourceType.SERVICE, "/groups/123/upload");
  * connector.setUser(user);
- * 
+ *
  * PSConnection connection = connector.connect(Type.MULTIPART);
  * connection.addXMLPart(xml1);
  * connection.addXMLPart(xml2);
  * connection.addXMLPart(xml3);
  * connection.disconnect();
  * </pre>
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.10 - 10 August 2011
  * @since 0.6.3
@@ -68,9 +72,9 @@ public final class PSConnector {
 
   /**
    * Creates a new connection to the specified resource.
-   * 
+   *
    * @param type     The type of resource.
-   * @param resource The 
+   * @param resource The
    */
   public PSConnector(PSResourceType type, String resource) {
     this._resource = new PSResource.Builder(type, resource);
@@ -86,7 +90,7 @@ public final class PSConnector {
 
   /**
    * Add a parameter to this request.
-   * 
+   *
    * @param name  The name of the parameter
    * @param value The value of the parameter
    */
@@ -96,10 +100,10 @@ public final class PSConnector {
 
   /**
    * Sets whether this resource should include the error content.
-   * 
-   * @param include <code>true</code> to include the content of response even when the response code 
+   *
+   * @param include <code>true</code> to include the content of response even when the response code
    *                is greater than 400 (included);
-   *                <code>false</code> to only include the response when the response code is 
+   *                <code>false</code> to only include the response when the response code is
    *                between 200 and 299.
    */
   public void includeErrorContent(boolean include) {
@@ -110,12 +114,12 @@ public final class PSConnector {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Connect to PageSeeder using the specified method. 
-   * 
+   * Connect to PageSeeder using the specified method.
+   *
    * @param type  The connection type using the specified method
-   * 
+   *
    * @return The PS connection created as a result.
-   * @throws IOException If thrown while trying to open the connection or if the URL for the 
+   * @throws IOException If thrown while trying to open the connection or if the URL for the
    *                     underlying resource is malformed.
    */
   public PSConnection connect(Type type) throws IOException {
@@ -128,11 +132,11 @@ public final class PSConnector {
 
   /**
    * Connect to PageSeeder via GET.
-   * 
+   *
    * @param xml the XML to copy from PageSeeder
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -141,15 +145,15 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the GET method. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the GET method.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * @param xml     the XML to copy from PageSeeder
-   * @param handler the handler for the XML (can be used to rewrite the XML) 
-   * 
+   * @param handler the handler for the XML (can be used to rewrite the XML)
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -158,15 +162,15 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the GET method. 
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the GET method.
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param templates A set of templates to process the XML (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -175,16 +179,16 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the GET method. 
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the GET method.
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param templates A set of templates to process the XML (optional)
    * @param parameters Parameters to send to the XSLT transformer (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -194,11 +198,11 @@ public final class PSConnector {
 
   /**
    * Connect to PageSeeder via POST.
-   * 
+   *
    * @param xml the XML to copy from PageSeeder
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -207,15 +211,15 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the POST method. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the POST method.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * @param xml     the XML to copy from PageSeeder
-   * @param handler the handler for the XML (can be used to rewrite the XML) 
-   * 
+   * @param handler the handler for the XML (can be used to rewrite the XML)
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -224,15 +228,15 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the POST method. 
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the POST method.
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param templates A set of templates to process the XML (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -241,16 +245,16 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the POST method. 
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the POST method.
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param templates A set of templates to process the XML (optional)
    * @param parameters Parameters to send to the XSLT transformer (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -259,24 +263,24 @@ public final class PSConnector {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the GET method. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the GET method.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * <p>If templates are specified they take precedence over the handler.
-   * 
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param type      The type of connection
    * @param handler   The handler for the XML (can be used to rewrite the XML)
    * @param templates A set of templates to process the XML (optional)
    * @param parameters Parameters to send to the XSLT transformer (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
-  private boolean simple(XMLWriter xml, Type type, PSHandler handler, Templates templates, 
+  private boolean simple(XMLWriter xml, Type type, PSHandler handler, Templates templates,
       Map<String, String> parameters) throws IOException {
 
     // Build the resource
@@ -307,11 +311,11 @@ public final class PSConnector {
 
   /**
    * Adds the attributes for when error occurs
-   * 
+   *
    * @param xml     The XML output.
    * @param error   The error code.
-   * @param message The error message. 
-   * 
+   * @param message The error message.
+   *
    * @throws IOException If thrown while writing the XML.
    */
   private static void error(XMLWriter xml, String error, String message) throws IOException {

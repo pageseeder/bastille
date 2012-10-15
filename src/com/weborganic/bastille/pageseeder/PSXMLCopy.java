@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.pageseeder;
 
 import org.weborganic.berlioz.xml.XMLCopy;
@@ -8,9 +15,9 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * A PS handler which can be used to copy the content and retrieve information at the same time.
- * 
+ *
  * <p>This class is intended to be subclassed.
- * 
+ *
  * @author Christophe Lauret
  * @version 3 November 2011
  */

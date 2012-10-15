@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -18,12 +22,12 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * A generator than can connect to PageSeeder and call a PageSeeder service.
- * 
+ *
  * <h3>Configuration</h3>
  * <p>There is no configuration directly required with this generator; however since this generator
  * connects to PageSeeder the <code>bastille.pageseeder</code> properties must setup in order
  * to defined which server to connect to.</p>
- * 
+ *
  * <h3>Parameters</h3>
  * <p>The following parameter is required:</p>
  * <table>
@@ -31,7 +35,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  *   <tr><th>ps-service</th><td>The name of the service to connect to (required)</td></tr>
  *   </tbody>
  * </table>
- * 
+ *
  * <p>The following parameters can also be specified:</p>
  * <table>
  *   <tbody>
@@ -42,30 +46,30 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
  *   </tbody>
  * </table>
  * <p>Any other parameter will automatically be transmitted to the PageSeeder service.
- * 
+ *
  * <h3>Returned XML</h3>
  * <p>TODO</p>
- * 
+ *
  * <h4>Error handling</h4>
- * <p>If an error occurs while invoking the service, the XML will also include the 
- * <code>error</code> and <code>message</code> attributes. The HTTP status should 
+ * <p>If an error occurs while invoking the service, the XML will also include the
+ * <code>error</code> and <code>message</code> attributes. The HTTP status should
  * correspond to an HTTP error code.
- * <pre>{@code <ps-service resource="/members/[member id]/projects" 
+ * <pre>{@code <ps-service resource="/members/[member id]/projects"
  *         http-status="[error]"
  *        content-type="application/xml"
  *               error="[error-type]"
  *             message="[error-message]">
  * </ps-service>}</pre>
- * 
+ *
  * <h3>Permission</h3>
  * <p>This generator will attempt to use the user currently logged in.
  * <p>If the current user is not PageSeeder user or if there is no user currently logged in, the
  * request will be made anonymously.
- * 
+ *
  * <h3>Usage</h3>
- * <p>This is a generic generator; use this generator when no other specialised generator provides 
+ * <p>This is a generic generator; use this generator when no other specialised generator provides
  * the same functionality.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.7 - 3 June 2011
  * @since 0.6.3
@@ -104,9 +108,9 @@ public final class CallService implements ContentGenerator {
     }
 
     // Grab the XML form the PageSeeder request
-    if (method.equalsIgnoreCase("GET")) {
+    if ("GET".equalsIgnoreCase(method)) {
       connector.get(xml);
-    } else if (method.equalsIgnoreCase("POST")) {
+    } else if ("POST".equalsIgnoreCase(method)) {
       connector.post(xml);
     } else {
       // default

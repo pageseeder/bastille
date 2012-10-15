@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.cache;
 
@@ -19,16 +23,13 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * Display a summary of the information about the cache in the application.
- * 
+ *
  * @author Christophe Lauret
  * @version 24 November 2011
  */
 @Beta
 public final class GetCachingOverview implements ContentGenerator {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     List<CacheManager> managers = CacheManager.ALL_CACHE_MANAGERS;
@@ -43,17 +44,17 @@ public final class GetCachingOverview implements ContentGenerator {
         toXML(cache, xml);
       }
 
-      xml.closeElement();      
+      xml.closeElement();
     }
 
   }
 
   /**
    * Returns basic information about the cache.
-   * 
+   *
    * @param cache The cache
    * @param xml   The XML Writer
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML
    */
   private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {

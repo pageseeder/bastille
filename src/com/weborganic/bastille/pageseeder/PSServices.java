@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2012 Allette Systems (Australia) Pty. Ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -32,7 +36,7 @@ public final class PSServices {
   }
 
   /**
-   * Returns the URL to invoke the service to reply to a comment
+   * Returns the URL to invoke the service to reply to a comment.
    *
    * @param group The name of the group
    * @param id    The ID of the discussion to reply to
@@ -67,7 +71,7 @@ public final class PSServices {
   }
 
   /**
-   * Returns the URL to invoke the service to reply to a comment
+   * Returns the URL to invoke the service to reply to a comment.
    *
    * @param user  The username or user ID
    * @param group The name of the group

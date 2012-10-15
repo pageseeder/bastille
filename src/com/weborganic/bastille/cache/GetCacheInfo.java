@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.cache;
 
@@ -22,16 +26,13 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * Display information about the cache.
- * 
+ *
  * @author Christophe Lauret
  * @version 24 November 2011
  */
 @Beta
 public final class GetCacheInfo implements ContentGenerator {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     String name = req.getParameter("name");
@@ -49,10 +50,10 @@ public final class GetCacheInfo implements ContentGenerator {
 
   /**
    * Returns detailed information about the cache.
-   * 
+   *
    * @param cache The cache
    * @param xml   The XML Writer
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML
    */
   private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {
@@ -99,10 +100,10 @@ public final class GetCacheInfo implements ContentGenerator {
 
   /**
    * Display information about the cache configuration
-   * 
+   *
    * @param config The cache configuration
    * @param xml    The XML Writer.
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML
    */
   private static void toXML(CacheConfiguration config, XMLWriter xml) throws IOException {
@@ -136,10 +137,10 @@ public final class GetCacheInfo implements ContentGenerator {
 
   /**
    * Display information about the cache configuration
-   * 
+   *
    * @param statistics Statistics about the cache
    * @param xml        The XML Writer.
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML
    */
   private static void toXML(Statistics statistics, XMLWriter xml) throws IOException {

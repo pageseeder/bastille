@@ -1,4 +1,11 @@
 /*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
+/*
  * JSMin.java 2006-02-13
  *
  * Copyright (c) 2006 John Reilly (www.inconspicuous.org)
@@ -25,7 +32,6 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 package com.weborganic.bastille.util;
 
 import java.io.FileInputStream;

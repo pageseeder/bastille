@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -15,11 +19,11 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * Invokes PageSeeder to reset the password for the user.
- * 
+ *
  * <h3>Configuration</h3>
  * <p>There is no configuration associated with this generator.</p>
  * <p>However, the <code>PSResource<code> Object requires the following setting in <code>config/config-mode.xml </code>
- * 
+ *
  * <pre>
  * {@code
  * <node name="pageseeder">
@@ -33,14 +37,14 @@ import com.topologi.diffx.xml.XMLWriter;
  * </node>
  * }
  * </pre>
- * 
+ *
  * <h3>Parameters</h3>
  * <ul>
  *  <li><code>email</code> The Reset EMail Address.
- *  <li><code>group</code> The group the user is a member of, use this to use a specific email 
+ *  <li><code>group</code> The group the user is a member of, use this to use a specific email
  *  template (optional).
  * </ul>
- * 
+ *
  * <h3>Returned XML</h3>
  * <pre>
  * {@code
@@ -51,10 +55,10 @@ import com.topologi.diffx.xml.XMLWriter;
  * </ps-servlet>
  * }
  * </pre>
- * 
+ *
  * @author Christophe Lauret
  * @version 16 September 2011
- * 
+ *
  * @since 0.6.14
  */
 @Beta
@@ -73,7 +77,7 @@ public final class ResetPassword implements ContentGenerator {
 
     // Grab parameters
     String email = req.getParameter("email");
-    if (email == null) { missing(req, xml, "email"); return; } 
+    if (email == null) { missing(req, xml, "email"); return; }
 
     // Reset the password on PageSeeder
     PSConnector connector = new PSConnector(PSResourceType.SERVLET, SERVLET);
@@ -87,11 +91,11 @@ public final class ResetPassword implements ContentGenerator {
 
   /**
    * Write response for missing required parameter.
-   * 
+   *
    * @param req  The content request
    * @param xml  The XML writer
    * @param name The name of the missing parameter.
-   * 
+   *
    * @throws IOException If thrown by XML writer
    */
   private static void missing(ContentRequest req, XMLWriter xml, String name) throws IOException {

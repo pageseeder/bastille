@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -40,7 +44,7 @@ import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * Wraps an HTTP connection to PageSeeder.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.25 - 15 November 2011
  * @since 0.6.7
@@ -118,9 +122,9 @@ public final class PSConnection {
 
   /**
    * Add a part to the request (write the contents directly to the stream).
-   * 
+   *
    * @param part The encoding to specify in the Part's header
-   * @throws IOException 
+   * @throws IOException Should any error occur while writing the part on the output
    */
   public void addXMLPart(String part) throws IOException {
     addXMLPart(part, null);
@@ -128,10 +132,10 @@ public final class PSConnection {
 
   /**
    * Add a part to the request (write the contents directly to the stream).
-   * 
+   *
    * @param part     The encoding to specify in the Part's header
    * @param headers A list of headers added to this XML Part ('content-type' header is ignored)
-   * 
+   *
    * @throws IOException Should any error occur while writing
    */
   public void addXMLPart(String part, Map<String, String> headers) throws IOException {
@@ -163,7 +167,7 @@ public final class PSConnection {
 
   /**
    * Returns the response code of the underlying HTTP connection.
-   * 
+   *
    * @see HttpURLConnection#getResponseCode()
    * @return the response code of the underlying HTTP connection.
    * @throws IOException If thrown by the underlying HTTP connection.
@@ -174,7 +178,7 @@ public final class PSConnection {
 
   /**
    * Returns the response message of the underlying HTTP connection.
-   * 
+   *
    * @see HttpURLConnection#getResponseMessage()
    * @return the response message of the underlying HTTP connection.
    * @throws IOException If thrown by the underlying HTTP connection.
@@ -185,7 +189,7 @@ public final class PSConnection {
 
   /**
    * Returns the content type of the underlying HTTP connection.
-   * 
+   *
    * @see HttpURLConnection#getContentType()
    * @return the content type of the underlying HTTP connection.
    * @throws IOException If thrown by the underlying HTTP connection.
@@ -196,7 +200,7 @@ public final class PSConnection {
 
   /**
    * Disconnects the underlying HTTP connection.
-   * 
+   *
    * @see HttpURLConnection#disconnect()
    */
   public void disconnect() {
@@ -205,10 +209,10 @@ public final class PSConnection {
 
   /**
    * Returns the underlying HTTP connection.
-   * 
+   *
    * <p>This method can be useful to perform additional operations on the connection which are not
    * provided by this class.
-   * 
+   *
    * @return the underlying HTTP connection.
    */
   public HttpURLConnection connection() {
@@ -217,7 +221,7 @@ public final class PSConnection {
 
   /**
    * Returns the PageSeeder resource corresponding to the URL.
-   * 
+   *
    * @return the PageSeeder resource corresponding to the URL.
    */
   public PSResource resource() {
@@ -226,7 +230,7 @@ public final class PSConnection {
 
   /**
    * Returns the type of connection.
-   * 
+   *
    * @return the type of connection.
    */
   public Type type() {
@@ -234,14 +238,14 @@ public final class PSConnection {
   }
 
   /**
-   * Process the specified PageSeeder connection. 
-   * 
+   * Process the specified PageSeeder connection.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * @param xml     the XML to copy from PageSeeder
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -250,15 +254,15 @@ public final class PSConnection {
   }
 
   /**
-   * Process the specified PageSeeder connection. 
-   * 
+   * Process the specified PageSeeder connection.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * @param xml     the XML to copy from PageSeeder
-   * @param handler the handler for the XML (can be used to rewrite the XML) 
-   * 
+   * @param handler the handler for the XML (can be used to rewrite the XML)
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -268,14 +272,14 @@ public final class PSConnection {
 
   /**
    * Process the specified PageSeeder connection.
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml       The XML to copy from PageSeeder
    * @param templates A set of templates to process the XML (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -285,15 +289,15 @@ public final class PSConnection {
 
   /**
    * Process the specified PageSeeder connection.
-   * 
-   * <p>Templates can be specified to transform the XML. 
-   * 
+   *
+   * <p>Templates can be specified to transform the XML.
+   *
    * @param xml        The XML to copy from PageSeeder
    * @param templates  A set of templates to process the XML (optional)
    * @param parameters Parameters to send to the XSLT transformer (optional)
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
@@ -302,23 +306,23 @@ public final class PSConnection {
   }
 
   /**
-   * Connect to PageSeeder and fetch the XML using the GET method. 
-   * 
+   * Connect to PageSeeder and fetch the XML using the GET method.
+   *
    * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
-   * 
+   *
    * <p>If templates are specified they take precedence over the handler.
-   * 
+   *
    * @param xml        The XML to copy from PageSeeder
    * @param handler    The handler for the XML (can be used to rewrite the XML)
    * @param templates  A set of templates to process the XML (optional)
    * @param parameters Parameters to send to the transformer (optional).
-   * 
+   *
    * @throws IOException If an error occurs when trying to write the XML.
-   * 
+   *
    * @return <code>true</code> if the request was processed without errors;
    *         <code>false</code> otherwise.
    */
-  protected boolean process(XMLWriter xml, PSHandler handler, Templates templates, Map<String, String> parameters) 
+  protected boolean process(XMLWriter xml, PSHandler handler, Templates templates, Map<String, String> parameters)
       throws IOException {
     // Let's start
     xml.openElement("ps-"+this._resource.type().toString().toLowerCase(), true);
@@ -388,10 +392,10 @@ public final class PSConnection {
 
   /**
    * Indicates if the content type corresponds to XML content.
-   * 
+   *
    * @param contentType The content type
    * @return <code>true</code> if equal to "text/xml" or "application/xml" or end with "+xml";
-   *         <code>false</code> otherwise. 
+   *         <code>false</code> otherwise.
    */
   private static boolean isXML(String contentType) {
     return "text/xml".equals(contentType)
@@ -401,19 +405,19 @@ public final class PSConnection {
 
   /**
    * Create a PageSeeder connection for the specified URL and method.
-   * 
+   *
    * <p>The connection is configured to:
    * <ul>
    *   <li>Follow redirects</li>
    *   <li>Be used for output</li>
    *   <li>Ignore cache by default</li>
    * </ul>
-   * 
+   *
    * @param resource The resource to connect to.
    * @param type     The type of connection.
    * @param user     The user login to use (optional).
    * @return A newly opened connection to the specified URL
-   * @throws IOException Should an exception be returns while opening the connection 
+   * @throws IOException Should an exception be returns while opening the connection
    */
   protected static PSConnection connect(PSResource resource, Type type, PageSeederUser user) throws IOException {
     URL url = resource.toURL(user, type == Type.POST? false : true);
@@ -442,13 +446,13 @@ public final class PSConnection {
 
   /**
    * Write the POST content.
-   * 
+   *
    * @param connection The URL connection
    * @param data       The data to write
-   * 
+   *
    * @throws IOException Should any error occur while writing.
    */
-  private static void writePOSTData(HttpURLConnection connection, String data) 
+  private static void writePOSTData(HttpURLConnection connection, String data)
       throws IOException {
     OutputStream post = null;
     try {
@@ -467,14 +471,14 @@ public final class PSConnection {
 
   /**
    * Parse the Response as XML.
-   * 
+   *
    * @param connection The HTTP URL connection.
    * @param xml        Where the final XML goes.
    * @param handler    To transform the XML (optional).
-   * 
+   *
    * @return <code>true</code> if the data was parsed without error;
    *         <code>false</code> otherwise.
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML.
    */
   private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, PSHandler handler) throws IOException {
@@ -485,7 +489,7 @@ public final class PSConnection {
     XMLWriter buffer = new XMLWriterImpl(w);
 
     // Parse with the XML Copy Handler
-    DefaultHandler h = null; 
+    DefaultHandler h = null;
     if (handler != null) {
       handler.setXMLWriter(xml);
       h = handler;
@@ -541,18 +545,18 @@ public final class PSConnection {
 
   /**
    * Parse the Response as XML.
-   * 
+   *
    * @param connection The HTTP URL connection.
    * @param xml        Where the final XML goes.
    * @param templates  To transform the XML.
    * @param parameters Parameters to send to the transformer (optional).
-   * 
+   *
    * @return <code>true</code> if the data was parsed without error;
    *         <code>false</code> otherwise.
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML.
    */
-  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, Templates templates, 
+  private static boolean parseXML(HttpURLConnection connection, XMLWriter xml, Templates templates,
       Map<String, String> parameters) throws IOException {
     boolean ok = true;
 
@@ -605,13 +609,13 @@ public final class PSConnection {
 
   /**
    * Parse the response as text.
-   * 
+   *
    * @param connection The HTTP URL connection.
    * @param xml        Where the final XML goes.
-   * 
+   *
    * @return <code>true</code> if the data was parsed without error;
    *         <code>false</code> otherwise.
-   * 
+   *
    * @throws IOException If an error occurs while writing the XML.
    */
   private static boolean parseText(HttpURLConnection connection, XMLWriter xml) throws IOException {
@@ -642,18 +646,18 @@ public final class PSConnection {
 
   /**
    * Indicates whether the response was successful based on the HTTP code.
-   * 
+   *
    * @param code the HTTP status code.
    * @return <code>true</code> if the code is between 200 and 299 (included);
    *         <code>false</code>.
    */
   private static boolean isOK(int code) {
-    return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_MULT_CHOICE; 
+    return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_MULT_CHOICE;
   }
 
   /**
    * Indicates whether the response failed based on the HTTP code.
-   * 
+   *
    * @param code the HTTP status code.
    * @return <code>true</code> if the code is greater than 400 (included);
    *         <code>false</code>.
@@ -664,11 +668,11 @@ public final class PSConnection {
 
   /**
    * Adds the attributes for when error occurs
-   * 
+   *
    * @param xml     The XML output.
    * @param error   The error code.
-   * @param message The error message. 
-   * 
+   * @param message The error message.
+   *
    * @throws IOException If thrown while writing the XML.
    */
   private static void error(XMLWriter xml, String error, String message) throws IOException {
@@ -678,11 +682,11 @@ public final class PSConnection {
 
   /**
    * Adds the attributes for when error occurs
-   * 
+   *
    * @param xml        The XML output.
    * @param error      The error code.
    * @param connection The PS Connection.
-   * 
+   *
    * @throws IOException If thrown while writing the XML.
    */
   private static void psError(XMLWriter xml, String error, HttpURLConnection connection) throws IOException {
@@ -712,13 +716,13 @@ public final class PSConnection {
 
   /**
    * Returns the error stream to parse.
-   * 
+   *
    * <p>If debug is enabled, the content of the error stream is printed onto the System error stream.
-   * 
+   *
    * @param connection HTTP connection.
-   * 
+   *
    * @return the error stream.
-   * 
+   *
    * @throws IOException If thrown while writing the XML.
    */
   private static InputStream getErrorStream(HttpURLConnection connection) throws IOException {
@@ -726,7 +730,7 @@ public final class PSConnection {
     if (LOGGER.isDebugEnabled()) {
       InputStream tmp = connection.getErrorStream();
       try {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         IOUtils.copy(tmp, buffer);
         buffer.writeTo(System.err);
         err = new ByteArrayInputStream(buffer.toByteArray());
@@ -741,7 +745,7 @@ public final class PSConnection {
 
   /**
    * Extracts the error message from the "message" element in the XML response returned by PageSeeder.
-   * 
+   *
    * @author Christophe Lauret
    * @version 15 November 2011
    */
@@ -793,7 +797,7 @@ public final class PSConnection {
      *
      * @param source the XML input source to parse.
      * @return the error message found in the specified XML Input Source.
-     * 
+     *
      * @throws IOException If unable to parse response due to IO error.
      */
     public static String getMessage(InputSource source) throws IOException {

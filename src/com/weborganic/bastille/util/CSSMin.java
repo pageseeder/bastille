@@ -1,4 +1,11 @@
 /*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
+/*
  * CSSMin Copyright License Agreement (BSD License)
  *
  * Copyright (c) 2011, Barry van Oudtshoorn

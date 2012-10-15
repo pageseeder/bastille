@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.pageseeder;
 
@@ -10,14 +14,14 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import com.weborganic.bastille.security.ps.PageSeederUser;
 
 /**
  * Defines a resource to retrieve from PageSeeder.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.25 - 15 November 2011
  * @since 0.6.2
@@ -46,9 +50,9 @@ public final class PSResource {
 
   /**
    * Creates a new connection to the specified resource.
-   * 
+   *
    * @param type The type of resource.
-   * @param name The name of the resource to access (depends on the type of resource) 
+   * @param name The name of the resource to access (depends on the type of resource)
    */
   public PSResource(PSResourceType type, String name) {
     this._type = type;
@@ -59,11 +63,11 @@ public final class PSResource {
 
   /**
    * Creates a new connection to the specified resource.
-   * 
+   *
    * @param type       The type of resource.
    * @param name       The name of the resource to access (depends on the type of resource)
    * @param parameters The parameters to access the resource.
-   * @param include    Whether to include the response content. 
+   * @param include    Whether to include the response content.
    */
   private PSResource(PSResourceType type, String name, Map<String, String> parameters, boolean include) {
     this._type = type;
@@ -76,7 +80,7 @@ public final class PSResource {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * @return The type of resource requested. 
+   * @return The type of resource requested.
    */
   public PSResourceType type() {
     return this._type;
@@ -84,7 +88,7 @@ public final class PSResource {
 
   /**
    * Returns the name of the resource to access.
-   * 
+   *
    * <dl>
    *   <dt>servlet</dt>
    *   <dd>The full class name of the servlet (may include parameters)</dd>
@@ -93,7 +97,7 @@ public final class PSResource {
    *   <dt>resource</dt>
    *   <dd>The full path of the resource (may include parameters)</dd>
    * </dl>
-   * 
+   *
    * @return the name of the resource to access.
    */
   public String name() {
@@ -102,7 +106,7 @@ public final class PSResource {
 
   /**
    * Add a parameter to this request.
-   * 
+   *
    * @param name  The name of the parameter
    * @param value The value of the parameter
    */
@@ -112,7 +116,7 @@ public final class PSResource {
 
   /**
    * Indicates whether this resource should include the error content.
-   * 
+   *
    * @return <code>true</code> to include the content of response even when the response code is greater than 400;
    *         <code>false</code> to only include the response when the response code is between 200 and 299.
    */
@@ -122,14 +126,14 @@ public final class PSResource {
 
   /**
    * Returns the URL to access this resource.
-   * 
+   *
    * <p>If the user is specified, its details will be included in the URL so that the resource can
    * be accessed on his behalf.
-   * 
+   *
    * @param user A PageSeeder to access this resource.
-   * 
+   *
    * @return the URL to access this resource.
-   * 
+   *
    * @throws MalformedURLException If the URL is not well-formed
    */
   public URL toURL(PageSeederUser user) throws MalformedURLException {
@@ -138,15 +142,15 @@ public final class PSResource {
 
   /**
    * Returns the URL to access this resource.
-   * 
+   *
    * <p>If the user is specified, its details will be included in the URL so that the resource can
    * be accessed on his behalf.
-   * 
+   *
    * @param user                  A PageSeeder to access this resource.
    * @param includePOSTParameters Whether to include the parameters for POST requests.
-   * 
+   *
    * @return the URL to access this resource.
-   * 
+   *
    * @throws MalformedURLException If the URL is not well-formed
    */
   protected URL toURL(PageSeederUser user, boolean includePOSTParameters) throws MalformedURLException {
@@ -213,7 +217,7 @@ public final class PSResource {
 
   /**
    * Returns the string to write the parameters sent via POST as <code>application/x-www-form-urlencoded</code>.
-   * 
+   *
    * @return the string to write the parameters sent via POST.
    */
   protected String getPOSTFormURLEncodedContent() {
@@ -236,9 +240,9 @@ public final class PSResource {
 
   /**
    * Returns the fragment part of the URL.
-   * 
-   * @param resource the path to the resource 
-   * @return the part before any '#' or '?'. 
+   *
+   * @param resource the path to the resource
+   * @return the part before any '#' or '?'.
    */
   private static String getURLPath(String resource) {
     int h = resource.lastIndexOf('#');
@@ -250,9 +254,9 @@ public final class PSResource {
 
   /**
    * Returns the query part of the URL.
-   * 
-   * @param resource the path to the resource 
-   * @return the part after and including '?' if it exists; otherwise <code>null</code> 
+   *
+   * @param resource the path to the resource
+   * @return the part after and including '?' if it exists; otherwise <code>null</code>
    */
   private static String getURLQuery(String resource) {
     int q = resource.indexOf('?');
@@ -264,9 +268,9 @@ public final class PSResource {
 
   /**
    * Returns the fragment part of the URL.
-   * 
-   * @param resource the path to the resource 
-   * @return the part after and including '#' if it exists; otherwise <code>null</code> 
+   *
+   * @param resource the path to the resource
+   * @return the part after and including '#' if it exists; otherwise <code>null</code>
    */
   private static String getURLFragment(String resource) {
     int h = resource.indexOf('#');
@@ -278,7 +282,7 @@ public final class PSResource {
 
   /**
    * A builder for this resource.
-   * 
+   *
    * @author Christophe Lauret
    * @version 14 April 2011
    */
@@ -310,9 +314,9 @@ public final class PSResource {
 
     /**
      * Creates a new builder for a PageSeeder resource.
-     * 
+     *
      * @param type The type of resource.
-     * @param name The name of the resource to access (depends on the type of resource) 
+     * @param name The name of the resource to access (depends on the type of resource)
      */
     public Builder(PSResourceType type, String name) {
       this._type = type;
@@ -341,7 +345,7 @@ public final class PSResource {
 
     /**
      * Indicates whether this resource should include the error content.
-     * 
+     *
      * @param include <code>true</code> to include the content of response even when the response code is greater than 400;
      *                <code>false</code> to only include the response when the response code is between 200 and 299.
      */
@@ -351,7 +355,7 @@ public final class PSResource {
 
     /**
      * Add a parameter to this request.
-     * 
+     *
      * @param name  The name of the parameter
      * @param value The value of the parameter
      * @return this builder.

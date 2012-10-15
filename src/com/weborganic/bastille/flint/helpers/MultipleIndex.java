@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint.helpers;
 
@@ -27,15 +31,15 @@ import org.weborganic.flint.search.FieldFacet;
 
 /**
  * Handles multiple Index Masters, each master is specified by its index directory.
- * 
+ *
  * @author Jean-Baptiste Reure
- * 
+ *
  * @version 0.6.20 - 26 September 2011
  * @since 0.6.18
  */
 public final class MultipleIndex {
 
-  // static methods 
+  // static methods
   // ----------------------------------------------------------------------------------------------
 
   /**
@@ -45,7 +49,7 @@ public final class MultipleIndex {
 
   /**
    * @param indexDir The root directory for the index to return
-   * 
+   *
    * @return the master for the given index root
    */
   public static IndexMaster getMaster(File indexDir) {
@@ -63,10 +67,10 @@ public final class MultipleIndex {
 
   /**
    * If the master already exists, it is re-used.
-   * 
+   *
    * @param indexDir The root directory for the index to return
    * @param xslt     The XSLT script used to produce iXML data
-   * 
+   *
    * @return the master for the given index root
    */
   public static IndexMaster setupMaster(File indexDir, File xslt) {
@@ -92,7 +96,7 @@ public final class MultipleIndex {
 
   /**
    * Build a new multiple index.
-   * 
+   *
    * @param indexDirectories the root folders for all indexes
    */
   public MultipleIndex(List<File> indexDirectories) {
@@ -102,7 +106,7 @@ public final class MultipleIndex {
 
   /**
    * Build a new multiple index.
-   * 
+   *
    * @param indexDirectories the root folders for all indexes
    * @param xslt The XSLT to use to produce iXML.
    */
@@ -118,13 +122,13 @@ public final class MultipleIndex {
 
   /**
    * Perform a query on multiple indexes.
-   * 
+   *
    * <p>Note that all the indexes MUST be initialised before calling this method.
-   * 
+   *
    * @param query     the query to perform.
-   * 
+   *
    * @return The search results
-   * 
+   *
    * @throws IndexException        If the query failed
    * @throws IllegalStateException If one of the indexes is not initialised
    */
@@ -134,14 +138,14 @@ public final class MultipleIndex {
 
   /**
    * Perform a query on multiple indexes.
-   * 
+   *
    * <p>Note that all the indexes MUST be initialised before calling this method.
-   * 
+   *
    * @param query     the query to perform.
    * @param paging    the paging mechanism
-   * 
+   *
    * @return The search results
-   * 
+   *
    * @throws IndexException        If the query failed
    * @throws IllegalStateException If one of the indexes is not initialised
    */
@@ -179,11 +183,11 @@ public final class MultipleIndex {
   /**
    * Returns the list of term and how frequently they are used by performing a fuzzy match on the
    * specified term.
-   * 
+   *
    * @param fields the fields to use as facets
    * @param upTo   the max number of values to return
    * @param query  a predicate to apply on the facet (can be null or empty)
-   * 
+   *
    * @throws IndexException if there was an error reading the indexes or creating the condition query
    * @throws IllegalStateException If one of the indexes is not initialised
    */
@@ -253,7 +257,7 @@ public final class MultipleIndex {
 
   /**
    * Handle a list of readers.
-   * 
+   *
    * @author Jean-Baptiste Reure
    * @version 20 September 2011
    *
@@ -267,14 +271,14 @@ public final class MultipleIndex {
 
     /**
      * Grab a new index reader.
-     * 
-     * @throws IndexException 
+     *
+     * @throws IndexException
      */
     public IndexReader grab() throws IndexException {
-      IndexReader[] readers = new IndexReader[indexDirs.size()];
+      IndexReader[] readers = new IndexReader[MultipleIndex.this.indexDirs.size()];
       // grab a reader for each indexes
-      for (int i = 0; i < indexDirs.size(); i++) {
-        IndexMaster master = getMaster(indexDirs.get(i));
+      for (int i = 0; i < MultipleIndex.this.indexDirs.size(); i++) {
+        IndexMaster master = getMaster(MultipleIndex.this.indexDirs.get(i));
         // make sure index has been setup
         if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
         // grab what we need

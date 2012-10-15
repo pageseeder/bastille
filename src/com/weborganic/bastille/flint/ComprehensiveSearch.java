@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -28,13 +32,14 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * TODO Javadoc.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 2 June 2010
  * @since 0.6.0
- * 
+ *
  * @deprecated
  */
+@Deprecated
 public class ComprehensiveSearch implements ContentGenerator, Cacheable {
 
   /**
@@ -62,6 +67,7 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     final Environment env = req.getEnvironment();
@@ -104,7 +110,7 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
 
   /**
    * Prints the results as XML.
-   * 
+   *
    * @param query The query made.
    * @param results The search results.
    * @param xml The XML writer.

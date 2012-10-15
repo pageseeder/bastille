@@ -65,7 +65,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.35 - 21 May 2012
  * @since 0.6.33
  */
-public class GetContentFolderOverview implements ContentGenerator, Cacheable {
+public final class GetContentFolderOverview implements ContentGenerator, Cacheable {
 
   /**
    * Logger for this generator.

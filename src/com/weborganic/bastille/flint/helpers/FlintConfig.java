@@ -1,8 +1,15 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.flint.helpers;
-
 import java.io.File;
 
 import org.weborganic.berlioz.GlobalSettings;
+
 
 public class FlintConfig {
 
@@ -43,7 +50,7 @@ public class FlintConfig {
     if (directory == null) init();
     return directory;
   }
-  
+
   public static File itemplates() {
     if (itemplates == null) init();
     return itemplates;

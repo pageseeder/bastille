@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -43,7 +47,7 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  *   <li>If an <code>index</code> parameter is specified, the (comma-separated) list of indexes will be searched;
  *       otherwise the default index will be used.</li>
  * </ul>
- * 
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  * @version 20 September 2011
@@ -59,6 +63,7 @@ public class FulltextSearch implements ContentGenerator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Create a new query object using HTTP parameters
@@ -82,7 +87,7 @@ public class FulltextSearch implements ContentGenerator {
     paging.setPage(page);
     paging.setHitsPerPage(100);
 
-    String header = "<content-type>search-result</content-type>";    
+    String header = "<content-type>search-result</content-type>";
     // get search result
     try {
     // get index to search on

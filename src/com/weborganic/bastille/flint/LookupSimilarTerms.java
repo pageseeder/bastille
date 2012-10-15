@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -19,8 +23,8 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.util.Bucket;
-import org.weborganic.flint.util.Terms;
 import org.weborganic.flint.util.Bucket.Entry;
+import org.weborganic.flint.util.Terms;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
@@ -29,8 +33,8 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Lookup the similar terms for the specified term.
- * 
- * @author Christophe Lauret 
+ *
+ * @author Christophe Lauret
  * @version 0.6.0 - 28 May 2010
  * @since 0.6.0
  */
@@ -61,6 +65,7 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Create a new query object
     String[] fields = req.getParameter("field", "fulltext").split(",");

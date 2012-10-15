@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.util;
 
 import java.io.IOException;
@@ -9,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A utility class to return resources.
- * 
+ *
  * @author Christophe Lauret
  */
 public final class Resources {
@@ -24,10 +31,10 @@ public final class Resources {
   }
 
   /**
-   * Returns the requested resource or <code>null</code>. 
-   * 
+   * Returns the requested resource or <code>null</code>.
+   *
    * @param name the name of the resource to retrieve.
-   * 
+   *
    * @return the corresponding byte array or <code>null</code>.
    */
   public static byte[] getResource(String name) {

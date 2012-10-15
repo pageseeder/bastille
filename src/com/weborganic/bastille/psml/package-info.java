@@ -6,6 +6,6 @@
  * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 /**
- * A collection of Berlioz generators using Flint.
+ * Contains classes and generators for manipulating PSML.
  */
-package com.weborganic.bastille.flint;
+package com.weborganic.bastille.psml;

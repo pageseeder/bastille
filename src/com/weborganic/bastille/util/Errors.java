@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.util;
 
 import java.io.IOException;
@@ -10,7 +17,7 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * A utility class for handling error situations in generators.
- * 
+ *
  * @author Christophe Lauret
  * @version 26 September 2011
  */
@@ -28,15 +35,15 @@ public final class Errors {
 
   /**
    * Write the XML for when a required parameter is missing.
-   * 
+   *
    * <p>Also sets the status of the response to 'bad request'.
-   * 
+   *
    * <p>Generator should generally terminate after invoking this method.
-   * 
+   *
    * @param req  The content request
    * @param xml  The XML writer
    * @param name The name of the missing parameter
-   * 
+   *
    * @throws IOException          Should any error occur while writing the XML.
    * @throws NullPointerException If Any argument is <code>null</code>.
    */
@@ -47,15 +54,15 @@ public final class Errors {
 
   /**
    * Write the XML for when a required parameter is missing.
-   * 
+   *
    * <p>Also sets the status of the response to 'bad request'.
-   * 
+   *
    * <p>Generator should generally terminate after invoking this method.
-   * 
+   *
    * @param req  The content request
    * @param xml  The XML writer
    * @param name The name of the invalid parameter
-   * 
+   *
    * @throws IOException          Should any error occur while writing the XML.
    * @throws NullPointerException If Any argument is <code>null</code>.
    */
@@ -66,14 +73,14 @@ public final class Errors {
 
   /**
    * Write the XML for when the user has not logged in, but is required.
-   * 
+   *
    * <p>Also sets the status of the response to 'forbidden'.
-   * 
+   *
    * <p>Generator should generally terminate after invoking this method.
-   * 
+   *
    * @param req  The content request.
    * @param xml  The XML writer.
-   * 
+   *
    * @throws IOException          Should any error occur while writing the XML.
    * @throws NullPointerException If Any argument is <code>null</code>.
    */
@@ -87,21 +94,21 @@ public final class Errors {
 
   /**
    * Write the XML for when an error occurs
-   * 
+   *
    * <p>Also sets the status of the response.
-   * 
+   *
    * <p>Generator should generally terminate after invoking this method.
-   * 
+   *
    * @param req     The content request.
    * @param xml     The XML writer.
    * @param type    The type of error.
    * @param message The message to explain the error.
    * @param status  The new status of the request.
-   * 
+   *
    * @throws IOException          Should any error occur while writing the XML.
    * @throws NullPointerException If Any argument is <code>null</code>.
    */
-  public static void error(ContentRequest req, XMLWriter xml, String type, String message, ContentStatus status) 
+  public static void error(ContentRequest req, XMLWriter xml, String type, String message, ContentStatus status)
       throws IOException {
     xml.openElement("error");
     xml.attribute("type", type);

@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint.helpers;
 
@@ -14,7 +18,7 @@ import java.util.Map.Entry;
 
 /**
  * Filter to only select files that have been modified since a specified date.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 2 June 2010
  * @since 0.6.0
@@ -28,7 +32,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * The default filter to use when no filter is specified.
-   * 
+   *
    * <p>Ignores hidden files and files starting with "."
    */
   private static final FileFilter DEFAULT_FILTER = new FileFilter() {
@@ -61,7 +65,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Creates a new filter.
-   * 
+   *
    * @param since The date form which files are included.
    */
   public IndexUpdateFilter(long since) {
@@ -71,9 +75,9 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Creates a new filter.
-   * 
+   *
    * @param since   The date form which files are included.
-   * @param indexed The list of files to process. 
+   * @param indexed The list of files to process.
    */
   public IndexUpdateFilter(long since, List<File> indexed) throws IOException {
     this._since = since;
@@ -87,7 +91,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Creates a new filter.
-   * 
+   *
    * @param since   The date form which files are included.
    * @param indexed The list of files to process.
    * @param filter  Used to filter out the files not supposed to be indexed.
@@ -104,9 +108,10 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Accepts only files modified after the date.
-   * 
+   *
    * {@inheritDoc}
    */
+  @Override
   public boolean accept(File f) {
     // make sure this file is supposed to be indexed
     if (this._innerFilter != null && !this._innerFilter.accept(f))
@@ -134,7 +139,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Returns the list of deletable files after this filter has been used.
-   * 
+   *
    * @return the list of deletable files.
    */
   public List<File> getDeletable() {
@@ -148,7 +153,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Returns the list of deletable files after this filter has been used.
-   * 
+   *
    * @return the list of deletable files.
    */
   public List<File> getIndexable() {
@@ -162,7 +167,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
   /**
    * Returns a map giving the action for each file.
-   * 
+   *
    * @return a map giving the action for each file.
    */
   public Map<File, Action> getActions() {

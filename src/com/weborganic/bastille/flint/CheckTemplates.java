@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -25,8 +29,8 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * Checks that the templates are valid.
- * 
- * @author Christophe Lauret 
+ *
+ * @author Christophe Lauret
  * @version 0.6.21 - 29 September 2011
  * @since 0.6.20
  */
@@ -66,7 +70,7 @@ public final class CheckTemplates implements ContentGenerator  {
   }
 
   /**
-   * 
+   *
    * @param def
    * @return
    * @throws IOException
@@ -78,7 +82,7 @@ public final class CheckTemplates implements ContentGenerator  {
     Templates templates = null;
     try {
       in = new FileInputStream(def);
-      Source source = new StreamSource(in); 
+      Source source = new StreamSource(in);
       source.setSystemId(def.toURI().toString());
       TransformerFactory factory = TransformerFactory.newInstance();
       templates = factory.newTemplates(source);

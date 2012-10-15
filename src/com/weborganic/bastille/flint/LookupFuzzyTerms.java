@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -29,10 +33,10 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Lookup the fuzzy terms for the specified term.
- * 
- * <p>This is a simple and efficient generator that is most useful for use with autocomplete. 
- * 
- * @author Christophe Lauret 
+ *
+ * <p>This is a simple and efficient generator that is most useful for use with autocomplete.
+ *
+ * @author Christophe Lauret
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
  */
@@ -63,6 +67,7 @@ public final class LookupFuzzyTerms implements ContentGenerator, Cacheable {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Create a new query object
     String field = req.getParameter("field", "keyword");

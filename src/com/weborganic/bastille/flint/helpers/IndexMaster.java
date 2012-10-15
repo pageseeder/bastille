@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint.helpers;
 
@@ -25,9 +29,9 @@ import org.weborganic.flint.FlintTranslatorFactory;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.IndexException;
+import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.IndexManager;
 import org.weborganic.flint.Requester;
-import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.ContentFetcher;
 import org.weborganic.flint.content.ContentId;
@@ -42,7 +46,7 @@ import org.weborganic.flint.util.Terms;
 
 /**
  * Centralises all the indexing and searching function using Flint for one index.
- * 
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  * @version 0.6.0 - 21 July 2010
@@ -54,16 +58,17 @@ public final class IndexMaster {
    * A logger for this class and to provide for Flint.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
-  
+
   /**
    * The requester is always the index master.
    */
   private static final Requester REQUESTER = new Requester() {
+    @Override
     public String getRequesterID() {
       return "IndexMaster";
     }
   };
-  
+
   private static AnalyzerProvider analyzerProvider = null;
 
   /**
@@ -88,7 +93,7 @@ public final class IndexMaster {
 
   /**
    * Sets up the index master.
-   * 
+   *
    * @param indexDir the index directory
    */
   public IndexMaster(File indexDir) {
@@ -97,13 +102,14 @@ public final class IndexMaster {
 
   /**
    * Sets up the index master.
-   * 
+   *
    * @param indexDir the index directory
    * @param xslt     the location of the XSLT generating the IXML.
    */
   public IndexMaster(File indexDir, File xslt) {
 
     ContentFetcher fetcher = new ContentFetcher() {
+      @Override
       public Content getContent(ContentId id) {
         FileContentId fid = (FileContentId)id;
         return new FileContent(fid.file());
@@ -181,7 +187,7 @@ public final class IndexMaster {
 
   /**
    * Index the specified file with the given parameters.
-   * 
+   *
    * @param file       The file to index.
    * @param parameters The parameters to pass to the stylesheet.
    */
@@ -192,18 +198,18 @@ public final class IndexMaster {
   }
 
   /**
-   * Clears the content of the wrapped index. 
+   * Clears the content of the wrapped index.
    */
   public void clear() {
     this.manager.clear(this.index, REQUESTER, Priority.HIGH);
   }
 
   /**
-   * Makes a query to the wrapped index. 
-   * 
+   * Makes a query to the wrapped index.
+   *
    * @param query The query to make
    * @return The search results
-   * 
+   *
    * @throws IndexException Should any error while the query is made.
    */
   public SearchResults query(SearchQuery query) throws IndexException {
@@ -211,13 +217,13 @@ public final class IndexMaster {
   }
 
   /**
-   * Makes a query to the wrapped index. 
-   * 
+   * Makes a query to the wrapped index.
+   *
    * @param query  The query to make
    * @param paging The paging configuration
-   * 
+   *
    * @return The search results
-   * 
+   *
    * @throws IndexException Should any error while the query is made.
    */
   public SearchResults query(SearchQuery query, SearchPaging paging) throws IndexException {
@@ -225,9 +231,9 @@ public final class IndexMaster {
   }
 
   /**
-   * Returns the last time an index job was requested or if none was requested the last time 
-   * the index was updated. 
-   * 
+   * Returns the last time an index job was requested or if none was requested the last time
+   * the index was updated.
+   *
    * @return the last time an index job was requested.
    */
   public long lastModified() {
@@ -237,11 +243,11 @@ public final class IndexMaster {
   /**
    * Returns the list of term and how frequently they are used by performing a fuzzy match on the
    * specified term.
-   * 
+   *
    * @param field  the field to use as a facet
    * @param upTo   the max number of values to return
    * @param query  a predicate to apply on the facet (can be null or empty)
-   * 
+   *
    * @throws IndexException if there was an error reading the index or creating the condition query
    */
   public Facet getFacet(String field, int upTo, Query query) throws IndexException, IOException {
@@ -250,11 +256,11 @@ public final class IndexMaster {
     IndexSearcher searcher = null;
     try {
       // Retrieve all terms for the field
-      reader = this.manager.grabReader(index);
+      reader = this.manager.grabReader(this.index);
       facet = FieldFacet.newFacet(field, reader);
 
       // search
-      searcher = this.manager.grabSearcher(index);
+      searcher = this.manager.grabSearcher(this.index);
       facet.compute(searcher, query, upTo);
 
     } finally {
@@ -266,7 +272,7 @@ public final class IndexMaster {
 
   /**
    * Return an index reader on the index.
-   * 
+   *
    * @return The index will need to be released.
    */
   public IndexReader grabReader() throws IndexException {
@@ -275,7 +281,7 @@ public final class IndexMaster {
 
   /**
    * Return an index searcher on the index.
-   * 
+   *
    * @return The index searcher that will need to be released.
    */
   public IndexSearcher grabSearcher() throws IndexException {
@@ -304,12 +310,12 @@ public final class IndexMaster {
 
   /**
    * Suggests results for the given fields and text.
-   * 
+   *
    * @param fields    The list of fields to use.
    * @param texts     The list of term texts to use.
    * @param max       The maximum number of suggested results.
    * @param predicate By default, assumes that it is the document type.
-   * 
+   *
    * @return the suggestions in the form of search results.
    */
   public SearchResults getSuggestions(List<String> fields, List<String> texts, int max, String predicate) throws IOException, IndexException {
@@ -337,7 +343,7 @@ public final class IndexMaster {
 
   /**
    * Returns the query for the specified predicate using the Query Parser.
-   * 
+   *
    * @param predicate The predicate to parse
    * @return the corresponding query object or <code>null</code>.
    * @throws IndexException should any error occur
@@ -358,9 +364,9 @@ public final class IndexMaster {
 
   /**
    * Releases this reader for use by other threads silently (any exception will be ignored).
-   * 
+   *
    * <p>Provided for convenience when used inside a <code>finally</code> block.
-   * 
+   *
    * @param reader The Lucene index reader to release.
    */
   public void releaseSilently(IndexReader reader) {
@@ -369,9 +375,9 @@ public final class IndexMaster {
 
   /**
    * Releases this searcher for use by other threads silently (any exception will be ignored).
-   * 
+   *
    * <p>Provided for convenience when used inside a <code>finally</code> block.
-   * 
+   *
    * @param searcher The Lucene index searcher to release.
    */
   public void releaseSilently(IndexSearcher searcher) {

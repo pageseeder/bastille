@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
 package com.weborganic.bastille.psml;
 
 import java.io.File;
@@ -11,11 +18,18 @@ import org.weborganic.berlioz.xml.XMLCopy;
 import com.topologi.diffx.xml.XMLStringWriter;
 
 /**
+ * PSML configuration.
  *
  * @author Christophe Lauret
- * @version 6 October 2012
+ * @version 56 October 2012
  */
 public final class PSMLConfig {
+
+  /**
+   * Utility class.
+   */
+  private PSMLConfig() {
+  }
 
   /**
    * Logger for debugging
@@ -38,31 +52,47 @@ public final class PSMLConfig {
   public static final String DEFAULT_PSML_EXTENSION = ".psml";
 
   /**
-   * Returns the config file from the path
+   * Returns the config file from the path.
+   *
+   * @param pathInfo The path info from within the "config" folder.
+   *
+   * @return The corresponding PSML file.
    */
   public static PSMLFile getConfigFile(String pathInfo) {
-    return getFile("config/"+pathInfo);
+    return getFile(attach("config", pathInfo));
   }
 
   /**
-   * Returns the content file from the path
+   * Returns the content file from the path.
+   *
+   * @param pathInfo The path info from within the "content" folder.
+   *
+   * @return The corresponding PSML file.
    */
   public static PSMLFile getContentFile(String pathInfo) {
-    return getFile("content/"+pathInfo);
+    return getFile(attach("content", pathInfo));
   }
 
   /**
-   * Returns the config file from the path
+   * Returns the content folder from the path.
+   *
+   * @param pathInfo The path info from within the "content" folder.
+   *
+   * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getContentFolder(String pathInfo) {
     String path = normalise(pathInfo);
     File root = getRoot();
-    File file = new File(root, "content/"+path);
+    File file = new File(root, attach("content", path));
     return new PSMLFile(path, file);
   }
 
   /**
-   * Returns the config file from the path
+   * Returns the config file from the path.
+   *
+   * @param pathInfo The path info from within the root folder.
+   *
+   * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getFile(String pathInfo) {
     String path = normalise(pathInfo) + PSMLConfig.DEFAULT_PSML_EXTENSION;
@@ -77,7 +107,6 @@ public final class PSMLConfig {
    * <p>The PSML root folder can be defined in the <code>config-[mode].xml</code> using the key
    * {@value BASTILLE_PSML_ROOT}.
    *
-   * @param req The content request.
    * @return the XML Root folder as defined in the configuration or "xml" if undefined.
    */
   public static File getRoot() {
@@ -98,9 +127,10 @@ public final class PSMLConfig {
   /**
    * Loads the specified XML file and returns it as a string.
    *
-   * @param file   The file to load
-   * @param req    The content request to display the file in case of error.
-   * @param logger To log info on the correct logger.
+   * <p>The XML returned is wrapped in the following XML:
+   * <pre>{@code  <psml-file name="[filename]" base="[basedir]" status="[status]"> ... </psml-file>}</pre>
+   *
+   * @param psml The PSML file to load
    *
    * @return the content of the XML file.
    *
@@ -111,6 +141,11 @@ public final class PSMLConfig {
     XMLStringWriter xml = new XMLStringWriter(false, false);
     xml.openElement("psml-file");
     xml.attribute("name", file.getName());
+
+    // Compute the base directory
+    String base = psml.path();
+    base = "/" + base.substring(0, base.length() - file.getName().length());
+    xml.attribute("base", base);
 
     // All good, print to the XML stream
     if (file.exists()) {
@@ -145,4 +180,20 @@ public final class PSMLConfig {
     }
     return path;
   }
+
+  /**
+   * Attach the value of the main folder to the pathInfo value avoiding doubling up the '/'.
+   *
+   * @param main     The main directory ("config" or "content").
+   * @param pathInfo The pathInfo to attach.
+   *
+   * @return The main attached to the pathInfo.
+   */
+  private static String attach(String main, String pathInfo) {
+    StringBuilder path = new StringBuilder(main);
+    if (pathInfo.length() > 0 && pathInfo.charAt(0) != '/') path.append('/');
+    path.append(pathInfo);
+    return path.toString();
+  }
+
 }

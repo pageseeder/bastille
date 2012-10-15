@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -23,14 +27,14 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Returns the search results suggestions from a list of terms.
- * 
+ *
  * <p>Parameters for this generator are:
  * <ul>
  *   <li><code>term</code>: a space separated list of terms to lookup</li>
  *   <li><code>field</code>: the comma-separated list of the fields to lookup</li>
  *   <li><code>predicate</code>: a query to use as a condition (eg. type of Lucene document, etc...)</li>
  * </ul>
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
@@ -98,9 +102,9 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
 
   /**
    * Tokenizes the terms and returns a list of terms.
-   * 
+   *
    * @param terms the untokenised string.
-   * 
+   *
    * @return the list of terms
    */
   private List<String> asList(String terms, String regex) {
@@ -110,12 +114,12 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
 
   /**
    * Returns the XML for a document.
-   * 
+   *
    * @deprecated New part of Flint in {@link Documents#toXML(XMLWriter, Document)}/
-   * 
+   *
    * @param xml The XML writer.
    * @param doc Lucene document to serialise as XML.
-   * 
+   *
    * @throws IOException Any I/O error thrown by the XML writer.
    */
   @Deprecated

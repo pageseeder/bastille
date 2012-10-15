@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint.helpers;
 
@@ -16,12 +20,12 @@ import org.weborganic.flint.util.Beta;
  * This class is used to map the path to the actual indexed file.
  *
  * <p>This version uses a simple mapping between the path and the source file.
- * 
+ *
  * <p>Files are divided in two groups using the visibility field:
  * - private: all files within the "WEB-INF/xml" folder
  * - public: any file directly accessible via the Web
- * 
- * @author Christophe Lauret 
+ *
+ * @author Christophe Lauret
  * @version 0.6.0 - 30 July 2010
  * @since 0.6.0
  */
@@ -35,7 +39,7 @@ import org.weborganic.flint.util.Beta;
   /**
    * The location of the public
    */
-  private static final File _public = GlobalSettings.getRepository().getParentFile(); 
+  private static final File _public = GlobalSettings.getRepository().getParentFile();
 
   /**
    * The location of the private folders
@@ -44,14 +48,14 @@ import org.weborganic.flint.util.Beta;
 
   /**
    * Returns the relative web path for the specified file.
-   * 
+   *
    * <p>This method returns:
    * <ul>
    *   <li>for private files, the relative path from the '/WEB-INF/xml' without the '.xml' extension.
    *   <li>for public files, the relative path from the Web application root.
    * </ul>
-   * 
-   * @param f for the specified file. 
+   *
+   * @param f for the specified file.
    * @return the corresponding path or "" if an error occurs
    */
   public static String toPath(File f) {
@@ -71,10 +75,10 @@ import org.weborganic.flint.util.Beta;
 
   /**
    * Returns the file corresponding to the specified Lucene document.
-   * 
+   *
    * <p>This method looks at the field named "visibility" to determine whether it is a public or
    * private file.
-   * 
+   *
    * @param doc The Lucene document.
    * @return The corresponding file.
    */

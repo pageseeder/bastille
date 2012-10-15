@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.http;
 
@@ -35,12 +39,12 @@ import com.topologi.diffx.xml.XMLWriter;
  *   </node>
  * </node>
  * }</pre>
- * 
+ *
  * <h3>Parameters</h3>
  * <p>The <var>match</var> parameter can be used to specify which headers should be displayed as a
  * comma separated list.
  * If <code>null</code> or equal to "", all HTTP headers are returned.
- * 
+ *
  * <h3>Returned XML</h3>
  * <p>XML for a file:
  * <pre>{@code
@@ -53,10 +57,10 @@ import com.topologi.diffx.xml.XMLWriter;
  *      ...
  *   </http-headers>
  * }</pre>
- * 
- * <p>Note: this generator does not return anything, if the content request is not made from an 
+ *
+ * <p>Note: this generator does not return anything, if the content request is not made from an
  * HTTP request.
- * 
+ *
  * @author Christophe Lauret
  * @version 0.6.7 - 31 May 2011
  * @since 0.6.3
@@ -99,7 +103,7 @@ public final class GetRequestHeaders implements ContentGenerator {
 
   /**
    * Returns the list of matching headers.
-   * @param match A comma separated list of matching 
+   * @param match A comma separated list of matching
    * @return the list of matching headers.
    */
   private List<String> matching(String match) {

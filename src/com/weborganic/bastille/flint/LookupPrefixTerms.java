@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -30,10 +34,10 @@ import com.weborganic.bastille.util.Errors;
 
 /**
  * Lookup the fuzzy term for the specified term.
- * 
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
- * 
+ *
  * @version 0.6.20 - 27 September 2011
  * @since 0.6.0
  */
@@ -46,7 +50,7 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
 
   /**
    * Generate an ETag based on the parameters and the last modified date of the index.
-   * 
+   *
    * {@inheritDoc}
    */
   @Override
@@ -67,6 +71,7 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Check parameters

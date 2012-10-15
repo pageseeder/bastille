@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -27,10 +31,10 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Print some information about the index.
- * 
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
- * 
+ *
  * @version 0.6.20 - 27 September 2011
  * @since 0.6.0
  */
@@ -45,14 +49,16 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
    * To list only folders
    */
   private static final FileFilter FOLDERS_ONLY = new FileFilter() {
+    @Override
     public boolean accept(File d) {
       return d.isDirectory();
     }
   };
 
   /**
-   * {@inheritDoc} 
+   * {@inheritDoc}
    */
+  @Override
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
     StringBuilder etag = new StringBuilder();
@@ -88,6 +94,7 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
     xml.openElement("index-stats");
@@ -126,7 +133,7 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
    * @param name
    * @param xml
    * @throws IOException
-   * @throws IndexException 
+   * @throws IndexException
    */
   private void indexToXML(File indexRoot, File xsl, String name, boolean terms, XMLWriter xml) throws IOException {
     xml.openElement("index");

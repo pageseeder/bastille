@@ -1,18 +1,22 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.util;
 
 /**
  * A Base32 implementation which encodes and decodes according to RFC3548's Base32.
- * 
- * <p>This class is a slightly modified version of code originally written by Robert Kaye and 
+ *
+ * <p>This class is a slightly modified version of code originally written by Robert Kaye and
  * Gordon Mohr which is now in the public domain.
- * 
+ *
  * @see <a href="http://tools.ietf.org/html/rfc3548">RFC 3568 - The Base16, Base32, and Base64 Data Encodings</a>
- * 
+ *
  * @author Christophe Lauret
- * 
+ *
  * @version 26 September 2011
  */
 public final class Base32 {
@@ -40,7 +44,7 @@ public final class Base32 {
 
   /**
    * Encodes byte array to Base32 String.
-   * 
+   *
    * @param bytes Bytes to encode.
    * @return Encoded byte array <code>bytes</code> as a String.
    */
@@ -78,7 +82,7 @@ public final class Base32 {
 
   /**
    * Decodes the given Base32 String to a raw byte array.
-   * 
+   *
    * @param base32 A string encoded as base32.
    * @return Decoded <code>base32</code> String as a raw byte array.
    */

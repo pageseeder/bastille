@@ -1,8 +1,9 @@
 /*
- * This file is part of the Flint library.
+ * This file is part of the Bastille library.
  *
- * For licensing information please see the file license.txt included in the release. A copy of this licence can also be
- * found at http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint.helpers;
 

@@ -81,9 +81,20 @@ public final class PSMLConfig {
    * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getContentFolder(String pathInfo) {
+    return getFolder(attach("content", pathInfo));
+  }
+
+  /**
+   * Returns the config file from the path.
+   *
+   * @param pathInfo The path info from within the root folder.
+   *
+   * @return A PSML file for a folder in the content folder.
+   */
+  public static PSMLFile getFolder(String pathInfo) {
     String path = normalise(pathInfo);
     File root = getRoot();
-    File file = new File(root, attach("content", path));
+    File file = new File(root, path);
     return new PSMLFile(path, file);
   }
 

@@ -20,6 +20,7 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.ContentStatus;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.util.Errors;
 
 /**
  * Returns an overview of the folder by Berlioz path.
@@ -52,27 +53,35 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version 0.6.35 - 21 May 2012
  * @since 0.6.33
  */
-public final class GetContentFolderOverview implements ContentGenerator, Cacheable {
+public final class GetFolderOverview implements ContentGenerator, Cacheable {
 
   /**
    * Logger for this generator.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderOverview.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetFolderOverview.class);
 
   @Override
   public String getETag(ContentRequest req) {
-    PSMLFile folder = PSMLConfig.getContentFolder(req.getBerliozPath());
-    List<File> files = PSMLOverviews.getContents(folder.file());
+    String path = req.getParameter("path");
+    if (path == null) return null;
+    PSMLFile psml = PSMLConfig.getFolder(path);
+    List<File> files = PSMLOverviews.getContents(psml.file());
     long mostrecent = PSMLOverviews.lastModified(files);
-    return folder.path() + '_' + mostrecent;
+    return psml.path() + '_' + mostrecent;
   }
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    LOGGER.debug(req.getBerliozPath());
 
-    // Get all the files
-    PSMLFile folder = PSMLConfig.getContentFolder(req.getBerliozPath());
+    // Check that the path has been specified
+    String path = req.getParameter("path");
+    if (path == null) {
+      Errors.noParameter(req, xml, "path");
+      return;
+    }
+
+    // Grab the file
+    PSMLFile folder = PSMLConfig.getFolder(path);
     LOGGER.debug("Retrieving overview for {}", folder);
 
     // If the PSML does not exist

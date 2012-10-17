@@ -36,6 +36,8 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  *
  * <p>This is a simple and efficient generator that is most useful for use with autocomplete.
  *
+ * <p>Generate an ETag based on the parameters and the last modified date of the index.
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
@@ -47,10 +49,8 @@ public final class LookupFuzzyTerms implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(LookupFuzzyTerms.class);
 
-  /**
-   * Generate an ETag based on the parameters and the last modified date of the index.
-   */
-  @Override public String getETag(ContentRequest req) {
+  @Override
+  public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
     etag.append(req.getParameter("term", "keyword")).append('%');

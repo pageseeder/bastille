@@ -21,11 +21,11 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
 import com.weborganic.bastille.flint.helpers.SingleIndex;
 
@@ -55,19 +55,15 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
     }
   };
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getETag(ContentRequest req) {
-    Environment env = req.getEnvironment();
     StringBuilder etag = new StringBuilder();
     try {
-      File index = env.getPrivateFile("index");
+      File index = FlintConfig.directory();
       FSDirectory directory = FSDirectory.open(index);
       if (IndexReader.indexExists(directory)) {
         long modified = IndexReader.lastModified(directory);
-        etag.append(env.getPrivateFile("index").getName()).append('-').append(modified);
+        etag.append(index.getName()).append('-').append(modified);
       } else {
         String indexName = req.getParameter("index");
         if (indexName != null) {
@@ -91,15 +87,12 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
     return etag.length() > 0? etag.toString() : null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
     xml.openElement("index-stats");
-    File xslt = req.getEnvironment().getPrivateFile("ixml/default.xsl");
-    File indexRoot = req.getEnvironment().getPrivateFile("index");
+    File xslt = FlintConfig.itemplates();
+    File indexRoot = FlintConfig.directory();
     FSDirectory directory = FSDirectory.open(indexRoot);
 
     if (IndexReader.indexExists(directory)) {
@@ -187,6 +180,6 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
       xml.attribute("error", "Null reader");
     }
     xml.closeElement();
-
   }
+
 }

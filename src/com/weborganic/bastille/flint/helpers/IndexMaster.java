@@ -49,7 +49,7 @@ import org.weborganic.flint.util.Terms;
  *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
- * @version 0.6.0 - 21 July 2010
+ * @version 0.7.4 - 17 October 2012
  * @since 0.6.0
  */
 public final class IndexMaster {
@@ -131,11 +131,13 @@ public final class IndexMaster {
     // Create a Manager
     this.manager = new IndexManager(fetcher, new SLF4JListener(LOGGER));
     this.manager.registerTranslatorFactory(new FlintTranslatorFactory());
+    this.manager.registerTranslatorFactory(new PSMLTranslatorFactory());
 
     // Setup the configuration
     this.config = new IndexConfig();
     if (xslt != null) {
       this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
+      this.config.setTemplates(FileContentType.SINGLETON, "application/vnd.pageseeder.psml+xml", xslt.toURI());
     }
 
     // Start the index manager

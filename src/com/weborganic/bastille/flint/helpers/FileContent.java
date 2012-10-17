@@ -10,8 +10,11 @@ package com.weborganic.bastille.flint.helpers;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.util.FileUtils;
 import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.DeleteRule;
@@ -20,10 +23,15 @@ import org.weborganic.flint.content.DeleteRule;
  * Content sourced from a file.
  *
  * @author Christophe Lauret
- * @version 0.6.0 - 2 June 2010
+ * @version 0.7.3 - 17 October 2012
  * @since 0.6.0
  */
 public final class FileContent implements Content {
+
+  /**
+   * Logger for this class.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileContent.class);
 
   /**
    * The wrapped file to index or delete.
@@ -39,9 +47,6 @@ public final class FileContent implements Content {
     this._f = f;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getMediaType() {
     return FileUtils.getMediaType(this._f);
@@ -67,15 +72,12 @@ public final class FileContent implements Content {
     if (!this._f.exists()) return null;
     try {
       return new BufferedInputStream(new FileInputStream(this._f));
-    } catch (Exception ex) {
-      ex.printStackTrace();
+    } catch (IOException ex) {
+      LOGGER.warn("Unable to get input source for ", this._f, ex);
       return null;
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isDeleted() {
     return !this._f.exists();

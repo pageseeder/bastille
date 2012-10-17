@@ -35,6 +35,8 @@ import com.weborganic.bastille.util.Errors;
 /**
  * Lookup the fuzzy term for the specified term.
  *
+ * <p>Generate an ETag based on the parameters and the last modified date of the index.
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  *
@@ -48,11 +50,6 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(LookupPrefixTerms.class);
 
-  /**
-   * Generate an ETag based on the parameters and the last modified date of the index.
-   *
-   * {@inheritDoc}
-   */
   @Override
   public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
@@ -68,9 +65,6 @@ public final class LookupPrefixTerms implements ContentGenerator, Cacheable {
     return MD5.hash(etag.toString());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 

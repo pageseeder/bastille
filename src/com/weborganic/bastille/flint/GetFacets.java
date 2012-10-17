@@ -71,9 +71,6 @@ public final class GetFacets implements ContentGenerator, Cacheable {
     return MD5.hash(etag.toString());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Create a new query object

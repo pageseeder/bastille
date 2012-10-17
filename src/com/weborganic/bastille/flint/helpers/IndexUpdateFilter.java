@@ -28,7 +28,7 @@ public final class IndexUpdateFilter implements FileFilter {
   /**
    * Possible action for each file.
    */
-  public enum Action {INSERT, UPDATE, DELETE, IGNORE};
+  public enum Action { INSERT, UPDATE, DELETE, IGNORE };
 
   /**
    * The default filter to use when no filter is specified.
@@ -39,7 +39,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
     @Override
     public boolean accept(File f) {
-      return !f.isHidden() & !f.getName().startsWith(".");
+      return !f.isHidden() && !f.getName().startsWith(".");
     }
   };
 
@@ -78,6 +78,8 @@ public final class IndexUpdateFilter implements FileFilter {
    *
    * @param since   The date form which files are included.
    * @param indexed The list of files to process.
+   *
+   * @throws IOException If thrown whil trying to get the canonical path
    */
   public IndexUpdateFilter(long since, List<File> indexed) throws IOException {
     this._since = since;
@@ -95,6 +97,8 @@ public final class IndexUpdateFilter implements FileFilter {
    * @param since   The date form which files are included.
    * @param indexed The list of files to process.
    * @param filter  Used to filter out the files not supposed to be indexed.
+   *
+   * @throws IOException If thrown whil trying to get the canonical path
    */
   public IndexUpdateFilter(long since, List<File> indexed, FileFilter filter) throws IOException {
     this._since = since;

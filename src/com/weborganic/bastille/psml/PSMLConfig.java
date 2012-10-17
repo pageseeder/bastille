@@ -37,6 +37,11 @@ public final class PSMLConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(PSMLConfig.class);
 
   /**
+   * The media type.
+   */
+  public static final String MEDIATYPE = "application/vnd.pageseeder.psml+xml";
+
+  /**
    * The key for the root folder containing <i>all</i> PSML files, including config and content.
    */
   public static final String BASTILLE_PSML_ROOT = "bastille.psml.root";
@@ -112,6 +117,7 @@ public final class PSMLConfig {
     return new PSMLFile(path, file);
   }
 
+
   /**
    * Returns the root folder for all files.
    *
@@ -121,9 +127,23 @@ public final class PSMLConfig {
    * @return the XML Root folder as defined in the configuration or "xml" if undefined.
    */
   public static File getRoot() {
+    return getRoot(true);
+  }
+
+  /**
+   * Returns the root folder for all files.
+   *
+   * <p>The PSML root folder can be defined in the <code>config-[mode].xml</code> using the key
+   * {@value BASTILLE_PSML_ROOT}.
+   *
+   * @param create Do create if the directory does not exist.
+   *
+   * @return the XML Root folder as defined in the configuration or "xml" if undefined.
+   */
+  public static File getRoot(boolean create) {
     String name = GlobalSettings.get(BASTILLE_PSML_ROOT, DEFAULT_PSML_ROOT);
     File folder = new File(GlobalSettings.getRepository(), name);
-    if (!folder.exists()) {
+    if (create && !folder.exists()) {
       LOGGER.warn("Creating PSML root folder ({})", name);
       boolean created = folder.mkdirs();
       if (!created) {

@@ -33,6 +33,8 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 /**
  * TODO Javadoc.
  *
+ * Generate an ETag based on the parameters and the last modified date of the index.
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 2 June 2010
  * @since 0.6.0
@@ -47,10 +49,8 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(ComprehensiveSearch.class);
 
-  /**
-   * Generate an ETag based on the parameters and the last modified date of the index.
-   */
-  @Override public String getETag(ContentRequest req) {
+  @Override
+  public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
     etag.append(req.getParameter("field", "keyword")).append('%');
@@ -64,9 +64,6 @@ public class ComprehensiveSearch implements ContentGenerator, Cacheable {
     return MD5.hash(etag.toString());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.lucene.document.Document;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -19,7 +18,6 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.MD5;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchResults;
-import org.weborganic.flint.util.Documents;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
@@ -39,13 +37,11 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @version 0.6.0 - 26 July 2010
  * @since 0.6.0
  */
-public class GetResultSuggestions implements ContentGenerator, Cacheable {
+public final class GetResultSuggestions implements ContentGenerator, Cacheable {
 
-  /**
-   * Generate an ETag based on the parameters and the last modified date of the index.
-   */
-  @Override public String getETag(ContentRequest req) {
-    StringBuilder etag= new StringBuilder();
+  @Override
+  public String getETag(ContentRequest req) {
+    StringBuilder etag = new StringBuilder();
     // Get relevant parameters
     etag.append(req.getParameter("term", "")).append('%');
     etag.append(req.getParameter("field", "")).append('%');
@@ -59,10 +55,8 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
     return MD5.hash(etag.toString());
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  @Override
+  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Collect parameters
     String input = req.getParameter("term", "");
@@ -103,28 +97,14 @@ public class GetResultSuggestions implements ContentGenerator, Cacheable {
   /**
    * Tokenizes the terms and returns a list of terms.
    *
-   * @param terms the untokenised string.
+   * @param terms The untokenized string.
+   * @param regex The regular expression to use for splitting the string into terms.
    *
    * @return the list of terms
    */
   private List<String> asList(String terms, String regex) {
     String t = terms.trim();
     return Arrays.asList(t.split(regex));
-  }
-
-  /**
-   * Returns the XML for a document.
-   *
-   * @deprecated New part of Flint in {@link Documents#toXML(XMLWriter, Document)}/
-   *
-   * @param xml The XML writer.
-   * @param doc Lucene document to serialise as XML.
-   *
-   * @throws IOException Any I/O error thrown by the XML writer.
-   */
-  @Deprecated
-  public static void toXML(XMLWriter xml, Document doc) throws IOException {
-    Documents.toXML(xml, doc);
   }
 
 }

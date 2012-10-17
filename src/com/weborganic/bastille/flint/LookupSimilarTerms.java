@@ -34,6 +34,8 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
 /**
  * Lookup the similar terms for the specified term.
  *
+ * <p>Generate an ETag based on the parameters and the last modified date of the index.
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 28 May 2010
  * @since 0.6.0
@@ -45,9 +47,6 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(LookupSimilarTerms.class);
 
-  /**
-   * Generate an ETag based on the parameters and the last modified date of the index.
-   */
   @Override public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
@@ -62,9 +61,6 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
     return MD5.hash(etag.toString());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Create a new query object

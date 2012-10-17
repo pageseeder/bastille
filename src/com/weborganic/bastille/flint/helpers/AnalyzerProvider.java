@@ -14,13 +14,12 @@ import org.apache.lucene.analysis.Analyzer;
  *
  * @author Jean-Baptiste Reure
  * @version 13 January 2012
- *
  */
 public interface AnalyzerProvider {
 
   /**
    * @return A new Analyzer used to index and create search queries.
    */
-  public Analyzer getAnalyzer();
+  Analyzer getAnalyzer();
 
 }

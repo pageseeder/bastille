@@ -25,6 +25,7 @@ import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
 import com.weborganic.bastille.flint.helpers.SingleIndex;
 
@@ -54,9 +55,6 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
     }
   };
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
@@ -96,8 +94,8 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
-    File xslt = req.getEnvironment().getPrivateFile("ixml/default.xsl");
-    File indexRoot = req.getEnvironment().getPrivateFile("index");
+    File xslt = FlintConfig.itemplates();
+    File indexRoot = FlintConfig.directory();
     FSDirectory directory = FSDirectory.open(indexRoot);
 
     if (IndexReader.indexExists(directory)) {

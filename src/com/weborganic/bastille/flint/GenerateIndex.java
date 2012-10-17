@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
  */
 package com.weborganic.bastille.flint;
 
@@ -24,28 +28,31 @@ import org.weborganic.flint.util.FileCollector;
 
 import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.flint.helpers.FilePathRule;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter.Action;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
 import com.weborganic.bastille.flint.helpers.SingleIndex;
+import com.weborganic.bastille.psml.PSMLConfig;
 
 /**
  * List the files corresponding to the specified directory.
- * 
+ *
  * <p>If there is a <code>index</code> parameter, then only the index with this ID will be created.
  * <p>If there is a <code>folder</code> parameter, only XML files that are descendants of this folder are indexed.
- * 
+ *
  * <p>This content generator is not cacheable because it causes the index to be updated using a
  * separate thread.
- * 
- * <p>The index must be located in the '/index' directory. 
+ *
+ * <p>The index must be located in the '/index' directory.
  * The IXML stylesheet must be 'ixml/default.xsl'.
- * 
+ *
  * <p>Note: access to this is generator should be made secured in the Web descriptor.
- * 
- * @author Christophe Lauret 
- * @version 0.6.0 - 26 July 2010
+ *
+ * @author Christophe Lauret
+ *
+ * @version 0.7.3 - 17 October 2012
  * @since 0.6.0
  */
 public final class GenerateIndex implements ContentGenerator  {
@@ -55,9 +62,7 @@ public final class GenerateIndex implements ContentGenerator  {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndex.class);
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Getting the index
@@ -70,19 +75,26 @@ public final class GenerateIndex implements ContentGenerator  {
     String index = req.getParameter("index");
     String folder = req.getParameter("folder");
     if (index == null) {
-      master = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
+      master = SingleIndex.setupMaster(FlintConfig.itemplates());
       modified = master.lastModified();
       indexed.addAll(master.list(new Term("visibility", "private")));
     } else {
       // retrieve it from the multiple indexes
       File indexDir = env.getPrivateFile("index/"+index);
-      master = MultipleIndex.setupMaster(indexDir, env.getPrivateFile("ixml/default.xsl"));
+      master = MultipleIndex.setupMaster(indexDir, FlintConfig.itemplates());
       modified = master.lastModified();
       indexed.addAll(master.list(new Term("visibility", "private")));
     }
 
-    // Scanning the directory
-    File root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
+    // Identify the directory
+    File root;
+    File psml = PSMLConfig.getRoot(false);
+    if (psml.exists() && psml.isDirectory()) {
+      root = folder == null ? psml : new File(psml, folder);
+    } else {
+      root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
+    }
+
     LOGGER.debug("Scanning XML directory {}", root);
 
     // Force index all
@@ -122,12 +134,12 @@ public final class GenerateIndex implements ContentGenerator  {
 
   /**
    * XML for a file to be indexed.
-   * 
+   *
    * @param xml      the XML writer.
    * @param modified when the file was last modified.
    * @param path     the path to the file.
    * @param action   the action the indexer should take.
-   * 
+   *
    * @throws IOException If thrown by the xml writer
    */
   public void toXML(XMLWriter xml, String path, String modified, String action) throws IOException {

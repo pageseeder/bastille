@@ -26,7 +26,7 @@ import org.weborganic.flint.util.Beta;
  * - public: any file directly accessible via the Web
  *
  * @author Christophe Lauret
- * @version 0.6.0 - 30 July 2010
+ * @version 0.7.4 - 18 October 2012
  * @since 0.6.0
  */
 @Beta

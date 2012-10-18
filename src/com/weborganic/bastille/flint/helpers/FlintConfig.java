@@ -19,15 +19,8 @@ import org.weborganic.berlioz.GlobalSettings;
  */
 public final class FlintConfig {
 
-  /**
-   * The name of the property to define where the index should be located.
-   */
-  private static final String DEFAULT_INDEX_CONFIG = "index";
-
-  /**
-   * The name of the property to define where the ixml shoudl be located.
-   */
-  private static final String DEFAULT_ITEMPLATES_CONFIG = "ixml";
+  // Constants for the configuration
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * The default folder name for the index files.
@@ -39,15 +32,28 @@ public final class FlintConfig {
    */
   protected static final String DEFAULT_ITEMPLATES_LOCATION = "ixml/default.xsl";
 
+  // Configuration that require initialisation
+  // ----------------------------------------------------------------------------------------------
+
+  /**
+   * Whether to operate in legacy mode.
+   */
+  private static volatile boolean _legacy = false;
+
+  /**
+   * Whether multiple indexes are in use.
+   */
+  private static volatile boolean _isMultiple = false;
+
   /**
    * Where the index is located.
    */
-  private static volatile File directory = null;
+  private static volatile File _directory = null;
 
   /**
    * Where the itemplates are.
    */
-  private static volatile File itemplates = null;
+  private static volatile File _itemplates = null;
 
   /**
    * Utility class.
@@ -57,39 +63,88 @@ public final class FlintConfig {
 
   /**
    * Initialize the Flint from the global configuration.
+   *
+   * <bastille>
+   *   <flint index="index" itemplates="ixml/default.xsl" multiple="false" legacy="false"/>
+   * </bastille>
    */
   protected static synchronized void init() {
     // Location of the index
+    File directory = GlobalSettings.getDirProperty("bastille.flint.index");
     if (directory == null) {
-      File dir = GlobalSettings.getDirProperty(DEFAULT_INDEX_CONFIG);
-      if (dir == null) {
-        dir = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
-      }
-      directory = dir;
+      directory = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
     }
+    _directory = directory;
     // Location of the itemplates
+    File itemplates = GlobalSettings.getDirProperty("bastille.flint.itemplates");
     if (itemplates == null) {
-      File ixml = GlobalSettings.getDirProperty(DEFAULT_ITEMPLATES_CONFIG);
-      if (ixml == null) {
-        ixml = new File(GlobalSettings.getRepository(), DEFAULT_ITEMPLATES_LOCATION);
-      }
-      itemplates = ixml;
+      itemplates = new File(GlobalSettings.getRepository(), DEFAULT_ITEMPLATES_LOCATION);
     }
+    _itemplates = itemplates;
+    // Is it multiple index?
+    _isMultiple = GlobalSettings.get("bastille.flint.multiple", false);
+    _legacy = GlobalSettings.get("bastille.flint.legacy", false);
   }
 
   /**
    * @return the default location of the index.
    */
   public static File directory() {
-    if (directory == null) init();
-    return directory;
+    if (_directory == null) init();
+    return _directory;
   }
 
   /**
    * @return the itemplates to process the data.
    */
   public static File itemplates() {
-    if (itemplates == null) init();
-    return itemplates;
+    if (_itemplates == null) init();
+    return _itemplates;
   }
+
+  /**
+   * Indicates whether to use the legacy mode.
+   *
+   * <p>In legacy mode, Flint stores path differently.
+   *
+   * @return <code>true</code> if Flint is in legacy mode;
+   *         <code>false</code> for a single index.
+   */
+  public static boolean inLegacyMode() {
+    return _legacy;
+  }
+
+  /**
+   * Indicates whether flint is configured for multiple indexes.
+   *
+   * @return <code>true</code> if Flint is configured for multiple indexes;
+   *         <code>false</code> for a single index.
+   */
+  public static boolean hasMultiple() {
+    return _isMultiple;
+  }
+
+  /**
+   * Returns the index master for a single index.
+   *
+   * @return the index master for a single index.
+   */
+  public static IndexMaster getMaster() {
+    IndexMaster single = SingleIndex.master();
+    return single;
+  }
+
+  /**
+   * Returns the Index master for the specified name.
+   *
+   * @param name the name of the index or <code>null</code> for a single index.
+   *
+   * @return the index master for the specified index.
+   */
+  public static IndexMaster getMaster(String name) {
+    if (name == null) return getMaster();
+    File directory = new File(directory(), name);
+    return MultipleIndex.getMaster(directory);
+  }
+
 }

@@ -30,10 +30,10 @@ import org.weborganic.flint.query.TermParameter;
 import org.weborganic.flint.search.Facet;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultiSearchResults;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * <p>Perform a search on the index, using the following details:</p>
@@ -50,7 +50,7 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
- * @version 20 September 2011
+ * @version 0.7.4 - 18 October 2012
  * @since 0.6.0
  */
 public class FulltextSearch implements ContentGenerator {
@@ -60,9 +60,6 @@ public class FulltextSearch implements ContentGenerator {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(FulltextSearch.class);
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
@@ -90,57 +87,53 @@ public class FulltextSearch implements ContentGenerator {
     String header = "<content-type>search-result</content-type>";
     // get search result
     try {
-    // get index to search on
-    final Environment env = req.getEnvironment();
-    String index = req.getParameter("index");
-    if (index == null) {
-      IndexMaster central = SingleIndex.master();
-      if (central == null) {
-        central = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
-      }
-      SearchResults results = central.query(query, paging);
-      // facets
-      for (String f : facets.split(",")) {
-        if (f.length() > 0) {
-          Facet facet = central.getFacet(f, 10, query.toQuery());
+      // get index to search on
+      final Environment env = req.getEnvironment();
+      String index = req.getParameter("index");
+      if (index == null) {
+        IndexMaster central = FlintConfig.getMaster();
+        SearchResults results = central.query(query, paging);
+        // facets
+        for (String f : facets.split(",")) {
+          if (f.length() > 0) {
+            Facet facet = central.getFacet(f, 10, query.toQuery());
+            facet.toXML(xml);
+          }
+        }
+
+        // print the result
+        xml.openElement("index-search", true);
+        query.toXML(xml);
+        results.toXML(xml);
+        xml.writeXML(header);
+        xml.closeElement();
+      } else {
+        // find all indexes specified
+        String[] indexeNames = index.split(",");
+        List<File> indexDirectories = new ArrayList<File>();
+        for (String ind : indexeNames) {
+          indexDirectories.add(req.getEnvironment().getPrivateFile("index/"+ind));
+        }
+        MultipleIndex indexes = new MultipleIndex(indexDirectories);
+        // run query
+        MultiSearchResults results = indexes.query(query, paging);
+        // facets
+        List<String> fields = Arrays.asList(facets.split(","));
+        List<Facet> fieldFacets = indexes.getFacets(fields, 10, query.toQuery());
+        for (Facet facet : fieldFacets) {
           facet.toXML(xml);
         }
+
+        // print the result
+        xml.openElement("index-search", true);
+        query.toXML(xml);
+        results.toXML(xml);
+        xml.writeXML(header);
+        xml.closeElement();
       }
 
-      // print the result
-      xml.openElement("index-search", true);
-      query.toXML(xml);
-      results.toXML(xml);
-      xml.writeXML(header);
-      xml.closeElement();
-    } else {
-      // find all indexes specified
-      String[] indexeNames = index.split(",");
-      List<File> indexDirectories = new ArrayList<File>();
-      for (String ind : indexeNames) {
-        indexDirectories.add(req.getEnvironment().getPrivateFile("index/"+ind));
-      }
-      MultipleIndex indexes = new MultipleIndex(indexDirectories);
-      // run query
-      MultiSearchResults results = indexes.query(query, paging);
-      // facets
-      List<String> fields = Arrays.asList(facets.split(","));
-      List<Facet> fieldFacets = indexes.getFacets(fields, 10, query.toQuery());
-      for (Facet facet : fieldFacets) {
-        facet.toXML(xml);
-      }
-
-      // print the result
-      xml.openElement("index-search", true);
-      query.toXML(xml);
-      results.toXML(xml);
-      xml.writeXML(header);
-      xml.closeElement();
-    }
-
-
-    } catch (IndexException e) {
-      LOGGER.info("Fail to retrieve search result using query: {}", query.toString());
+    } catch (IndexException ex) {
+      LOGGER.warn("Fail to retrieve search result using query: {}", query.toString(), ex);
     }
   }
 

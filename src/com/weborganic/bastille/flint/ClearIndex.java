@@ -13,22 +13,20 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
-import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
- * Delete the index.
+ * Clears the content of the index.
  *
  * <p>The index must be located in the '/index' directory.
  *
  * <p>Note: access to this is generator MUST be made secured in the Web descriptor.
  *
  * @author Christophe Lauret
- * @version 0.6.20 - 26 September 2011
+ * @version 0.7.4 - 18 October 2012
  * @since 0.6.20
  */
 @Beta
@@ -37,15 +35,12 @@ public final class ClearIndex implements ContentGenerator  {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
-    Environment env = req.getEnvironment();
     String index = req.getParameter("index");
 
     if (index == null) {
+
       // Single index
-      IndexMaster single = SingleIndex.master();
-      if (single == null) {
-        single = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
-      }
+      IndexMaster single = FlintConfig.getMaster();
       single.clear();
       xml.openElement("index");
       xml.attribute("status", "clear");
@@ -57,7 +52,7 @@ public final class ClearIndex implements ContentGenerator  {
       String[] names = index.split(",");
       xml.openElement("indexes");
       for (String name : names) {
-        IndexMaster master = MultipleIndex.getMaster(env.getPrivateFile("index/"+name));
+        IndexMaster master = FlintConfig.getMaster(name);
         master.clear();
         xml.openElement("index");
         xml.attribute("name", name);

@@ -7,7 +7,6 @@
  */
 package com.weborganic.bastille.flint.helpers;
 
-import java.io.File;
 
 
 /**
@@ -30,23 +29,12 @@ public final class SingleIndex {
   }
 
   /**
-   * Return the master (or null if it doesn't exist).
+   * Return the master (or <code>null</code> if it doesn't exist).
    *
-   * @return the master or null if it doesn't exist.
+   * @return the master or <code>null</code> if it doesn't exist.
    */
   public static IndexMaster master() {
     return MultipleIndex.getMaster(FlintConfig.directory());
-  }
-
-  /**
-   * Return the master (will create it if it doesn't exist and XSLT is not null).
-   *
-   * @param xslt The location of the XSLT generating the IXML.
-   *
-   * @return the master
-   */
-  public static IndexMaster setupMaster(File xslt) {
-    return MultipleIndex.setupMaster(FlintConfig.directory(), xslt);
   }
 
 }

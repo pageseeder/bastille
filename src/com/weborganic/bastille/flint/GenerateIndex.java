@@ -32,8 +32,6 @@ import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter.Action;
-import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 import com.weborganic.bastille.psml.PSMLConfig;
 
 /**
@@ -52,7 +50,7 @@ import com.weborganic.bastille.psml.PSMLConfig;
  *
  * @author Christophe Lauret
  *
- * @version 0.7.3 - 17 October 2012
+ * @version 0.7.4 - 18 October 2012
  * @since 0.6.0
  */
 public final class GenerateIndex implements ContentGenerator  {
@@ -67,24 +65,17 @@ public final class GenerateIndex implements ContentGenerator  {
 
     // Getting the index
     final Environment env = req.getEnvironment();
-    IndexMaster master;
-    long modified = 0;
-    List<File> indexed = new ArrayList<File>();
 
     // Index template
     String index = req.getParameter("index");
     String folder = req.getParameter("folder");
-    if (index == null) {
-      master = SingleIndex.setupMaster(FlintConfig.itemplates());
-      modified = master.lastModified();
-      indexed.addAll(master.list(new Term("visibility", "private")));
-    } else {
-      // retrieve it from the multiple indexes
-      File indexDir = env.getPrivateFile("index/"+index);
-      master = MultipleIndex.setupMaster(indexDir, FlintConfig.itemplates());
-      modified = master.lastModified();
-      indexed.addAll(master.list(new Term("visibility", "private")));
-    }
+
+    // retrieve it from the multiple indexes
+    IndexMaster master = FlintConfig.getMaster(index);
+
+    long modified = master.lastModified();
+    List<File> indexed = new ArrayList<File>();
+    indexed.addAll(master.list(new Term("visibility", "private")));
 
     // Identify the directory
     File root;
@@ -99,6 +90,7 @@ public final class GenerateIndex implements ContentGenerator  {
 
     // Force index all
     if ("true".equals(req.getParameter("all"))) {
+      master.reloadTemplates();
       modified = 0;
     }
 

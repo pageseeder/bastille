@@ -17,17 +17,16 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.PredicateSearchQuery;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchResults;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultiSearchResults;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 import com.weborganic.bastille.util.Errors;
 
 /**
@@ -71,13 +70,9 @@ public final class PredicateSearch implements ContentGenerator  {
     try {
 
       // get index to search on
-      final Environment env = req.getEnvironment();
       String index = req.getParameter("index");
       if (index == null) {
-        IndexMaster central = SingleIndex.master();
-        if (central == null) {
-          central = SingleIndex.setupMaster(env.getPrivateFile("ixml/default.xsl"));
-        }
+        IndexMaster central = FlintConfig.getMaster();
         SearchResults results = central.query(query, paging);
 
         // print the result

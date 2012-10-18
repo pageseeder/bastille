@@ -23,15 +23,15 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.helpers.FlintConfig;
 
 /**
  * Checks that the templates are valid.
  *
  * @author Christophe Lauret
- * @version 0.6.21 - 29 September 2011
+ * @version 0.7.4 - 18 October 2012
  * @since 0.6.20
  */
 @Beta
@@ -40,9 +40,8 @@ public final class CheckTemplates implements ContentGenerator  {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
-    // Check the
-    Environment env = req.getEnvironment();
-    File def = env.getPrivateFile("ixml/default.xsl");
+    // Get the templates from the config.
+    File def = FlintConfig.itemplates();
 
     // Print XML
     xml.openElement("index-templates");
@@ -70,6 +69,7 @@ public final class CheckTemplates implements ContentGenerator  {
   }
 
   /**
+   * Check whether the templates can be compiled.
    *
    * @param def
    * @return

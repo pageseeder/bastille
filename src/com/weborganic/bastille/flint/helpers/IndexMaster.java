@@ -9,7 +9,9 @@ package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,20 +23,22 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.weborganic.flint.FlintTranslatorFactory;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.IndexManager;
 import org.weborganic.flint.Requester;
+import org.weborganic.flint.content.AutoXMLTranslatorFactory;
 import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.ContentFetcher;
 import org.weborganic.flint.content.ContentId;
+import org.weborganic.flint.local.LocalFileContentId;
+import org.weborganic.flint.local.LocalFileContentType;
+import org.weborganic.flint.local.LocalIndex;
 import org.weborganic.flint.log.SLF4JListener;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchQuery;
@@ -43,6 +47,8 @@ import org.weborganic.flint.query.SuggestionQuery;
 import org.weborganic.flint.search.Facet;
 import org.weborganic.flint.search.FieldFacet;
 import org.weborganic.flint.util.Terms;
+
+import com.weborganic.bastille.psml.PSMLConfig;
 
 /**
  * Centralises all the indexing and searching function using Flint for one index.
@@ -72,6 +78,11 @@ public final class IndexMaster {
   private static AnalyzerProvider analyzerProvider = null;
 
   /**
+   * The IXML templates used for processing XML in this index.
+   */
+  private final URI itemplates;
+
+  /**
    * Where the private files are.
    */
   private volatile IndexManager manager = null;
@@ -79,7 +90,7 @@ public final class IndexMaster {
   /**
    * The underlying index used by this generator.
    */
-  private volatile Index index = null;
+  private volatile LocalIndex index = null;
 
   /**
    * The index config used by this generator.
@@ -111,38 +122,33 @@ public final class IndexMaster {
     ContentFetcher fetcher = new ContentFetcher() {
       @Override
       public Content getContent(ContentId id) {
-        FileContentId fid = (FileContentId)id;
+        LocalFileContentId fid = (LocalFileContentId)id;
         return new FileContent(fid.file());
       }
     };
 
     // Create the index
-    this.index = new LocalIndex(indexDir);
+    this.index = new LocalIndex(indexDir, getNewAnalyzer());
 
     // Get the last modified from the index
-    try {
-      Directory directory = this.index.getIndexDirectory();
-      if (IndexReader.indexExists(directory))
-        this.lastModified = IndexReader.lastModified(directory);
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
+    this.lastModified = this.index.getLastModified();
 
     // Create a Manager
     this.manager = new IndexManager(fetcher, new SLF4JListener(LOGGER));
-    this.manager.registerTranslatorFactory(new FlintTranslatorFactory());
-    this.manager.registerTranslatorFactory(new PSMLTranslatorFactory());
+    List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
+    this.manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
 
     // Setup the configuration
     this.config = new IndexConfig();
-    if (xslt != null) {
-      this.config.setTemplates(FileContentType.SINGLETON, "text/xml", xslt.toURI());
-      this.config.setTemplates(FileContentType.SINGLETON, "application/vnd.pageseeder.psml+xml", xslt.toURI());
-    }
+    this.itemplates = xslt.toURI();
+
+    this.config.setTemplates(LocalFileContentType.SINGLETON, "text/xml", this.itemplates);
+    this.config.setTemplates(LocalFileContentType.SINGLETON, PSMLConfig.MEDIATYPE, this.itemplates);
 
     // Start the index manager
     this.manager.start();
   }
+
   /**
    * Set the new Analyzer Provider.
    * @param providore the new Analyzer Provider.
@@ -194,7 +200,7 @@ public final class IndexMaster {
    * @param parameters The parameters to pass to the stylesheet.
    */
   public void index(File file, Map<String, String> parameters) {
-    ContentId cid = new FileContentId(file);
+    ContentId cid = new LocalFileContentId(file);
     this.lastModified = System.currentTimeMillis();
     this.manager.index(cid, this.index, this.config, REQUESTER, Priority.HIGH, parameters);
   }
@@ -240,6 +246,14 @@ public final class IndexMaster {
    */
   public long lastModified() {
     return this.lastModified;
+  }
+
+  /**
+   * Reload the IXML templates.
+   */
+  public void reloadTemplates() {
+    this.config.setTemplates(LocalFileContentType.SINGLETON, "text/xml", this.itemplates);
+    this.config.setTemplates(LocalFileContentType.SINGLETON, "application/vnd.pageseeder.psml+xml", this.itemplates);
   }
 
   /**

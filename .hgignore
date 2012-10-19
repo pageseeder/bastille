@@ -9,3 +9,5 @@ syntax: regexp
 ^build\.number$
 syntax: regexp
 ^doc$
+syntax: regexp
+^local\.properties$

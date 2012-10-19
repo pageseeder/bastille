@@ -121,6 +121,19 @@
     <delete dir="${dir.bin}"/>
   </target>
 
+  <!-- deploy local -->
+  <target name="deploy-local" depends="init" description="deploy the latest build locally">
+    <ivy:findrevision organisation="weborganic" module="${name.short}" revision="latest.integration"/>
+    <!-- remove previous copies -->
+    <loadproperties srcFile="local.properties"/>
+    <delete>
+      <fileset dir="${local.webapp}/WEB-INF/lib" includes="${name.short}-*"/>
+    </delete>
+    <copy todir="${local.webapp}/WEB-INF/lib">
+      <fileset dir="${dir.release}/${DSTAMP}" includes="${name.short}-${ivy.revision}.jar"/>
+    </copy>
+  </target>
+
   <!--
     Publish the build on the Ivy, must specify
     - publish.status    ('milestone' or 'integration')

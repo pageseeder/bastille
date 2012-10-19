@@ -16,19 +16,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.lucene.index.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.Environment;
+import org.weborganic.berlioz.util.FileUtils;
 import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.util.FileCollector;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FilePathRule;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
+import com.weborganic.bastille.flint.config.FlintConfig;
+import com.weborganic.bastille.flint.config.IFlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter;
 import com.weborganic.bastille.flint.helpers.IndexUpdateFilter.Action;
@@ -72,10 +72,11 @@ public final class GenerateIndex implements ContentGenerator  {
 
     // retrieve it from the multiple indexes
     IndexMaster master = FlintConfig.getMaster(index);
+    IFlintConfig config = FlintConfig.get();
 
     long modified = master.lastModified();
     List<File> indexed = new ArrayList<File>();
-    indexed.addAll(master.list(new Term("visibility", "private")));
+    indexed.addAll(master.list());
 
     // Identify the directory
     File root;
@@ -106,13 +107,14 @@ public final class GenerateIndex implements ContentGenerator  {
     for (Entry<File, Action> entry : files.entrySet()) {
       File f = entry.getKey();
       Action action = entry.getValue();
-      String path = FilePathRule.toPath(entry.getKey());
+      String path = config.toPath(entry.getKey());
       toXML(xml, path, ISO8601.format(f.lastModified(), ISO8601.DATETIME), action.toString());
       // Parameters send to iXML
       if (action == Action.INSERT || action == Action.UPDATE) {
         Map<String, String> p = new HashMap<String, String>();
         p.put("path", path);
         p.put("visibility", "private");
+        p.put("mediatype", FileUtils.getMediaType(f));
         p.put("last-modified", ISO8601.format(f.lastModified(), ISO8601.DATETIME));
         master.index(f, p);
       } else if (action == Action.DELETE) {

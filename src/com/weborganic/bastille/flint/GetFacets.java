@@ -27,9 +27,9 @@ import org.weborganic.flint.IndexException;
 import org.weborganic.flint.search.Facet;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Returns the facets from a query.
@@ -49,8 +49,11 @@ public final class GetFacets implements ContentGenerator, Cacheable {
 
   /**
    * Generate an ETag based on the parameters and the last modified date of the index.
+   *
+   * {@inheritDoc}
    */
-  @Override public String getETag(ContentRequest req) {
+  @Override
+  public String getETag(ContentRequest req) {
     StringBuilder etag = new StringBuilder();
     // Get relevant parameters
     etag.append(req.getParameter("field", "keyword")).append('%');
@@ -58,11 +61,11 @@ public final class GetFacets implements ContentGenerator, Cacheable {
     String index = req.getParameter("index");
     if (index != null) {
       for (String ind : index.split(",")) {
-        etag.append(MultipleIndex.getMaster(req.getEnvironment().getPrivateFile("index/"+ind)).lastModified()).append('%');
+        etag.append(FlintConfig.getMaster(ind).lastModified()).append('%');
       }
     } else {
       // Get last time index was modified
-      IndexMaster master = SingleIndex.master();
+      IndexMaster master = FlintConfig.getMaster();
       if (master != null) {
         etag.append(master.lastModified()).append('%');
       }
@@ -117,7 +120,7 @@ public final class GetFacets implements ContentGenerator, Cacheable {
         }
       } else {
         // Make sure there is an index
-        IndexMaster master = SingleIndex.master();
+        IndexMaster master = FlintConfig.getMaster();
         if (master != null) {
           IndexReader reader = null;
           try {

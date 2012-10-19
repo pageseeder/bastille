@@ -23,7 +23,7 @@ import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchResults;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultiSearchResults;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;

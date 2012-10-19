@@ -58,7 +58,7 @@ public final class MultipleIndex {
     synchronized (MASTERS) {
       master = MASTERS.get(indexDir);
       if (master == null) {
-        master = new IndexMaster(indexDir, FlintConfig.itemplates());
+        master = new IndexMaster(indexDir);
         MASTERS.put(indexDir, master);
       }
     }
@@ -68,11 +68,14 @@ public final class MultipleIndex {
   /**
    * If the master already exists, it is re-used.
    *
+   * @deprecated Use {@link #getMaster(File)} instead and a specific Flint configuration.
+   *
    * @param indexDir The root directory for the index to return
    * @param xslt     The XSLT script used to produce iXML data
    *
    * @return the master for the given index root
    */
+  @Deprecated
   public static IndexMaster setupMaster(File indexDir, File xslt) {
     if (indexDir == null) return null;
     IndexMaster master;
@@ -107,9 +110,12 @@ public final class MultipleIndex {
   /**
    * Build a new multiple index.
    *
+   * @deprecated {@link #MultipleIndex(List)} and a Flint configuration instead.
+   *
    * @param indexDirectories the root folders for all indexes
    * @param xslt The XSLT to use to produce iXML.
    */
+  @Deprecated
   public MultipleIndex(List<File> indexDirectories, File xslt) {
     if (indexDirectories != null) {
       this.indexDirs.addAll(indexDirectories);
@@ -123,14 +129,14 @@ public final class MultipleIndex {
   /**
    * Perform a query on multiple indexes.
    *
-   * <p>Note that all the indexes MUST be initialised before calling this method.
+   * <p>Note that all the indexes MUST be initialized before calling this method.
    *
    * @param query     the query to perform.
    *
    * @return The search results
    *
    * @throws IndexException        If the query failed
-   * @throws IllegalStateException If one of the indexes is not initialised
+   * @throws IllegalStateException If one of the indexes is not initialized
    */
   public MultiSearchResults query(SearchQuery query) throws IndexException {
     return query(query, new SearchPaging());

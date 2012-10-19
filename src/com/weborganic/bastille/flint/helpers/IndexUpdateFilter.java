@@ -16,14 +16,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Filter to only select files that have been modified since a specified date.
  *
  * @author Christophe Lauret
- * @version 0.6.0 - 2 June 2010
+ * @version 0.7.4 - 19 October 2012
  * @since 0.6.0
  */
 public final class IndexUpdateFilter implements FileFilter {
+
+  /**
+   * The logger for this.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexUpdateFilter.class);
 
   /**
    * Possible action for each file.
@@ -39,7 +47,7 @@ public final class IndexUpdateFilter implements FileFilter {
 
     @Override
     public boolean accept(File f) {
-      return !f.isHidden() && !f.getName().startsWith(".");
+      return !f.isHidden() && !f.getName().startsWith(".") && !f.getPath().contains("META-INF");
     }
   };
 
@@ -98,7 +106,7 @@ public final class IndexUpdateFilter implements FileFilter {
    * @param indexed The list of files to process.
    * @param filter  Used to filter out the files not supposed to be indexed.
    *
-   * @throws IOException If thrown whil trying to get the canonical path
+   * @throws IOException If thrown while trying to get the canonical path
    */
   public IndexUpdateFilter(long since, List<File> indexed, FileFilter filter) throws IOException {
     this._since = since;
@@ -132,8 +140,12 @@ public final class IndexUpdateFilter implements FileFilter {
 
       // A new file: register and INSERT
       } else if (!f.isDirectory()) {
-        this._files.put(canonical, f);
-        this._actions.put(canonical, Action.INSERT);
+        if (f.length() > 0) {
+          this._files.put(canonical, f);
+          this._actions.put(canonical, Action.INSERT);
+        } else {
+          LOGGER.warn("Skipping zero-length file:{}", f);
+        }
       }
     } catch (IOException ex) {
       ex.printStackTrace();

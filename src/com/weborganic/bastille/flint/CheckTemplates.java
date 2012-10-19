@@ -25,13 +25,13 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
+import com.weborganic.bastille.flint.config.FlintConfig;
 
 /**
  * Checks that the templates are valid.
  *
  * @author Christophe Lauret
- * @version 0.7.4 - 18 October 2012
+ * @version 0.7.4 - 19 October 2012
  * @since 0.6.20
  */
 @Beta
@@ -41,7 +41,7 @@ public final class CheckTemplates implements ContentGenerator  {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Get the templates from the config.
-    File def = FlintConfig.itemplates();
+    File def = FlintConfig.get().getIXMLTemplates("text/xml");
 
     // Print XML
     xml.openElement("index-templates");
@@ -71,19 +71,21 @@ public final class CheckTemplates implements ContentGenerator  {
   /**
    * Check whether the templates can be compiled.
    *
-   * @param def
-   * @return
-   * @throws IOException
-   * @throws TransformerException
+   * @param itemplate The templates to load.
+   *
+   * @return The Compiled XSLT templates
+   *
+   * @throws IOException          If an IO error occurred
+   * @throws TransformerException If an XSLT compilation error occurs.
    */
-  private Templates compile(File def) throws IOException, TransformerException {
+  private Templates compile(File itemplate) throws IOException, TransformerException {
     // load the templates from the source file
     InputStream in = null;
     Templates templates = null;
     try {
-      in = new FileInputStream(def);
+      in = new FileInputStream(itemplate);
       Source source = new StreamSource(in);
-      source.setSystemId(def.toURI().toString());
+      source.setSystemId(itemplate.toURI().toString());
       TransformerFactory factory = TransformerFactory.newInstance();
       templates = factory.newTemplates(source);
     } finally {

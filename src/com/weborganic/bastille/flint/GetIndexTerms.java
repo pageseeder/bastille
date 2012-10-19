@@ -25,9 +25,8 @@ import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
-import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
+import com.weborganic.bastille.flint.config.FlintConfig;
+import com.weborganic.bastille.flint.helpers.IndexMaster;
 
 /**
  * List the terms from the index.
@@ -35,7 +34,7 @@ import com.weborganic.bastille.flint.helpers.SingleIndex;
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  *
- * @version 0.6.20 - 27 September 2011
+ * @version 0.7.4 - 19 October 2012
  * @since 0.6.0
  */
 public final class GetIndexTerms implements ContentGenerator, Cacheable {
@@ -88,30 +87,26 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
     return etag.length() > 0? etag.toString() : null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
-    File xslt = FlintConfig.itemplates();
     File indexRoot = FlintConfig.directory();
     FSDirectory directory = FSDirectory.open(indexRoot);
 
     if (IndexReader.indexExists(directory)) {
       // single index, output it
-      termsToXML(indexRoot, xslt, null, xml);
+      termsToXML(null, xml);
 
     } else {
       String indexName = req.getParameter("index");
       if (indexName != null) {
-        termsToXML(indexRoot, xslt, indexName, xml);
+        termsToXML(indexName, xml);
       } else {
         // multiple indexes maybe
         File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
-            termsToXML(indexRoot, xslt, d.getName(), xml);
+            termsToXML(d.getName(), xml);
           }
         } else {
           xml.openElement("terms");
@@ -123,27 +118,21 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
   }
 
   /**
-   * Output the given index as XML
-   * @param env
-   * @param name
-   * @param xml
-   * @throws IOException
-   * @throws IndexException
+   * Output the given terms in the index as XML
+   *
+   * @param name The name of the index.
+   * @param xml  The XML to write on.
+   *
+   * @throws IOException Should any IO error occur.
    */
-  private void termsToXML(File indexRoot, File xsl, String name, XMLWriter xml) throws IOException {
+  private void termsToXML(String name, XMLWriter xml) throws IOException {
     xml.openElement("terms");
-    File root = null;
     IndexReader reader = null;
+    IndexMaster master = FlintConfig.getMaster(name);
     try {
-      if (name == null) {
-        root = indexRoot;
-        reader = SingleIndex.master().grabReader();
-      } else {
-        root = new File(indexRoot, name);
-        reader = MultipleIndex.getMaster(root).grabReader();
-      }
-    } catch (IndexException e) {
-      xml.attribute("error", "Failed to load reader: "+e.getMessage());
+      reader = master.grabReader();
+    } catch (IndexException ex) {
+      xml.attribute("error", "Failed to load reader: "+ex.getMessage());
     }
     if (reader != null) {
       try {
@@ -156,14 +145,10 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
           xml.attribute("doc-freq", e.docFreq());
           xml.closeElement();
         }
-      } catch (Exception ex) {
+      } catch (IOException ex) {
         LOGGER.error("Error while extracting term statistics", ex);
       } finally {
-        if (name == null) {
-          SingleIndex.master().releaseSilently(reader);
-        } else if (root != null) {
-          MultipleIndex.getMaster(root).releaseSilently(reader);
-        }
+        master.releaseSilently(reader);
       }
     } else {
       xml.attribute("error", "Reader is null");

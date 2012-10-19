@@ -7,19 +7,16 @@
  */
 package com.weborganic.bastille.flint.helpers;
 
-import org.apache.lucene.analysis.Analyzer;
+import com.weborganic.bastille.flint.config.AnalyzerFactory;
 
 /**
  * This class provides an Analyzer used to index and create search queries.
  *
+ * @deprecated Use {@link AnalyzerFactory} instead.
+ *
  * @author Jean-Baptiste Reure
  * @version 13 January 2012
  */
-public interface AnalyzerProvider {
-
-  /**
-   * @return A new Analyzer used to index and create search queries.
-   */
-  Analyzer getAnalyzer();
-
+@Deprecated
+public interface AnalyzerProvider extends AnalyzerFactory {
 }

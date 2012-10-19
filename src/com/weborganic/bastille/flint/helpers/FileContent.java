@@ -14,6 +14,8 @@ import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.DeleteRule;
 import org.weborganic.flint.local.LocalFileContent;
 
+import com.weborganic.bastille.flint.config.IFlintConfig;
+
 /**
  * Content from a file.
  *
@@ -26,12 +28,19 @@ import org.weborganic.flint.local.LocalFileContent;
 public final class FileContent extends LocalFileContent implements Content {
 
   /**
+   * The flint configuration used for this file.
+   */
+  private final IFlintConfig _config;
+
+  /**
    * Creates a new content from a given file.
    *
-   * @param f The file
+   * @param f      The file
+   * @param config The flint configuration for this file.
    */
-  public FileContent(File f) {
+  public FileContent(File f, IFlintConfig config) {
     super(f);
+    this._config = config;
   }
 
   @Override
@@ -46,7 +55,7 @@ public final class FileContent extends LocalFileContent implements Content {
    */
   @Override
   public DeleteRule getDeleteRule() {
-    return new DeleteRule("path", FilePathRule.toPath(file()));
+    return new DeleteRule("path", this._config.toPath(file()));
   }
 
 }

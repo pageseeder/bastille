@@ -20,8 +20,8 @@ import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchResults;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Returns the search results suggestions from a list of terms.
@@ -47,7 +47,7 @@ public final class GetResultSuggestions implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("field", "")).append('%');
     etag.append(req.getParameter("predicate", "")).append('%');
     // Get last time index was modified
-    IndexMaster master = SingleIndex.master();
+    IndexMaster master = FlintConfig.getMaster();
     if (master != null) {
       etag.append(master.lastModified());
     }
@@ -78,7 +78,7 @@ public final class GetResultSuggestions implements ContentGenerator, Cacheable {
       xml.attribute("predicate", predicate);
 
       // Start the search
-      IndexMaster master = SingleIndex.master();
+      IndexMaster master = FlintConfig.getMaster();
       if (master != null) {
         try {
           // Get the suggestions

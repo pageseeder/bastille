@@ -15,7 +15,7 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 
 /**

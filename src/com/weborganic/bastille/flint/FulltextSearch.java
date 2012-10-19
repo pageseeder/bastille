@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.BasicQuery;
 import org.weborganic.flint.query.SearchPaging;
@@ -30,7 +29,7 @@ import org.weborganic.flint.query.TermParameter;
 import org.weborganic.flint.search.Facet;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.flint.helpers.FlintConfig;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultiSearchResults;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
@@ -88,7 +87,6 @@ public class FulltextSearch implements ContentGenerator {
     // get search result
     try {
       // get index to search on
-      final Environment env = req.getEnvironment();
       String index = req.getParameter("index");
       if (index == null) {
         IndexMaster central = FlintConfig.getMaster();

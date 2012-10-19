@@ -27,9 +27,9 @@ import org.weborganic.flint.util.Bucket.Entry;
 import org.weborganic.flint.util.Terms;
 
 import com.topologi.diffx.xml.XMLWriter;
+import com.weborganic.bastille.flint.config.FlintConfig;
 import com.weborganic.bastille.flint.helpers.IndexMaster;
 import com.weborganic.bastille.flint.helpers.MultipleIndex;
-import com.weborganic.bastille.flint.helpers.SingleIndex;
 
 /**
  * Lookup the similar terms for the specified term.
@@ -53,9 +53,9 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("term", "keyword")).append('%');
     etag.append(req.getParameter("field", "fulltext")).append('%');
     // Get last time index was modified
-    IndexMaster central = SingleIndex.master();
-    if (central != null) {
-      etag.append(central.lastModified());
+    IndexMaster master = FlintConfig.getMaster();
+    if (master != null) {
+      etag.append(master.lastModified());
     }
     // MD5 of computed etag value
     return MD5.hash(etag.toString());
@@ -105,7 +105,7 @@ public final class LookupSimilarTerms implements ContentGenerator, Cacheable {
         multiReader.releaseSilently();
       }
     } else {
-      IndexMaster master = SingleIndex.master();
+      IndexMaster master = FlintConfig.getMaster();
       if (master != null) {
         IndexReader reader = null;
         try {

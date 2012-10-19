@@ -7,6 +7,8 @@
  */
 package com.weborganic.bastille.flint.helpers;
 
+import com.weborganic.bastille.flint.config.FlintConfig;
+
 
 
 /**
@@ -14,12 +16,15 @@ package com.weborganic.bastille.flint.helpers;
  *
  * <p>This class defines a singleton which can be access using the {@link #getInstance()} method.
  *
+ * @deprecated Use methods in {@link FlintConfig} instead.
+ *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  *
- * @version 0.6.20 - 26 September 2011
+ * @version 0.7.4 - 19 October 2012
  * @since 0.6.0
  */
+@Deprecated
 public final class SingleIndex {
 
   /**

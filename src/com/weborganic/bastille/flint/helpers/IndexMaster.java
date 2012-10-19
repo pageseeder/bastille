@@ -9,21 +9,17 @@ package com.weborganic.bastille.flint.helpers;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.flint.Index;
@@ -37,7 +33,6 @@ import org.weborganic.flint.content.Content;
 import org.weborganic.flint.content.ContentFetcher;
 import org.weborganic.flint.content.ContentId;
 import org.weborganic.flint.local.LocalFileContentId;
-import org.weborganic.flint.local.LocalFileContentType;
 import org.weborganic.flint.local.LocalIndex;
 import org.weborganic.flint.log.SLF4JListener;
 import org.weborganic.flint.query.SearchPaging;
@@ -48,13 +43,17 @@ import org.weborganic.flint.search.Facet;
 import org.weborganic.flint.search.FieldFacet;
 import org.weborganic.flint.util.Terms;
 
+import com.weborganic.bastille.flint.config.FlintConfig;
+import com.weborganic.bastille.flint.config.IFlintConfig;
+import com.weborganic.bastille.flint.config.LegacyConfig;
 import com.weborganic.bastille.psml.PSMLConfig;
 
 /**
- * Centralises all the indexing and searching function using Flint for one index.
+ * Centralizes all the indexing and searching function using Flint for one index.
  *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
+ *
  * @version 0.7.4 - 17 October 2012
  * @since 0.6.0
  */
@@ -75,12 +74,10 @@ public final class IndexMaster {
     }
   };
 
-  private static AnalyzerProvider analyzerProvider = null;
-
   /**
-   * The IXML templates used for processing XML in this index.
+   * The flint configuration used by this master.
    */
-  private final URI itemplates;
+  private IFlintConfig ifconfig;
 
   /**
    * Where the private files are.
@@ -103,32 +100,45 @@ public final class IndexMaster {
   private volatile long lastModified = -1;
 
   /**
-   * Sets up the index master.
+   * Sets up the index master using the default Flint configuration.
    *
-   * @param indexDir the index directory
+   * @param directory the index directory
    */
-  public IndexMaster(File indexDir) {
-    this(indexDir, null);
+  public IndexMaster(File directory) {
+    this(directory, FlintConfig.get());
   }
 
   /**
    * Sets up the index master.
    *
-   * @param indexDir the index directory
-   * @param xslt     the location of the XSLT generating the IXML.
+   * @deprecated Use the standard Flint configuration.
+   *
+   * @param directory the index directory
+   * @param xslt      the location of the XSLT generating the IXML.
    */
-  public IndexMaster(File indexDir, File xslt) {
+  @Deprecated
+  public IndexMaster(File directory, File xslt) {
+    this(directory, LegacyConfig.newInstance(xslt));
+  }
+
+  /**
+   * Sets up the index master.
+   *
+   * @param indexDir    the index directory
+   * @param flintconfig the Flint configuration to use.
+   */
+  private IndexMaster(File indexDir, final IFlintConfig flintconfig) {
 
     ContentFetcher fetcher = new ContentFetcher() {
       @Override
       public Content getContent(ContentId id) {
         LocalFileContentId fid = (LocalFileContentId)id;
-        return new FileContent(fid.file());
+        return new FileContent(fid.file(), flintconfig);
       }
     };
 
     // Create the index
-    this.index = new LocalIndex(indexDir, getNewAnalyzer());
+    this.index = new LocalIndex(indexDir, FlintConfig.newAnalyzer());
 
     // Get the last modified from the index
     this.lastModified = this.index.getLastModified();
@@ -140,10 +150,10 @@ public final class IndexMaster {
 
     // Setup the configuration
     this.config = new IndexConfig();
-    this.itemplates = xslt.toURI();
 
-    this.config.setTemplates(LocalFileContentType.SINGLETON, "text/xml", this.itemplates);
-    this.config.setTemplates(LocalFileContentType.SINGLETON, PSMLConfig.MEDIATYPE, this.itemplates);
+    // Configure the IndexXML
+    this.ifconfig = flintconfig;
+    this.ifconfig.configure(this.config);
 
     // Start the index manager
     this.manager.start();
@@ -151,19 +161,14 @@ public final class IndexMaster {
 
   /**
    * Set the new Analyzer Provider.
-   * @param providore the new Analyzer Provider.
+   *
+   * @deprecated Use {@link FlintConfig#setAnalyzerFactory} instead.
+   *
+   * @param provider the new Analyzer Provider.
    */
-  public static void setAnalyzerProvider(AnalyzerProvider providore) {
-    analyzerProvider = providore;
-  }
-
-  /**
-   * @return an analyzer similar to the one used in all indexes
-   */
-  public static Analyzer getNewAnalyzer() {
-    if (analyzerProvider == null)
-      return new StandardAnalyzer(Version.LUCENE_30);
-    return analyzerProvider.getAnalyzer();
+  @Deprecated
+  public static void setAnalyzerProvider(AnalyzerProvider provider) {
+    FlintConfig.setAnalyzerFactory(provider);
   }
 
   /**
@@ -252,8 +257,7 @@ public final class IndexMaster {
    * Reload the IXML templates.
    */
   public void reloadTemplates() {
-    this.config.setTemplates(LocalFileContentType.SINGLETON, "text/xml", this.itemplates);
-    this.config.setTemplates(LocalFileContentType.SINGLETON, "application/vnd.pageseeder.psml+xml", this.itemplates);
+    FlintConfig.get().configure(this.config);
   }
 
   /**
@@ -264,7 +268,10 @@ public final class IndexMaster {
    * @param upTo   the max number of values to return
    * @param query  a predicate to apply on the facet (can be null or empty)
    *
-   * @throws IndexException if there was an error reading the index or creating the condition query
+   * @return the facte instance.
+   *
+   * @throws IOException    if there was an error reading the index or creating the condition query
+   * @throws IndexException if there was an error getting the reader or searcher.
    */
   public Facet getFacet(String field, int upTo, Query query) throws IndexException, IOException {
     FieldFacet facet = null;
@@ -287,33 +294,44 @@ public final class IndexMaster {
   }
 
   /**
-   * Return an index reader on the index.
+   * Returns the list of files that have been indexed form the index content.
    *
-   * @return The index will need to be released.
-   */
-  public IndexReader grabReader() throws IndexException {
-    return this.manager.grabReader(this.index);
-  }
-
-  /**
-   * Return an index searcher on the index.
+   * @deprecated This method ignores the term, use {@link #list()} instead.
    *
-   * @return The index searcher that will need to be released.
+   * @return the list of files that have been indexed form the index content.
+   *
+   * @throws IOException    if there was an error getting the reader.
    */
-  public IndexSearcher grabSearcher() throws IndexException {
-    return this.manager.grabSearcher(this.index);
-  }
-
-  /**
-   * Returns the list of files containing ??
-   */
+  @Deprecated
   public List<File> list(Term t) throws IOException {
     List<File> files = new ArrayList<File>();
     IndexReader reader = null;
     try {
       reader = this.manager.grabReader(this.index);
       for (int i = 0; i < reader.numDocs(); i++) {
-        File f = FilePathRule.toFile(reader.document(i));
+        File f = this.ifconfig.toFile(reader.document(i));
+        files.add(f);
+      }
+    } catch (IndexException ex) {
+      throw new IOException(ex);
+    } finally {
+      this.manager.releaseQuietly(this.index, reader);
+    }
+    return files;
+  }
+
+  /**
+   * Returns the list of files that have been indexed form the index content.
+   *
+   * @return the list of files that have been indexed form the index content.
+   */
+  public List<File> list() throws IOException {
+    List<File> files = new ArrayList<File>();
+    IndexReader reader = null;
+    try {
+      reader = this.manager.grabReader(this.index);
+      for (int i = 0; i < reader.numDocs(); i++) {
+        File f = this.ifconfig.toFile(reader.document(i));
         files.add(f);
       }
     } catch (IndexException ex) {
@@ -362,11 +380,12 @@ public final class IndexMaster {
    *
    * @param predicate The predicate to parse
    * @return the corresponding query object or <code>null</code>.
+   *
    * @throws IndexException should any error occur
    */
   public static Query toQuery(String predicate) throws IndexException {
     // Parse the condition query
-    QueryParser parser = new QueryParser(IndexManager.LUCENE_VERSION, "type", getNewAnalyzer());
+    QueryParser parser = new QueryParser(IndexManager.LUCENE_VERSION, "type", FlintConfig.newAnalyzer());
     Query condition = null;
     if (predicate != null && !"".equals(predicate)) {
       try {
@@ -376,6 +395,28 @@ public final class IndexMaster {
       }
     }
     return condition;
+  }
+
+  /**
+   * Return an index reader on the index.
+   *
+   * @return The index will need to be released.
+   *
+   * @throws IndexException If thrown by index manager.
+   */
+  public IndexReader grabReader() throws IndexException {
+    return this.manager.grabReader(this.index);
+  }
+
+  /**
+   * Return an index searcher on the index.
+   *
+   * @return The index searcher that will need to be released.
+   *
+   * @throws IndexException If thrown by index manager.
+   */
+  public IndexSearcher grabSearcher() throws IndexException {
+    return this.manager.grabSearcher(this.index);
   }
 
   /**

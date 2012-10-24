@@ -19,7 +19,6 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.ContentStatus;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.util.Errors;
 
 /**
  * This generator returns the content of a PSML file using the Berlioz path.
@@ -49,20 +48,19 @@ import com.weborganic.bastille.util.Errors;
  *
  * @author Christophe Lauret
  * @version 0.7.5 - 25 October 2012
- * @since 0.7.0
+ * @since 0.7.5
  */
-public final class GetContentFile implements ContentGenerator, Cacheable {
+public final class GetContentFileAuto implements ContentGenerator, Cacheable {
 
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFile.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFileAuto.class);
 
   @Override
   public String getETag(ContentRequest req) {
-    String path = req.getParameter("path");
-    if (path == null) return null;
-    PSMLFile psml = PSMLConfig.getContentFile(path);
+    String pathInfo = req.getBerliozPath();
+    PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
     if (!psml.exists()) return null;
     File f = psml.file();
     return Long.toString(f.lastModified());
@@ -72,13 +70,8 @@ public final class GetContentFile implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Identify the file
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
-
-    PSMLFile psml = PSMLConfig.getContentFile(path);
+    String pathInfo = req.getBerliozPath();
+    PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
     LOGGER.debug("Retrieving {}", psml);
 
     // If the PSML does not exist

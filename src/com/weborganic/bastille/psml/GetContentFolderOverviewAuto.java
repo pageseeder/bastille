@@ -20,32 +20,26 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.ContentStatus;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.util.Errors;
 
 /**
  * Returns an overview of the folder by Berlioz path.
  *
- * <h3>Deployment </h3>
- * <pre>{@code
- * <generator class="com.weborganic.bastille.xml.GetFolderOverview" name="overview" target="main" />
- * }</pre>
+ * <p>The overview is generated from the first header and the first paragraph from each PageSeeder XML.
  *
  * @author Christophe Lauret
  * @version 0.7.5 - 25 October 2012
- * @since 0.7.0
+ * @since 0.7.5
  */
-public final class GetContentFolderOverview implements ContentGenerator, Cacheable {
+public final class GetContentFolderOverviewAuto implements ContentGenerator, Cacheable {
 
   /**
    * Logger for this generator.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderOverview.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderOverviewAuto.class);
 
   @Override
   public String getETag(ContentRequest req) {
-    String path = req.getParameter("path");
-    if (path == null) return null;
-    PSMLFile folder = PSMLConfig.getContentFolder(path);
+    PSMLFile folder = PSMLConfig.getContentFolder(req.getBerliozPath());
     List<File> files = PSMLOverviews.getContents(folder.file());
     long mostrecent = PSMLOverviews.lastModified(files);
     return folder.path() + '_' + mostrecent;
@@ -55,14 +49,8 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     LOGGER.debug(req.getBerliozPath());
 
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
-
     // Get all the files
-    PSMLFile folder = PSMLConfig.getContentFolder(path);
+    PSMLFile folder = PSMLConfig.getContentFolder(req.getBerliozPath());
     LOGGER.debug("Retrieving overview for {}", folder);
 
     // If the PSML does not exist

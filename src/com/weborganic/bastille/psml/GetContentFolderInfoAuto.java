@@ -21,7 +21,6 @@ import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.FileUtils;
 
 import com.topologi.diffx.xml.XMLWriter;
-import com.weborganic.bastille.util.Errors;
 
 /**
  * Returns information about a file in the WEB-INF/psml based on the specified by the path info.
@@ -30,9 +29,9 @@ import com.weborganic.bastille.util.Errors;
  *
  * @author Christophe Lauret
  * @version 0.7.5 - 25 October 2012
- * @since 0.7.0
+ * @since 0.7.5
  */
-public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
+public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheable {
 
   /**
    * Filters XML files only.
@@ -47,7 +46,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
   /**
    * Logger for debugging
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderInfo.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderInfoAuto.class);
 
   /**
    * The content folder to recompute the
@@ -56,9 +55,8 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
 
   @Override
   public String getETag(ContentRequest req) {
-    String path = req.getParameter("path");
-    if (path == null) return null;
-    PSMLFile psml = PSMLConfig.getContentFolder(path);
+    String pathInfo = req.getBerliozPath();
+    PSMLFile psml = PSMLConfig.getContentFolder(pathInfo);
     if (!psml.exists()) return null;
     File f = psml.file();
     return Long.toString(f.lastModified());
@@ -74,19 +72,14 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
     }
 
     // Identify the folder
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
 
-    File folder = new File(this.ancestor, path);
+    File folder = new File(this.ancestor, req.getBerliozPath());
 
     if (FileUtils.contains(this.ancestor, folder)) {
-      LOGGER.info("Retrieving content folder information for {}", path);
+      LOGGER.info("Retrieving content folder information for {}", req.getBerliozPath());
       toXML(folder, xml);
     } else {
-      LOGGER.warn("Attempted to access unauthorizes private file {}", path);
+      LOGGER.warn("Attempted to access unauthorizes private file {}", req.getBerliozPath());
     }
   }
 

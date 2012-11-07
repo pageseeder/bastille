@@ -66,12 +66,14 @@ public final class PSMLOverviews {
   private static volatile Ehcache cache = null;
 
   /**
+   * Generate the overview documents for the files for the specified folder.
    *
-   * @param folder
-   * @param xml
+   * @param folder The directory to scan.
    *
-   * @throws BerliozException
-   * @throws IOException
+   * @return the XML content as a string.
+   *
+   * @throws BerliozException If an error occurs during parsing.
+   * @throws IOException      Should any error occur.
    */
   public static String getOverview(PSMLFile folder) throws BerliozException, IOException {
     // Get all the files
@@ -105,6 +107,7 @@ public final class PSMLOverviews {
    * @param folder The directory to scan.
    * @param files  The list of files to process.
    * @param xml    The XML output.
+   *
    * @throws IOException Should any error occur.
    */
   private static void processOverview(PSMLFile folder, List<File> files, XMLWriter xml) throws IOException {

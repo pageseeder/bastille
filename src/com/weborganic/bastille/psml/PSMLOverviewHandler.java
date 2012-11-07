@@ -18,7 +18,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Parses PSML to generate the overview data.
  *
  * @author Christophe Lauret
- * @version 16 October 2012
+ * @version 7 November 2012
  */
 class PSMLOverviewHandler extends DefaultHandler {
 
@@ -56,26 +56,30 @@ class PSMLOverviewHandler extends DefaultHandler {
 
    @Override
    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-     if (this.title == null && "heading1".equals(qName)) {
+     if (this.title == null && "heading".equals(qName)) {
        this.buffer = new StringBuilder();
      } else if (this.summary == null && "para".equals(qName)) {
        this.buffer = new StringBuilder();
      } else if ("property".equals(qName)) {
        this.buffer = new StringBuilder();
        this.property = attributes.getValue("name");
+       String value = attributes.getValue("value");
+       if (value != null)
+         this.properties.put(this.property, value);
      }
    }
 
    @Override
    public void endElement(String uri, String localName, String qName) throws SAXException {
-     if (this.title == null && "heading1".equals(qName)) {
+     if (this.title == null && "heading".equals(qName)) {
        this.title = this.buffer.toString();
        this.buffer = null;
      } else if (this.summary == null && "para".equals(qName)) {
        this.summary = this.buffer.toString();
        this.buffer = null;
      } else if ("property".equals(qName)) {
-       this.properties.put(this.property, this.buffer.toString());
+       if (!this.properties.containsKey(this.property))
+         this.properties.put(this.property, this.buffer.toString());
        this.property = null;
        this.buffer = null;
      }

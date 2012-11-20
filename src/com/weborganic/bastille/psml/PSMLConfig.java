@@ -99,7 +99,7 @@ public final class PSMLConfig {
   public static PSMLFile getFolder(String pathInfo) {
     String path = normalise(pathInfo);
     File root = getRoot();
-    File file = new File(root, path);
+    File file = (path.length() > 0)? new File(root, path) : root;
     return new PSMLFile(path, file);
   }
 
@@ -116,7 +116,6 @@ public final class PSMLConfig {
     File file = new File(root, path);
     return new PSMLFile(path, file);
   }
-
 
   /**
    * Returns the root folder for all files.
@@ -174,8 +173,7 @@ public final class PSMLConfig {
     xml.attribute("name", file.getName());
 
     // Compute the base directory
-    String base = psml.path();
-    base = "/" + base.substring(0, base.length() - file.getName().length());
+    String base = psml.getBase();
     xml.attribute("base", base);
 
     // All good, print to the XML stream
@@ -200,16 +198,34 @@ public final class PSMLConfig {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Filters and normalises the value in the path informations.
+   * Filters and normalizes the value in the path informations.
    *
-   * @param path The path to normalise.
+   * @param path The path to normalize.
    * @return The same path without an '/' at the end.
    */
-  private static String normalise(String path) {
+  static String normalise(String path) {
+    String normalized = path;
+    // trailing '/'
     if (path.endsWith("/")) {
-      return path.substring(0, path.length()-1);
+      normalized = path.substring(0, path.length()-1);
     }
-    return path;
+    // double '//'
+    if (normalized.indexOf("//") >= 0) {
+      normalized = normalized.replaceAll("//+", "/");
+    }
+    // self
+    if (normalized.indexOf("/./") >= 0) {
+      normalized = normalized.replaceAll("/\\./", "/");
+    }
+    // self
+    while (normalized.indexOf("./") == 0) {
+      normalized = normalized.substring(2);
+    }
+    // parent
+    while (normalized.indexOf("/../") > normalized.indexOf('/')+1) {
+      normalized = normalized.replaceAll("\\/[^/]+/\\.\\./", "/");
+    }
+    return normalized;
   }
 
   /**

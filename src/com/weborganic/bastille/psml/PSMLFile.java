@@ -8,14 +8,20 @@
 package com.weborganic.bastille.psml;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * A path/file value pair for a PSML document.
  *
  * @author Christophe Lauret
- * @version 15 October 2012
+ * @version 20 November 2012
  */
-public final class PSMLFile {
+public final class PSMLFile implements Serializable {
+
+  /**
+   * As required by the <code>Serializable</code> interface.
+   */
+  private static final long serialVersionUID = -5680591958703581444L;
 
   /**
    * The path to the file from the PSML root folder.
@@ -54,6 +60,20 @@ public final class PSMLFile {
    */
   public File file() {
     return this._file;
+  }
+
+
+  /**
+   * Returns the base path for the specified PSML.
+   *
+   * <p>The base path is the path to the folder for the given PSML file.
+   *
+   * @return the base path for the specified PSML folder
+   *
+   * @throws NullPointerException if the psml folder is <code>null</code>.
+   */
+  public String getBase() {
+    return "/" + this._path.substring(0, this._path.length() - this._file.getName().length());
   }
 
   /**

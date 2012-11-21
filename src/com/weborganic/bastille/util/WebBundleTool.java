@@ -365,14 +365,18 @@ public final class WebBundleTool {
    * Copy the contents of the specified input stream to the specified output stream, and ensure that both streams are
    * closed before returning (even in the face of an exception).
    *
+   * @param bundle    The bundle being processed.
    * @param file      The file to read.
    * @param virtual   The location of the bundle (virtual).
    * @param out       Writes the content for the bundle.
    * @param processed The list of files already processed to prevent circular references.
    *
    * @return IOException if an input/output error occurs
+   *
+   * @throws IOException if unable to read file.
    */
-  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed) throws IOException {
+  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed)
+      throws IOException {
     IOException exception = null;
     // prevent circular references
     if (processed.contains(file)) return exception;
@@ -386,24 +390,27 @@ public final class WebBundleTool {
         Matcher m = CSS_URL.matcher(line);
         if (m.find()) {
           // Expand the file
-          if (line.startsWith("@import")) {
-            String path = m.group(1);
-            out.write("/* START @import "+path+" */\n");
+          if (line.trim().toLowerCase().startsWith("@import")) {
+            String path = unquote(m.group(1));
             File imported = new File(file.getParentFile(), path);
-            bundle.addImport(imported);
-            expandStylesTo(bundle, imported, virtual, out, processed);
-            out.write("/* END @import "+path+ " */\n");
+            if (imported.exists()) {
+              out.write("/* START @import "+path+" */\n");
+              bundle.addImport(imported);
+              expandStylesTo(bundle, imported, virtual, out, processed);
+              out.write("/* END @import "+path+ " */\n");
+            } else {
+              out.write("/* ERROR Unable to @import */\n");
+              LOGGER.warn("Unable to find referenced CSS file: {}", path);
+              out.write(line);
+              out.write('\n');
+            }
           } else {
             // Replace all URL links to the new relative location
             m.reset();
             StringBuffer sb = new StringBuffer();
             while (m.find()) {
-              String url = m.group(1);
+              String url = unquote(m.group(1));
               String query = "";
-              if (url.length() > 2 && url.charAt(0) == '\'' && url.charAt(url.length()-1) == '\'')
-                url = url.substring(1, url.length()-1);
-              if (url.length() > 2 && url.charAt(0) == '"' && url.charAt(url.length()-1) == '"')
-                url = url.substring(1, url.length()-1);
               int q = url.indexOf('?');
               if (q > 0) {
                 query = url.substring(q);
@@ -474,6 +481,26 @@ public final class WebBundleTool {
       i++;
     }
     return i;
+  }
+
+  /**
+   * Returns the number of common characters between the two strings.
+   *
+   * @param url Removes the quotes.
+   *
+   * @return The number of characters in common; 0 if none.
+   */
+  private static String unquote(String url) {
+    if (url.length() < 2) return url;
+    char first = url.charAt(0);
+    char last  = url.charAt(url.length()-1);
+    if ((first == '\'' && last == '\'') || first == '"' && last == '"') {
+      // quoted
+      return url.substring(1, url.length()-1);
+    } else {
+      // unquoted
+      return url;
+    }
   }
 
 }

@@ -153,7 +153,7 @@ public final class CSSMin {
       LOGGER.debug("Parsing and processing selectors.");
 
       // Reset for selector
-      List<Rule> selectors = new ArrayList<Rule>();
+      List<Rule> rules = new ArrayList<Rule>();
       int line = 0;
       int n = 0; // Current position in stream
       int j = 0; // Number of open braces
@@ -169,7 +169,7 @@ public final class CSSMin {
           j--;
           if (j == 0) {
             try {
-              selectors.add(new Rule(buffer.substring(n, i + 1)));
+              rules.add(new Rule(buffer.substring(n, i + 1)));
             } catch (ParsingException ex) {
               LOGGER.warn(ex.getMessage()+" L:"+line);
             }
@@ -182,8 +182,8 @@ public final class CSSMin {
 
       // Let's write it out
       min.println(comment);
-      for (Rule selector : selectors) {
-        min.print(selector.toString());
+      for (Rule rule : rules) {
+        min.print(rule.toString());
       }
       min.println();
       min.close();
@@ -292,12 +292,12 @@ public final class CSSMin {
     private Property[] _properties = null;
 
     /** Properties inside the selector. */
-    private List<Rule> subSelectors = null;
+    private List<Rule> subrules = null;
 
     /**
      * Creates a new Selector using the supplied strings.
      *
-     * @param selector The selector
+     * @param rule The entire rule starting with the selector
      *
      * @throws ParsingException If the selector is incomplete and cannot be parsed.
      */
@@ -308,26 +308,32 @@ public final class CSSMin {
         throw new ParsingException("Warning: Incomplete selector: " + selector, -1, -1);
       }
 
+      // Always starts with the selector
       this._selector = parts[0].toString().trim();
 
       // Simplify combinators
       this._selector = this._selector.replaceAll("\\s?(\\+|~|,|=|~=|\\^=|\\$=|\\*=|\\|=|>)\\s?", "$1");
 
-      // We're dealing with a nested property, eg @-webkit-keyframes
+      // We're dealing with a nested property, eg @-webkit-keyframes or @media
       if (parts.length > 2) {
-        this.subSelectors = new ArrayList<Rule>();
+        this.subrules = new ArrayList<Rule>();
         parts = selector.split("\\{|\\}");
         for (int i = 1; i < parts.length; i += 2) {
+          // sub selector
           parts[i] = parts[i].trim();
-          parts[i + 1] = parts[i + 1].trim();
-          if (!("".equals(parts[i]) || ("".equals(parts[i + 1])))) {
-            this.subSelectors.add(new Rule(parts[i] + "{" + parts[i + 1] + "}"));
+          if (parts[i].length() > 0 && (i+1) < parts.length) {
+            // properties of sub selector
+            parts[i + 1] = parts[i + 1].trim();
+            if (!("".equals(parts[i + 1]))) {
+              this.subrules.add(new Rule(parts[i] + "{" + parts[i + 1] + "}"));
+              LOGGER.warn("Empty subrule for {}"+parts[i]);
+            }
           }
         }
       } else {
         String contents = parts[parts.length - 1].trim();
         if (contents.charAt(contents.length() - 1) != '}') { // Ensure that we have a leading and trailing brace.
-          throw new ParsingException("Unterminated selector: " + selector, -1, -1);
+          throw new ParsingException("Unterminated selector: " +selector, -1, -1);
         }
         if (contents.length() == 1) {
           throw new ParsingException("Empty selector body: " + selector, -1, -1);
@@ -356,8 +362,8 @@ public final class CSSMin {
      */
     public StringBuilder append(StringBuilder min) {
       min.append(this._selector).append('{');
-      if (this.subSelectors != null) {
-        for (Rule s : this.subSelectors) {
+      if (this.subrules != null) {
+        for (Rule s : this.subrules) {
           min.append(s.toString());
         }
       }

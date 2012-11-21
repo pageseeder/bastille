@@ -21,7 +21,8 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * @author Christophe Lauret
- * @version 20 November 2012
+ * @version 0.7.7 - 25 October 2012
+ * @since 0.7.7
  */
 public final class ProcessContentFileAuto implements ContentGenerator, Cacheable {
 
@@ -43,7 +44,7 @@ public final class ProcessContentFileAuto implements ContentGenerator, Cacheable
     // Identify the file
     String pathInfo = req.getBerliozPath();
     PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
-    LOGGER.debug("Retrieving {}", psml);
+    LOGGER.debug("Processing {}", psml);
 
     // If the PSML does not exist
     if (!psml.exists()) {

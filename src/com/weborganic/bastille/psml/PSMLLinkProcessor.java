@@ -32,8 +32,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * A utility class to process links in PSML data.
  *
  * @author Christophe Lauret
- * @version 0.7.6 - 20 November 2012
- * @since 0.7.6
+ * @version 21 November 2012
  */
 public final class PSMLLinkProcessor {
 
@@ -93,21 +92,38 @@ public final class PSMLLinkProcessor {
       // Attempt to grab the content
       String data = null;
       if (cached == null || cached.getLastUpdateTime() < modified) {
-        XMLStringWriter buffer = new XMLStringWriter(false);
-        List<File> linked = processLinks(psml, buffer);
-        data = buffer.toString();
+
+        // Process
+        XMLStringWriter xml = new XMLStringWriter(false);
+        xml.openElement("psml-file");
+        xml.attribute("name", file.getName());
+        xml.attribute("base", psml.getBase());
+        xml.attribute("status", "ok");
+        List<File> linked = processLinks(psml, xml);
+        xml.closeElement();
+        xml.flush();
+
+        // Cache
+        data = xml.toString();
         entry = new CachedProcessed(data, linked);
         cache.put(new Element(psml.path(), entry));
+
       } else {
         data = entry.data();
       }
       return data;
     }
-    return "<no-content/>";
+    // Will return the standard PSML
+    return PSMLConfig.load(psml);
   }
 
   /**
+   * Returns the etag for the PSML file based on the last modified date of the file and all transcluded documents.
    *
+   * @param psml the PSML file.
+   * @return The corresponding etag or <code>null</code> if the file does not exist.
+   *
+   * @throws NullPointerException if the file is <code>null</code>.
    */
   public static String getEtag(PSMLFile psml) {
     // Get all the files
@@ -118,9 +134,11 @@ public final class PSMLLinkProcessor {
     if (cache != null) {
       // Attempt to grab the content
       Element cached = cache.get(psml.path());
-      CachedProcessed entry = (CachedProcessed)cached.getObjectValue();
-      if (entry != null) {
-        modified = lastModified(entry._linked);
+      if (cached != null) {
+        CachedProcessed entry = (CachedProcessed)cached.getObjectValue();
+        if (entry != null) {
+          modified = lastModified(entry.linked());
+        }
       }
     }
     return Long.toString(modified);
@@ -131,6 +149,8 @@ public final class PSMLLinkProcessor {
    *
    * @param source The source PSML file.
    * @param xml    The XML output.
+   *
+   * @return the list of processed links
    *
    * @throws IOException Should any error occur.
    */
@@ -144,6 +164,8 @@ public final class PSMLLinkProcessor {
    *
    * @param source  The source PSML file.
    * @param handler The XML output.
+   *
+   * @return the list of processed links
    *
    * @throws IOException Should any error occur.
    */
@@ -199,9 +221,14 @@ public final class PSMLLinkProcessor {
    * A cached processed PSML.
    *
    * @author Christophe Lauret
-   * @version 20 November 2012
+   * @version 21 November 2012
    */
   private static final class CachedProcessed implements Serializable {
+
+    /**
+     * As per requirement by the <code>Serializable</code> interface.
+     */
+    private static final long serialVersionUID = -688073404317798992L;
 
     /**
      * The data to store.
@@ -214,7 +241,8 @@ public final class PSMLLinkProcessor {
     private final List<File> _linked;
 
     /**
-     *
+     * @param data the XML data.
+     * @param linked the list of files linked.
      */
     public CachedProcessed(String data, List<File> linked) {
       this._data = data;

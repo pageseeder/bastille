@@ -16,6 +16,7 @@ import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.xml.XMLCopy;
 
 import com.topologi.diffx.xml.XMLStringWriter;
+import com.weborganic.bastille.util.Paths;
 
 /**
  * PSML configuration.
@@ -97,7 +98,7 @@ public final class PSMLConfig {
    * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getFolder(String pathInfo) {
-    String path = normalise(pathInfo);
+    String path = Paths.normalize(pathInfo);
     File root = getRoot();
     File file = (path.length() > 0)? new File(root, path) : root;
     return new PSMLFile(path, file);
@@ -111,7 +112,7 @@ public final class PSMLConfig {
    * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getFile(String pathInfo) {
-    String path = normalise(pathInfo) + PSMLConfig.DEFAULT_PSML_EXTENSION;
+    String path = Paths.normalize(pathInfo) + PSMLConfig.DEFAULT_PSML_EXTENSION;
     File root = getRoot();
     File file = new File(root, path);
     return new PSMLFile(path, file);
@@ -196,37 +197,6 @@ public final class PSMLConfig {
 
   // private helpers
   // ----------------------------------------------------------------------------------------------
-
-  /**
-   * Filters and normalizes the value in the path informations.
-   *
-   * @param path The path to normalize.
-   * @return The same path without an '/' at the end.
-   */
-  static String normalise(String path) {
-    String normalized = path;
-    // trailing '/'
-    if (path.endsWith("/")) {
-      normalized = path.substring(0, path.length()-1);
-    }
-    // double '//'
-    if (normalized.indexOf("//") >= 0) {
-      normalized = normalized.replaceAll("//+", "/");
-    }
-    // self
-    if (normalized.indexOf("/./") >= 0) {
-      normalized = normalized.replaceAll("/\\./", "/");
-    }
-    // self
-    while (normalized.indexOf("./") == 0) {
-      normalized = normalized.substring(2);
-    }
-    // parent
-    while (normalized.indexOf("/../") > normalized.indexOf('/')+1) {
-      normalized = normalized.replaceAll("\\/[^/]+/\\.\\./", "/");
-    }
-    return normalized;
-  }
 
   /**
    * Attach the value of the main folder to the pathInfo value avoiding doubling up the '/'.

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.weborganic.berlioz.xml.XMLCopy;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -28,7 +29,7 @@ import com.weborganic.bastille.util.Paths;
  * Parses PSML to process the links.
  *
  * @author Christophe Lauret
- * @version 20 November 2012
+ * @version 21 November 2012
  */
 class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler, LexicalHandler {
 
@@ -36,6 +37,9 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * The maximum possible depth when processing the links.
    */
   private static final int MAX_DEPTH = 8;
+
+  // class attributes
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * The current depth.
@@ -58,11 +62,6 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   private final String _shift;
 
   /**
-   * The XML buffer we need to write to (may be <code>null</code>).
-   */
-  private final XMLWriter _xml;
-
-  /**
    * The XMLCopy handler to make it easier to perform the copy from the handler method.
    *
    * MUST use the same XML writer.
@@ -73,6 +72,14 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * The base path for the file currently being processed.
    */
   private final PSMLFile _source;
+
+  /**
+   * The heading level to adjust.
+   */
+  private final int _level;
+
+  // state variable
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * A state variable indicating whether we are currently processing the link
@@ -98,11 +105,11 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     this._source = source;
     this._depth = 1;
     this._types = Collections.singletonList("transclude");
-    this._xml = xml;
     this._shift = "";
     this._copy = xml != null? new XMLCopy(xml) : null;
     this._links = new ArrayList<File>();
     this._links.add(source.file());
+    this._level = 0;
   }
 
   /**
@@ -110,16 +117,17 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    *
    * @param source the source PSML document
    * @param parent the parent handler.
+   * @param level  the level attribute from the cross-reference.
    */
-  public PSMLLinkProcessorHandler(PSMLFile source, PSMLLinkProcessorHandler parent) {
+  public PSMLLinkProcessorHandler(PSMLFile source, PSMLLinkProcessorHandler parent, int level) {
     this._source = source;
     this._depth = parent._depth + 1;
     this._types = parent._types;
-    this._xml = parent._xml;
     this._copy = parent._copy;
     this._links = parent._links;
     this._links.add(source.file());
     this._shift = Paths.path(parent._source.getBase(), source.getBase())+"/";
+    this._level = parent._level + level;
   }
 
   @Override
@@ -128,9 +136,20 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     if (this._copy != null) {
       Attributes modified = attributes;
       if ("blockxref".equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
-        modified = update(attributes, "href", this._shift);
+        // Update the references
+        String value = Paths.normalize(this._shift + attributes.getValue("href"));
+        modified = update(attributes, "href", value);
+
       } else if ("image".equals(qName)) {
-        modified = update(attributes, "src", this._shift);
+        // Update the path to images
+        String value = Paths.normalize(this._shift + attributes.getValue("src"));
+        modified = update(attributes, "src", value);
+
+      } else if ("heading".equals(qName)) {
+        // Update the heading level
+        String value = Integer.toString(toLevel(attributes) + this._level);
+        modified = update(attributes, "level", value);
+
       }
       this._copy.startElement(uri, localName, qName, modified);
     }
@@ -141,6 +160,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
       // Only process xref matching the correct xref type and media type
       String type = attributes.getValue("type");
       String mediatype = attributes.getValue("mediatype");
+      int level = toLevel(attributes);
       if (this._depth < MAX_DEPTH && this._types.contains(type) && isProcessable(mediatype)) {
 
         // compute path to target file
@@ -149,11 +169,13 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
         if (path.indexOf('/') == 0) path = path.substring(1);
         if (path.endsWith(".psml")) path = path.substring(0, path.length()-5);
 
+        // grab the level (if we need to adjust the headings)
+
         PSMLFile target = PSMLConfig.getFile(path);
-        if (this._xml != null) {
+        if (this._copy != null) {
           this.insideLink = true;
           try {
-            PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this));
+            PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
           } catch (IOException ex) {
             throw new SAXException("Unable to transclude content of "+target);
           }
@@ -252,19 +274,45 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   }
 
   /**
-   * Updates the attributes so that the attributes
+   * Returns the level as an int form the attributes.
+   *
+   * @param attributes the attributes.
+   * @return the corresponding level
+   *
+   * @throws NullPointerException If the attributes parameter is <code>null</code>
+   */
+  private static int toLevel(Attributes attributes) {
+    String value = attributes.getValue("level");
+    int level = 0;
+    if (value != null) {
+      try {
+        level = Integer.parseInt(value);
+      } catch (NumberFormatException ex) {
+        LoggerFactory.getLogger(PSMLLinkProcessorHandler.class).warn("Unparsable level attribute found");
+      }
+    }
+    return level;
+  }
+
+  /**
+   * Updates the attributes so that the attributes include the new attribute.
+   *
+   * This method will automatically add or update the attribute.
    *
    * @param atts  The attributes
-   * @param name  The name of the attribute to rewrite
-   * @param shift The prefix to rewrite the path
+   * @param name  The name of the attribute to update
+   * @param value The value of the attribute to update
    *
    * @return A new set of attributes
    */
-  private static Attributes update(Attributes atts, String name, String shift) {
+  private static Attributes update(Attributes atts, String name, String value) {
     AttributesImpl updated = new AttributesImpl(atts);
     int i = atts.getIndex(name);
-    String value = Paths.normalize(shift + atts.getValue(name));
-    updated.setAttribute(i, atts.getURI(i), atts.getLocalName(i), name, atts.getType(i), value);
+    if (i != -1) {
+      updated.setAttribute(i, "", name, name, "CDATA", value);
+    } else {
+      updated.addAttribute("", name, name, "CDATA", value);
+    }
     return updated;
   }
 

@@ -22,30 +22,44 @@ import com.topologi.diffx.xml.XMLWriter;
 import com.weborganic.bastille.util.Errors;
 
 /**
- * This generator returns the content of a PSML file using the Berlioz path.
+ * This generator returns the content of a PSML file using the specified <code>path</code> parameter from the PSML
+ * <i>config</i> folder.</p>
  *
- * <p>For example, if the Berlioz servlet is mapped to '/html/*', 'html/Ping/pong' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder.
+ * <p>The config folder is the folder named 'config' under the PSML root folder.</p>
  *
- * <p>For example, if the Berlioz servlet is mapped to '*.html', 'Ping/pong.html' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder.
+ * <p>The purpose of the config folder is to store all document which do not form part of the main content of the
+ * website and should not be viewed on their own. These include:</p>
+ * <ul>
+ *   <li>the navigation</li>
+ *   <li>headers and footers</li>
+ *   <li>asides</li>
+ * </ul>
+ *
+ * <p>Files which can be viewed on their own should generally go in the <i>content</i> folder; they can be retrieved
+ * with the <code>GetContentFile</code> generator.</p>
  *
  * <h3>Configuration</h3>
- * <p>The root PSML folder can be configured globally using the Berlioz configuration:
- * <p>For example:
- * <pre>{@code
- * <node name="bastille">
- *   <map/>
- *   <node name="psml">
- *     <map>
- *       <entry key="root" value="psml"/>
- *     </map>
- *   </node>
- * </node>
- * }</pre>
+ * <p>No configuration is required.</p>
+ * <p>The root of the PSML folder can be configured using the global property <code>bastille.psml.root</code> which
+ * can be either an absolute path or a relative path from the global repository.</p>
+ * <p>By default, the PSML root is set to "psml" which usually corresponds to the <code>/WEB-INF/psml</code> folder
+ * of your Web application.</p>
  *
- * <p>To define the location of the XML folder, use the Berlioz config property:
- * <code>bastille.psml.root</code>.
+ * <h3>Parameters</h3>
+ * <p>This generator requires a <code>path</code> parameter. The path parameter <b>must</b> be a relative path from
+ * within the psml config folder to a PSML file without the extension.</p>
+ *
+ * <h3>Returned XML</h3>
+ * <p>Like most PSML generators returning a PSML file, this generator will wrap the content of the file with the
+ * <code>&lt;psml-file&gt;</code> element.</p>
+ * <p>The <code>base</code> attribute is the relative path from the PSML root to the folder, since references
+ * (xrefs and image sources) in PSML are relative, this attribute can be used to construct the path to images
+ * or cross-referenced documents.</p>
+ *
+ * <h3>Error handling</h3>
+ * <p>If the file cannot be found or read, the status of this generator will be set to 'NOT_FOUND'.</p>
+ *
+ * @ps.note If the path resolves to a location outside the PSML folder, this generator will not read the file.
  *
  * @author Christophe Lauret
  * @version 0.7.5 - 25 October 2012

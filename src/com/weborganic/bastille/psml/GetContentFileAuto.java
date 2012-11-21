@@ -21,30 +21,34 @@ import org.weborganic.berlioz.content.ContentStatus;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * This generator returns the content of a PSML file using the Berlioz path.
+ * This generator returns the content of a PSML file using the Berlioz path from content folder.
  *
- * <p>For example, if the Berlioz servlet is mapped to '/html/*', 'html/Ping/pong' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder.
+ * <p>This generator behaves as if its were using the Berlioz path as path parameter of the <code>GetContentFile</code>
+ * generator
  *
- * <p>For example, if the Berlioz servlet is mapped to '*.html', 'Ping/pong.html' will try to
- * look for XML file 'Ping/pong.xml' in the XML folder.
+ * <p>The Berlioz path depends on the mapping of the Berlioz servlet in the Web descriptor (web.xml) and usually
+ * corresponds to the value of the '*' in the path component of a matching URL. The Berlioz path is then appended
+ * to the /content folder and added the '.psml' extension. to identify the file to load.
  *
  * <h3>Configuration</h3>
- * <p>The root PSML folder can be configured globally using the Berlioz configuration:
- * <p>For example:
- * <pre>{@code
- * <node name="bastille">
- *   <map/>
- *   <node name="psml">
- *     <map>
- *       <entry key="root" value="psml"/>
- *     </map>
- *   </node>
- * </node>
- * }</pre>
+ * <p>No configuration is required.</p>
  *
- * <p>To define the location of the XML folder, use the Berlioz config property:
- * <code>bastille.psml.root</code>.
+ * <p>The root of the PSML folder can be configured using the global property <code>bastille.psml.root</code> which
+ * can be either an absolute path or a relative path from the global repository.
+ *
+ * <p>By default, the PSML root is set to "psml" which usually corresponds to the /WEB-INF/psml folder of your
+ * Web application.
+ *
+ * <h3>Parameters</h3>
+ * <p>This generator does not accept or require any parameter.</p>
+ *
+ * <h3>Returned XML</h3>
+ * <p>Like most PSML generators returning a PSML file, this generator will wrap the content of the file with
+ * the <code>{@code <psml-file>}</code> element.
+ *
+ * The base attribute is the relative path from the PSML root to the folder, since references (xrefs and image
+ * sources) in PSML are relative, this attribute can be used to construct the path to images or cross-referenced
+ * documents.
  *
  * @author Christophe Lauret
  * @version 0.7.5 - 25 October 2012

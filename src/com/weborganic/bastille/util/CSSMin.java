@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 18 June 2012
+ * @version 21 November 2012
  */
 public final class CSSMin {
 
@@ -107,7 +107,7 @@ public final class CSSMin {
     if (args.length > 1) {
       try {
         out = new PrintStream(args[1]);
-      } catch (Exception ex) {
+      } catch (IOException ex) {
         System.err.println("Error outputting to " + args[1] + "; redirecting to stdout");
         out = System.out;
       }
@@ -257,12 +257,13 @@ public final class CSSMin {
   }
 
   /**
+   * Clean the comment by removing unnecessary white space.
    *
-   * @param comment
-   * @return
-   * @throws ParsingException
+   * @param comment the comment string to clean.
+   *
+   * @return the clean comment.
    */
-  private static String cleanComment(String comment) throws ParsingException {
+  private static String cleanComment(String comment) {
     StringBuilder clean = new StringBuilder(comment);
     int n = 0;
     while ((n = clean.indexOf("\n * ", n)) != -1) {
@@ -339,6 +340,7 @@ public final class CSSMin {
 
     /**
      * Prints out this selector and its contents nicely, with the contents sorted alphabetically.
+     *
      * @return A string representing this selector, minified.
      */
     @Override
@@ -373,8 +375,9 @@ public final class CSSMin {
 
     /**
      * Parses out the properties of a selector's body.
+     *
      * @param contents The body; for example, "border: solid 1px red; color: blue;"
-     * @returns An array of properties parsed from this selector.
+     * @return An array of properties parsed from this selector.
      */
     private Property[] parseProperties(String contents) {
       List<String> parts = new ArrayList<String>();
@@ -388,12 +391,12 @@ public final class CSSMin {
           bCanSplit = false;
         } else if (contents.charAt(i) == ';') {
           substr = contents.substring(j, i);
-          if (!(substr.trim().equals("") || (substr == null))) parts.add(substr);
+          if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
           j = i + 1;
         }
       }
       substr = contents.substring(j, contents.length());
-      if (!(substr.trim().equals("") || (substr == null))) parts.add(substr);
+      if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
       Property[] results = new Property[parts.size()];
 
       for (int i = 0; i < parts.size(); i++) {
@@ -418,9 +421,16 @@ public final class CSSMin {
   }
 
   /**
+   * A CSS property.
+   *
+   * <p>For example:
+   * <ul>
+   *   <li><code>"border: solid 1px red;"</code></li>
+   *   <li><code>"-moz-box-shadow: 3px 3px 3px rgba(255, 255, 0, 0.5);"</code></li>
+   * </ul>
    *
    * @author Christophe Lauret
-   * @version 18 June 2012
+   * @version 21 November 2012
    */
   private static class Property implements Comparable<Property> {
 
@@ -432,14 +442,14 @@ public final class CSSMin {
     /**
      * The various parts of the property.
      */
-    protected Part[] _parts;
+    private Part[] _parts;
 
     /**
      * Creates a new Property using the supplied strings.
      *
      * Parses out the values of the property selector.
      *
-     * @param property The property; for example, "border: solid 1px red;" or "-moz-box-shadow: 3px 3px 3px rgba(255, 255, 0, 0.5);".
+     * @param property The property;
      * @throws ParsingException If the property is incomplete and cannot be parsed.
      */
     public Property(String property) throws ParsingException {
@@ -456,12 +466,12 @@ public final class CSSMin {
             splitable = false;
           } else if (property.charAt(i) == ':') {
             substr = property.substring(j, i);
-            if (!(substr.trim().equals("") || (substr == null))) parts.add(substr);
+            if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
             j = i + 1;
           }
         }
         substr = property.substring(j, property.length());
-        if (!(substr.trim().equals("") || (substr == null))) parts.add(substr);
+        if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
         if (parts.size() < 2) {
           throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
         }
@@ -469,14 +479,15 @@ public final class CSSMin {
 
         this._parts = parseValues(simplifyColours(parts.get(1).trim().replaceAll(", ", ",")));
 
-      } catch (PatternSyntaxException e) {
+      } catch (PatternSyntaxException ex) {
         // Invalid regular expression used.
       }
     }
 
     /**
      * Prints out this property nicely.
-     * @returns A string representing this property, minified.
+     *
+     * @return A string representing this property, minified.
      */
     @Override
     public String toString() {
@@ -485,6 +496,7 @@ public final class CSSMin {
 
     /**
      * Prints out this property nicely.
+     * @param min the minified string to append to.
      * @return A string representing this property, minified.
      */
     public StringBuilder append(StringBuilder min) {
@@ -499,10 +511,14 @@ public final class CSSMin {
 
     /**
      * Compare this property with another.
+     *
+     * <p>We can't just use <code>String.compareTo()</code>, because we need to sort properties that have hack
+     * prefixes last -- eg, *display should come after display.
+     *
+     * {@inheritDoc}
      */
     @Override
     public int compareTo(Property other) {
-      // We can't just use String.compareTo(), because we need to sort properties that have hack prefixes last -- eg, *display should come after display.
       String thisProp = this._property;
       String thatProp = other._property;
 
@@ -525,13 +541,13 @@ public final class CSSMin {
 
     /**
      * Parse the values out of a property.
+     *
      * @param contents The property to parse
-     * @returns An array of Parts
+     * @return An array of Parts
      */
     private Part[] parseValues(String contents) {
       String[] parts = contents.split(",");
       Part[] results = new Part[parts.length];
-
       for (int i = 0; i < parts.length; i++) {
         try {
           results[i] = new Part(parts[i], this._property);
@@ -540,7 +556,6 @@ public final class CSSMin {
           results[i] = null;
         }
       }
-
       return results;
     }
 
@@ -554,7 +569,12 @@ public final class CSSMin {
       return simplifyRGBColours(contents);
     }
 
-    // Convert rgb(51,102,153) to #336699 (this code largely based on YUI code)
+    /**
+     * Convert rgb(51,102,153) to #336699 (this code largely based on YUI code)
+     *
+     * @param contents The color to replace
+     * @return the simplified color.
+     */
     private String simplifyRGBColours(String contents) {
       StringBuffer newContents = new StringBuffer();
       StringBuffer hexColour;
@@ -567,8 +587,8 @@ public final class CSSMin {
       while (matcher.find()) {
         hexColour = new StringBuffer("#");
         rgbColours = matcher.group(1).split(",");
-        for (int i = 0; i < rgbColours.length; i++) {
-          colourValue = Integer.parseInt(rgbColours[i]);
+        for (String rgbColour : rgbColours) {
+          colourValue = Integer.parseInt(rgbColour);
           if (colourValue < 16) {
             hexColour.append("0");
           }
@@ -582,42 +602,57 @@ public final class CSSMin {
     }
   }
 
+  /**
+   * A property part.
+   *
+   * @author Christophe Lauret
+   * @version 21 November 2012
+   */
   private static class Part {
-    String contents;
-    String property;
 
     /**
-     * Create a new property by parsing the given string.
-     * @param contents The string to parse.
-     * @throws Exception If the part cannot be parsed.
+     * The property this part belongs to.
      */
-    public Part(String contents, String property) throws Exception {
+    private final String _property;
+
+    /**
+     * The contents of the property.
+     */
+    private String _contents;
+
+    /**
+     * Create a new property part by parsing the given string.
+     *
+     * @param contents The string to parse.
+     * @param property The name of the property is part belongs to.
+     */
+    public Part(String contents, String property) {
       // Many of these regular expressions are adapted from those used in the YUI CSS Compressor.
 
       // For simpler regexes.
-      this.contents = " " + contents;
-      this.property = property;
+      this._contents = " " + contents;
+      this._property = property;
 
       simplify();
     }
 
+    /**
+     * Simplifies the part.
+     */
     private void simplify() {
       // !important doesn't need to be spaced
-      this.contents = this.contents.replaceAll(" !important", "!important");
+      this._contents = this._contents.replaceAll(" !important", "!important");
 
       // Replace 0in, 0cm, etc. with just 0
-      this.contents = this.contents.replaceAll("(\\s)(0)(px|em|%|in|cm|mm|pc|pt|ex)", "$1$2");
+      this._contents = this._contents.replaceAll("(\\s)(0)(px|em|%|in|cm|mm|pc|pt|ex)", "$1$2");
 
-      // Replace 0.6 with .6
-      // Disabled, as it actually makes compression worse! People use rgba(0,0,0,0) and rgba(0,0,0,0.x) a lot.
-      //this.contents = this.contents.replaceAll("(\\s)0+\\.(\\d+)", "$1.$2");
-
-      this.contents = this.contents.trim();
+      // Now we can trim
+      this._contents = this._contents.trim();
 
       // Simplify multiple zeroes
-      if (this.contents.equals("0 0 0 0")) this.contents = "0";
-      if (this.contents.equals("0 0 0")) this.contents = "0";
-      if (this.contents.equals("0 0")) this.contents = "0";
+      if (this._contents.equals("0 0 0 0")) this._contents = "0";
+      if (this._contents.equals("0 0 0")) this._contents = "0";
+      if (this._contents.equals("0 0")) this._contents = "0";
 
       // Simplify multiple-parameter properties
       simplifyParameters();
@@ -633,10 +668,13 @@ public final class CSSMin {
       simplifyHexColours();
     }
 
+    /**
+     * Simplifies multiple-parameter properties.
+     */
     private void simplifyParameters() {
-      StringBuffer newContents = new StringBuffer();
+      StringBuilder newContents = new StringBuilder();
 
-      String[] params = this.contents.split(" ");
+      String[] params = this._contents.split(" ");
       if (params.length == 4) {
         // We can drop off the fourth item if the second and fourth items match
         // ie turn 3px 0 3px 0 into 3px 0 3px
@@ -659,62 +697,75 @@ public final class CSSMin {
         }
       }
 
-      for (int i = 0; i < params.length; i++) {
-        newContents.append(params[i] + " ");
+      for (String param : params) {
+        newContents.append(param + " ");
       }
       newContents.deleteCharAt(newContents.length() - 1); // Delete the trailing space
 
-      this.contents = newContents.toString();
+      this._contents = newContents.toString();
     }
 
+    /**
+     * Simplifies font weights.
+     */
     private void simplifyFontWeights() {
-      if (!this.property.equals("font-weight")) return;
+      // only applies to font-weights
+      if (!this._property.equals("font-weight")) return;
 
-      String lcContents = this.contents.toLowerCase();
+      String lcContents = this._contents.toLowerCase();
 
-      for (int i = 0; i < Constants.fontWeightNames.length; i++) {
-        if (lcContents.equals(Constants.fontWeightNames[i])) {
-          this.contents = Constants.fontWeightValues[i];
+      for (int i = 0; i < Constants.FONT_WEIGHT_NAMES.length; i++) {
+        if (lcContents.equals(Constants.FONT_WEIGHT_NAMES[i])) {
+          this._contents = Constants.FONT_WEIGHT_VALUES[i];
           break;
         }
       }
     }
 
+    /**
+     * Simplifies quotes and caps.
+     */
     private void simplifyQuotesAndCaps() {
       // Strip quotes from URLs
-      if ((this.contents.length() > 4) && (this.contents.substring(0, 4).equalsIgnoreCase("url("))) {
-        this.contents = this.contents.replaceAll("(?i)url\\(('|\")?(.*?)\\1\\)", "url($2)");
+      if ((this._contents.length() > 4) && ("url(".equalsIgnoreCase(this._contents.substring(0, 4)))) {
+        this._contents = this._contents.replaceAll("(?i)url\\(('|\")?(.*?)\\1\\)", "url($2)");
       } else {
-        String[] words = this.contents.split("\\s");
+        String[] words = this._contents.split("\\s");
         if (words.length == 1) {
-          this.contents = this.contents.toLowerCase();
-          this.contents = this.contents.replaceAll("('|\")?(.*?)\1", "$2");
+          this._contents = this._contents.toLowerCase();
+          this._contents = this._contents.replaceAll("('|\")?(.*?)\1", "$2");
         }
       }
     }
 
+    /**
+     * Simplifies color names.
+     */
     private void simplifyColourNames() {
-      String lcContents = this.contents.toLowerCase();
+      String lcContents = this._contents.toLowerCase();
 
-      for (int i = 0; i < Constants.htmlColourNames.length; i++) {
-        if (lcContents.equals(Constants.htmlColourNames[i])) {
-          if (Constants.htmlColourValues[i].length() < Constants.htmlColourNames[i].length()) {
-            this.contents = Constants.htmlColourValues[i];
+      for (int i = 0; i < Constants.HTML_COLOR_NAMES.length; i++) {
+        if (lcContents.equals(Constants.HTML_COLOR_NAMES[i])) {
+          if (Constants.HTML_COLOR_VALUES[i].length() < Constants.HTML_COLOR_NAMES[i].length()) {
+            this._contents = Constants.HTML_COLOR_VALUES[i];
           }
           break;
-        } else if (lcContents.equals(Constants.htmlColourValues[i])) {
-          if (Constants.htmlColourNames[i].length() < Constants.htmlColourValues[i].length()) {
-            this.contents = Constants.htmlColourNames[i];
+        } else if (lcContents.equals(Constants.HTML_COLOR_VALUES[i])) {
+          if (Constants.HTML_COLOR_NAMES[i].length() < Constants.HTML_COLOR_VALUES[i].length()) {
+            this._contents = Constants.HTML_COLOR_NAMES[i];
           }
         }
       }
     }
 
+    /**
+     * Simplifies color names.
+     */
     private void simplifyHexColours() {
       StringBuffer newContents = new StringBuffer();
 
       Pattern pattern = Pattern.compile("#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])");
-      Matcher matcher = pattern.matcher(this.contents);
+      Matcher matcher = pattern.matcher(this._contents);
 
       while (matcher.find()) {
         if (matcher.group(1).equalsIgnoreCase(matcher.group(2)) && matcher.group(3).equalsIgnoreCase(matcher.group(4)) && matcher.group(5).equalsIgnoreCase(matcher.group(6))) {
@@ -725,23 +776,33 @@ public final class CSSMin {
       }
       matcher.appendTail(newContents);
 
-      this.contents = newContents.toString();
+      this._contents = newContents.toString();
     }
 
     /**
      * Returns itself.
-     * @returns this part's string representation.
+     * @return this part's string representation.
      */
     @Override
     public String toString() {
-      return this.contents;
+      return this._contents;
     }
   }
 
 }
 
+/**
+ * Constants for replacement.
+ *
+ * @author Christophe Lauret
+ * @version 21 November 2012
+ */
 class Constants {
-  static final String[] htmlColourNames = {
+
+  /**
+   * Color name - index must match color codes below.
+   */
+  static final String[] HTML_COLOR_NAMES = {
     "aliceblue",
     "antiquewhite",
     "aqua",
@@ -884,7 +945,10 @@ class Constants {
     "yellowgreen"
   };
 
-  static final String[] htmlColourValues = {
+  /**
+   * Color hex codes - index must match color names.
+   */
+  static final String[] HTML_COLOR_VALUES = {
     "#f0f8ff",
     "#faebd7",
     "#00ffff",
@@ -1026,13 +1090,21 @@ class Constants {
     "#ff0",
     "#9acd32"
   };
-  static final String[] fontWeightNames = {
+
+  /**
+   * Font weight names - index must match font weight values below.
+   */
+  static final String[] FONT_WEIGHT_NAMES = {
     "normal",
     "bold",
     "bolder",
     "lighter"
   };
-  static final String[] fontWeightValues = {
+
+  /**
+   * Font weight value - index must match font weight names below.
+   */
+  static final String[] FONT_WEIGHT_VALUES = {
     "400",
     "700",
     "900",

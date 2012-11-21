@@ -7,12 +7,12 @@ package com.weborganic.bastille.util;
  * A utility class to manipulate paths.
  *
  * @author Christophe Lauret
- * @version 20 November 2012.
+ * @version 21 November 2012.
  */
 public final class Paths {
 
   /**
-   *
+   * Utility class.
    */
   private Paths() {
   }
@@ -55,11 +55,8 @@ public final class Paths {
    * /a         to /a     => .
    * /a         to /b     => ../b
    * /a/a/../c  to /a     => ../../a
-   * /          to /b     => ../b
-   * /          to /b/c   => ../b/c
-   *
-   *
-   *
+   * /          to /b     => b
+   * /          to /b/c   => b/c
    * </pre>
    *
    * @param from The path to start from
@@ -68,8 +65,8 @@ public final class Paths {
    * @return the path from a to b
    */
   public static String path(String from, String to) {
-    String f = Paths.normalize(from);
-    String t = Paths.normalize(to);
+    String f = Paths.normalize('/'+from);
+    String t = Paths.normalize('/'+to);
     if (f.equals(t)) {
       return ".";
     }
@@ -79,30 +76,32 @@ public final class Paths {
       if (path.length() > 0) path.append('/');
       path.append("..");
     }
-    if (path.length() > 0) path.append('/');
-    path.append(t);
+    if (path.length() == 0 && t.length() > 0) {
+      path.append(t.substring(1));
+    } else {
+      path.append(t);
+    }
     return path.toString();
   }
 
-
-  public static void main(String[] args) {
-    String[][] pairs = new String[][]{
-      {"/",    "/"},    // "."
-      {"/a",   "/a"},   // "."
-      {"/a",   "/b"},   // "../b"
-      {"/a/a/../c", "/a"},   // ".."
-      {"/",    "/b"},   // "b"
-      {"/",    "b/c"},  // "b/c"
-      {"a",    "a"},   // "."
-      {"a",    "b"},   // "../b"
-      {"a/a/../c", "a"},   // ".."
-      {"",     "b"},   // "b"
-      {"",     "b/c"}  // "b/c"
-    };
-
-    for (String[] p : pairs) {
-      System.err.println(p[0]+" \tto "+p[1]+" \t=> "+Paths.normalize(p[0])+" \tto "+Paths.normalize(p[1])+" \t=>"+path(p[0], p[1]));
-    }
-  }
+//  public static void main(String[] args) {
+//    String[][] pairs = new String[][]{
+//      {"/",    "/"},    // "."
+//      {"/a",   "/a"},   // "."
+//      {"/a",   "/b"},   // "../b"
+//      {"/a/a/../c", "/a"},   // ".."
+//      {"/",    "/b"},   // "b"
+//      {"/",    "b/c"},  // "b/c"
+//      {"a",    "a"},   // "."
+//      {"a",    "b"},   // "../b"
+//      {"a/a/../c", "a"},   // ".."
+//      {"",     "b"},   // "b"
+//      {"",     "b/c"}  // "b/c"
+//    };
+//
+//    for (String[] p : pairs) {
+//      System.err.println(p[0]+" \tto "+p[1]+" \t=> "+Paths.normalize(p[0])+" \tto "+Paths.normalize(p[1])+" \t=>"+path(p[0], p[1]));
+//    }
+//  }
 
 }

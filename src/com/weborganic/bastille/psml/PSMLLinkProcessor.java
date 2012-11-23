@@ -32,7 +32,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * A utility class to process links in PSML data.
  *
  * @author Christophe Lauret
- * @version 21 November 2012
+ * @version 25 November 2012
  */
 public final class PSMLLinkProcessor {
 
@@ -95,18 +95,33 @@ public final class PSMLLinkProcessor {
 
         // Process
         XMLStringWriter xml = new XMLStringWriter(false);
-        xml.openElement("psml-file");
-        xml.attribute("name", file.getName());
-        xml.attribute("base", psml.getBase());
-        xml.attribute("status", "ok");
-        List<File> linked = processLinks(psml, xml);
-        xml.closeElement();
-        xml.flush();
+        try {
 
-        // Cache
-        data = xml.toString();
-        entry = new CachedProcessed(data, linked);
-        cache.put(new Element(psml.path(), entry));
+          xml.openElement("psml-file");
+          xml.attribute("name", file.getName());
+          xml.attribute("base", psml.getBase());
+          xml.attribute("status", "ok");
+          List<File> linked = processLinks(psml, xml);
+          xml.closeElement();
+          xml.flush();
+
+          // Cache
+          data = xml.toString();
+          entry = new CachedProcessed(data, linked);
+          cache.put(new Element(psml.path(), entry));
+
+        } catch (IOException ex) {
+
+          xml = new XMLStringWriter(false);
+          xml.openElement("psml-file");
+          xml.attribute("name", file.getName());
+          xml.attribute("base", psml.getBase());
+          xml.attribute("status", "error");
+          xml.writeComment(ex.getMessage());
+          xml.closeElement();
+          xml.flush();
+          data = xml.toString();
+        }
 
       } else {
         data = entry.data();
@@ -175,7 +190,7 @@ public final class PSMLLinkProcessor {
       try {
         XMLHelper.parse(reader, source.file());
       } catch (SAXException ex) {
-        LOGGER.warn("Unparseable file found: {}", source.file().getName());
+        LOGGER.warn("Unparseable file found: {}", source.file().getName(), ex.getMessage());
       }
     } catch (ParserConfigurationException ex) {
       throw new IOException(ex);

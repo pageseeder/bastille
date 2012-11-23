@@ -29,7 +29,7 @@ import com.weborganic.bastille.util.Paths;
  * Parses PSML to process the links.
  *
  * @author Christophe Lauret
- * @version 21 November 2012
+ * @version 25 November 2012
  */
 class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler, LexicalHandler {
 
@@ -172,13 +172,18 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
         // grab the level (if we need to adjust the headings)
 
         PSMLFile target = PSMLConfig.getFile(path);
-        if (this._copy != null) {
-          this.insideLink = true;
-          try {
-            PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
-          } catch (IOException ex) {
-            throw new SAXException("Unable to transclude content of "+target);
+        if (target.exists()) {
+          if (this._copy != null) {
+            this.insideLink = true;
+            try {
+              PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
+            } catch (IOException ex) {
+              throw new SAXException("Unable to transclude content of "+target);
+            }
           }
+        } else {
+          String comment = "Unable to find content for transclusion";
+          this._copy.comment(comment.toCharArray(), 0, comment.length());
         }
       }
     }

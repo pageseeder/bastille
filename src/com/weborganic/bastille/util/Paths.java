@@ -7,7 +7,7 @@ package com.weborganic.bastille.util;
  * A utility class to manipulate paths.
  *
  * @author Christophe Lauret
- * @version 21 November 2012.
+ * @version 25 November 2012.
  */
 public final class Paths {
 
@@ -42,7 +42,10 @@ public final class Paths {
     }
     // parent
     while (normalized.indexOf("/../") > normalized.indexOf('/')+1) {
-      normalized = normalized.replaceAll("\\/[^/]+/\\.\\./", "/");
+      normalized = normalized.replaceFirst("/[^/.]+/\\.\\./", "/");
+    }
+    if (normalized.indexOf("/../") > 1) {
+      normalized = normalized.replaceFirst("^[^/.]+/\\.\\./", "");
     }
     return normalized;
   }

@@ -448,6 +448,7 @@ public final class WebBundleTool {
    * @return The location based on the target file.
    */
   protected static String getLocation(File source, File target, String path) {
+    if (path.startsWith("data:")) { return path; }
     StringBuilder location = new StringBuilder();
     try {
       // Locate the referenced URL

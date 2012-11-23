@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 21 November 2012
+ * @version 25 November 2012
  */
 public final class CSSMin {
 
@@ -301,11 +301,11 @@ public final class CSSMin {
      *
      * @throws ParsingException If the selector is incomplete and cannot be parsed.
      */
-    public Rule(String selector) throws ParsingException {
-      String[] parts = selector.split("\\{");
+    public Rule(String rule) throws ParsingException {
+      String[] parts = rule.split("\\{");
       if (parts.length < 2) {
         // TODO detect line and column
-        throw new ParsingException("Warning: Incomplete selector: " + selector, -1, -1);
+        throw new ParsingException("Warning: Incomplete selector: " + rule, -1, -1);
       }
 
       // Always starts with the selector
@@ -317,7 +317,7 @@ public final class CSSMin {
       // We're dealing with a nested property, eg @-webkit-keyframes or @media
       if (parts.length > 2) {
         this.subrules = new ArrayList<Rule>();
-        parts = selector.split("\\{|\\}");
+        parts = rule.split("\\{|\\}");
         for (int i = 1; i < parts.length; i += 2) {
           // sub selector
           parts[i] = parts[i].trim();
@@ -333,10 +333,10 @@ public final class CSSMin {
       } else {
         String contents = parts[parts.length - 1].trim();
         if (contents.charAt(contents.length() - 1) != '}') { // Ensure that we have a leading and trailing brace.
-          throw new ParsingException("Unterminated selector: " +selector, -1, -1);
+          throw new ParsingException("Unterminated selector: " +rule, -1, -1);
         }
         if (contents.length() == 1) {
-          throw new ParsingException("Empty selector body: " + selector, -1, -1);
+          throw new ParsingException("Empty selector body: " + rule, -1, -1);
         }
         contents = contents.substring(0, contents.length() - 1);
         this._properties = parseProperties(contents);
@@ -387,14 +387,19 @@ public final class CSSMin {
      */
     private Property[] parseProperties(String contents) {
       List<String> parts = new ArrayList<String>();
-      boolean bCanSplit = true;
+      boolean inquotes = false;
+      boolean inbrackets = false;
       int j = 0;
       String substr;
       for (int i = 0; i < contents.length(); i++) {
-        if (!bCanSplit) { // If we're inside a string
-          bCanSplit = (contents.charAt(i) == '"');
+        if (inquotes) { // If we're inside a string
+          inquotes = contents.charAt(i) != '"';
+        } else if (inbrackets) {
+          inbrackets = contents.charAt(i) != ')';
         } else if (contents.charAt(i) == '"') {
-          bCanSplit = false;
+          inquotes = true;
+        } else if (contents.charAt(i) == '(') {
+          inbrackets = true;
         } else if (contents.charAt(i) == ';') {
           substr = contents.substring(j, i);
           if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
@@ -462,14 +467,19 @@ public final class CSSMin {
       try {
         // Parse the property.
         List<String> parts = new ArrayList<String>();
-        boolean splitable = true;
+        boolean inquotes = false;   // If we're inside a string
+        boolean inbrackets = false; // If we're inside brackets
         int j = 0;
         String substr;
         for (int i = 0; i < property.length(); i++) {
-          if (!splitable) { // If we're inside a string
-            splitable = (property.charAt(i) == '"');
+          if (inquotes) {
+            inquotes = (property.charAt(i) != '"');
+          } else if (inbrackets) {
+            inbrackets = (property.charAt(i) != ')');
           } else if (property.charAt(i) == '"') {
-            splitable = false;
+            inquotes = true;
+          } else if (property.charAt(i) == '(') {
+            inbrackets = true;
           } else if (property.charAt(i) == ':') {
             substr = property.substring(j, i);
             if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);

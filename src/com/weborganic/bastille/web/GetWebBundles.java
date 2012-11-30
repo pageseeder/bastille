@@ -120,7 +120,7 @@ import com.weborganic.bastille.util.WebBundleTool;
  * <h3>ETag</h3>
  *
  * @author Christophe Lauret
- * @version 0.6.40 - 25 June 2012
+ * @version 0.7.11 - 30 November 2012
  * @since 0.6.0
  */
 public final class GetWebBundles implements ContentGenerator, Cacheable {
@@ -135,19 +135,19 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   private static final String DEFAULT_BUNDLED_STYLES = "/style/_/";
 
   /** The default JavaScript bundle. */
-  private static final Properties DEFAULT_JS_BUNDLE = new Properties();
+  private static final List<BundleConfig> DEFAULT_JS_BUNDLE = new ArrayList<BundleConfig>();
   static {
-    DEFAULT_JS_BUNDLE.setProperty("global",    "/script/global.js");
-    DEFAULT_JS_BUNDLE.setProperty("{GROUP}",   "/script/{GROUP}.js");
-    DEFAULT_JS_BUNDLE.setProperty("{SERVICE}", "/script/{GROUP}/{SERVICE}.js");
+    DEFAULT_JS_BUNDLE.add(new BundleConfig("global",  "global",    "/script/global.js"));
+    DEFAULT_JS_BUNDLE.add(new BundleConfig("group",   "{GROUP}",   "/script/{GROUP}.js"));
+    DEFAULT_JS_BUNDLE.add(new BundleConfig("service", "{SERVICE}", "/script/{GROUP}/{SERVICE}.js"));
   }
 
   /** The default CSS bundle. */
-  private static final Properties DEFAULT_CSS_BUNDLE = new Properties();
+  private static final List<BundleConfig> DEFAULT_CSS_BUNDLE = new ArrayList<BundleConfig>();
   static {
-    DEFAULT_CSS_BUNDLE.setProperty("global",    "/style/global.css");
-    DEFAULT_CSS_BUNDLE.setProperty("{GROUP}",   "/style/{GROUP}.css");
-    DEFAULT_CSS_BUNDLE.setProperty("{SERVICE}", "/style/{GROUP}/{SERVICE}.css");
+    DEFAULT_CSS_BUNDLE.add(new BundleConfig("global",  "global",    "/style/global.css"));
+    DEFAULT_CSS_BUNDLE.add(new BundleConfig("group",   "{GROUP}",   "/style/{GROUP}.css"));
+    DEFAULT_CSS_BUNDLE.add(new BundleConfig("service", "{SERVICE}", "/style/{GROUP}/{SERVICE}.css"));
   }
 
   /**
@@ -170,19 +170,19 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     if (doBundle) {
       try {
         long etag = 0L;
-        Properties js = getJSConfig();
-        for (Entry<Object, Object> bundle : js.entrySet()) {
+        List<BundleConfig> js = getJSConfig();
+        for (BundleConfig bundle : js) {
           boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
-          String name = replaceTokens(bundle.getKey().toString(), service);
-          List<File> files = getFiles(bundle.getValue().toString(), service, env);
+          String name = replaceTokens(bundle.filename(), service);
+          List<File> files = getFiles(bundle.paths(), service, env);
           File b = this.jstool.getBundle(files, name, min);
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
-        Properties css = getCSSConfig();
-        for (Entry<Object, Object> bundle : css.entrySet()) {
+        List<BundleConfig> css = getCSSConfig();
+        for (BundleConfig bundle : css) {
           boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
-          String name = replaceTokens(bundle.getKey().toString(), service);
-          List<File> files = getFiles(bundle.getValue().toString(), service, env);
+          String name = replaceTokens(bundle.filename(), service);
+          List<File> files = getFiles(bundle.paths(), service, env);
           File b = this.csstool.getBundle(files, name, min);
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
@@ -204,14 +204,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     boolean doBundle = !"false".equals(req.getParameter("berlioz-bundle", "true"));
 
     // Scripts
-    Properties js = getJSConfig();
-    for (Entry<Object, Object> bundle : js.entrySet()) {
-      String name = replaceTokens(bundle.getKey().toString(), service);
+    List<BundleConfig> js = getJSConfig();
+    for (BundleConfig bundle : js) {
+      String name = replaceTokens(bundle.filename(), service);
       if (doBundle) {
-        List<File> files = getFiles(bundle.getValue().toString(), service, env);
+        List<File> files = getFiles(bundle.paths(), service, env);
         bundleScripts(this.jstool, files, name, xml);
       } else {
-        List<String> paths = getPathsOnly(bundle.getValue().toString(), service, env);
+        List<String> paths = getPathsOnly(bundle.paths(), service, env);
         for (String path : paths) {
           xml.openElement("script", false);
           xml.attribute("src", path);
@@ -223,14 +223,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     }
 
     // Styles
-    Properties css = getCSSConfig();
-    for (Entry<Object, Object> bundle : css.entrySet()) {
-      String name = replaceTokens(bundle.getKey().toString(), service);
+    List<BundleConfig> css = getCSSConfig();
+    for (BundleConfig bundle : css) {
+      String name = replaceTokens(bundle.filename(), service);
       if (doBundle) {
-        List<File> files = getFiles(bundle.getValue().toString(), service, env);
+        List<File> files = getFiles(bundle.paths(), service, env);
         bundleStyles(this.csstool, files, name, xml);
       } else {
-        List<String> paths = getPathsOnly(bundle.getValue().toString(), service, env);
+        List<String> paths = getPathsOnly(bundle.paths(), service, env);
         for (String path : paths) {
           xml.openElement("style", false);
           xml.attribute("src", path);
@@ -305,10 +305,13 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       this.jstool = new WebBundleTool(bundles);
     // Initialise the CSS bundling tool
     String cssbundles = GlobalSettings.get("bastille.cssbundler.location", DEFAULT_BUNDLED_STYLES);
+    int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
     File bundles2 = env.getPublicFile(cssbundles);
     if (!bundles2.exists()) bundles2.mkdirs();
-    if (this.csstool == null)
+    if (this.csstool == null) {
       this.csstool = new WebBundleTool(bundles2);
+      this.csstool.setDataURIThreshold(threshold);
+    }
   }
 
   /**
@@ -319,19 +322,20 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    * @param env     The environment
    * @return the list of files to bundles.
    */
-  private static List<String> getPathsOnly(String paths, Service service, Environment env) {
-    if (paths.indexOf(',') >= 0) {
+  private static List<String> getPathsOnly(String[] paths, Service service, Environment env) {
+    if (paths == null) return Collections.emptyList();
+    if (paths.length > 1) {
       // multiple paths specified
       List<String> existing = new ArrayList<String>();
-      for (String path : paths.split(",")) {
+      for (String path : paths) {
         String p = replaceTokens(path, service);
         File file = env.getPublicFile(p);
         if (file.exists()) existing.add(p);
       }
       return existing;
-    } else {
+    } else if (paths.length == 1) {
       // only one path
-      String p = replaceTokens(paths, service);
+      String p = replaceTokens(paths[0], service);
       File file = env.getPublicFile(p);
       if (file.exists()) return Collections.singletonList(p);
     }
@@ -346,19 +350,20 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    * @param env     The environment
    * @return the list of files to bundles.
    */
-  private static List<File> getFiles(String paths, Service service, Environment env) {
-    if (paths.indexOf(',') >= 0) {
+  private static List<File> getFiles(String[] paths, Service service, Environment env) {
+    if (paths == null) return Collections.emptyList();
+    if (paths.length > 1) {
       // multiple paths specified
       List<File> files = new ArrayList<File>();
-      for (String path : paths.split(",")) {
+      for (String path : paths) {
         String p = replaceTokens(path, service);
         File file = env.getPublicFile(p);
         if (file.exists()) files.add(file);
       }
       return files;
-    } else {
+    } else if (paths.length == 1) {
       // only one paths
-      String p = replaceTokens(paths, service);
+      String p = replaceTokens(paths[0], service);
       File file = env.getPublicFile(p);
       if (file.exists()) return Collections.singletonList(file);
     }
@@ -387,19 +392,61 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   /**
    * @return the configuration for the JavaScript bundle.
    */
-  private static Properties getJSConfig() {
-    Properties js = GlobalSettings.getNode("bastille.jsbundler.bundles");
-    if (js == null || js.isEmpty()) js = DEFAULT_JS_BUNDLE;
+  private static List<BundleConfig> getJSConfig() {
+    Properties config = GlobalSettings.getNode("bastille.jsbundler.bundles");
+    if (config == null || config.isEmpty()) return DEFAULT_JS_BUNDLE;
+    List<BundleConfig> js = new ArrayList<BundleConfig>();
+    for (Entry<Object, Object> bundle : config.entrySet()) {
+      String name = bundle.getKey().toString();
+      String filename = name;
+      String paths = bundle.getValue().toString();
+      js.add(new BundleConfig(name, filename, paths));
+    }
     return js;
   }
 
   /**
    * @return the configuration for the CSS bundle.
    */
-  private static Properties getCSSConfig() {
-    Properties css = GlobalSettings.getNode("bastille.cssbundler.bundles");
-    if (css == null || css.isEmpty()) css = DEFAULT_CSS_BUNDLE;
+  private static List<BundleConfig> getCSSConfig() {
+    Properties config = GlobalSettings.getNode("bastille.cssbundler.bundles");
+    if (config == null || config.isEmpty()) return DEFAULT_CSS_BUNDLE;
+    List<BundleConfig> css = new ArrayList<BundleConfig>();
+    for (Entry<Object, Object> bundle : config.entrySet()) {
+      String name = bundle.getKey().toString();
+      String filename = name;
+      String paths = bundle.getValue().toString();
+      css.add(new BundleConfig(name, filename, paths));
+    }
     return css;
+  }
+
+  /**
+   * Holds the basic configurations for a bundle.
+   */
+  private static final class BundleConfig {
+    private final String _name;
+    private String _filename;
+    private String[] _paths;
+
+    /**
+     *
+     */
+    public BundleConfig(String name, String filename, String paths) {
+      this._name = name;
+      this._filename = filename;
+      this._paths = paths.split(",");
+    }
+
+    public String name() {
+      return this._name;
+    }
+    public String filename() {
+      return this._filename;
+    }
+    public String[] paths() {
+      return this._paths;
+    }
   }
 
 }

@@ -66,7 +66,7 @@ public final class WebBundleTool {
   /**
    * The maximum size for turning the content of an image into a data URI.
    */
-  private static long DATA_URI_MAX_SIZE = 4096L;
+  private static final long DATA_URI_MAX_SIZE = 4096L;
 
   // class attributes
   // ----------------------------------------------------------------------------------------------
@@ -80,6 +80,11 @@ public final class WebBundleTool {
    * The virtual location of the bundles (to calculate the relative path).
    */
   private File _virtual;
+
+  /**
+   * The maximum size for converting the content of an image in CSS into a data URI.
+   */
+  private long _dataURIThreshold = DATA_URI_MAX_SIZE;
 
   /**
    * Creates a new Resource Bundler saving the bundles in the specified location.
@@ -106,6 +111,15 @@ public final class WebBundleTool {
    */
   public void setVirtual(File virtual) {
     this._virtual = virtual;
+  }
+
+  /**
+   * Sets the threshold for data URI.
+   *
+   * @param threshold the threshold to set
+   */
+  public void setDataURIThreshold(long threshold) {
+    this._dataURIThreshold = threshold;
   }
 
   /**
@@ -231,7 +245,7 @@ public final class WebBundleTool {
       // Write to the file
       bundle.clearImport();
       StringWriter writer = new StringWriter();
-      expandStyles(bundle, writer, new File(this._virtual, file.getName()));
+      expandStyles(bundle, writer, new File(this._virtual, file.getName()), this._dataURIThreshold);
       bundle.getETag(true);
       filename = bundle.getFileName();
       instances.put(key, bundle);
@@ -281,19 +295,20 @@ public final class WebBundleTool {
   /**
    * Concatenate the contents of each file in the bundle.
    *
-   * @param bundle  The list of files to concatenate.
-   * @param writer  The bundle to write to.
-   * @param virtual The virtual location of the bundle.
+   * @param bundle    The list of files to concatenate.
+   * @param writer    The bundle to write to.
+   * @param virtual   The virtual location of the bundle.
+   * @param threshold The threshold for data URIs
    *
    * @throws IOException if an input/output error occurs.
    */
-  protected static void expandStyles(WebBundle bundle, Writer writer, File virtual) throws IOException {
+  protected static void expandStyles(WebBundle bundle, Writer writer, File virtual, long threshold) throws IOException {
 
     // Copy the input stream to the output stream
     IOException exception = null;
     List<File> processed = new ArrayList<File>();
     for (File f : bundle.files()) {
-      exception = expandStylesTo(bundle, f, virtual, writer, processed);
+      exception = expandStylesTo(bundle, f, virtual, writer, processed, threshold);
       writer.write('\n'); // insert new line
     }
 
@@ -380,7 +395,7 @@ public final class WebBundleTool {
    *
    * @throws IOException if unable to read file.
    */
-  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed)
+  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed, long threshold)
       throws IOException {
     IOException exception = null;
     // prevent circular references
@@ -401,7 +416,7 @@ public final class WebBundleTool {
             if (imported.exists()) {
               out.write("/* START @import "+path+" */\n");
               bundle.addImport(imported);
-              expandStylesTo(bundle, imported, virtual, out, processed);
+              expandStylesTo(bundle, imported, virtual, out, processed, threshold);
               out.write("/* END @import "+path+ " */\n");
             } else {
               out.write("/* ERROR Unable to @import */\n");
@@ -422,7 +437,7 @@ public final class WebBundleTool {
                 url = url.substring(0, q);
               }
               // TODO: data URIs
-              m.appendReplacement(sb, "url("+getLocation(file, virtual, url)+query+")");
+              m.appendReplacement(sb, "url("+getLocation(file, virtual, url, threshold)+query+")");
             }
             m.appendTail(sb);
             out.write(sb.toString());
@@ -453,7 +468,7 @@ public final class WebBundleTool {
    *
    * @return The location based on the target file.
    */
-  protected static String getLocation(File source, File target, String path) {
+  protected static String getLocation(File source, File target, String path, long threshold) {
     // Ignore data URIs and absolute paths
     if (path.startsWith("data:") || path.startsWith("/")) { return path; }
     StringBuilder location = new StringBuilder();

@@ -39,7 +39,7 @@ import com.weborganic.bastille.util.WebBundle.Type;
  * This class is used to bundles resources together as one in order to minimise the number of resources to request.
  *
  * @author Christophe Lauret
- * @version 7 October 2010
+ * @version 30 November 2012
  */
 public final class WebBundleTool {
 
@@ -62,6 +62,11 @@ public final class WebBundleTool {
    * Stores bundles instances to check for freshness.
    */
   private static Map<String, WebBundle> instances = new Hashtable<String, WebBundle>();
+
+  /**
+   * The maximum size for turning the content of an image into a data URI.
+   */
+  private static long DATA_URI_MAX_SIZE = 4096L;
 
   // class attributes
   // ----------------------------------------------------------------------------------------------
@@ -416,6 +421,7 @@ public final class WebBundleTool {
                 query = url.substring(q);
                 url = url.substring(0, q);
               }
+              // TODO: data URIs
               m.appendReplacement(sb, "url("+getLocation(file, virtual, url)+query+")");
             }
             m.appendTail(sb);
@@ -448,21 +454,30 @@ public final class WebBundleTool {
    * @return The location based on the target file.
    */
   protected static String getLocation(File source, File target, String path) {
-    if (path.startsWith("data:")) { return path; }
+    // Ignore data URIs and absolute paths
+    if (path.startsWith("data:") || path.startsWith("/")) { return path; }
     StringBuilder location = new StringBuilder();
     try {
       // Locate the referenced URL
-      String csource = new File(source.getParentFile(), path).getCanonicalPath();
-      // Check difference with bundle file
-      String ctarget = target.getCanonicalPath();
-      int x = common(csource, ctarget);
-      // Start path to return to common base
-      String rbundle = ctarget.substring(x);
-      for (int i = 0; i < rbundle.length(); i++) {
-        if (rbundle.charAt(i) == File.separatorChar) location.append("../");
+      File ftarget = new File(source.getParentFile(), path);
+      boolean isImage = path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".gif");
+      if (isImage && ftarget.exists() && ftarget.length() < DATA_URI_MAX_SIZE) {
+        // Replace short images by data uri
+        location.append("data:image/").append(path.substring(path.lastIndexOf('.')+1)).append(";base64,");
+        location.append(Base64.encodeFromFile(ftarget));
+      } else {
+        String csource = ftarget.getCanonicalPath();
+        // Check difference with bundle file
+        String ctarget = target.getCanonicalPath();
+        int x = common(csource, ctarget);
+        // Start path to return to common base
+        String rbundle = ctarget.substring(x);
+        for (int i = 0; i < rbundle.length(); i++) {
+          if (rbundle.charAt(i) == File.separatorChar) location.append("../");
+        }
+        // Continue with remaining path
+        location.append(csource.substring(x).replace('\\', '/'));
       }
-      // Continue with remaining path
-      location.append(csource.substring(x).replace('\\', '/'));
     } catch (IOException ex) {
       LOGGER.warn("Error while calculating location", ex);
     }

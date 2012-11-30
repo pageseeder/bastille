@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 25 November 2012
+ * @version 30 November 2012
  */
 public final class CSSMin {
 
@@ -114,7 +114,6 @@ public final class CSSMin {
     } else {
       out = System.out;
     }
-
     minimize(args[0], out);
   }
 
@@ -562,7 +561,8 @@ public final class CSSMin {
      * @return An array of Parts
      */
     private Part[] parseValues(String contents) {
-      String[] parts = contents.split(",");
+      // Make sure we do not split data URIs
+      String[] parts = contents.split("(?<!base64),");
       Part[] results = new Part[parts.length];
       for (int i = 0; i < parts.length; i++) {
         try {
@@ -644,7 +644,6 @@ public final class CSSMin {
      */
     public Part(String contents, String property) {
       // Many of these regular expressions are adapted from those used in the YUI CSS Compressor.
-
       // For simpler regexes.
       this._contents = " " + contents;
       this._property = property;

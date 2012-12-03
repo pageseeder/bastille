@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 30 November 2012
+ * @version 3 December 2012
  */
 public final class CSSMin {
 
@@ -325,7 +325,7 @@ public final class CSSMin {
             parts[i + 1] = parts[i + 1].trim();
             if (!("".equals(parts[i + 1]))) {
               this.subrules.add(new Rule(parts[i] + "{" + parts[i + 1] + "}"));
-              LOGGER.warn("Empty subrule for {}"+parts[i]);
+              LOGGER.warn("Empty subrule for {}", parts[i]);
             }
           }
         }

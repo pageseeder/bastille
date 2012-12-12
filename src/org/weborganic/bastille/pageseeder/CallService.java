@@ -1,0 +1,122 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * Available under a commercial licence, contact Weborganic.
+ *
+ * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ */
+package org.weborganic.bastille.pageseeder;
+
+import java.io.IOException;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpSession;
+
+import org.weborganic.bastille.security.Constants;
+import org.weborganic.bastille.security.ps.PageSeederUser;
+import org.weborganic.berlioz.BerliozException;
+import org.weborganic.berlioz.content.ContentGenerator;
+import org.weborganic.berlioz.content.ContentRequest;
+
+import com.topologi.diffx.xml.XMLWriter;
+
+/**
+ * A generator than can connect to PageSeeder and call a PageSeeder service.
+ *
+ * <h3>Configuration</h3>
+ * <p>There is no configuration directly required with this generator; however since this generator
+ * connects to PageSeeder the <code>bastille.pageseeder</code> properties must setup in order
+ * to defined which server to connect to.</p>
+ *
+ * <h3>Parameters</h3>
+ * <p>The following parameter is required:</p>
+ * <table>
+ *   <tbody>
+ *   <tr><th>ps-service</th><td>The name of the service to connect to (required)</td></tr>
+ *   </tbody>
+ * </table>
+ *
+ * <p>The following parameters can also be specified:</p>
+ * <table>
+ *   <tbody>
+ *   <tr><th>ps-method</th><td>The HTTP method to use to connect to PageSeeder, must be either
+ *   <code>GET</code>|</code>POST</code>; <code>GET</code> is the default is this parameter is not
+ *   specified
+ *   </td></tr>
+ *   </tbody>
+ * </table>
+ * <p>Any other parameter will automatically be transmitted to the PageSeeder service.
+ *
+ * <h3>Returned XML</h3>
+ * <p>TODO</p>
+ *
+ * <h4>Error handling</h4>
+ * <p>If an error occurs while invoking the service, the XML will also include the
+ * <code>error</code> and <code>message</code> attributes. The HTTP status should
+ * correspond to an HTTP error code.
+ * <pre>{@code <ps-service resource="/members/[member id]/projects"
+ *         http-status="[error]"
+ *        content-type="application/xml"
+ *               error="[error-type]"
+ *             message="[error-message]">
+ * </ps-service>}</pre>
+ *
+ * <h3>Permission</h3>
+ * <p>This generator will attempt to use the user currently logged in.
+ * <p>If the current user is not PageSeeder user or if there is no user currently logged in, the
+ * request will be made anonymously.
+ *
+ * <h3>Usage</h3>
+ * <p>This is a generic generator; use this generator when no other specialised generator provides
+ * the same functionality.
+ *
+ * @author Christophe Lauret
+ * @version 0.6.7 - 3 June 2011
+ * @since 0.6.3
+ */
+@PSConnected
+public final class CallService implements ContentGenerator {
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+
+    // Determine what kind of request to make
+    String service = req.getParameter("ps-service");
+    String method = req.getParameter("ps-method", "GET");
+
+    // Create the request
+    PSConnector connector = new PSConnector(PSResourceType.SERVICE, service);
+
+    // Add parameters
+    Enumeration<String> names = req.getParameterNames();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      String value = req.getParameter(name);
+      if (!"ps-service".equals(name)) {
+        connector.addParameter(name, value);
+      }
+    }
+
+    // Is the user logged in?
+    HttpSession session = req.getSession();
+    Object user = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
+    if (user instanceof PageSeederUser) {
+      connector.setUser((PageSeederUser)user);
+    }
+
+    // Grab the XML form the PageSeeder request
+    if ("GET".equalsIgnoreCase(method)) {
+      connector.get(xml);
+    } else if ("POST".equalsIgnoreCase(method)) {
+      connector.post(xml);
+    } else {
+      // default
+      connector.get(xml);
+    }
+
+  }
+
+}

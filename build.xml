@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   @author Christophe Lauret (Weborganic)
-  @version 10 February 2011
+  @version 13 December 2012
 -->
 <project name="weborganic-bastille" default="integration" xmlns:ivy="antlib:org.apache.ivy.ant">
 
@@ -10,9 +10,9 @@
   </description>
 
   <!-- set properties specific to this project -->
-  <property name="name.short"     value="wi-bastille"/>
+  <property name="name.short"     value="wo-bastille"/>
   <property name="name.display"   value="Weborganic Bastille"/>
-  <property name="package.names"  value="com.weborganic.bastille.*"/>
+  <property name="package.names"  value="org.weborganic.bastille.*"/>
 
   <!-- set global properties for this build -->
   <property name="dir.src"      value="src"/>

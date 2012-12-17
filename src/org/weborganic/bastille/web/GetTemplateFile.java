@@ -22,10 +22,13 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * <p>It is designed to be used as a base class, it cannot be instantiated without arguments.
  *
+ * @deprecated Use {@link org.weborganic.bastille.psml.GetConfigFile} instead.
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 31 May 2010
  * @since 0.6.0
  */
+@Deprecated
 public abstract class GetTemplateFile implements ContentGenerator, Cacheable {
 
   /**

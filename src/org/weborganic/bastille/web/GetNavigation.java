@@ -67,10 +67,13 @@ import org.weborganic.berlioz.content.ContentGenerator;
  * <p>The etag for this generator is a weak etag based on the XML file loaded as well as that of the
  * Website properties configuration file <code>template-config.prp</code>.
  *
+ * @deprecated Use {@link org.weborganic.bastille.psml.GetNavigation} instead.
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 31 May 2010
  * @since 0.6.0
  */
+@Deprecated
 public final class GetNavigation  extends GetTemplateFile implements ContentGenerator, Cacheable {
 
   /**

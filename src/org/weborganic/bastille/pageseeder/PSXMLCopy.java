@@ -18,6 +18,9 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * <p>This class is intended to be subclassed.
  *
+ * <p>The {@link #setXMLWriter(XMLWriter)} method must be called before the {@link #startDocument()} is invoked
+ * or it will throw an {@link IllegalStateException} exception.
+ *
  * @author Christophe Lauret
  * @version 3 November 2011
  */
@@ -32,7 +35,7 @@ public class PSXMLCopy extends PSHandler {
   public void startDocument() throws SAXException {
     XMLWriter xml = getXMLWriter();
     if (xml == null) {
-      // FIXME Handle this case
+      throw new IllegalStateException("No XML to copy to!");
     }
     this.copy = new XMLCopy(xml);
     this.copy.startDocument();

@@ -69,9 +69,6 @@ public final class ResetPassword implements ContentGenerator {
    */
   private static final String SERVLET = "com.pageseeder.ResetPassword";
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 

@@ -16,7 +16,6 @@ import javax.xml.transform.Templates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.pageseeder.PSConnection.Type;
-import org.weborganic.bastille.security.ps.PageSeederUser;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -24,7 +23,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * Represents a request made to the PageSeeder Server.
  *
  * <p>By default the request is made anonymously. In order to make a request on behalf of a
- * PageSeeder user, use the {@link #setUser(PageSeederUser)} method - this is required for any page
+ * PageSeeder user, use the {@link #setUser(PSUser)} method - this is required for any page
  * that needs login access.
  *
  * <p>For simple PageSeeder connections via GET or POST, this class provides convenience methods
@@ -68,7 +67,7 @@ public final class PSConnector {
   /**
    * If specified, the request will be made on behalf of that user.
    */
-  private PageSeederUser _user = null;
+  private PSUser _user = null;
 
   /**
    * Creates a new connection to the specified resource.
@@ -84,7 +83,7 @@ public final class PSConnector {
    * Sets the user for this request.
    * @param user the user for this request.
    */
-  public void setUser(PageSeederUser user) {
+  public void setUser(PSUser user) {
     this._user = user;
   }
 
@@ -301,9 +300,6 @@ public final class PSConnector {
 
     // Process the content
     boolean ok = connection.process(xml, handler, templates, parameters);
-
-    // Disconnect
-    connection.disconnect();
 
     // Return the final status
     return ok;

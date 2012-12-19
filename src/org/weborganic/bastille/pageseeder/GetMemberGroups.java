@@ -12,7 +12,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpSession;
 
 import org.weborganic.bastille.security.Constants;
-import org.weborganic.bastille.security.ps.PageSeederUser;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
@@ -90,15 +89,13 @@ import com.topologi.diffx.xml.XMLWriter;
  *            name="[name]" target="[target]"/>}</pre>
  *
  * @author Christophe Lauret
- * @version 0.6.2 - 11 April 2011
+ *
+ * @version 0.8.1 - 18 December 2012
  * @since 0.6.2
  */
 @PSConnected(login = true)
 public final class GetMemberGroups implements ContentGenerator {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
@@ -107,10 +104,10 @@ public final class GetMemberGroups implements ContentGenerator {
     Object o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
 
     // The user must be logged in.
-    if (o instanceof PageSeederUser) {
+    if (o instanceof PSUser) {
 
       // Setting up the request
-      PageSeederUser user = (PageSeederUser)o;
+      PSUser user = (PSUser)o;
       String url = "/members/"+user.id()+"/projects";
       PSConnector tunnel = new PSConnector(PSResourceType.SERVICE, url);
       tunnel.setUser(user);

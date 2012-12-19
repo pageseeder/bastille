@@ -32,7 +32,6 @@ public final class PingServlet extends HttpServlet {
    */
   private static final long serialVersionUID = -3343755604269705856L;
 
-
   /**
    * If the content type is specified.
    */
@@ -43,9 +42,6 @@ public final class PingServlet extends HttpServlet {
    */
   private byte[] data = null;
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void init(ServletConfig config) throws ServletException {
     String content = config.getInitParameter("content-type");

@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.weborganic.bastille.security.ps.PageSeederUser;
 
 
 /**
@@ -137,7 +136,7 @@ public final class PSResource {
    *
    * @throws MalformedURLException If the URL is not well-formed
    */
-  public URL toURL(PageSeederUser user) throws MalformedURLException {
+  public URL toURL(PSUser user) throws MalformedURLException {
     return toURL(user, true);
   }
 
@@ -154,7 +153,7 @@ public final class PSResource {
    *
    * @throws MalformedURLException If the URL is not well-formed
    */
-  protected URL toURL(PageSeederUser user, boolean includePOSTParameters) throws MalformedURLException {
+  protected URL toURL(PSUser user, boolean includePOSTParameters) throws MalformedURLException {
     Properties pageseeder = PSConfiguration.getProperties();
 
     // Start building the URL
@@ -186,8 +185,13 @@ public final class PSResource {
 
     // If the session ID is available
     if (user != null && user.getJSessionId() != null) {
+      // Use the specified user if available
       url.append(";jsessionid=").append(user.getJSessionId());
+    } else if (PSUsers.getAnonymous() != null) {
+      // Recycle an anonymous session ID if possible
+      url.append(";jsessionid=").append(PSUsers.getAnonymous());
     }
+
     // Query Part
     if (query != null) {
       url.append(query);

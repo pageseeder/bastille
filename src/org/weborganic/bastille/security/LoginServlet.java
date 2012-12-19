@@ -32,7 +32,8 @@ import org.weborganic.bastille.security.ps.PageSeederAuthenticator;
  *
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
- * @version 0.6.38 - 20 June 2012
+ *
+ * @version 0.8.1 - 19 December 2012
  * @since 0.6.2
  */
 public final class LoginServlet extends HttpServlet {
@@ -80,9 +81,6 @@ public final class LoginServlet extends HttpServlet {
       this.defaultTarget = DEFAULT_TARGET;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void destroy() {
     super.destroy();
@@ -90,9 +88,6 @@ public final class LoginServlet extends HttpServlet {
     this.defaultTarget = DEFAULT_TARGET;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     // Get the authenticator
@@ -108,9 +103,6 @@ public final class LoginServlet extends HttpServlet {
     res.setHeader("X-Bastille-User", "Anonymous");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 

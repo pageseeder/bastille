@@ -9,6 +9,6 @@
  * A classes used to connect to PageSeeder.
  *
  * Most generators require user to be logged in as
- * {@link org.weborganic.bastille.security.ps.PageSeederUser}.
+ * {@link org.weborganic.bastille.pageseeder.PSUser}.
  */
 package org.weborganic.bastille.pageseeder;

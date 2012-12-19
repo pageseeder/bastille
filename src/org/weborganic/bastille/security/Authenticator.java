@@ -17,7 +17,8 @@ import org.weborganic.berlioz.Beta;
  * Must provide the login and logout mechanisms.
  *
  * @author Christophe Lauret
- * @version 0.6.2 - 7 April 2011
+ *
+ * @version 0.8.1 - 19 December 2012
  * @since 0.6.2
  */
 @Beta public interface Authenticator {
@@ -40,14 +41,22 @@ import org.weborganic.berlioz.Beta;
   /**
    * Logs the specified user out.
    *
+   * @param req The HTTP srevlet request.
+   *
    * @return The result of this authentication process..
+   *
+   * @throws IOException Should an error occur while logging out.
    */
   AuthenticationResult logout(HttpServletRequest req) throws IOException;
 
   /**
    * Logs the specified user out.
    *
+   * @param user Logout the specified user.
+   *
    * @return <code>true</code> if the logout request succeeded, <code>false</code> otherwise.
+   *
+   * @throws IOException Should an error occur while logging the user out.
    */
   boolean logout(User user) throws IOException;
 

@@ -44,12 +44,15 @@ import org.xml.sax.helpers.DefaultHandler;
  * An authenticator that uses PageSeeder to authenticate users.
  *
  * @author Christophe Lauret
- * @version 0.6.29 - 20 February 2012
+ *
+ * @version 0.8.2 - 19 December 2012
  * @since 0.6.2
  */
 public final class PageSeederAuthenticator implements Authenticator {
 
-  /** Logger for this class */
+  /**
+   * Logger for this class.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(PageSeederAuthenticator.class);
 
   /**
@@ -117,9 +120,6 @@ public final class PageSeederAuthenticator implements Authenticator {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public AuthenticationResult logout(HttpServletRequest req) throws IOException {
     // Get the session
@@ -162,27 +162,35 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     // Then connect
     LOGGER.debug("Connecting to PageSeeder with {}", url);
-    connection.connect();
+    try {
+      connection.connect();
 
-    // Retrieve the content of the response
-    int status = connection.getResponseCode();
+      // Retrieve the content of the response
+      int status = connection.getResponseCode();
 
-    // If OK parse the response and get the user
-    if (status == HttpURLConnection.HTTP_OK) {
-      InputStream is = connection.getInputStream();
-      InputSource source = new InputSource(is);
-      user = parse(source);
-      is.close();
+      // If OK parse the response and get the user
+      if (status == HttpURLConnection.HTTP_OK) {
+        InputStream is = connection.getInputStream();
+        InputSource source = new InputSource(is);
+        user = parse(source);
+        is.close();
 
       // If a client error occurs
-    } else if (status >= HttpURLConnection.HTTP_BAD_REQUEST
-        && status < HttpURLConnection.HTTP_INTERNAL_ERROR) {
-      LOGGER.debug("PageSeeder returned {}: {}", status, connection.getResponseMessage());
+      } else if (status >= HttpURLConnection.HTTP_BAD_REQUEST
+              && status < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+        LOGGER.debug("PageSeeder returned {}: {}", status, connection.getResponseMessage());
 
       // If a server error occurs
-    } else {
-      LOGGER.warn("PageSeeder returned {}: {}", status, connection.getResponseMessage());
-      throw new IOException("Unable to connect to Remote PageSeeder Server");
+      } else {
+        LOGGER.warn("PageSeeder returned {}: {}", status, connection.getResponseMessage());
+        throw new IOException("Unable to connect to Remote PageSeeder Server");
+      }
+
+    } catch (IOException ex) {
+      // Probably unable to establish connection
+      LOGGER.error("Unable to establish connection to PageSeeder server: {}", ex.getMessage());
+      LOGGER.error("Make sure that you can access PageSeeder at: {}", toBasePath());
+      throw ex;
     }
 
     // Disconnect and return the user if there is one
@@ -192,12 +200,25 @@ public final class PageSeederAuthenticator implements Authenticator {
 
   @Override
   public boolean logout(User user) throws IOException {
-
     return false;
   }
 
   // Private helpers
   // ----------------------------------------------------------------------------------------------
+
+  /**
+   * Returns the base URL to access PageSeeder.
+   *
+   * @return the corresponding URL
+   */
+  private static String toBasePath() {
+    Properties pageseeder = GlobalSettings.getNode("bastille.pageseeder");
+    StringBuffer url = new StringBuffer();
+    url.append(pageseeder.getProperty("scheme", "http")).append("://");
+    url.append(pageseeder.getProperty("host",   "localhost")).append(":");
+    url.append(pageseeder.getProperty("port",   "8080"));
+    return url.toString();
+  }
 
   /**
    * Returns the URL used to login to PageSeeder.
@@ -207,7 +228,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    *
    * @return the corresponding URL
    *
-   * @throws MalformedURLException If the
+   * @throws MalformedURLException If the URL could not be created properly.
    */
   private static URL toLoginURL(String username, String password) throws MalformedURLException {
     Properties pageseeder = GlobalSettings.getNode("bastille.pageseeder");
@@ -240,9 +261,9 @@ public final class PageSeederAuthenticator implements Authenticator {
       SAXParser parser = factory.newSAXParser();
       parser.parse(source, handler);
     } catch (ParserConfigurationException ex) {
-      ex.printStackTrace();
+      LOGGER.error("Unable to setup SAX parser", ex);
     } catch (SAXException ex) {
-      ex.printStackTrace();
+      LOGGER.error("Unable to parse {}", source, ex);
     }
     return handler.getUser();
   }
@@ -263,7 +284,8 @@ public final class PageSeederAuthenticator implements Authenticator {
     }
   }
 
-  // Inner class ==================================================================================
+  // Inner class
+  // ==============================================================================================
 
   /**
    * Parses the XML returned the <code>com.pageseeder.SubscriptionForm</code> Servlet.
@@ -281,7 +303,7 @@ public final class PageSeederAuthenticator implements Authenticator {
    * }</pre>
    *
    * @author Christophe Lauret
-   * @version 26 September 2011
+   * @version 19 December 2012
    */
   private static final class PSUserHandler extends DefaultHandler {
 
@@ -289,24 +311,30 @@ public final class PageSeederAuthenticator implements Authenticator {
     private static final String MEMBER = "mem";
     /** Member's ID element */
     private static final String ID = "id";
+
     /** Member's surname element */
     private static final String SURNAME = "surname";
+
     /** Member's username element */
     private static final String USERNAME = "username";
+
     /** Member's first name element */
     private static final String FIRSTNAME = "firstname";
+
     /** Member's email element */
     private static final String EMAIL = "memberemail";
+
     /** Member's JSession ID element */
     private static final String JSESSIONID = "wo-jsessionid";
+
     /** Member's groupname element */
     private static final String GROUPNAME = "name";
+
     /** Member's current group element */
     private static final String CURRENTGROUPS = "currentgroups";
+
     /** Member's group element */
     private static final String CURRENTGROUP = "group";
-
-
 
     /** State variable to indicate whether we are within the Member element */
     private boolean inMem = false;
@@ -320,13 +348,16 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     /** State variable to indicate whether to record character data in the buffer */
     private boolean record = false;
+
     /** A buffer for character data */
     private StringBuffer buffer = new StringBuffer();
+
     /** Stores the member's information */
     private Map<String, String> map = new HashMap<String, String>();
 
     /** List of group the user is a member of */
     private List<String> memberOf = new ArrayList<String>();
+
     /** List of groups from the configuration */
     private final String[] groups;
 
@@ -339,14 +370,15 @@ public final class PageSeederAuthenticator implements Authenticator {
       else this.groups = mof.split(",");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void startElement(String uri, String local, String name, Attributes attributes) throws SAXException {
-      if (MEMBER.equals(name)) this.inMem = true;
-      if (CURRENTGROUPS.equals(name)) this.inCurrentgroups = true;
-      if (CURRENTGROUP.equals(name)) this.inGroup = true;
+      if (MEMBER.equals(name)) {
+        this.inMem = true;
+      } else if (CURRENTGROUPS.equals(name)) {
+        this.inCurrentgroups = true;
+      } else if (CURRENTGROUP.equals(name)) {
+        this.inGroup = true;
+      }
 
       if (this.inMem) {
         this.record = ID.equals(name) || SURNAME.equals(name) || USERNAME.equals(name) || FIRSTNAME.equals(name);
@@ -355,9 +387,6 @@ public final class PageSeederAuthenticator implements Authenticator {
       }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void endElement(String uri, String local, String name) throws SAXException {
       if (MEMBER.equals(name)) this.inMem = false;
@@ -393,9 +422,6 @@ public final class PageSeederAuthenticator implements Authenticator {
       }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
       if (this.record) this.buffer.append(ch, start, length);

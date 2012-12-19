@@ -23,9 +23,6 @@ import com.topologi.diffx.xml.XMLWriter;
  */
 public final class ObfuscatorGenerator implements ContentGenerator {
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     String password = req.getParameter("password", "");

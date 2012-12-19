@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpSession;
 
 import org.weborganic.bastille.security.Constants;
-import org.weborganic.bastille.security.ps.PageSeederUser;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
@@ -103,8 +102,8 @@ public final class CallServlet implements ContentGenerator {
     // Is the user logged in?
     HttpSession session = req.getSession();
     Object user = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
-    if (user instanceof PageSeederUser) {
-      connector.setUser((PageSeederUser)user);
+    if (user instanceof PSUser) {
+      connector.setUser((PSUser)user);
     }
 
     // Grab the XML form the PageSeeder request

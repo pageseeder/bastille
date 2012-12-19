@@ -19,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -32,7 +33,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.weborganic.bastille.security.ps.PageSeederUser;
 import org.weborganic.berlioz.xml.XMLCopy;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -46,7 +46,8 @@ import com.topologi.diffx.xml.XMLWriterImpl;
  * Wraps an HTTP connection to PageSeeder.
  *
  * @author Christophe Lauret
- * @version 0.6.25 - 15 November 2011
+ *
+ * @version 0.8.1 - 18 December 2012
  * @since 0.6.7
  */
 public final class PSConnection {
@@ -73,14 +74,9 @@ public final class PSConnection {
   /** Bastille version */
   private static final String BASTILLE_VERSION;
   static {
-    Package p = Package.getPackage("org.weborganic.berlioz");
+    Package p = Package.getPackage("org.weborganic.bastille");
     BASTILLE_VERSION = p != null ? p.getImplementationVersion() : "unknown";
   }
-
-  /**
-   * The boundary String, used when uploading as multipart
-   */
-  private static final String BOUNDARY = "-----------7e5619ace89c1";
 
   /**
    * The boundary String, used when uploading as multipart
@@ -103,6 +99,18 @@ public final class PSConnection {
   private final Type _type;
 
   /**
+   * The user who initiated the connection.
+   *
+   * A <code>null</code> value indicates an anonymous connection.
+   */
+  private final PSUser _user;
+
+  /**
+   * The part boundary.
+   */
+  private final String _boundary;
+
+  /**
    * The output stream used to write the data.
    */
   private DataOutputStream out = null;
@@ -113,11 +121,15 @@ public final class PSConnection {
    * @param connection The wrapped HTTP Connection.
    * @param resource   The underlying resource to access.
    * @param type       The type of connection.
+   * @param user       The user who initiated the connection (may be <code>null</code>)
+   * @param boundary   The boundary to use for multipart (may be <code>null</code>)
    */
-  private PSConnection(HttpURLConnection connection, PSResource resource, Type type) {
+  private PSConnection(HttpURLConnection connection, PSResource resource, Type type, PSUser user, String boundary) {
     this._connection = connection;
     this._resource = resource;
     this._type = type;
+    this._user = user;
+    this._boundary = boundary;
   }
 
   /**
@@ -143,8 +155,11 @@ public final class PSConnection {
       this.out = new DataOutputStream(this._connection.getOutputStream());
     }
     try {
+      if (this._type != Type.MULTIPART)
+        throw new IOException("Cannot add XML part unless connection type is set to Multipart");
+
       // Start with boundary
-      IOUtils.write(BOUNDARY+"\r\n", this.out, UTF8);
+      IOUtils.write(this._boundary+"\r\n", this.out, UTF8);
       // Headers if specified
       if (headers != null) {
         for (Entry<String, String> h : headers.entrySet()) {
@@ -160,8 +175,22 @@ public final class PSConnection {
       IOUtils.write("\r\n", this.out, UTF8);
 
     } catch (IOException ex) {
-      this._connection.disconnect();
+      IOUtils.closeQuietly(this.out);
+      this.out = null;
       throw ex;
+    }
+  }
+
+  /**
+   * Closes the output stream when writing to the connection.
+   *
+   * <p>This method does nothing if the output stream hasn't been created.
+   *
+   * @throws IOException If thrown by the close method.
+   */
+  public void closeOutput() throws IOException {
+    if (this.out != null) {
+      this.out.close();
     }
   }
 
@@ -201,8 +230,11 @@ public final class PSConnection {
   /**
    * Disconnects the underlying HTTP connection.
    *
+   * @deprecated There is no need to call this method; the socket will be recycled.
+   *
    * @see HttpURLConnection#disconnect()
    */
+  @Deprecated
   public void disconnect() {
     this._connection.disconnect();
   }
@@ -308,7 +340,7 @@ public final class PSConnection {
   /**
    * Connect to PageSeeder and fetch the XML using the GET method.
    *
-   * <p>If the handler is not specified, the xml writer receives a copy of the PageSeeder XML.
+   * <p>If the handler is not specified, the XML writer receives a copy of the PageSeeder XML.
    *
    * <p>If templates are specified they take precedence over the handler.
    *
@@ -364,6 +396,20 @@ public final class PSConnection {
           xml.closeElement();
         }
 
+        // Updating the session of the PageSeeder user
+        if (this._user != null) {
+          PSSession session = this._user.getSession();
+          if (session != null) session.update();
+        } else {
+          PSSession session = PSUsers.getAnonymous();
+          if (PSUsers.isValid(session)) {
+            session.update();
+          } else {
+            LOGGER.info("Setting anonymous PageSeeder session");
+            PSUsers.setAnonymous(new PSSession(getJSessionIDfromCookie(this._connection)));
+          }
+        }
+
       } else {
         LOGGER.info("PageSeeder returned {}: {}", status, this._connection.getResponseMessage());
         psError(xml, "pageseeder-error", this._connection);
@@ -378,8 +424,8 @@ public final class PSConnection {
       ok = false;
 
     } finally {
-      // TODO Disconnect (???)
-      if (this._connection != null) this._connection.disconnect();
+      // There is no need to use the disconnect() method on the connection,
+      // the socket will be recycled after the content has been read fully.
       xml.closeElement();
     }
 
@@ -419,7 +465,7 @@ public final class PSConnection {
    * @return A newly opened connection to the specified URL
    * @throws IOException Should an exception be returns while opening the connection
    */
-  protected static PSConnection connect(PSResource resource, Type type, PageSeederUser user) throws IOException {
+  protected static PSConnection connect(PSResource resource, Type type, PSUser user) throws IOException {
     URL url = resource.toURL(user, type == Type.POST? false : true);
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setDoOutput(true);
@@ -427,6 +473,7 @@ public final class PSConnection {
     connection.setRequestMethod(type == Type.GET? "GET" : "POST");
     connection.setDefaultUseCaches(false);
     connection.setRequestProperty("X-Requester", "Bastille-"+BASTILLE_VERSION);
+    String boundary = null;
 
     // POST using "application/x-www-form-urlencoded"
     if (type == Type.POST) {
@@ -438,10 +485,11 @@ public final class PSConnection {
 
     // POST using "multipart/form-data"
     } else if (type == Type.MULTIPART) {
+      boundary = "-----------" + new Random().nextLong();
       connection.setDoInput(true);
-      connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+      connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
     }
-    return new PSConnection(connection, resource, type);
+    return new PSConnection(connection, resource, type, user, boundary);
   }
 
   /**
@@ -452,15 +500,14 @@ public final class PSConnection {
    *
    * @throws IOException Should any error occur while writing.
    */
-  private static void writePOSTData(HttpURLConnection connection, String data)
-      throws IOException {
+  private static void writePOSTData(HttpURLConnection connection, String data) throws IOException {
     OutputStream post = null;
     try {
       post = connection.getOutputStream();
       post.write(data.getBytes(UTF8));
       post.flush();
     } catch (IOException ex) {
-      ex.printStackTrace();
+      LOGGER.error("An error occurred while writing POST data", ex);
       IOUtils.closeQuietly(post);
       throw ex;
     }
@@ -741,6 +788,26 @@ public final class PSConnection {
       err = connection.getErrorStream();
     }
     return err;
+  }
+
+  /**
+   * Extract the JSession ID from the 'Set-Cookie' response header.
+   *
+   * @param connection The connection (must have been connected)
+   * @return the JSession ID or <code>null</code>.
+   */
+  private static String getJSessionIDfromCookie(HttpURLConnection connection) {
+    String name = "JSESSIONID=";
+    String cookie = connection.getHeaderField("Set-Cookie");
+    if (cookie != null && cookie.length() > name.length()) {
+      int from = cookie.indexOf(name);
+      int to = cookie.indexOf(';', from+name.length());
+      if (from != -1 && to != -1) {
+        return cookie.substring(from+name.length(), to);
+      }
+    }
+    // no sessionid it seems.
+    return null;
   }
 
   /**

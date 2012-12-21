@@ -22,7 +22,7 @@ import org.weborganic.berlioz.content.ContentStatus;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * This generator returns the content of a PSML file using specified <code>path</code> parameter from the PSML
+ * <p>This generator returns the content of a PSML file using specified <code>path</code> parameter from the PSML
  *  <i>content</i> folder.</p>
  *
  * <p>The content folder is the folder named 'content' under the PSML root folder.</p>

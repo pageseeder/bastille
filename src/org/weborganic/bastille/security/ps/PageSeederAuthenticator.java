@@ -101,7 +101,7 @@ public final class PageSeederAuthenticator implements Authenticator {
         } else if (email != null && email.equals(current.getEmail())) {
           return AuthenticationResult.ALREADY_LOGGED_IN;
 
-          // Already logged in as a different user
+        // Already logged in as a different user
         } else {
           logout(current);
           session.invalidate();
@@ -113,6 +113,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     // Perform login
     User user = login(username, password);
     if (user != null) {
+      if (session == null) session = req.getSession(true);
       session.setAttribute(Constants.SESSION_USER_ATTRIBUTE, user);
       return AuthenticationResult.LOGGED_IN;
     } else {
@@ -411,10 +412,19 @@ public final class PageSeederAuthenticator implements Authenticator {
         if (GROUPNAME.equals(name)) {
           String group = this.buffer.toString();
           for (String g : this.groups) {
-            // Subscriptions may contain the same group multiple times
-            if (g.equals(group) && !this.memberOf.contains(g)) {
-              this.memberOf.add(group);
-              break;
+            boolean wildcard = g.endsWith("*");
+            if (wildcard) {
+              // Subscriptions may contain the same group multiple times
+              if (group.startsWith(g.substring(0, g.length()-1)) && !this.memberOf.contains(group)) {
+                this.memberOf.add(group);
+                break;
+              }
+            } else {
+              // Subscriptions may contain the same group multiple times
+              if (g.equals(group) && !this.memberOf.contains(g)) {
+                this.memberOf.add(group);
+                break;
+              }
             }
           }
           this.buffer.setLength(0);

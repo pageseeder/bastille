@@ -9,6 +9,8 @@ package org.weborganic.bastille.security;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -107,8 +109,8 @@ public final class LoginServlet extends HttpServlet {
   public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
     // Get the authenticator
-    HttpSession session = req.getSession(true);
-    Object target = session.getAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
+    HttpSession session = req.getSession();
+    String target = getTarget(req);
 
     // Perform login
     try {
@@ -123,11 +125,12 @@ public final class LoginServlet extends HttpServlet {
         if (target != null) {
           LOGGER.debug("Redirecting to {}", target.toString());
           res.sendRedirect(target.toString());
+          if (session != null) session.removeAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
 
         } else {
           LOGGER.debug("Redirecting to {}", this.defaultTarget);
-          String ctxt = req.getContextPath() == null ? "" : req.getContextPath();
-          res.sendRedirect(ctxt+this.defaultTarget);
+          String context = req.getContextPath() == null ? "" : req.getContextPath();
+          res.sendRedirect(context+this.defaultTarget);
         }
 
       // Login failed
@@ -148,10 +151,65 @@ public final class LoginServlet extends HttpServlet {
     } catch (ConnectException ex) {
 
       // Unable to connect to PageSeeder
-      final int badGateway = 502;
-      res.sendError(badGateway, ex.getMessage());
+      res.sendError(HttpServletResponse.SC_BAD_GATEWAY, ex.getMessage());
+
     }
 
+  }
+
+  /**
+   * Filter the target for the login.
+   *
+   * @param t the target specified in the
+   *
+   * @return the filtered target.
+   */
+  private static String getTarget(HttpServletRequest req) {
+    HttpSession session = req.getSession();
+    String target = null;
+
+    // Check if target in session already
+    if (session != null) {
+      Object t = session.getAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
+      if (t != null) target = t.toString();
+    }
+
+    // No target, let's look for it somewhere else
+    if (target == null) {
+
+      // Check if the target was specified in the request
+      String t = req.getParameter("target");
+
+      // We've got something, let's see if it's valid
+      if (t != null) {
+        try {
+          // Base URL from servlet container
+          URI base = new URI(req.getScheme(), null,req.getServerName(), req.getLocalPort(), "/", null, null);
+          URI uri = base.resolve(t);
+
+          // The specified target must match the scheme, host and port of server
+          if (base.getScheme().equals(uri.getScheme())
+           && base.getHost().equals(uri.getHost())
+           && base.getPort() == uri.getPort()) {
+            // Write target
+            target = uri.getPath();
+            if (uri.getQuery() != null) {
+              target = target +"?"+uri.getQuery();
+            }
+            if (uri.getFragment() != null) {
+              target = target +"#"+uri.getFragment();
+            }
+          }
+        } catch (IllegalArgumentException ex) {
+          LOGGER.warn("Illegal target URL {}", t, ex);
+        } catch (URISyntaxException ex) {
+          LOGGER.error("Illegal base URL", ex);
+        }
+      }
+    }
+
+    // Hopefully, we've got a target by now...
+    return target;
   }
 
 }

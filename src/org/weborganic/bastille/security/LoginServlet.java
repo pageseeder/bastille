@@ -1,9 +1,9 @@
 /*
  * This file is part of the Bastille library.
  *
- * Available under a commercial licence, contact Weborganic.
- *
- * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
  */
 package org.weborganic.bastille.security;
 
@@ -184,7 +184,7 @@ public final class LoginServlet extends HttpServlet {
       if (t != null) {
         try {
           // Base URL from servlet container
-          URI base = new URI(req.getScheme(), null,req.getServerName(), req.getLocalPort(), "/", null, null);
+          URI base = new URI(req.getScheme(), null, req.getServerName(), req.getLocalPort(), "/", null, null);
           URI uri = base.resolve(t);
 
           // The specified target must match the scheme, host and port of server

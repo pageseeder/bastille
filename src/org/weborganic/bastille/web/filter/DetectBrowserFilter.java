@@ -1,5 +1,9 @@
 /*
- *  Copyright (c) 2011 Allette Systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
  */
 package org.weborganic.bastille.web.filter;
 
@@ -17,10 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>A Simpler filter class for redirect URL based on User-Agent to different URL.</p>
- * 
+ *
  * <h3>Configuration </h3>
- * 
- * 
+ *
+ *
  * <p>Sample config in Web Configuration (web.xml)</p>
  * <pre>
  * {@code
@@ -38,10 +42,10 @@ import javax.servlet.http.HttpServletResponse;
  *  </filter>
  * }
  * </pre>
- * 
+ *
  * @author Christophe Lauret
  * @author Ciber Cai
- * 
+ *
  * @version 0.6.13 - 15 September 2011
  * @since 0.6.13
  */
@@ -64,15 +68,15 @@ public final class DetectBrowserFilter implements Filter {
 
   /**
    * Initialises the filter.
-   * 
+   *
    * <p>This servlet accepts the following initialisation parameters:
    * <ul>
    *   <li><code>mobile</code> The mobile site address (eg. 'http://m.acme.gov.au')
    *   <li><code>normal</code> The normal site address (eg. 'http://www.acme.gov.au')
    * </ul>
-   * 
+   *
    * <p>Both parameters MUST be valid URLs.
-   * 
+   *
    * @param config The filter configuration.
    */
   @Override
@@ -102,11 +106,11 @@ public final class DetectBrowserFilter implements Filter {
 
   /**
    * Do the filtering for a HTTP request.
-   * 
+   *
    * @param req   The HTTP servlet request.
    * @param res   The HTTP servlet response.
    * @param chain The filter chain.
-   * 
+   *
    * @throws IOException      Should an error occurs while writing the response.
    * @throws ServletException If thrown by the filter chain.
    */
@@ -139,11 +143,11 @@ public final class DetectBrowserFilter implements Filter {
   }
 
   /**
-   * 
+   *
    * Indicates whether the specified user agent is a mobile device or not.
-   * 
+   *
    * @see <a href="http://detectmobilebrowser.com/">Detect Mobile Browser | Open source mobile phone detection</a>
-   * 
+   *
    * @param userAgent The <code>User-Agent</code> HTTP header string.
    * @return <code>true</code> if the user agent string matches that of a mobile device;
    *         <code>false</code> otherwise.

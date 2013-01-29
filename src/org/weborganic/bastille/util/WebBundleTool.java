@@ -390,6 +390,7 @@ public final class WebBundleTool {
    * @param virtual   The location of the bundle (virtual).
    * @param out       Writes the content for the bundle.
    * @param processed The list of files already processed to prevent circular references.
+   * @param threshold the file size threshold for images not to be included using data URIs
    *
    * @return IOException if an input/output error occurs
    *
@@ -465,6 +466,7 @@ public final class WebBundleTool {
    * @param source The source file.
    * @param target The target file.
    * @param path   The location based on the source file.
+   * @param threshold the file size threshold for images not to be included using data URIs
    *
    * @return The location based on the target file.
    */

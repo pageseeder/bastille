@@ -812,7 +812,7 @@ public final class CSSMin {
  * @author Christophe Lauret
  * @version 21 November 2012
  */
-class Constants {
+final class Constants {
 
   /**
    * Color name - index must match color codes below.

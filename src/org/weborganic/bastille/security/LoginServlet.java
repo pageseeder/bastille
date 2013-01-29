@@ -160,7 +160,7 @@ public final class LoginServlet extends HttpServlet {
   /**
    * Filter the target for the login.
    *
-   * @param t the target specified in the
+   * @param req The HTTP servlet request
    *
    * @return the filtered target.
    */

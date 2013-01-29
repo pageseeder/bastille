@@ -1431,7 +1431,7 @@ public final class Base64 {
    * @see Base64
    * @since 1.3
    */
-  public static class InputStream extends java.io.FilterInputStream {
+  public static final class InputStream extends java.io.FilterInputStream {
 
     /** Encoding or decoding. */
     private boolean encode;
@@ -1634,7 +1634,7 @@ public final class Base64 {
    * @see Base64
    * @since 1.3
    */
-  public static class OutputStream extends java.io.FilterOutputStream {
+  public static final class OutputStream extends java.io.FilterOutputStream {
 
     private boolean encode;
     private int     position;

@@ -53,7 +53,6 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   /** Logger will report caching problems */
   private static final Logger LOGGER = LoggerFactory.getLogger(CachingFilterBase.class);
 
-
   private static final String BLOCKING_TIMEOUT_MILLIS = "blockingTimeoutMillis";
 
   /**
@@ -162,16 +161,16 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   public final void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
 
-    // Response already committed
+    // Response already committed (maybe by another filter)
     if (res.isCommitted()) {
       LOGGER.warn("Response already committed before building cached resource.");
 
-    // Underlying resource cannot be cached
+    // Request indicates underlying resource cannot be cached
     } else if (!isCacheable(req)) {
-      LOGGER.warn("Resource not cacheable, invoking underlying servlet");
+      LOGGER.info("Request not cacheable, invoking underlying servlet");
       chain.doFilter(req, res);
 
-    // This filter already been used
+    // This filter already been used (probably a configuration error)
     } else if (this._visits.hasVisited()) {
       LOGGER.warn("This filter was invoked twice for {} and will be ignored - check your config",
           req.getRequestURI());
@@ -188,8 +187,10 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
           } else {
             writeResponse(req, res, resource);
           }
+        } else {
+          LOGGER.warn("Oops...");
         }
-      } catch (Exception ex) {
+      } catch (CacheException ex) {
         LOGGER.error("Unable to construct cache entry", ex);
       } finally {
         this._visits.remove();
@@ -201,6 +202,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   // ----------------------------------------------------------------------------------------------
 
   /**
+   * @param key The key for the cached resource
    * @return The cached resource for the specified key.
    */
   protected final CachedResource getResourceFromCache(String key) {
@@ -263,28 +265,30 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @param res      The HTTP Servlet response
    * @param resource The content of the cached resource.
    *
-   * @throws IOException
+   * @throws IOException      For I/O errors only
+   * @throws ServletException For all other errors.
    */
   public static final void writeContent(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
       throws IOException, ServletException {
     byte[] body;
 
+    // Check whether the response should have any content
     boolean hasContent = hasContent(req, resource.getStatusCode());
-    if (!hasContent) {
+    if (!hasContent || !resource.hasContent()) {
+      // Discarding returned body and returning a 0-length body content
       body = new byte[0];
 
-    } else if (HttpHeaderUtils.acceptsGZipCompression(req) && resource.hasGzippedBody()) {
-      body = resource.getGzippedBody();
-      if (GZIPUtils.shouldGzippedBodyBeZero(body, req)) {
-        body = new byte[0];
-      } else {
-        GZIPUtils.addGzipHeader(res);
-      }
+    } else if (resource.hasGzippedBody() && HttpHeaderUtils.acceptsGZipCompression(req)) {
+      // Client accepts GZIP, let's send it compressed
+      body = resource.getBody(true);
+      GZIPUtils.addGzipHeader(res);
 
     } else {
-      body = resource.getUngzippedBody();
+      // No HTTP compression
+      body = resource.getBody(false);
     }
 
+    // Writing out content
     res.setContentLength(body.length);
     OutputStream out = new BufferedOutputStream(res.getOutputStream());
     out.write(body);
@@ -302,7 +306,8 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @return <code>true</code> if the response should be 0, even if it is isn't.
    */
   private static boolean hasContent(HttpServletRequest req, int status) {
-    if (status == HttpServletResponse.SC_NO_CONTENT || status == HttpServletResponse.SC_NOT_MODIFIED) {
+    if (status == HttpServletResponse.SC_NO_CONTENT
+     || status == HttpServletResponse.SC_NOT_MODIFIED) {
       LOGGER.debug("Removing message body for {} (status code={})", req.getRequestURL(), status);
       return false;
     }

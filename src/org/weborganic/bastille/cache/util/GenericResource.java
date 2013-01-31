@@ -28,13 +28,13 @@ import org.weborganic.berlioz.http.HttpHeaders;
  *
  * @version Bastille 0.8.3 - 26 January 2013
  */
-public final class CachedResource implements Serializable {
+public final class GenericResource implements Serializable, CachedResource {
 
   /** As per requirement for <code>Serializable</code> */
-  private static final long serialVersionUID = -7228525252854825521L;
+  private static final long serialVersionUID = 2909918731971135622L;
 
   /** Where useful debug info goes. */
-  private static final Logger LOGGER = LoggerFactory.getLogger(CachedResource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GenericResource.class);
 
   /**
    * List of response HTTP headers to include in response.
@@ -73,7 +73,7 @@ public final class CachedResource implements Serializable {
    *
    * @throws IOException If the content was already gzipped
    */
-  public CachedResource(int status, String contentType, byte[] body,
+  public GenericResource(int status, String contentType, byte[] body,
       boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers)
       throws IOException {
     if (headers != null) {
@@ -88,6 +88,7 @@ public final class CachedResource implements Serializable {
   /**
    * @return the content type of the response.
    */
+  @Override
   public String getContentType() {
     return this._contentType;
   }
@@ -95,15 +96,21 @@ public final class CachedResource implements Serializable {
   /**
    * @return the HTTP status code of the response.
    */
+  @Override
   public int getStatusCode() {
     return this._status;
   }
 
-  /**
-   * @return All of the headers set on the page.
-   */
-  public List<HttpHeader<? extends Serializable>> getHeaders() {
+  @Override
+  public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
+    // TODO Adjust the etag?
     return this._headers;
+  }
+
+  @Override
+  public boolean hasContent() {
+    if (this._content == null) return false;
+    return this._storeGzipped? GZIPUtils.shouldGzippedBodyBeZero(this._content) : this._content.length != 0;
   }
 
   /**
@@ -139,6 +146,7 @@ public final class CachedResource implements Serializable {
   /**
    * @return <code>true</code> if there is a non <code>null</code> gzipped body
    */
+  @Override
   public boolean hasGzippedBody() {
     return this._storeGzipped && this._content != null;
   }
@@ -150,12 +158,22 @@ public final class CachedResource implements Serializable {
     return !this._storeGzipped && this._content != null;
   }
 
+  @Override
+  public byte[] getBody(boolean gzipped) throws IOException {
+    if (gzipped) {
+      return getGzippedBody();
+    } else {
+      return getUngzippedBody();
+    }
+  }
+
   /**
    * Returns <code>true</code> if the response is OK (200).
    *
    * @return <code>true</code> if the status code is 200;
    *         <code>false</code> for any other code.
    */
+  @Override
   public boolean isOK() {
     return this._status == HttpServletResponse.SC_OK;
   }
@@ -165,6 +183,7 @@ public final class CachedResource implements Serializable {
    *
    * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
    */
+  @Override
   public long getLastModified() {
     for (HttpHeader<? extends Serializable> h : this._headers) {
       if (HttpHeaders.LAST_MODIFIED.equalsIgnoreCase(h.name())) {
@@ -182,15 +201,11 @@ public final class CachedResource implements Serializable {
     return -1;
   }
 
-  /**
-   * Returns the etag for this resource.
-   *
-   * @return the etag if there is an "Etag" header defined; <code>null</code> otherwise.
-   */
-  public String getETag() {
+  @Override
+  public String getETag(boolean gzipped) {
     for (HttpHeader<? extends Serializable> h : this._headers) {
       if (HttpHeaders.ETAG.equals(h.name())) {
-        return h.value().toString();
+        return adjustEtag(h.value().toString(), gzipped);
       }
     }
     return null;
@@ -202,6 +217,7 @@ public final class CachedResource implements Serializable {
    * @param res     The HTTP servlet response where the headers should be copied.
    * @param gzipped Whether the content was sent gzipped
    */
+  @Override
   public void copyHeadersTo(HttpServletResponse res, boolean gzipped) {
     // Track which headers have been set so all headers of the same name after the first are added
     Collection<String> setHeaders = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
@@ -298,4 +314,26 @@ public final class CachedResource implements Serializable {
     return false;
   }
 
+  /**
+   * Adjust an existing etag to include the "-gzip" part so that it changes for negociated representations.
+   *
+   * <p>This method does nothing if the etag is already correct.
+   *
+   * @param etag    The current etag
+   * @param gzipped <code>true</code> if the etag is needed for gzipped content;
+   *                <code>false</code> otherwise.
+   *
+   * @return the adjusted etag
+   */
+  private static String adjustEtag(String etag, boolean gzipped) {
+    String value = etag;
+    if (!gzipped && value.endsWith("-gzip\"")) {
+      value = value.replace("-gzip", "");
+    } else if (gzipped && !value.endsWith("-gzip\"")) {
+      value = value.substring(0, value.length()-1) + "-gzip\"";
+    }
+    return value;
+  }
+
 }
+

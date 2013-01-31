@@ -14,11 +14,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A utility class for GZIP compression.
@@ -26,12 +22,9 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/rfc1952">GZIP file format specification version 4.3</a>
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3 - 31 January 2013
  */
 public final class GZIPUtils {
-
-  /** Useful debug info goes here */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GZIPUtils.class);
 
   /** For use as default buffer size. */
   private static final int FOUR_KB = 4196;
@@ -81,18 +74,11 @@ public final class GZIPUtils {
    * <p>When the compressedBytes is {@link #EMPTY_GZIPPED_CONTENT_SIZE} it should be zero.
    *
    * @param compressed the gzipped response body
-   * @param request the client HTTP request
    *
    * @return <code>true</code> if the response should be 0, even if it is isn't.
    */
-  public static boolean shouldGzippedBodyBeZero(byte[] compressed, HttpServletRequest request) {
-    // Check for 0 length body
-    if (compressed.length == EMPTY_GZIPPED_CONTENT_SIZE) {
-      LOGGER.debug("{} resulted in an empty response.", request.getRequestURL());
-      return true;
-    } else {
-      return false;
-    }
+  public static boolean shouldGzippedBodyBeZero(byte[] compressed) {
+    return compressed.length == EMPTY_GZIPPED_CONTENT_SIZE;
   }
 
   /**

@@ -123,6 +123,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendError(int code, String string) throws IOException {
     this._status = code;
+    LOGGER.debug("R.sendError("+code+",\""+string+"\")");
     super.sendError(code, string);
   }
 
@@ -137,6 +138,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendError(int code) throws IOException {
     this._status = code;
+    LOGGER.debug("R.sendError("+code+")");
     super.sendError(code);
   }
 
@@ -151,6 +153,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendRedirect(String url) throws IOException {
     this._status = HttpServletResponse.SC_MOVED_TEMPORARILY;
+    LOGGER.debug("R.sendRedirect("+url+")");
     super.sendRedirect(url);
   }
 
@@ -251,6 +254,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public void flushBuffer() throws IOException {
+    LOGGER.debug("R.flushBuffer()");
     flush();
   }
 
@@ -269,21 +273,25 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void resetBuffer() {
+    LOGGER.debug("R.resetBuffer()");
     super.resetBuffer();
   }
 
   @Override
   public void setBufferSize(int size) {
+    LOGGER.debug("R.setBufferSize("+size+")");
     super.setBufferSize(size);
   }
 
   @Override
   public void setResponse(ServletResponse response) {
+    LOGGER.debug("R.setResponse(response)");
     super.setResponse(response);
   }
 
   @Override
   public boolean isCommitted() {
+    LOGGER.debug("R.isCommitted()");
     return super.isCommitted();
   }
 
@@ -343,6 +351,46 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
       }
     }
     return headers;
+  }
+
+  /**
+   * @param name the name of the header
+   * @return All of the headersMap set/added on the response
+   */
+  public List<Serializable> getHeaderValues(String name) {
+    return this._headers.get(name);
+  }
+
+
+  /**
+   * @param name the name of the header
+   * @return All of the headersMap set/added on the response
+   */
+  public String getHeader(String name) {
+    List<Serializable> values = this._headers.get(name);
+    if (values != null && values.size() > 0) {
+      return values.get(0).toString();
+    }
+    return null;
+  }
+
+  /**
+   *
+   * @param name the name of the header
+   * @return the value of the header as a date.
+   */
+  public long getDateHeader(String name) {
+    List<Serializable> values = this._headers.get(name);
+    if (values != null && values.size() > 0) {
+      Serializable value = values.get(0);
+      if (value instanceof Long) {
+        return (Long)value;
+      } else if (value instanceof String) {
+        // XXX: Not great, we should look into making it
+        new HttpDateFormat().parse((String)value);
+      }
+    }
+    return -1;
   }
 
   /**

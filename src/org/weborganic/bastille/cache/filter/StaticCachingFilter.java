@@ -10,12 +10,13 @@ package org.weborganic.bastille.cache.filter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,9 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.cache.util.CachedResource;
 import org.weborganic.bastille.cache.util.CachedResponseWrapper;
+import org.weborganic.bastille.cache.util.GenericResource;
 import org.weborganic.bastille.cache.util.HttpDateFormat;
 import org.weborganic.bastille.cache.util.HttpHeader;
 import org.weborganic.bastille.cache.util.StaticRequestWrapper;
+import org.weborganic.bastille.cache.util.StaticResource;
 import org.weborganic.berlioz.http.HttpHeaderUtils;
 import org.weborganic.berlioz.http.HttpHeaders;
 
@@ -56,7 +59,7 @@ import org.weborganic.berlioz.http.HttpHeaders;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3 - 31 January 2013
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {
 
@@ -77,6 +80,11 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    */
   public static final long DEFAULT_FILESIZE_THRESHOLD = 1024*1024L;
 
+  /**
+   * The name of the attribute on the request to store the file corresponding to the resource
+   */
+  private static final String FILE_REQUEST_ATTRIBUTE = StaticCachingFilter.class.getName()+".File";
+
   /** Logger for this class. */
   private static final Logger LOGGER = LoggerFactory.getLogger(StaticCachingFilter.class);
 
@@ -95,6 +103,11 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /** The cache control pattern */
   private long sizeThreshold;
 
+  /**
+   * The servlet context.
+   */
+  private ServletContext _context = null;
+
   @Override
   public CacheManager getCacheManager() {
     return CacheManager.getInstance();
@@ -108,6 +121,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   @Override
   public void init(FilterConfig config) throws CacheException {
     super.init(config);
+    this._context = config.getServletContext();
     // Setting the Cache-Control pattern
     String cc = config.getInitParameter("cache-control");
     if (cc != null && cc.length() > 0) {
@@ -143,30 +157,22 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     String key = calculateKey(req);
     CachedResource resource = null;
     boolean doBuild = true;
+    boolean newResource = true;
     try {
       resource = getResourceFromCache(key);
       // We've got a cached resource, let's check for freshness
       if (resource != null) {
+        newResource = false;
 
-        // Get last modified date from "Etag"
-        String etag = resource.getETag();
-        long modified = toLastModified(etag);
-        if (modified == -1) {
-          // Fallback on "Last-Modified"
-          modified = resource.getLastModified();
-          if (modified != -1)
-            modified = modified / MILLISECONDS_PER_SECOND;
-        }
+        // Get last modified date of resource (rounded to the second)
+        long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
 
-        // Get last modified from file
-        // TODO: check URL encoding as well
-        String filepath = req.getContextPath() + req.getRequestURI();
-//        String filepath = req.getServletContext().getRealPath(req.getRequestURI());
-        File f = new File(filepath);
-        long fmodified = f.lastModified()  / MILLISECONDS_PER_SECOND;
+        // Get last modified from file (also rounded to the second)
+        File f = getResourceFile(this._context, req);
+        long fmodified = f.lastModified() / MILLISECONDS_PER_SECOND;
 
         // Check for freshness
-        if (fmodified > modified) {
+        if (fmodified > modified || fmodified == 0) {
           LOGGER.debug("Resource {} updated since last cached", key);
         } else {
           doBuild = false;
@@ -183,12 +189,15 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
             LOGGER.debug("Resource OK (200) - adding to cache {} with key {}", cache.getName(), key);
             cache.put(new Element(key, resource));
           } else {
-            LOGGER.debug("Resource was not OK(200). Putting null into cache {} with key {}", cache.getName(), key);
-            cache.put(new Element(key, null));
+            LOGGER.debug("Resource was not OK(200).");
+            if (!newResource) {
+              LOGGER.debug("Putting null into cache {} with key {}", cache.getName(), key);
+              cache.put(new Element(key, null));
+            }
           }
         } catch (Throwable throwable) {
           // Must unlock the cache if the above fails. Will be logged at Filter
-          cache.put(new Element(key, null));
+          if (!newResource) cache.put(new Element(key, null));
           throw new ServletException(throwable);
         }
       }
@@ -210,7 +219,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * <li>Cache-Control
    * <li>ETag
    * </ul>
-   * Any of these headers aleady set in the response are ignored, and new ones generated. To control
+   * Any of these headers already set in the response are ignored, and new ones generated. To control
    * your own caching headers, use {@link StaticCachingFilter}.
    *
    *
@@ -218,8 +227,8 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * @param res   The HTTP Servlet response
    * @param chain THe Servlet chain
    *
-   * @return a Serializable value object for the page or page fragment
-   * @throws Exception
+   * @return the cache resource
+   * @throws IOException
    */
   private CachedResource buildResource(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
@@ -231,55 +240,51 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     r.flush();
 
     // Is it worth compressing?
-    boolean gzip = HttpHeaderUtils.isCompressible(r.getContentType());
-    r.adjustVaryAcceptEncoding(gzip);
+    CachedResource resource;
 
-    // Return the page info
-    CachedResource resource = new CachedResource(r.getStatus(), r.getContentType(), r.toByteArray(), gzip, r.getAllHeaders());
+    // OK we can build a static resource
+    if (r.getStatus() == HttpServletResponse.SC_OK && !r.isCommitted()) {
 
-    List<HttpHeader<? extends Serializable>> headers = resource.getHeaders();
-    LOGGER.debug("=== Response headers ===");
-    for (HttpHeader<? extends Serializable> header : headers) {
-      LOGGER.debug("R {}: {}", header.name(), header.value());
-    }
+      // Return a static cached resource
+      LOGGER.debug("Building static cached resource for {}", req.getRequestURI());
+      long lastModified = r.getDateHeader(HttpHeaders.LAST_MODIFIED);
+      long ttlMilliseconds = computeTimeToLiveMilliseconds(getCache());
+      String cacheControl = this.cacheControlPattern.replaceAll("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
+      long expires = System.currentTimeMillis() + ttlMilliseconds;
+      resource = new StaticResource(r.getStatus(), r.getContentType(), r.toByteArray(), lastModified, cacheControl, expires);
+      return resource;
 
-    // Get values required for header values
-    long lastModified = resource.getLastModified();
-    long ttlMilliseconds = computeTimeToLiveMilliseconds(getCache());
-    boolean isGzipped = HttpHeaderUtils.isCompressible(r.getContentType());
-    String cacheControl = this.cacheControlPattern.replaceAll("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
+    } else {
 
-    // Remove any conflicting headers
-    for (Iterator<HttpHeader<? extends Serializable>> i = headers.iterator(); i.hasNext();) {
-      HttpHeader<? extends Serializable> header = i.next();
-      String name = header.name();
-      if ("Last-Modified".equalsIgnoreCase(name)
-       || "Expires".equalsIgnoreCase(name)
-       || "Cache-Control".equalsIgnoreCase(name)
-       || "ETag".equalsIgnoreCase(name)
-       || "Accept-Ranges".equalsIgnoreCase(name)) {
-        i.remove();
+      // Return a generic cache resource.
+      LOGGER.debug("=== Response headers ===");
+      for (HttpHeader<? extends Serializable> header : r.getAllHeaders()) {
+        LOGGER.debug("R {}: {}", header.name(), header.value());
       }
+      LOGGER.debug("Building generic cached resource {}", req.getRequestURI());
+
+      boolean gzip = HttpHeaderUtils.isCompressible(r.getContentType());
+      resource = new GenericResource(r.getStatus(), r.getContentType(), r.toByteArray(), gzip, r.getAllHeaders());
+
+      return resource;
     }
 
-    // Set headers
-    headers.add(new HttpHeader<Long>("Last-Modified", (lastModified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND));
-    headers.add(new HttpHeader<Long>("Expires", System.currentTimeMillis() + ttlMilliseconds));
-    headers.add(new HttpHeader<String>("Cache-Control", cacheControl));
-    headers.add(new HttpHeader<String>("ETag", toEtag(lastModified / MILLISECONDS_PER_SECOND, isGzipped)));
-
-    return resource;
   }
 
   /**
-   * Always return <code>true</code> unless the "berlioz-cache" parameter is set to false.
+   * Always return <code>true</code> unless the "berlioz-cache" parameter is set to "false"
+   * or the file is too large or does not exist.
    *
    * {@inheritDoc}
    */
   @Override
   public boolean isCacheable(HttpServletRequest req) {
-    boolean doCache = !"false".equals(req.getParameter("berlioz-cache"));
-    return doCache;
+    // Cache disabled by parameter
+    if ("false".equals(req.getParameter("berlioz-cache"))) return false;
+    // Check the file
+    File f = getResourceFile(this._context, req);
+    if (f != null && f.length() > this.sizeThreshold) return false;
+    return true;
   }
 
   /**
@@ -307,41 +312,52 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   public void writeResponse(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
       throws IOException, ServletException {
 
-    final List<HttpHeader<? extends Serializable>> headers = resource.getHeaders();
-    for (final HttpHeader<? extends Serializable> header : headers) {
-      if ("ETag".equals(header.name())) {
-        String requestIfNoneMatch = req.getHeader("If-None-Match");
-        if (header.value().equals(requestIfNoneMatch)) {
-          setHeaderNotModified(req, res, resource);
+    boolean sendGzip = resource.hasContent() && resource.hasGzippedBody() && HttpHeaderUtils.acceptsGZipCompression(req);
+
+    if (resource instanceof StaticResource) {
+
+      // Reset the headers
+      res.reset();
+
+      // Check "If-None-Match" header
+      String ifNoneMatch = req.getHeader(HttpHeaders.IF_NONE_MATCH);
+      if (ifNoneMatch != null) {
+        String etag = resource.getETag(true);
+        if (etag.equals(ifNoneMatch)) {
+          LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_NONE_MATCH);
+          resource.copyHeadersTo(res, sendGzip);
           res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           res.flushBuffer();
           return;
         }
-        break;
       }
-      if ("Last-Modified".equals(header.name())) {
-        long requestIfModifiedSince = req.getDateHeader("If-Modified-Since");
-        if (requestIfModifiedSince != -1) {
-          Date requestDate = new Date(requestIfModifiedSince);
-          Date pageInfoDate = new Date(resource.getLastModified());
-          if (!requestDate.before(pageInfoDate)) {
-            setHeaderNotModified(req, res, resource);
-            res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            res.flushBuffer();
-            return;
-          }
+
+      // Check "If-Modified-Since" header
+      long ifModifiedSince = req.getDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
+      if (ifModifiedSince != -1) {
+        Date requestDate = new Date(ifModifiedSince);
+        Date resourceDate = new Date(resource.getLastModified());
+        if (!requestDate.before(resourceDate)) {
+          LOGGER.debug("Returning Not Modified (304) for {} from ", req.getRequestURI(), HttpHeaders.IF_MODIFIED_SINCE);
+          resource.copyHeadersTo(res, sendGzip);
+          res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+          res.flushBuffer();
+          return;
         }
       }
+
+      // Normal process
+      LOGGER.debug("Writing response OK (200) for {}", req.getRequestURI());
+      res.setStatus(resource.getStatusCode());
+      String contentType = resource.getContentType();
+      if (contentType != null && contentType.length() > 0) {
+        res.setContentType(contentType);
+      }
+      resource.copyHeadersTo(res, sendGzip);
+      res.setCharacterEncoding("utf-8");
+      writeContent(req, res, resource);
     }
 
-    // Normal process
-    res.setStatus(resource.getStatusCode());
-    String contentType = resource.getContentType();
-    if (contentType != null && contentType.length() > 0) {
-      res.setContentType(contentType);
-    }
-    resource.copyHeadersTo(res, HttpHeaderUtils.isCompressible(resource.getContentType()) && HttpHeaderUtils.acceptsGZipCompression(req));
-    writeContent(req, res, resource);
   }
 
   /**
@@ -361,26 +377,22 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Set the appropriate headers for the HTTP not modified response.
+   * Returns the file corresponding to the resource specified in the request.
    *
-   * @param req The HTTP servlet request.
-   * @param res the HTTP servlet response.
-   * @param resource The cached resource build previously.
+   * @param context the servlet context
+   * @param req     the HTTP servlet request.
+   *
+   * @return The corresponding file or <code>null</code> if the file path could not be guessed
    */
-  private void setHeaderNotModified(HttpServletRequest req, HttpServletResponse res, CachedResource resource) {
-    long lastModified = resource.getLastModified();
-    long ttlMilliseconds = computeTimeToLiveMilliseconds(getCache());
-    boolean isGzippable = HttpHeaderUtils.isCompressible(resource.getContentType());
-    boolean isGzipped = isGzippable && HttpHeaderUtils.acceptsGZipCompression(req);
-    String cacheControl = this.cacheControlPattern.replaceAll("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
-
-    // Set the headers of the HTTP response
-    res.setHeader(HttpHeaders.CACHE_CONTROL, cacheControl);
-    res.setHeader(HttpHeaders.ETAG, toEtag(lastModified / MILLISECONDS_PER_SECOND, isGzipped));
-    res.setDateHeader(HttpHeaders.LAST_MODIFIED, (lastModified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND);
-    res.setDateHeader(HttpHeaders.EXPIRES, System.currentTimeMillis() + ttlMilliseconds);
-    if (isGzippable)
-      res.setHeader(HttpHeaders.VARY, "Accept-Encoding");
+  private static File getResourceFile(ServletContext context, HttpServletRequest req){
+    File f = (File)req.getAttribute(FILE_REQUEST_ATTRIBUTE);
+    if (f == null) {
+      String filepath = context.getRealPath(decode(req.getRequestURI()));
+//      LOGGER.debug("Resource path: {}", filepath);
+      f = new File(filepath);
+      req.setAttribute(FILE_REQUEST_ATTRIBUTE, f);
+    }
+    return f;
   }
 
   /**
@@ -403,46 +415,20 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   }
 
   /**
-   * Returns the last modified date form the etag
+   * Try to decoded a URL encoded path.
    *
-   * @param etag the etag used
-   *
-   * @return the last modified date (in seconds)
+   * @param encoded the encoded path
+   * @return the decoded path
    */
-  private static long toLastModified(String etag) {
-    if (etag == null || etag.length() < 2) return -1;
-    String raw = etag;
-    // Remove quotes
-    if (raw.charAt(0) == '"' && raw.charAt(etag.length()-1) == '"') {
-      raw = raw.substring(1, raw.length()-1);
-    }
-    // Remove "-gzip" suffix if any
-    if (raw.endsWith("-gzip")) raw = raw.substring(0, raw.length()-5);
+  private static String decode(String encoded) {
     try {
-      return Long.parseLong(raw, 16);
-    } catch (NumberFormatException ex) {
-      LOGGER.warn("Incorrect etag {}", etag);
-      return -1;
+      return URLDecoder.decode(encoded, "utf-8");
+    } catch (IllegalArgumentException ex) {
+      // Might simply be a badly written path
+      return encoded;
+    } catch (UnsupportedEncodingException ex) {
+      // XXX: maybe we should throw an exception instead
+      return encoded;
     }
   }
-
-  /**
-   * Returns an etag for the specified resource based on the last modified date.
-   *
-   * @param modified  The last modified date (in seconds)
-   * @param isGzipped <code>true</code> if the resource is sent gzipped;
-   *                  <code>false</code> if sent raw
-   *
-   * @return The corresponding etag.
-   */
-  private static String toEtag(long modified, boolean isGzipped) {
-    StringBuilder etag = new StringBuilder();
-    etag.append('"').append(Long.toHexString(modified));
-    if (isGzipped) {
-      etag.append("-gzip");
-    }
-    etag.append('"');
-    return etag.toString();
-  }
-
 }

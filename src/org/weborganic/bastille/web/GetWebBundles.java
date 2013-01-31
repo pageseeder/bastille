@@ -9,6 +9,7 @@ package org.weborganic.bastille.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -461,7 +462,10 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   /**
    * Holds the basic configurations for a bundle.
    */
-  private static final class BundleConfig {
+  private static final class BundleConfig implements Serializable {
+
+    /** As per requirement for <code>Serializable</code> */
+    private static final long serialVersionUID = -663743071617576797L;
 
     /**
      * The name of the bundle.
@@ -471,12 +475,12 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     /**
      * The name to use of the filename of the bundle.
      */
-    private String _filename;
+    private final String _filename;
 
     /**
      * The list of paths to include in the bundle.
      */
-    private String[] _paths;
+    private final String[] _paths;
 
     /**
      * @param name     The name of the bundle.

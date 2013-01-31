@@ -21,13 +21,10 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.cache.util.HttpHeader.Type;
 import org.weborganic.berlioz.http.HttpHeaders;
 
@@ -44,9 +41,6 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   /** As per requirement by <code>Serializable</code> */
   private static final long serialVersionUID = -5976708169031065497L;
-
-  /** For our logging needs */
-  private static final Logger LOGGER = LoggerFactory.getLogger(CachedResponseWrapper.class);
 
   /** HTTP status code, OK (200) by default. */
   private int _status = SC_OK;
@@ -123,7 +117,6 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendError(int code, String string) throws IOException {
     this._status = code;
-    LOGGER.debug("R.sendError("+code+",\""+string+"\")");
     super.sendError(code, string);
   }
 
@@ -138,7 +131,6 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendError(int code) throws IOException {
     this._status = code;
-    LOGGER.debug("R.sendError("+code+")");
     super.sendError(code);
   }
 
@@ -153,14 +145,12 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void sendRedirect(String url) throws IOException {
     this._status = HttpServletResponse.SC_MOVED_TEMPORARILY;
-    LOGGER.debug("R.sendRedirect("+url+")");
     super.sendRedirect(url);
   }
 
   @Override
   public void setStatus(int code, String msg) {
     this._status = code;
-    LOGGER.warn("Discarding message because this method is deprecated.");
     super.setStatus(code);
   }
 
@@ -254,7 +244,6 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public void flushBuffer() throws IOException {
-    LOGGER.debug("R.flushBuffer()");
     flush();
   }
 
@@ -269,37 +258,6 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     this._status = SC_OK;
     this._contentType = null;
     this._contentLength = 0;
-  }
-
-  @Override
-  public void resetBuffer() {
-    LOGGER.debug("R.resetBuffer()");
-    super.resetBuffer();
-  }
-
-  @Override
-  public void setBufferSize(int size) {
-    LOGGER.debug("R.setBufferSize("+size+")");
-    super.setBufferSize(size);
-  }
-
-  @Override
-  public void setResponse(ServletResponse response) {
-    LOGGER.debug("R.setResponse(response)");
-    super.setResponse(response);
-  }
-
-  @Override
-  public boolean isCommitted() {
-    LOGGER.debug("R.isCommitted()");
-    return super.isCommitted();
-  }
-
-  @Override
-  public ServletResponse getResponse() {
-    // TODO potentially signal bypass
-    LOGGER.debug("R.getResponse()");
-    return super.getResponse();
   }
 
   // Class specific methods

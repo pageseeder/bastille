@@ -53,8 +53,6 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   /** Logger will report caching problems */
   private static final Logger LOGGER = LoggerFactory.getLogger(CachingFilterBase.class);
 
-  private static final String BLOCKING_TIMEOUT_MILLIS = "blockingTimeoutMillis";
-
   /**
    * The cache name can be set through init parameters. If it is set it is stored here.
    */
@@ -112,12 +110,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
           getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
         }
         this._cache = (BlockingCache) getCacheManager().getEhcache(localCacheName);
-
-        // Set the blocking timeout
-        int timeout = toInt(config.getInitParameter(BLOCKING_TIMEOUT_MILLIS));
-        if (timeout > 0) {
-          this._cache.setTimeoutMillis(timeout);
-        }
+        this._cache.setTimeoutMillis(5000);
       }
     }
   }
@@ -237,22 +230,6 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
 
   // private helpers
   // ----------------------------------------------------------------------------------------------
-
-  /**
-   * Reads the filterConfig for the parameter "blockingTimeoutMillis", and if found, set the
-   * blocking timeout.
-   *
-   * If there is a parsing exception, no timeout is set.
-   *
-   * @return the value as an int or -1.
-   */
-  private static int toInt(String timeout) {
-    try {
-      return Integer.parseInt(timeout);
-    } catch (NumberFormatException ex) {
-      return -1;
-    }
-  }
 
   /**
    * Writes the response content.

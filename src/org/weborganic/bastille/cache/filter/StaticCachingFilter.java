@@ -9,7 +9,6 @@ package org.weborganic.bastille.cache.filter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
@@ -34,7 +33,6 @@ import org.weborganic.bastille.cache.util.CachedResource;
 import org.weborganic.bastille.cache.util.CachedResponseWrapper;
 import org.weborganic.bastille.cache.util.GenericResource;
 import org.weborganic.bastille.cache.util.HttpDateFormat;
-import org.weborganic.bastille.cache.util.HttpHeader;
 import org.weborganic.bastille.cache.util.StaticRequestWrapper;
 import org.weborganic.bastille.cache.util.StaticResource;
 import org.weborganic.berlioz.http.HttpHeaderUtils;
@@ -157,12 +155,10 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     String key = calculateKey(req);
     CachedResource resource = null;
     boolean doBuild = true;
-    boolean newResource = true;
     try {
       resource = getResourceFromCache(key);
       // We've got a cached resource, let's check for freshness
       if (resource != null) {
-        newResource = false;
 
         // Get last modified date of resource (rounded to the second)
         long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
@@ -189,20 +185,18 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
             LOGGER.debug("Resource OK (200) - adding to cache {} with key {}", cache.getName(), key);
             cache.put(new Element(key, resource));
           } else {
-            LOGGER.debug("Resource was not OK(200).");
-            if (!newResource) {
-              LOGGER.debug("Putting null into cache {} with key {}", cache.getName(), key);
-              cache.put(new Element(key, null));
-            }
+            LOGGER.debug("Resource was not OK(200) - putting null into cache {} with key {}", cache.getName(), key);
+            // Must unlock the cache by inserting null element
+            cache.put(new Element(key, null));
           }
         } catch (Throwable throwable) {
-          // Must unlock the cache if the above fails. Will be logged at Filter
-          if (!newResource) cache.put(new Element(key, null));
+          // Must unlock the cache by inserting null element
+          cache.put(new Element(key, null));
           throw new ServletException(throwable);
         }
       }
     } catch (LockTimeoutException ex) {
-      // do not release the lock, because you never acquired it
+      // Do not release the lock since we never acquired it
       throw ex;
     }
     return resource;
@@ -228,7 +222,9 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * @param chain THe Servlet chain
    *
    * @return the cache resource
-   * @throws IOException
+   *
+   * @throws IOException      For I/O errors only
+   * @throws ServletException For all other errors.
    */
   private CachedResource buildResource(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
@@ -257,10 +253,10 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     } else {
 
       // Return a generic cache resource.
-      LOGGER.debug("=== Response headers ===");
-      for (HttpHeader<? extends Serializable> header : r.getAllHeaders()) {
-        LOGGER.debug("R {}: {}", header.name(), header.value());
-      }
+//      LOGGER.debug("=== Response headers ===");
+//      for (HttpHeader<? extends Serializable> header : r.getAllHeaders()) {
+//        LOGGER.debug("R {}: {}", header.name(), header.value());
+//      }
       LOGGER.debug("Building generic cached resource {}", req.getRequestURI());
 
       boolean gzip = HttpHeaderUtils.isCompressible(r.getContentType());
@@ -307,6 +303,9 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * @param req The HTTP servlet request.
    * @param res the HTTP servlet response.
    * @param resource The cached resource build previously.
+   *
+   * @throws IOException      For I/O errors only
+   * @throws ServletException For all other errors.
    */
   @Override
   public void writeResponse(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
@@ -384,7 +383,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    *
    * @return The corresponding file or <code>null</code> if the file path could not be guessed
    */
-  private static File getResourceFile(ServletContext context, HttpServletRequest req){
+  private static File getResourceFile(ServletContext context, HttpServletRequest req) {
     File f = (File)req.getAttribute(FILE_REQUEST_ATTRIBUTE);
     if (f == null) {
       String filepath = context.getRealPath(decode(req.getRequestURI()));

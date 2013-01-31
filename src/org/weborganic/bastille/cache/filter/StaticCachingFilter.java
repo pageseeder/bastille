@@ -321,7 +321,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       // Check "If-None-Match" header
       String ifNoneMatch = req.getHeader(HttpHeaders.IF_NONE_MATCH);
       if (ifNoneMatch != null) {
-        String etag = resource.getETag(true);
+        String etag = resource.getETag(ifNoneMatch.indexOf("-gzip") != -1);
         if (etag.equals(ifNoneMatch)) {
           LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_NONE_MATCH);
           resource.copyHeadersTo(res, sendGzip);

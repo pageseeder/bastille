@@ -29,31 +29,53 @@ import com.topologi.diffx.xml.XMLWriter;
 /**
  * List the Java libraries in use in the application.
  *
+ * <p>This generator scans the <code>/WEB-INF/lib/</code> folder of the current Web application
+ * for <code>.jar</code> files and extracts the metadata from their manifest.
+ *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 February 2013
+ * @version Bastille 0.8.5 - 3 February 2013
  */
 @Beta
 public final class ListLibraries implements ContentGenerator {
+
+  /**
+   * Only accepts files ending with ".jar".
+   */
+  private static final FileFilter JAR_FILES = new FileFilter() {
+
+    @Override
+    public boolean accept(File file) {
+      return file.isFile() && file.getName().endsWith(".jar");
+    }
+
+  };
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     File lib = req.getEnvironment().getPrivateFile("lib");
     xml.openElement("libraries");
-    if (lib.isDirectory()) {
+    if (lib.exists() && lib.isDirectory()) {
 
       // List all the jars
-      File[] jars = lib.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-          return file.getName().endsWith(".jar");
-        }
-      });
+      File[] jars = lib.listFiles(JAR_FILES);
 
       // Iterate over each library
       for (File f : jars) {
+        String filename = f.getName();
+
+        // Get the name and version from the file name
+        int dot = filename.lastIndexOf('.');
+        int dash = filename.lastIndexOf('-');
+        String name = dash != -1? filename.substring(0, dash) : filename.substring(0, dot);
+        String version = dash != -1? filename.substring(dash+1, dot) : null;
+
+        // Start writing out the XML
         xml.openElement("library");
-        xml.attribute("file", f.getName());
+        xml.attribute("file", filename);
+        xml.attribute("name", name);
+        if (version != null)
+          xml.attribute("version", version);
 
         JarFile jar = null;
         try {

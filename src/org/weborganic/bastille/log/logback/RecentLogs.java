@@ -48,6 +48,10 @@ public final class RecentLogs implements XMLWritable {
    * @return the new instance with the a copy of the most recent events..
    */
   public static RecentLogs newInstance() {
+//    org.slf4j.Logger root = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+//    if (root instanceof Logger) {
+//      Logger classicRoot = (Logger)root;
+//    }
     return new RecentLogs(RecentLogFilter.getCopyOfEvents());
   }
 

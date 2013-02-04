@@ -11,10 +11,12 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
+import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
+import org.weborganic.berlioz.content.ContentStatus;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -30,14 +32,37 @@ public class GetCPUTime implements ContentGenerator {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
-    long interval = req.getIntParameter("interval", 100);
+    int interval = req.getIntParameter("interval", 100);
+
+    // Check that the interval is positive
+    if (interval <= 0) {
+      Errors.error(req, xml, "client", "Interval must be strictly positive", ContentStatus.BAD_REQUEST);
+      return;
+    }
+
+    long threadId = -1L;
+    try {
+      threadId = Long.parseLong(req.getParameter("thread"));
+    } catch (NumberFormatException ex) {
+      Errors.invalidParameter(req, xml, "thread");
+      return;
+    }
 
     try {
+      ThreadMXBean bean = ManagementFactory.getThreadMXBean();
       // measure
-      long threadId = Thread.currentThread().getId();
-      Sample start = sample();
-      Thread.sleep(interval);
-      Sample end = sample();
+      Sample start;
+      Sample end;
+      if (threadId == -1L) {
+        long current = Thread.currentThread().getId();
+        start = global(bean, current);
+        Thread.sleep(interval);
+        end = global(bean, current);
+      } else {
+        start = single(bean, threadId);
+        Thread.sleep(interval);
+        end = single(bean, threadId);
+      }
 
       // Calculate
       long time = end.time() - start.time();
@@ -49,6 +74,7 @@ public class GetCPUTime implements ContentGenerator {
       xml.attribute("interval", Long.toString(interval));
       xml.attribute("cpu", Long.toString(cpu*100 / time));
       xml.attribute("user", Long.toString(user*100 / time));
+      xml.attribute("system", Long.toString((cpu - user)*100 / time));
       xml.closeElement();
 
     } catch (InterruptedException ex) {
@@ -56,23 +82,25 @@ public class GetCPUTime implements ContentGenerator {
     }
   }
 
-
-
   /**
-   * Return a sample.
+   * Return a sample for the whole system.
+   *
+   * @param bean The thread management instance
+   * @param current the ID of the current thread.
+   *
+   * @return the corresponding sample
    */
-  private Sample sample() {
+  private Sample global(ThreadMXBean bean, long current) {
     long cpu = 0L;
     long user = 0L;
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
-    final long[] ids = bean.getAllThreadIds( );
+    final long[] ids = bean.getAllThreadIds();
     for (long id : ids) {
-      if (id == 123456)
-          continue;   // TODO Exclude this thread
+      // Exclude this thread
+      if (id == current) continue;
       final long c = bean.getThreadCpuTime(id);
       final long u = bean.getThreadUserTime(id);
-      if ( c == -1 || u == -1 )
-          continue;   // Thread died
+      // Ignore dead threads
+      if (c == -1 || u == -1) continue;
       cpu += c;
       user += u;
     }
@@ -80,7 +108,26 @@ public class GetCPUTime implements ContentGenerator {
   }
 
   /**
+   * Return a sample for a single thread
    *
+   * @param bean The thread management instance
+   * @param id   The ID of the thread to measure.
+   *
+   * @return the corresponding sample
+   */
+  private Sample single(ThreadMXBean bean, long id) {
+    final long cpu = bean.getThreadCpuTime(id);
+    final long user = bean.getThreadUserTime(id);
+    // The thread has died!
+    if (cpu == -1 || user == -1) {
+      return new Sample(0L, 0L);
+    } else {
+      return new Sample(cpu, user);
+    }
+  }
+
+  /**
+   * Co
    */
   private static class Sample {
     public final long _time = System.nanoTime();

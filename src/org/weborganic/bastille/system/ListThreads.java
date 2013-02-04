@@ -8,6 +8,8 @@
 package org.weborganic.bastille.system;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
@@ -32,16 +34,27 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version Bastille 0.8.5 - 4 February 2013
  */
 @Beta
-public class GetThreads implements ContentGenerator {
+public class ListThreads implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
-    ThreadGroup root = getRootThreadGroup();
+    boolean stacktraces = "true".equals(req.getParameter("stacktraces"));
 
-    // organised
-    toXML(root, xml);
+    xml.openElement("threads");
 
+    if (stacktraces) {
+      // Use slow but convenient method to load the threads with their stack traces
+      Map<Thread, StackTraceElement[]> all = Thread.getAllStackTraces();
+      toXML(all, xml);
+
+    } else {
+      // Use old-school method
+      ThreadGroup root = getRootThreadGroup();
+      toXML(root, xml);
+    }
+
+    xml.closeElement();
   }
 
   /**
@@ -52,13 +65,14 @@ public class GetThreads implements ContentGenerator {
   private static ThreadGroup getRootThreadGroup() {
     ThreadGroup current = Thread.currentThread().getThreadGroup();
     ThreadGroup parent;
-    while ((parent = current.getParent()) != null)
+    while ((parent = current.getParent()) != null) {
       current = parent;
+    }
     return current;
   }
 
   /**
-   * Display the specified group thread as a tree.
+   * Display the specified group thread.
    *
    * @param group The group thread to display as a tree
    * @param xml   The XML Writer
@@ -66,22 +80,16 @@ public class GetThreads implements ContentGenerator {
    * @throws IOException Should an error occur while writing the XML
    */
   private static void toXML(ThreadGroup group, XMLWriter xml) throws IOException {
-    xml.openElement("thread-group");
-    xml.attribute("name", group.getName());
-
-    // sub thread groups
-    ThreadGroup[] groups = new ThreadGroup[group.activeGroupCount()];
-    int gcount = group.enumerate(groups);
-    for (ThreadGroup g : groups) {
-      if (g != null) toXML(g, xml);
+    // Grab all the threads
+    Thread[] threads = new Thread[group.activeCount()];
+    while (group.enumerate(threads, true) == threads.length) {
+      threads = new Thread[threads.length * 2];
     }
 
     // threads
-    Thread[] threads = new Thread[group.activeCount()];
-    int tcount = group.enumerate(threads);
     for (Thread t : threads) {
       // Only display the threads part of the current group
-      if (t != null && t.getThreadGroup() == group) {
+      if (t != null) {
         xml.openElement("thread", true);
         xml.attribute("id", Long.toString(t.getId()));
         xml.attribute("name", t.getName());
@@ -89,9 +97,47 @@ public class GetThreads implements ContentGenerator {
         xml.attribute("state", t.getState().name());
         xml.attribute("alive", Boolean.toString(t.isAlive()));
         xml.attribute("daemon", Boolean.toString(t.isDaemon()));
+        xml.attribute("group", t.getThreadGroup().getName());
         xml.closeElement();
       }
     }
-    xml.closeElement();
+  }
+
+  /**
+   * Return all the threads with stack traces
+   *
+   * @param all The threads
+   * @param xml The XML writer
+   * @throws IOException If thrown while writing XML.
+   */
+  private static void toXML(Map<Thread, StackTraceElement[]> all, XMLWriter xml) throws IOException {
+    for (Entry<Thread, StackTraceElement[]> e : all.entrySet()) {
+      Thread t = e.getKey();
+      StackTraceElement[] s = e.getValue();
+      xml.openElement("thread", true);
+      xml.attribute("id", Long.toString(t.getId()));
+      xml.attribute("name", t.getName());
+      xml.attribute("priority", t.getPriority());
+      xml.attribute("state", t.getState().name());
+      xml.attribute("alive", Boolean.toString(t.isAlive()));
+      xml.attribute("daemon", Boolean.toString(t.isDaemon()));
+      xml.attribute("group", t.getThreadGroup().getName());
+      if (s != null) {
+        xml.openElement("stacktrace");
+        for (StackTraceElement ste : s) {
+          xml.openElement("element");
+          String method = ste.getMethodName();
+          String filename = ste.getFileName();
+          int line = ste.getLineNumber();
+          xml.attribute("class", ste.getClassName());
+          if (filename != null) xml.attribute("filename", filename);
+          if (method != null) xml.attribute("method", method);
+          if (line >= 0) xml.attribute("line", line);
+          xml.closeElement();
+        }
+        xml.closeElement();
+      }
+      xml.closeElement();
+    }
   }
 }

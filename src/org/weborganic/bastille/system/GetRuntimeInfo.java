@@ -20,7 +20,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * Returns information from the runtime object.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 2 February 2013
+ * @version Bastille 0.8.5 - 5 February 2013
  */
 @Beta
 public class GetRuntimeInfo implements ContentGenerator {
@@ -34,9 +34,9 @@ public class GetRuntimeInfo implements ContentGenerator {
 
     // Memory information
     xml.openElement("memory");
-    xml.attribute("free", Long.toString(runtime.freeMemory()));
-    xml.attribute("total",Long.toString(runtime.totalMemory()));
-    xml.attribute("max",  Long.toString(runtime.maxMemory()));
+    xml.attribute("free",  Long.toString(runtime.freeMemory()));
+    xml.attribute("total", Long.toString(runtime.totalMemory()));
+    xml.attribute("max",   Long.toString(runtime.maxMemory()));
     xml.closeElement();
 
     xml.closeElement();

@@ -21,6 +21,7 @@ import org.weborganic.bastille.log.UnexpectedFrameworkException;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.TurboFilterList;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 
@@ -40,7 +41,9 @@ public final class LogbackInfo implements LogInfo {
   @Override
   public void init() {
     LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
-    context.addTurboFilter(new RecentEventsFilter());
+    // Ensure that it's not already there
+    TurboFilterList list = context.getTurboFilterList();
+    list.addIfAbsent(RecentEventsFilter.singleton());
   }
 
   @Override

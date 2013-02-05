@@ -28,9 +28,9 @@ import com.topologi.diffx.xml.XMLWriter;
  * @author Christophe Lauret
  * @version Bastille 0.8.5 - 4 February 2013
  */
-public class GetRecentLogsEntries implements ContentGenerator {
+public class GetRecentLogsEvents implements ContentGenerator {
 
-  public GetRecentLogsEntries() {
+  public GetRecentLogsEvents() {
     LogInfo info = Logs.getLogInfo();
     info.init();
   }

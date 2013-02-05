@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
-import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.ContentStatus;
@@ -35,7 +34,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   /**
    * The default number of lines to read.
    */
-  private static final int DEFAULT_MAX_LINES = 200;
+  private static final int DEFAULT_MAX_LINES = 1000;
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
@@ -47,36 +46,47 @@ public final class GetRawLogEntries implements ContentGenerator {
       return;
     }
 
-    // Get the configuration from Bastille
-    String dirs = GlobalSettings.get("bastille.logs.path", "");
-    if (dirs.length() == 0) {
-      Errors.error(req, xml, "config", "The logs have not been configured", ContentStatus.SERVICE_UNAVAILABLE);
+    String name = req.getParameter("name");
+    if (name == null) {
+      Errors.noParameter(req, xml, "name");
       return;
     }
 
-    // Identify the log directory to read
-    String[] d = dirs.split(";");
-    // FIXME Check that the path is valid
+    // Get the information about the log framework
+    LogInfo info = Logs.getLogInfo();
+    if (info.supportsListLogDirectories()) {
 
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
+      // Parse
+      File log = findLog(info, name);
+
+      if (log != null) {
+
+        // Write out
+        xml.openElement("log");
+        xml.attribute("name", name);
+        tail(log, xml, lines);
+        xml.closeElement();
+
+      } else {
+
+        // Could not be found
+        xml.openElement("no-log");
+        xml.attribute("name", name);
+        xml.closeElement();
+        req.setStatus(ContentStatus.NOT_FOUND);
+      }
+
+    } else {
+
+      // No logs directories
+      xml.openElement("no-log");
+      String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support the listing log files.\n"
+          + "Switch to the LogBack library http://logback.qos.ch";
+      xml.writeComment(message);
+      xml.closeElement();
+      req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+
     }
-    if (!path.endsWith(".log")) {
-      Errors.invalidParameter(req, xml, "path");
-      return;
-    }
-
-    // Parse
-    File log = new File(path);
-
-    // Write out
-    xml.openElement("log");
-    xml.attribute("name", log.getName());
-    tail(log, xml, lines);
-    xml.closeElement();
-
   }
 
   /**
@@ -92,20 +102,63 @@ public final class GetRawLogEntries implements ContentGenerator {
     BufferedReader reader = new BufferedReader(new FileReader(src));
     String[] lines = new String[maxLines];
     int last = 0;
+    int total = 0;
     for (String line = reader.readLine(); line != null; line = reader.readLine()) {
       if (last == lines.length) {
         last = 0;
       }
       lines[last++] = line;
+      total++;
     }
+    int n = total > maxLines? total - maxLines : 0;
     for (int i = last; i != last-1; i++) {
       if (i == lines.length) {
         i = 0;
       }
       String line = lines[i];
-      if (line != null)
-        xml.element("line", line);
+      if (line != null) {
+        xml.openElement("line");
+        xml.attribute("n", ++n);
+        String level = getLevel(line);
+        if (level != null)
+          xml.attribute("level", level);
+        xml.writeText(line);
+        xml.closeElement();
+      }
     }
+  }
+
+  /**
+   * Returns the log instance for the specified name.
+   *
+   * @param name The name of the log file
+   *
+   * @return The first matching instance
+   */
+  private File findLog(LogInfo info, String name) {
+    // Identify the log directory to read
+    for (File f : info.listLogDirectories()) {
+      File log = new File(f, name);
+      if (log.exists()) {
+        return log;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the level from the line.
+   *
+   * @param name The name of the log file
+   *
+   * @return The first matching instance
+   */
+  private static String getLevel(String line) {
+    String[] levels = new String[]{"INFO", "WARN", "ERROR", "DEBUG"};
+    for (String level : levels) {
+      if (line.indexOf(level) != -1) return level;
+    }
+    return null;
   }
 
 }

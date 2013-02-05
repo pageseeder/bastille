@@ -43,6 +43,16 @@ public final class RecentEventsFilter extends TurboFilter {
   private static Level threshold = Level.INFO;
 
   /**
+   * Singleton instance.
+   */
+  private static RecentEventsFilter singleton = new RecentEventsFilter();
+
+  /**
+   * Use singleton method.
+   */
+  private RecentEventsFilter() {}
+
+  /**
    * @param event the event to keep.
    * @return Always neutral.
    */
@@ -71,4 +81,10 @@ public final class RecentEventsFilter extends TurboFilter {
     return new ArrayList<RecentEvent>(RECENT);
   }
 
+  /**
+   * @return a singleton instance.
+   */
+  public static RecentEventsFilter singleton() {
+    return singleton;
+  }
 }

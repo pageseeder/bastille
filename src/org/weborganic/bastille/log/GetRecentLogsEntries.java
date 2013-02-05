@@ -8,8 +8,7 @@
 package org.weborganic.bastille.log;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.List;
 
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -31,55 +30,35 @@ import com.topologi.diffx.xml.XMLWriter;
  */
 public class GetRecentLogsEntries implements ContentGenerator {
 
+  public GetRecentLogsEntries() {
+    LogInfo info = Logs.getLogInfo();
+    info.init();
+  }
+
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    // TODO Auto-generated method stub
-  //  "org.weborganic.bastille.log.logback.RecentLogs"
-
-    Package core = Package.getPackage("ch.qos.logback.core");
-    if (core != null) {
+    LogInfo info = Logs.getLogInfo();
+    if (info.supportsRecentEvents()) {
 
       // Write out the recent logs as XML
       xml.openElement("recent-logs");
-      XMLWritable recent = getRecentLogs();
-      recent.toXML(xml);
+      List<? extends XMLWritable> events = info.listRecentEvents();
+      for (XMLWritable e : events) {
+        e.toXML(xml);
+      }
       xml.closeElement();
 
     } else {
+
       // No recent logs
       xml.openElement("no-recent-logs");
-      xml.writeComment("This service requires the LogBack library http://logback.qos.ch");
-      xml.writeComment("Then use <filter class=\"org.weborganic.bastille.log.logback.RecentLogFilter\" />");
-      xml.closeElement();
+      String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
+                     + "Switch to the LogBack library http://logback.qos.ch";
+      xml.writeComment(message);
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+
     }
 
   }
 
-
-  /**
-   * Returns the recent logs using reflection.
-   *
-   * @return the recent logs using reflection as a XMLWritable.
-   *
-   * @throws BerliozException
-   */
-  private static XMLWritable getRecentLogs() throws BerliozException {
-    final Class<?>[] noArg = new Class<?>[0];
-    final Object[] noObj = new Object[0];
-    try {
-      Class<?> recent = Class.forName("org.weborganic.bastille.log.logback.RecentLogs");
-      Method getInstance = recent.getMethod("newInstance", noArg);
-      Object o = getInstance.invoke(null, noObj);
-      return (XMLWritable)o;
-    } catch (ClassNotFoundException ex) {
-      throw new BerliozException("Unable to get recent logs", ex);
-    } catch (NoSuchMethodException ex) {
-      throw new BerliozException("Unable to get recent logs", ex);
-    } catch (InvocationTargetException ex) {
-      throw new BerliozException("Unable to get recent logs", ex);
-    } catch (IllegalAccessException ex) {
-      throw new BerliozException("Unable to get recent logs", ex);
-    }
-  }
 }

@@ -21,14 +21,44 @@ import com.topologi.diffx.xml.XMLWritable;
  * A utility class for logs.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 5 February 2013
+ *
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 public final class Logs {
 
   /**
    * A simple enum for the log implementation in use in the system.
    */
-  public enum LoggingFramework {LOGBACK, NOP, LOG4J, JAVA, OTHER}
+  public enum LoggingFramework {
+
+    /**
+     * Logback framework.
+     * @see http://logback.qos.ch/
+     */
+    LOGBACK,
+
+    /**
+     * SLF4J in No operation mode.
+     */
+    NOP,
+
+    /**
+     * Apache Log4j.
+     * @see http://logging.apache.org/log4j/1.2/
+     */
+    LOG4J,
+
+    /**
+     * The Java logging from the util package.
+     */
+    JAVA,
+
+    /**
+     * Any other unrecognised logging framework.
+     */
+    OTHER
+  }
 
   /**
    * The framework in use.
@@ -72,7 +102,7 @@ public final class Logs {
   /**
    * Initialise the framework by guessing from the implementation.
    */
-  private synchronized static final void initFramework() {
+  private static synchronized void initFramework() {
     // If we don't know yet, let's find out
     Logger root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     LoggingFramework fm = LoggingFramework.OTHER;
@@ -92,7 +122,7 @@ public final class Logs {
   /**
    * Initialise the log info by guessing from the implementation.
    */
-  private synchronized static final void initLogInfo() {
+  private static synchronized void initLogInfo() {
     if (framework == null) initFramework();
     switch (framework) {
       case LOGBACK:
@@ -123,6 +153,15 @@ public final class Logs {
     @Override
     public List<File> listLogDirectories() {
       return Collections.emptyList();
+    }
+
+    @Override
+    public void setRecentEventThreshold(LogLevel level) {
+    }
+
+    @Override
+    public LogLevel getRecentEventThreshold() {
+      return LogLevel.OFF;
     }
 
     @Override

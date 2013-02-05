@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ */
 package org.weborganic.bastille.log.logback;
 
 import java.io.IOException;
@@ -24,39 +31,54 @@ import com.topologi.diffx.xml.XMLWriter;
 /**
  * Holds the information about a log event.
  *
- * <p>By design, this class only keeps references to the objects passed by the logger.
+ * <p>Each object only keeps references to the objects passed by the TurboFilter.
  *
  * <p>It will not serialise the objects until requested by the generator.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 5 February 2013
+ *
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 public final class RecentEvent implements XMLWritable, Serializable {
 
   /** As per requirement */
   private static final long serialVersionUID = 8445287374800936982L;
 
+  /** Timestamp created when this object is instantiated */
   private final long _timestamp;
+
+  /** Marker as passed by the filter */
   private final Marker _marker;
+
+  /** Logger as passed by the filter */
   private final Logger _logger;
+
+  /** Level as passed by the filter */
   private final Level _level;
+
+  /** Message as passed by the filter */
   private final String _message;
+
+  /** Arguments as passed by the filter */
   private final Object[] _args;
+
+  /** Throwable as passed by the filter */
   private final Throwable _throwable;
 
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
    */
-  private volatile transient String _xml = null;
+  private transient volatile String _xml = null;
 
   /**
-   * Creates a recent event using the
+   * Creates a recent event using the objects send from the TurboFilter.
    *
    * @param marker     The marker
    * @param logger     The original logger
    * @param level      The logging level
-   * @param p          The message
-   * @param objects    The arguments
+   * @param message    The message
+   * @param args       The arguments
    * @param throwable  Any error (may be <code>null</code>).
    */
   RecentEvent(Marker marker, Logger logger, Level level, String message, Object[] args, Throwable throwable) {
@@ -137,11 +159,15 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * Generate the stack trace element for an event.
    *
+   * <p>The actual work is delegated to the {@link CallerData#extract(Throwable, String, int)} method.
+   *
    * @param logger the logger for the event.
    * @return the stack trace element
    */
   private static StackTraceElement[] toCallerData(Logger logger) {
-    return CallerData.extract(new Throwable(), Logger.class.getName(), logger.getLoggerContext().getMaxCallerDataDepth());
+    final String name = Logger.class.getName();
+    final LoggerContext context = logger.getLoggerContext();
+    return CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth());
   }
 
   /**

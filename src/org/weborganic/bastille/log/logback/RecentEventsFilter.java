@@ -20,10 +20,12 @@ import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.spi.FilterReply;
 
 /**
- * A neutral logback filter which keep the last 100 recorded events in memory for quick look up.
+ * A neutral logback Turbo filter which keep the last 256 recorded events in memory for quick look up.
  *
  * @author Christophe Lauret
- * @version 5 February 2013
+ *
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 public final class RecentEventsFilter extends TurboFilter {
 
@@ -50,10 +52,12 @@ public final class RecentEventsFilter extends TurboFilter {
   /**
    * Use singleton method.
    */
-  private RecentEventsFilter() {}
+  private RecentEventsFilter() {
+  }
 
   /**
-   * @param event the event to keep.
+   * {@inheritDoc}
+   *
    * @return Always neutral.
    */
   @Override
@@ -72,6 +76,20 @@ public final class RecentEventsFilter extends TurboFilter {
    */
   public static void clearAll() {
     RECENT.clear();
+  }
+
+  /**
+   * @param threshold the threshold to set
+   */
+  public static void setThreshold(Level threshold) {
+    RecentEventsFilter.threshold = threshold;
+  }
+
+  /**
+   * @return the threshold
+   */
+  public static Level getThreshold() {
+    return threshold;
   }
 
   /**

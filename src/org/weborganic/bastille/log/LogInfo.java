@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ */
 package org.weborganic.bastille.log;
 
 import java.io.File;
@@ -9,7 +16,9 @@ import com.topologi.diffx.xml.XMLWritable;
  * A interface centralizing all common functionalities for the log implementations.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 5 February 2013
+ *
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 public interface LogInfo {
 
@@ -42,6 +51,20 @@ public interface LogInfo {
    *         <code>false</code> otherwise.
    */
   boolean supportsRecentEvents();
+
+  /**
+   * Set the threshold for the recent logs.
+   *
+   * @param level The threshold for keeping recent log events including that level.
+   */
+  void setRecentEventThreshold(LogLevel level);
+
+  /**
+   * Returns the threshold for the recent logs.
+   *
+   * @return The threshold for keeping recent log events including that level.
+   */
+  LogLevel getRecentEventThreshold();
 
   /**
    * Returns a list of the recent log entries as XMLWritable.

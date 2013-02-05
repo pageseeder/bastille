@@ -26,10 +26,16 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 4 February 2013
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
-public class GetRecentLogsEvents implements ContentGenerator {
+public final class GetRecentLogsEvents implements ContentGenerator {
 
+  /**
+   * When this generator is instantiated, the logging framework information is loaded and initialized.
+   *
+   * <p>This assumes that the logging have been loaded before this constructor is called.
+   */
   public GetRecentLogsEvents() {
     LogInfo info = Logs.getLogInfo();
     info.init();
@@ -42,6 +48,7 @@ public class GetRecentLogsEvents implements ContentGenerator {
 
       // Write out the recent logs as XML
       xml.openElement("recent-logs");
+      xml.attribute("level", info.getRecentEventThreshold().toString());
       List<? extends XMLWritable> events = info.listRecentEvents();
       for (XMLWritable e : events) {
         e.toXML(xml);

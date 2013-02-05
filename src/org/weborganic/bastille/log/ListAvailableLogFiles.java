@@ -24,7 +24,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 4 February 2013
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 @Beta
 public final class ListAvailableLogFiles implements ContentGenerator {
@@ -85,13 +86,13 @@ public final class ListAvailableLogFiles implements ContentGenerator {
    * @param log the log file
    * @param xml The XML writer
    *
-   * @throws IOException
+   * @throws IOException If thrown while writing the XML.
    */
   private static void toXML(File log, XMLWriter xml) throws IOException {
     xml.openElement("log-file");
     xml.attribute("name", log.getName());
     xml.attribute("size", Long.toString(log.length()));
-    xml.attribute("datetime", ISO8601.CALENDAR_DATE.format(log.lastModified()));
+    xml.attribute("datetime", ISO8601.DATETIME.format(log.lastModified()));
     xml.closeElement();
   }
 

@@ -9,7 +9,6 @@ package org.weborganic.bastille.log;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -26,10 +25,16 @@ import com.topologi.diffx.xml.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5 - 3 February 2013
+ * @version Bastille 0.8.6 - 6 February 2013
+ * @since Bastille 0.8.5
  */
 @Beta
 public final class GetRawLogEntries implements ContentGenerator {
+
+  /**
+   * Levels to look for.
+   */
+  private static final String[] LEVELS = new String[]{"INFO", "WARN", "ERROR", "DEBUG"};
 
   /**
    * The default number of lines to read.
@@ -90,26 +95,37 @@ public final class GetRawLogEntries implements ContentGenerator {
   }
 
   /**
+   * Returns the tail of the specified file
    *
-   * @param src
-   * @param out
-   * @param maxLines
+   * @param log      The log file to read.
+   * @param xml      The XML writer
+   * @param maxLines The maximum amount of lines to includes in the result.
    *
-   * @throws FileNotFoundException
-   * @throws IOException
+   * @throws IOException If thrown while reading the file or writing the XML out
    */
-  private static void tail(File src, XMLWriter xml, int maxLines) throws FileNotFoundException, IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(src));
+  private static void tail(File log, XMLWriter xml, int maxLines) throws IOException {
+    BufferedReader reader = null;
     String[] lines = new String[maxLines];
     int last = 0;
     int total = 0;
-    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-      if (last == lines.length) {
-        last = 0;
+
+    // Extract the last max lines first
+    try {
+      reader = new BufferedReader(new FileReader(log));
+      for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+        if (last == lines.length) {
+          last = 0;
+        }
+        lines[last++] = line;
+        total++;
       }
-      lines[last++] = line;
-      total++;
+    } catch (IOException ex) {
+      throw ex;
+    } finally {
+      if (reader != null) reader.close();
     }
+
+    // Write the lines out
     int n = total > maxLines? total - maxLines : 0;
     for (int i = last; i != last-1; i++) {
       if (i == lines.length) {
@@ -131,6 +147,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   /**
    * Returns the log instance for the specified name.
    *
+   * @param info The logging framework info
    * @param name The name of the log file
    *
    * @return The first matching instance
@@ -147,15 +164,16 @@ public final class GetRawLogEntries implements ContentGenerator {
   }
 
   /**
-   * Returns the level from the line.
+   * Returns the level from the line by looking for the level in the line.
    *
-   * @param name The name of the log file
+   * <p>Looking for any of "INFO", "WARN", "ERROR" or "DEBUG".
+   *
+   * @param line The name of the log file
    *
    * @return The first matching instance
    */
   private static String getLevel(String line) {
-    String[] levels = new String[]{"INFO", "WARN", "ERROR", "DEBUG"};
-    for (String level : levels) {
+    for (String level : LEVELS) {
       if (line.indexOf(level) != -1) return level;
     }
     return null;

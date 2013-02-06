@@ -38,7 +38,6 @@ import org.weborganic.flint.content.ContentFetcher;
 import org.weborganic.flint.content.ContentId;
 import org.weborganic.flint.local.LocalFileContentId;
 import org.weborganic.flint.local.LocalIndex;
-import org.weborganic.flint.log.SLF4JListener;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchQuery;
 import org.weborganic.flint.query.SearchResults;
@@ -144,7 +143,7 @@ public final class IndexMaster {
     this.lastModified = this.index.getLastModified();
 
     // Create a Manager
-    this.manager = new IndexManager(fetcher, new SLF4JListener(LOGGER));
+    this.manager = new IndexManager(fetcher, new QuietListener(LOGGER));
     List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
     this.manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
 

@@ -5,7 +5,7 @@ package org.weborganic.bastille.flint.helpers;
 
 import org.slf4j.Logger;
 import org.weborganic.flint.IndexJob;
-import org.weborganic.flint.log.FlintListener;
+import org.weborganic.flint.IndexListener;
 
 /**
  * A Flint listener which reports less events than the default.
@@ -15,7 +15,7 @@ import org.weborganic.flint.log.FlintListener;
  * @version 0.8.6 - 6 February 2013
  * @since 0.8.6
  */
-public final class QuietListener implements FlintListener {
+public final class QuietListener implements IndexListener {
 
   /**
    * The format string used for all SLF4J.
@@ -28,6 +28,16 @@ public final class QuietListener implements FlintListener {
   private final Logger _logger;
 
   /**
+   * When the last batch started.
+   */
+  private long _started = 0;
+
+  /**
+   * The number of indexed documents
+   */
+  private volatile int _indexed = 0;
+
+  /**
    * Creates a new logger for the specified Logger.
    *
    * @param logger The underlying logger to use.
@@ -37,65 +47,8 @@ public final class QuietListener implements FlintListener {
   }
 
   @Override
-  public void debug(String message) {
-    this._logger.debug(message);
-  }
-
-  @Override
-  public void debug(String debug, Throwable throwable) {
-    this._logger.debug(debug, throwable);
-  }
-
-  @Override
-  public void info(String message) {
-    this._logger.info(message);
-  }
-
-  @Override
-  public void info(String info, Throwable throwable) {
-    this._logger.info(info, throwable);
-  }
-
-  @Override
-  public void warn(String message) {
-    this._logger.warn(message);
-  }
-
-  @Override
-  public void warn(String warn, Throwable throwable) {
-    this._logger.warn(warn, throwable);
-  }
-
-  @Override
-  public void error(String message) {
-    error(message, null);
-  }
-
-  @Override
-  public void error(String message, Throwable throwable) {
-    this._logger.error(message, throwable);
-  }
-
-  @Override
-  public void debug(IndexJob job, String message) {
-    this._logger.debug(FORMAT_STRING, message, job.toString());
-  }
-
-  @Override
-  public void debug(IndexJob job, String message, Throwable throwable) {
-    this._logger.debug(FORMAT_STRING, message, job.toString());
-    this._logger.debug(message, throwable);
-  }
-
-  @Override
-  public void info(IndexJob job, String message) {
-    this._logger.info(FORMAT_STRING, message, job.toString());
-  }
-
-  @Override
-  public void info(IndexJob job, String message, Throwable throwable) {
-    this._logger.info(FORMAT_STRING, message, job.toString());
-    this._logger.info(message, throwable);
+  public void startJob(IndexJob job) {
+    this._logger.debug("Started {}", job);
   }
 
   @Override
@@ -104,34 +57,26 @@ public final class QuietListener implements FlintListener {
   }
 
   @Override
-  public void warn(IndexJob job, String message, Throwable throwable) {
-    this._logger.warn(FORMAT_STRING, message, job.toString());
-    this._logger.warn(message, throwable);
-  }
-
-  @Override
-  public void error(IndexJob job, String message) {
-    this._logger.error(FORMAT_STRING, message, job.toString());
-  }
-
-  @Override
   public void error(IndexJob job, String message, Throwable throwable) {
-    this._logger.error(FORMAT_STRING, message, job.toString());
-    this._logger.error(message, throwable);
-  }
-
-  @Override
-  public void startJob(IndexJob job) {
-    if (this._logger.isDebugEnabled()) {
-      this._logger.info("Starting [Job:{}]", job.toString());
-    }
+    this._logger.error(FORMAT_STRING, message, new Object[]{job, throwable});
   }
 
   @Override
   public void finishJob(IndexJob job) {
-    if (this._logger.isDebugEnabled()) {
-      this._logger.info("Done! [Job:{}]", job.toString());
-    }
+    this._indexed++;
+    this._logger.debug("Finished {}", job);
+  }
+
+  @Override
+  public void startBatch() {
+    this._logger.info("Started indexing documents.");
+    this._started = System.nanoTime();
+  }
+
+  @Override
+  public void endBatch() {
+    this._logger.info("Indexed {} documents in {} ms", this._indexed, (System.nanoTime() - this._started) / 1000000);
+    this._indexed = 0;
   }
 
 }

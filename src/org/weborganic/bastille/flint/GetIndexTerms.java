@@ -18,12 +18,12 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
+import org.weborganic.bastille.flint.helpers.Etags;
 import org.weborganic.bastille.flint.helpers.IndexMaster;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.Environment;
 import org.weborganic.flint.IndexException;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -56,35 +56,7 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
 
   @Override
   public String getETag(ContentRequest req) {
-    Environment env = req.getEnvironment();
-    StringBuilder etag = new StringBuilder();
-    try {
-      File index = env.getPrivateFile("index");
-      FSDirectory directory = FSDirectory.open(index);
-      if (IndexReader.indexExists(directory)) {
-        long modified = IndexReader.lastModified(directory);
-        etag.append(env.getPrivateFile("index").getName()).append('-').append(modified);
-      } else {
-        String indexName = req.getParameter("index");
-        if (indexName != null) {
-          FSDirectory fsd = FSDirectory.open(index);
-          if (IndexReader.indexExists(fsd))
-            etag.append(indexName).append('-').append(IndexReader.lastModified(fsd));
-        } else {
-          File[] indexes = index.listFiles(FOLDERS_ONLY);
-          if (indexes != null) {
-            for (File indexDir : indexes) {
-              FSDirectory fsd = FSDirectory.open(index);
-              if (IndexReader.indexExists(fsd))
-                etag.append(indexDir.getName()).append('-').append(IndexReader.lastModified(fsd));
-            }
-          }
-        }
-      }
-    } catch (IOException ex) {
-      LOGGER.debug("Error while trying to get last modified date of index", ex);
-    }
-    return etag.length() > 0? etag.toString() : null;
+    return Etags.getETag(req.getParameter("index"));
   }
 
   @Override
@@ -92,21 +64,22 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
     // Getting the index
     File indexRoot = FlintConfig.directory();
     FSDirectory directory = FSDirectory.open(indexRoot);
+    String field = req.getParameter("field");
 
     if (IndexReader.indexExists(directory)) {
       // single index, output it
-      termsToXML(null, xml);
+      termsToXML(null, field, xml);
 
     } else {
       String indexName = req.getParameter("index");
       if (indexName != null) {
-        termsToXML(indexName, xml);
+        termsToXML(indexName, field, xml);
       } else {
         // multiple indexes maybe
         File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
-            termsToXML(d.getName(), xml);
+            termsToXML(d.getName(), field, xml);
           }
         } else {
           xml.openElement("terms");
@@ -125,10 +98,13 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
    *
    * @throws IOException Should any IO error occur.
    */
-  private void termsToXML(String name, XMLWriter xml) throws IOException {
+  private void termsToXML(String index, String field, XMLWriter xml) throws IOException {
     xml.openElement("terms");
+    if (field != null) {
+      xml.attribute("field", field);
+    }
     IndexReader reader = null;
-    IndexMaster master = FlintConfig.getMaster(name);
+    IndexMaster master = FlintConfig.getMaster(index);
     try {
       reader = master.grabReader();
     } catch (IndexException ex) {
@@ -136,15 +112,29 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
     }
     if (reader != null) {
       try {
-        TermEnum e = reader.terms();
-        while (e.next()) {
-          Term t = e.term();
-          xml.openElement("term");
-          xml.attribute("field", t.field());
-          xml.attribute("text", t.text());
-          xml.attribute("doc-freq", e.docFreq());
-          xml.closeElement();
+        TermEnum e;
+        Term t;
+        // Field a specified let's enumerate the terms for that field
+        if (field != null) {
+          e = reader.terms(new Term(field));
+          t = e.term();
+          while (e.next()) {
+            // The enum includes other field names, let's stop before
+            if (!field.equals(t.field())) break;
+            toXML(t, e, xml);
+            t = e.term();
+          }
+
+        // No field let's iterate over ALL the terms in the index
+        } else {
+          e = reader.terms();
+          t = e.term();
+          while (e.next()) {
+            toXML(t, e, xml);
+            t = e.term();
+          }
         }
+        e.close();
       } catch (IOException ex) {
         LOGGER.error("Error while extracting term statistics", ex);
       } finally {
@@ -153,6 +143,23 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
     } else {
       xml.attribute("error", "Reader is null");
     }
+    xml.closeElement();
+  }
+
+  /**
+   * Write the term as XML.
+   *
+   * @param t   The term to serialize as XML
+   * @param e   The term enum it belongs to (for doc frequency)
+   * @param xml The XML
+   *
+   * @throws IOException
+   */
+  private static void toXML(Term t, TermEnum e, XMLWriter xml) throws IOException {
+    xml.openElement("term");
+    xml.attribute("field", t.field());
+    xml.attribute("text", t.text());
+    xml.attribute("doc-freq", e.docFreq());
     xml.closeElement();
   }
 }

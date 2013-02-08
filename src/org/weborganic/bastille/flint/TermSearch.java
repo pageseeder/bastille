@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.lucene.search.Query;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.helpers.IndexMaster;
 import org.weborganic.bastille.flint.helpers.MultiSearchResults;
@@ -23,54 +22,43 @@ import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.flint.IndexException;
-import org.weborganic.flint.query.PredicateSearchQuery;
+import org.weborganic.flint.query.BasicQuery;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchResults;
+import org.weborganic.flint.query.TermParameter;
 
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * Performs a search using a Lucene predicate.
- *
- * <p>Note: this generator is not designed to be used for production but can be useful during
- * development to determine which query should be used.
+ * Performs a search on the index using a specific term query.
  *
  * @author Christophe Lauret
- * @version 0.6.20 - 26 September 2011
- * @since 0.6.20
+ *
+ * @version 0.8.6 - 8 February 2013
+ * @since 0.8.6
  */
 @Beta
-public final class PredicateSearch implements ContentGenerator  {
+public final class TermSearch implements ContentGenerator  {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Create a new query object using HTTP parameters
-    String predicate = req.getParameter("predicate", "");
-    if (predicate.isEmpty()) {
-      Errors.noParameter(req, xml, "predicate");
+    String field = req.getParameter("field", "");
+    String term = req.getParameter("term", "");
+    if (field.isEmpty()) {
+      Errors.noParameter(req, xml, "field");
       return;
     }
-
-    // All predicates must include ':'
-    boolean valid = true;
-    for (String p : predicate.split("\\s+")) {
-      if (p.indexOf(':') == -1) {
-        valid = false;
-      }
-    }
-    if (!valid) {
-      Errors.invalidParameter(req, xml, "predicate");
+    if (term.isEmpty()) {
+      // empty string is OK for term
+      Errors.noParameter(req, xml, "term");
       return;
     }
 
     // Create a query from the predicate
-    PredicateSearchQuery query =  new PredicateSearchQuery(predicate);
-    Query q = query.toQuery();
-    if (q == null) {
-      Errors.invalidParameter(req, xml, "predicate");
-      return;
-    }
+    TermParameter parameter = new TermParameter(field, term);
+    BasicQuery<TermParameter> query = BasicQuery.newBasicQuery(parameter);
 
     // Initialise the paging setting
     SearchPaging paging = new SearchPaging();

@@ -117,22 +117,22 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
         // Field a specified let's enumerate the terms for that field
         if (field != null) {
           e = reader.terms(new Term(field));
-          t = e.term();
-          while (e.next()) {
+          do {
+            t = e.term();
             // The enum includes other field names, let's stop before
             if (!field.equals(t.field())) break;
             toXML(t, e, xml);
             t = e.term();
-          }
+          } while (e.next());
 
         // No field let's iterate over ALL the terms in the index
         } else {
           e = reader.terms();
-          t = e.term();
-          while (e.next()) {
+          do {
+            t = e.term();
             toXML(t, e, xml);
             t = e.term();
-          }
+          } while (e.next());
         }
         e.close();
       } catch (IOException ex) {

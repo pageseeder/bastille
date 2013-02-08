@@ -181,7 +181,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
             writeResponse(req, res, resource);
           }
         } else {
-          LOGGER.warn("Oops...");
+          LOGGER.warn("Status cached resource was for {} was {}", req.getRequestURI(), resource.getStatusCode());
         }
       } catch (CacheException ex) {
         LOGGER.error("Unable to construct cache entry", ex);

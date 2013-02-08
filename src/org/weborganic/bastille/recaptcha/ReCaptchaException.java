@@ -8,7 +8,7 @@
 package org.weborganic.bastille.recaptcha;
 
 /**
- * Class of exceptions thrown by the ReCaptcha
+ * Class of exceptions thrown by the ReCaptcha.
  *
  * @author Christophe Lauret
  * @version Bastille 0.8.4 - 1 Feb 2013
@@ -19,17 +19,15 @@ public final class ReCaptchaException extends Exception {
   private static final long serialVersionUID = -9142801370192994186L;
 
   /**
-   *
-   * @param message
+   * @param message An explanation for the error
    */
   public ReCaptchaException(String message) {
     super(message);
   }
 
   /**
-   *
-   * @param message
-   * @param t
+   * @param message An explanation for the error
+   * @param t       The offending error
    */
   public ReCaptchaException(String message, Throwable t) {
     super(message, t);

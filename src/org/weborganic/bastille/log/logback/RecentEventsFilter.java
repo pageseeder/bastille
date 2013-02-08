@@ -61,10 +61,9 @@ public final class RecentEventsFilter extends TurboFilter {
    * @return Always neutral.
    */
   @Override
-  public FilterReply decide(Marker marker, Logger logger, Level level, String p, Object[] objects, Throwable throwable) {
-    // TODO filter correctly before adding it...
+  public FilterReply decide(Marker marker, Logger logger, Level level, String m, Object[] p, Throwable throwable) {
     if (level.isGreaterOrEqual(threshold)) {
-      RecentEvent e = new RecentEvent(marker, logger, level, p, objects, throwable);
+      RecentEvent e = new RecentEvent(marker, logger, level, m, p, throwable);
       RECENT.add(e);
       if (RECENT.size() > MAX_HOLD_SIZE) RECENT.remove();
     }
@@ -79,10 +78,10 @@ public final class RecentEventsFilter extends TurboFilter {
   }
 
   /**
-   * @param threshold the threshold to set
+   * @param level the threshold to set
    */
-  public static void setThreshold(Level threshold) {
-    RecentEventsFilter.threshold = threshold;
+  public static void setThreshold(Level level) {
+    RecentEventsFilter.threshold = level;
   }
 
   /**

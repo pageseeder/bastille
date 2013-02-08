@@ -54,6 +54,11 @@ public final class ReCaptcha {
   public static final String VERIFY_URL = "http://api-verify.recaptcha.net/verify";
 
   /**
+   * Used for the connection timeout (in ms)
+   */
+  private static final int TEN_SECONDS = 10000;
+
+  /**
    * ReCaptcha public key.
    */
   private final String _publicKey;
@@ -72,7 +77,9 @@ public final class ReCaptcha {
    * Create a new ReCaptcha instance.
    *
    * @param publicKey  The public key.
-   * @param privateKey THe private key.
+   * @param privateKey The private key.
+   * @param secure     <code>true</code> to contact the ReCaptcha servers via HTTPS;
+   *                   <code>false</code> for HTTP.
    */
   private ReCaptcha(String publicKey, String privateKey, boolean secure) {
     this._publicKey = publicKey;
@@ -123,13 +130,15 @@ public final class ReCaptcha {
   /**
    * Invoke the reCaptcha Verify API to check whether the challenge has been passed by the user.
    *
-   * @param remoteAddr
-   * @param challenge
-   * @param response
+   * <p>All three parameters are required by the ReCaptcha server.
+   *
+   * @param remoteAddr The remote address
+   * @param challenge  the challenge (supplied by the original ReCaptcha form)
+   * @param response   The response to the challenge (from the user)
    *
    * @return The results of the reCaptcha challenge
    *
-   * @throws ReCaptchaException
+   * @throws ReCaptchaException if either argument is <code>null</code>
    */
   public ReCaptchaResult verify(String remoteAddr, String challenge, String response) throws ReCaptchaException {
     if (challenge == null)
@@ -150,10 +159,12 @@ public final class ReCaptcha {
   }
 
   /**
-   * Writes the form to display the captcha as XHTML
+   * Writes the form to display the captcha as XHTML.
    *
-   * @param errorMessage
-   * @return
+   * @param xml The XML output
+   * @param message the error message from the server (may be <code>null</code>)
+   *
+   * @throws IOException if thrown while writing the XML
    */
   public void toXHTMLForm(XMLWriter xml, String message) throws IOException {
 
@@ -223,7 +234,7 @@ public final class ReCaptcha {
   }
 
   /**
-   * Automatically create a ReCaptcha instance and verify the standard paramaters send
+   * Automatically create a ReCaptcha instance and verify the standard parameters send.
    *
    * @param req The content request.
    *
@@ -249,24 +260,24 @@ public final class ReCaptcha {
   /**
    * Make an HTTP Post request to the specified URL.
    *
-   * @param urlS
-   * @param postdata The POST data
+   * @param theurl   The URL of the verify server.
+   * @param postdata The data to POST
    *
    * @return The corresponding data
    *
-   * @throws ReCaptchaException
+   * @throws ReCaptchaException Wraps any exception.
    */
-  private static String getDataFromPost(String urlS, String postdata) throws ReCaptchaException {
+  private static String getDataFromPost(String theurl, String postdata) throws ReCaptchaException {
     InputStream in = null;
     URLConnection connection = null;
     try {
       // Initialise connection
-      URL url = new URL(urlS);
+      URL url = new URL(theurl);
       connection = url.openConnection();
       connection.setDoOutput(true);
       connection.setDoInput(true);
-      connection.setReadTimeout(10000);
-      connection.setConnectTimeout(10000);
+      connection.setReadTimeout(TEN_SECONDS);
+      connection.setConnectTimeout(TEN_SECONDS);
 
       // Write POST data
       OutputStream out = connection.getOutputStream();

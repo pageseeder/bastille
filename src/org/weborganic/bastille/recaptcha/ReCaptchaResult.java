@@ -44,8 +44,8 @@ public final class ReCaptchaResult {
   /**
    * Create a new reCaptcha response.
    *
-   * @param valid
-   * @param message
+   * @param valid   If the response is marked as valid by the server
+   * @param message Any accompanying message
    */
   protected ReCaptchaResult(boolean valid, String message) {
     this._valid = valid;

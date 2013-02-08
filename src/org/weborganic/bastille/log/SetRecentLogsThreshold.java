@@ -9,6 +9,8 @@ package org.weborganic.bastille.log;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -29,6 +31,9 @@ import com.topologi.diffx.xml.XMLWriter;
  * @since Bastille 0.8.5
  */
 public final class SetRecentLogsThreshold implements ContentGenerator {
+
+  /** A logger. */
+  private final static Logger LOGGER = LoggerFactory.getLogger(SetRecentLogsThreshold.class);
 
   /**
    * When this generator is instantiated, the logging framework information is loaded and initialized.
@@ -54,10 +59,10 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
       }
 
       try {
-        LogLevel level = LogLevel.valueOf(threshold);
-
         LogLevel was = info.getRecentEventThreshold();
+        LogLevel level = LogLevel.valueOf(threshold);
         info.setRecentEventThreshold(level);
+        LOGGER.info("Switching recent log levels from {} to {}", was, level);
 
         // Write out the new threshold
         xml.openElement("recent-logs-threshold");

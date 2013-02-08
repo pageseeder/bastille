@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ * This file is part of the Bastille library.
+ *
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
  */
 package org.weborganic.bastille.flint.helpers;
 
@@ -62,7 +66,7 @@ public final class QuietListener implements IndexListener {
   }
 
   @Override
-  public void finishJob(IndexJob job) {
+  public void endJob(IndexJob job) {
     this._indexed++;
     this._logger.debug("Finished {}", job);
   }

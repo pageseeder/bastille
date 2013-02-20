@@ -21,7 +21,7 @@ import org.weborganic.berlioz.content.ContentRequest;
 import com.topologi.diffx.xml.XMLWriter;
 
 /**
- * Returns information from the runtime object.
+ * Returns information about the threads running in the system.
  *
  * <ul>
  *   <li><code>NEW</code>. The thread has been created, but hasn't run yet.</li>
@@ -36,7 +36,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @version Bastille 0.8.5 - 4 February 2013
  */
 @Beta
-public class ListThreads implements ContentGenerator {
+public final class ListThreads implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
@@ -108,6 +108,10 @@ public class ListThreads implements ContentGenerator {
         xml.attribute("alive", Boolean.toString(t.isAlive()));
         xml.attribute("daemon", Boolean.toString(t.isDaemon()));
         xml.attribute("group", t.getThreadGroup().getName());
+        if (t == Thread.currentThread()) {
+          // Flag the current thread
+          xml.attribute("current", "true");
+        }
 
         if (bean != null) {
           final long cpu = bean.getThreadCpuTime(t.getId());

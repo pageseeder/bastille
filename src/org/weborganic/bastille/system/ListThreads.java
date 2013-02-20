@@ -58,25 +58,11 @@ public final class ListThreads implements ContentGenerator {
 
     } else {
       // Use old-school method
-      ThreadGroup root = getRootThreadGroup();
+      ThreadGroup root = Threads.getRootThreadGroup();
       toXML(root, bean, xml);
     }
 
     xml.closeElement();
-  }
-
-  /**
-   * Get Root group thread.
-   *
-   * @return The root group thread.
-   */
-  private static ThreadGroup getRootThreadGroup() {
-    ThreadGroup current = Thread.currentThread().getThreadGroup();
-    ThreadGroup parent;
-    while ((parent = current.getParent()) != null) {
-      current = parent;
-    }
-    return current;
   }
 
   /**
@@ -148,6 +134,10 @@ public final class ListThreads implements ContentGenerator {
     xml.attribute("alive", Boolean.toString(thread.isAlive()));
     xml.attribute("daemon", Boolean.toString(thread.isDaemon()));
     xml.attribute("group", thread.getThreadGroup().getName());
+    if (thread == Thread.currentThread()) {
+      // Flag the current thread
+      xml.attribute("current", "true");
+    }
 
     // If the management bean is available include times
     if (bean != null) {

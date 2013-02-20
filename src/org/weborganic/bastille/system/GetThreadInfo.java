@@ -8,11 +8,6 @@
 package org.weborganic.bastille.system;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
@@ -47,18 +42,46 @@ public final class GetThreadInfo implements ContentGenerator {
       threadId = Thread.currentThread().getId();
     }
 
-    boolean stacktraces = "true".equals(req.getParameter("stacktraces"));
-    boolean threadtime = "true".equals(req.getParameter("threadtime"));
-
-
-
-    ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-
-    xml.openElement("thread");
-
-    ThreadInfo info = bean.getThreadInfo(threadId);
-
-    //TODO
+    Thread thread = Threads.getThread(threadId);
+    toXML(thread, xml);
   }
 
+  /**
+   * Return all the threads with stack traces
+   *
+   * @param thread     The thread to serialise as XML
+   * @param xml The XML writer
+   *
+   * @throws IOException If thrown while writing XML.
+   */
+  private static void toXML(Thread thread, XMLWriter xml)
+      throws IOException {
+    xml.openElement("thread", true);
+    xml.attribute("id", Long.toString(thread.getId()));
+    xml.attribute("name", thread.getName());
+    xml.attribute("priority", thread.getPriority());
+    xml.attribute("state", thread.getState().name());
+    xml.attribute("alive", Boolean.toString(thread.isAlive()));
+    xml.attribute("daemon", Boolean.toString(thread.isDaemon()));
+    xml.attribute("group", thread.getThreadGroup().getName());
+
+    StackTraceElement[] stacktrace = thread.getStackTrace();
+    if (stacktrace != null) {
+      xml.openElement("stacktrace");
+      for (StackTraceElement element : stacktrace) {
+        xml.openElement("element");
+        String method = element.getMethodName();
+        String filename = element.getFileName();
+        int line = element.getLineNumber();
+        xml.attribute("class", element.getClassName());
+        if (filename != null) xml.attribute("filename", filename);
+        if (method != null) xml.attribute("method", method);
+        if (line >= 0) xml.attribute("line", line);
+        xml.closeElement();
+      }
+      xml.closeElement();
+    }
+
+    xml.closeElement();
+  }
 }

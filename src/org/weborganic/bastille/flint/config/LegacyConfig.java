@@ -8,7 +8,9 @@
 package org.weborganic.bastille.flint.config;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.net.URI;
+import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
@@ -73,17 +75,19 @@ public final class LegacyConfig implements IFlintConfig {
   /**
    * Whether multiple indexes are in use.
    */
-  private boolean _isMultiple = false;
+  private final boolean _isMultiple;
 
   /**
    * Creates a new legacy config.
    *
-   * @param directory  the directory containing a single or a collection of indexes.
+   * @param directory  The directory containing a single or a collection of indexes.
    * @param itemplates The itemplates to use.
+   * @param isMultiple <code>true</code> if there are multiple indexes; <code>false</code> for a single index.
    */
-  protected LegacyConfig(File directory, File itemplates) {
+  private LegacyConfig(File directory, File itemplates, boolean isMultiple) {
     this._directory = directory;
     this._itemplates = itemplates;
+    this._isMultiple = isMultiple;
   }
 
   @Override
@@ -94,6 +98,11 @@ public final class LegacyConfig implements IFlintConfig {
   @Override
   public File getIXMLTemplates(String mediatype) {
     return this._itemplates;
+  }
+
+  @Override
+  public Map<String, File> getIXMLTemplates() {
+    return null;
   }
 
   @Override
@@ -130,7 +139,8 @@ public final class LegacyConfig implements IFlintConfig {
     // Location of the index
     File directory = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
     File itemplates = new File(GlobalSettings.getRepository(), DEFAULT_ITEMPLATES_LOCATION);
-    return new LegacyConfig(directory, itemplates);
+    boolean isMultiple = hasMultiple(directory);
+    return new LegacyConfig(directory, itemplates, isMultiple);
   }
 
   /**
@@ -143,7 +153,8 @@ public final class LegacyConfig implements IFlintConfig {
   public static LegacyConfig newInstance(File xslt) {
     // Location of the index
     File directory = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
-    return new LegacyConfig(directory, xslt);
+    boolean isMultiple = hasMultiple(directory);
+    return new LegacyConfig(directory, xslt, isMultiple);
   }
 
   /**
@@ -200,6 +211,36 @@ public final class LegacyConfig implements IFlintConfig {
       else
         return new File(PRIVATE_XML, path+".xml");
     }
+  }
+
+  /**
+   * Checks whether the specified index directory contains multiple indexes.
+   *
+   * @param directory the directory
+   * @return <code>true</code> If there are multiple directories; <code>false</code> for a single index.
+   */
+  protected static boolean hasMultiple(File directory) {
+//    if (GlobalSettings.get("bastille.index.multiple", true)) {
+//      LOGGER.debug("Set to multiple index configuration");
+//      return true;
+//    }
+    // Look for subdirectories
+    if (directory.exists() && directory.isDirectory()) {
+      final FileFilter directoriesOnly = new FileFilter() {
+        @Override
+        public boolean accept(File f) {
+          return f.isDirectory();
+        }
+      };
+      File[] subdirs = directory.listFiles(directoriesOnly);
+      if (subdirs.length > 0) {
+        LOGGER.info("Detected multiple index configuration");
+        return true;
+      }
+    }
+    // No directory, it must be a single index
+    LOGGER.info("Detected multiple index configuration");
+    return false;
   }
 
 }

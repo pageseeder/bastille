@@ -9,6 +9,7 @@ package org.weborganic.bastille.flint.config;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -62,7 +63,7 @@ public final class GenericConfig implements IFlintConfig {
   /**
    * Whether multiple indexes are in use.
    */
-  private boolean _isMultiple = false;
+  private final boolean _isMultiple;
 
   /**
    * Creates a new generic config.
@@ -70,11 +71,12 @@ public final class GenericConfig implements IFlintConfig {
    * @param directory the directory where the index(es) is stored.
    * @param ixml      the directory where the ixml information is location.
    */
-  protected GenericConfig(File directory, File ixml) {
+  protected GenericConfig(File directory, File ixml, boolean isMultiple) {
     this._directory = directory;
     this._itemplates.put("text/xml", new File(ixml, "ixml.xsl"));
     this._itemplates.put("application/xml", new File(ixml, "ixml.xsl"));
     this._itemplates.put(PSMLConfig.MEDIATYPE, new File(ixml, "ipsml.xsl"));
+    this._isMultiple = isMultiple;
   }
 
   /**
@@ -88,6 +90,11 @@ public final class GenericConfig implements IFlintConfig {
   @Override
   public File getIXMLTemplates(String mediatype) {
     return this._itemplates.get(mediatype);
+  }
+
+  @Override
+  public Map<String, File> getIXMLTemplates() {
+    return Collections.unmodifiableMap(this._itemplates);
   }
 
   @Override
@@ -141,7 +148,8 @@ public final class GenericConfig implements IFlintConfig {
       directory = new File(GlobalSettings.getRepository(), "index");
     }
     File ixml = new File(GlobalSettings.getRepository(), "ixml");
-    return new GenericConfig(directory, ixml);
+    // TODO: compute single/multiple index
+    return new GenericConfig(directory, ixml, false);
   }
 
 }

@@ -69,7 +69,7 @@ public final class FlintConfig {
   /**
    * @return the default location of the index.
    */
-  public static File directory() {
+  public static synchronized File directory() {
     if (config == null) init();
     return config.getDirectory();
   }
@@ -82,7 +82,7 @@ public final class FlintConfig {
    * @return <code>true</code> if Flint is in legacy mode;
    *         <code>false</code> for a single index.
    */
-  public static boolean inLegacyMode() {
+  public static synchronized boolean inLegacyMode() {
     return legacy;
   }
 
@@ -92,7 +92,7 @@ public final class FlintConfig {
    * @return <code>true</code> if Flint is configured for multiple indexes;
    *         <code>false</code> for a single index.
    */
-  public static boolean hasMultiple() {
+  public static synchronized boolean hasMultiple() {
     if (config == null) init();
     return config.hasMultiple();
   }
@@ -102,7 +102,7 @@ public final class FlintConfig {
    *
    * @return the index master for a single index.
    */
-  public static IndexMaster getMaster() {
+  public static synchronized IndexMaster getMaster() {
     if (config == null) init();
     if (config.hasMultiple()) {
       LOGGER.warn("Requesting a single index in multiple index configuration!");
@@ -118,7 +118,7 @@ public final class FlintConfig {
    *
    * @return the index master for the specified index.
    */
-  public static IndexMaster getMaster(String name) {
+  public static synchronized IndexMaster getMaster(String name) {
     if (config == null) init();
     if (name == null) return getMaster();
     if (!config.hasMultiple()) {
@@ -133,7 +133,7 @@ public final class FlintConfig {
    *
    * @return the flint configuration used by default.
    */
-  public static IFlintConfig get() {
+  public static synchronized IFlintConfig get() {
     if (config == null) init();
     return config;
   }
@@ -143,7 +143,7 @@ public final class FlintConfig {
    *
    * @param factory the <code>AnalyzerFactory</code> to use as default.
    */
-  public static void setAnalyzerFactory(AnalyzerFactory factory) {
+  public static synchronized void setAnalyzerFactory(AnalyzerFactory factory) {
     analyzerFactory = factory;
   }
 
@@ -154,7 +154,7 @@ public final class FlintConfig {
    *
    * @return A new Analyzer.
    */
-  public static Analyzer newAnalyzer() {
+  public static synchronized Analyzer newAnalyzer() {
     if (analyzerFactory == null)
       return new StandardAnalyzer(Version.LUCENE_30);
     return analyzerFactory.getAnalyzer();

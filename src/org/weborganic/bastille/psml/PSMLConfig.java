@@ -181,14 +181,14 @@ public final class PSMLConfig {
     if (file.exists()) {
       xml.attribute("status", "ok");
       XMLCopy.copyTo(file, xml);
-      LOGGER.info("loaded {}", file.getAbsolutePath());
+      LOGGER.debug("loaded {}", file.getAbsolutePath());
 
     // The requested file could not be found
     } else {
       xml.attribute("status", "not-found");
       // TODO FIX error message
       xml.writeText("Unable to find file: "+psml.path());
-      LOGGER.info("{} does not exist", file.getAbsolutePath());
+      LOGGER.debug("{} does not exist", file.getAbsolutePath());
     }
     xml.closeElement();
     xml.flush();

@@ -4,11 +4,13 @@
 package org.weborganic.bastille.system;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -124,6 +126,16 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
     private final AtomicLong maxProcessTime;
 
     /**
+     * Maximum time taken by the process() method in microseconds.
+     */
+    private final LinkedBlockingDeque<Long> lastEtag = new LinkedBlockingDeque<Long>(10);
+
+    /**
+     * Maximum time taken by the process() method in microseconds.
+     */
+    private final LinkedBlockingDeque<Long> lastProcess = new LinkedBlockingDeque<Long>(10);
+
+    /**
      * Creates a instance with the specified initial status and time values.
      *
      * @param name    The name of the generator
@@ -174,6 +186,10 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
       // Total
       this.totalEtagTime.addAndGet(e);
       this.totalProcessTime.addAndGet(p);
+      if (this.lastEtag.remainingCapacity() == 0) this.lastEtag.pollFirst();
+      this.lastEtag.offerLast(e);
+      if (this.lastProcess.remainingCapacity() == 0) this.lastProcess.pollFirst();
+      this.lastProcess.offerLast(p);
     }
 
     @Override
@@ -193,6 +209,12 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
       long avgProcess = this.totalProcessTime.longValue() / this.count.longValue();
       xml.attribute("avg-etag",    Long.toString(avgEtag));
       xml.attribute("avg-process", Long.toString(avgProcess));
+
+      long avgLastEtag = average(this.lastEtag);
+      long avgLastProcess = average(this.lastProcess);
+      xml.attribute("avg-last-etag",    Long.toString(avgLastEtag));
+      xml.attribute("avg-last-process", Long.toString(avgLastProcess));
+
       // status
       xml.openElement("status");
       for (Entry<ContentStatus, AtomicLong> status : this._status.entrySet()) {
@@ -202,5 +224,17 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
       xml.closeElement();
     }
 
+    /**
+     * @param times Times to average
+     * @return The average time value
+     */
+    private static long average(Collection<Long> times) {
+      if (times.isEmpty()) return 0;
+      long avgLastEtag = 0;
+      for (Long t : times) {
+        avgLastEtag += t.longValue();
+      }
+      return avgLastEtag / times.size();
+    }
   }
 }

@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
@@ -104,43 +105,19 @@ public final class GetRawLogEntries implements ContentGenerator {
    * @throws IOException If thrown while reading the file or writing the XML out
    */
   private static void tail(File log, XMLWriter xml, int maxLines) throws IOException {
-    BufferedReader reader = null;
-    String[] lines = new String[maxLines];
-    int last = 0;
-    int total = 0;
-
-    // Extract the last max lines first
-    try {
-      reader = new BufferedReader(new FileReader(log));
-      for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-        if (last == lines.length) {
-          last = 0;
-        }
-        lines[last++] = line;
-        total++;
-      }
-    } catch (IOException ex) {
-      throw ex;
-    } finally {
-      if (reader != null) reader.close();
-    }
+    // Get the tail
+    Lines lines = tail(log, maxLines);
 
     // Write the lines out
-    int n = total > maxLines? total - maxLines : 0;
-    for (int i = last; i != last-1; i++) {
-      if (i == lines.length) {
-        i = 0;
-      }
-      String line = lines[i];
-      if (line != null) {
-        xml.openElement("line");
-        xml.attribute("n", ++n);
-        String level = getLevel(line);
-        if (level != null)
-          xml.attribute("level", level);
-        xml.writeText(line);
-        xml.closeElement();
-      }
+    int n = lines.from();
+    for (String line : lines) {
+      xml.openElement("line");
+      xml.attribute("n", ++n);
+      String level = getLevel(line);
+      if (level != null)
+        xml.attribute("level", level);
+      xml.writeText(line);
+      xml.closeElement();
     }
   }
 
@@ -152,7 +129,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @return The first matching instance
    */
-  private File findLog(LogInfo info, String name) {
+  private static File findLog(LogInfo info, String name) {
     // Identify the log directory to read
     for (File f : info.listLogDirectories()) {
       File log = new File(f, name);
@@ -177,6 +154,102 @@ public final class GetRawLogEntries implements ContentGenerator {
       if (line.indexOf(level) != -1) return level;
     }
     return null;
+  }
+
+  private static Lines tail(File log, int maxLines) throws IOException {
+    BufferedReader reader = null;
+    Lines lines = new Lines(maxLines);
+    // Extract the last max lines first
+    try {
+      reader = new BufferedReader(new FileReader(log));
+      for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+        lines.add(line);
+      }
+    } catch (IOException ex) {
+      throw ex;
+    } finally {
+      if (reader != null) reader.close();
+    }
+    return lines;
+  }
+
+  /**
+   *
+   * @author Christophe Lauret
+   * @version 21 February 2013
+   */
+  private static final class Lines implements Iterable<String> {
+
+    /** The actual lines stored. */
+    private final String[] _lines;
+
+    /** The total number of lines added */
+    private int total = 0;
+
+    /**
+     * @param capacity The maximum number of lines to keep track of.
+     */
+    public Lines(int capacity) {
+      this._lines = new String[capacity];
+    }
+
+    /**
+     * Add a line to this class ensuring that if the capacity is reached the new line replaces the oldest line.
+     *
+     * @param line The line to add.
+     */
+    private void add(String line) {
+      this._lines[this.total % this._lines.length] = line;
+      this.total++;
+    }
+
+    /**
+     * @return the maximum number of lines this object can hold.
+     */
+    public int capacity() {
+      return this._lines.length;
+    }
+
+    /**
+     * @return index of the first line.
+     */
+    public int from() {
+      return this.total > this._lines.length? this.total - this._lines.length : 0;
+    }
+
+    /**
+     * @return index of the last line.
+     */
+    public int to() {
+      return this.total;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+      return new Iterator<String>() {
+
+        private int i = Lines.this.total > Lines.this._lines.length? Lines.this.total % Lines.this._lines.length : 0;
+        private final int upto = Lines.this.total > Lines.this._lines.length? this.i + Lines.this._lines.length : Lines.this.total;
+
+        @Override
+        public boolean hasNext() {
+          return this.i < this.upto;
+        }
+
+        @Override
+        public String next() {
+          String next = Lines.this._lines[this.i % Lines.this._lines.length];
+          this.i++;
+          return next;
+        }
+
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
+      };
+    }
+
   }
 
 }

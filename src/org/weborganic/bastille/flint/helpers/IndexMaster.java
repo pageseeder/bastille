@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.config.IFlintConfig;
-import org.weborganic.bastille.flint.config.LegacyConfig;
 import org.weborganic.bastille.psml.PSMLConfig;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
@@ -110,19 +109,6 @@ public final class IndexMaster {
   /**
    * Sets up the index master.
    *
-   * @deprecated Use the standard Flint configuration.
-   *
-   * @param directory the index directory
-   * @param xslt      the location of the XSLT generating the IXML.
-   */
-  @Deprecated
-  public IndexMaster(File directory, File xslt) {
-    this(directory, LegacyConfig.newInstance(xslt));
-  }
-
-  /**
-   * Sets up the index master.
-   *
    * @param indexDir    the index directory
    * @param flintconfig the Flint configuration to use.
    */
@@ -156,18 +142,6 @@ public final class IndexMaster {
 
     // Start the index manager
     this.manager.start();
-  }
-
-  /**
-   * Set the new Analyzer Provider.
-   *
-   * @deprecated Use {@link FlintConfig#setAnalyzerFactory} instead.
-   *
-   * @param provider the new Analyzer Provider.
-   */
-  @Deprecated
-  public static void setAnalyzerProvider(AnalyzerProvider provider) {
-    FlintConfig.setAnalyzerFactory(provider);
   }
 
   /**

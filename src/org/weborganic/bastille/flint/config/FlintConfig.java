@@ -8,6 +8,8 @@
 package org.weborganic.bastille.flint.config;
 
 import java.io.File;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -15,7 +17,6 @@ import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.helpers.IndexMaster;
-import org.weborganic.bastille.flint.helpers.MultipleIndex;
 import org.weborganic.berlioz.GlobalSettings;
 
 
@@ -23,9 +24,18 @@ import org.weborganic.berlioz.GlobalSettings;
  * Centralizes the configuration for flint.
  *
  * @author Christophe Lauret
- * @version 19 October 2012
+ * @version 0.8.7 - 25 February 2013
+ * @since 0.7.9
  */
 public final class FlintConfig {
+
+  // static methods
+  // ----------------------------------------------------------------------------------------------
+
+  /**
+   * The list of all masters created.
+   */
+  private static final ConcurrentMap<File, IndexMaster> MASTERS = new ConcurrentHashMap<File, IndexMaster>();
 
   /**
    * Logger for debugging
@@ -107,7 +117,7 @@ public final class FlintConfig {
     if (config.hasMultiple()) {
       LOGGER.warn("Requesting a single index in multiple index configuration!");
     }
-    IndexMaster single = MultipleIndex.getMaster(FlintConfig.directory());
+    IndexMaster single = getOrCreateMaster(FlintConfig.directory());
     return single;
   }
 
@@ -125,7 +135,7 @@ public final class FlintConfig {
       LOGGER.warn("Requesting a named index in single index configuration!");
     }
     File directory = new File(directory(), name);
-    return MultipleIndex.getMaster(directory);
+    return getOrCreateMaster(directory);
   }
 
   /**
@@ -173,4 +183,23 @@ public final class FlintConfig {
     File itemplates = new File(GlobalSettings.getRepository(), LegacyConfig.DEFAULT_ITEMPLATES_LOCATION);
     return itemplates.exists();
   }
+
+  /**
+   * @param index The directory containing the index to return
+   *
+   * @return the master for the given index root
+   */
+  public static IndexMaster getOrCreateMaster(File index) {
+    if (index == null) return null;
+    IndexMaster master;
+    synchronized (MASTERS) {
+      master = MASTERS.get(index);
+      if (master == null) {
+        master = new IndexMaster(index);
+        MASTERS.put(index, master);
+      }
+    }
+    return master;
+  }
+
 }

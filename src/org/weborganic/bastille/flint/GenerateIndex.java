@@ -50,7 +50,7 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * @author Christophe Lauret
  *
- * @version 0.7.4 - 18 October 2012
+ * @version 0.7.7 - 25 February 2013
  * @since 0.6.0
  */
 public final class GenerateIndex implements ContentGenerator  {
@@ -71,8 +71,8 @@ public final class GenerateIndex implements ContentGenerator  {
     String folder = req.getParameter("folder");
 
     // retrieve it from the multiple indexes
-    IndexMaster master = FlintConfig.getMaster(index);
     IFlintConfig config = FlintConfig.get();
+    IndexMaster master = FlintConfig.getMaster(index);
 
     long modified = master.lastModified();
     List<File> indexed = new ArrayList<File>();
@@ -87,7 +87,7 @@ public final class GenerateIndex implements ContentGenerator  {
       root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
     }
 
-    LOGGER.debug("Scanning XML directory {}", root);
+    LOGGER.debug("Scanning directory {}", root.getPath());
 
     // Force index all
     if ("true".equals(req.getParameter("all"))) {

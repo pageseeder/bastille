@@ -22,6 +22,7 @@ import org.apache.lucene.search.ParallelMultiSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopFieldCollector;
+import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.berlioz.util.Pair;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchPaging;
@@ -39,54 +40,16 @@ import org.weborganic.flint.search.FieldFacet;
  */
 public final class MultipleIndex {
 
-  // static methods
-  // ----------------------------------------------------------------------------------------------
-
   /**
-   * The list of all masters created.
-   */
-  private static final Map<File, IndexMaster> MASTERS = new HashMap<File, IndexMaster>();
-
-  /**
-   * @param indexDir The root directory for the index to return
+   * @param index The directory for the index to return
    *
-   * @return the master for the given index root
-   */
-  public static IndexMaster getMaster(File indexDir) {
-    if (indexDir == null) return null;
-    IndexMaster master;
-    synchronized (MASTERS) {
-      master = MASTERS.get(indexDir);
-      if (master == null) {
-        master = new IndexMaster(indexDir);
-        MASTERS.put(indexDir, master);
-      }
-    }
-    return master;
-  }
-
-  /**
-   * If the master already exists, it is re-used.
-   *
-   * @deprecated Use {@link #getMaster(File)} instead and a specific Flint configuration.
-   *
-   * @param indexDir The root directory for the index to return
-   * @param xslt     The XSLT script used to produce iXML data
+   * @deprecated Use {@link #getMaster(File)} instead
    *
    * @return the master for the given index root
    */
   @Deprecated
-  public static IndexMaster setupMaster(File indexDir, File xslt) {
-    if (indexDir == null) return null;
-    IndexMaster master;
-    synchronized (MASTERS) {
-      master = MASTERS.get(indexDir);
-      if (master == null) {
-        master = new IndexMaster(indexDir, xslt);
-        MASTERS.put(indexDir, master);
-      }
-    }
-    return master;
+  public static IndexMaster getMaster(File index) {
+    return FlintConfig.getOrCreateMaster(index);
   }
 
   // non-static methods
@@ -105,25 +68,6 @@ public final class MultipleIndex {
   public MultipleIndex(List<File> indexDirectories) {
     if (indexDirectories != null)
       this.indexDirs.addAll(indexDirectories);
-  }
-
-  /**
-   * Build a new multiple index.
-   *
-   * @deprecated {@link #MultipleIndex(List)} and a Flint configuration instead.
-   *
-   * @param indexDirectories the root folders for all indexes
-   * @param xslt The XSLT to use to produce iXML.
-   */
-  @Deprecated
-  public MultipleIndex(List<File> indexDirectories, File xslt) {
-    if (indexDirectories != null) {
-      this.indexDirs.addAll(indexDirectories);
-      // make sure all the masters are setup.
-      for (File d : indexDirectories) {
-        setupMaster(d, xslt);
-      }
-    }
   }
 
   /**
@@ -161,7 +105,7 @@ public final class MultipleIndex {
     Map<IndexMaster, IndexSearcher> indexes = new HashMap<IndexMaster, IndexSearcher>();
     // grab a reader for each indexes
     for (int i = 0; i < this.indexDirs.size(); i++) {
-      IndexMaster master = getMaster(this.indexDirs.get(i));
+      IndexMaster master = FlintConfig.getOrCreateMaster(this.indexDirs.get(i));
       // make sure index has been setup
       if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
       // grab a searcher
@@ -204,7 +148,7 @@ public final class MultipleIndex {
     // check for one index only
     if (this.indexDirs.size() == 1) {
       List<Facet> facets = new ArrayList<Facet>();
-      IndexMaster master = getMaster(this.indexDirs.get(0));
+      IndexMaster master = FlintConfig.getOrCreateMaster(this.indexDirs.get(0));
       // make sure index has been setup
       if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
       for (String field : fields) {
@@ -220,7 +164,7 @@ public final class MultipleIndex {
     Map<IndexMaster, Pair<IndexReader, IndexSearcher>> indexes = new HashMap<IndexMaster, Pair<IndexReader, IndexSearcher>>();
     // grab a reader for each indexes
     for (int i = 0; i < this.indexDirs.size(); i++) {
-      IndexMaster master = getMaster(this.indexDirs.get(i));
+      IndexMaster master = FlintConfig.getOrCreateMaster(this.indexDirs.get(i));
       // make sure index has been setup
       if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
       // grab what we need
@@ -284,7 +228,7 @@ public final class MultipleIndex {
       IndexReader[] readers = new IndexReader[MultipleIndex.this.indexDirs.size()];
       // grab a reader for each indexes
       for (int i = 0; i < MultipleIndex.this.indexDirs.size(); i++) {
-        IndexMaster master = getMaster(MultipleIndex.this.indexDirs.get(i));
+        IndexMaster master = FlintConfig.getOrCreateMaster(MultipleIndex.this.indexDirs.get(i));
         // make sure index has been setup
         if (master == null) throw new IllegalStateException("Cannot search on an index before it has been initialised");
         // grab what we need

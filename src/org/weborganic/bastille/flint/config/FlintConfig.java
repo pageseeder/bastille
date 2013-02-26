@@ -8,6 +8,8 @@
 package org.weborganic.bastille.flint.config;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -50,7 +52,7 @@ public final class FlintConfig {
   /**
    * The flint configuration actually in use.
    */
-  private static volatile IFlintConfig config = null;
+  private static volatile IFlintConfig iconfig = null;
 
   /**
    * Creates new analyzers when needed.
@@ -64,36 +66,41 @@ public final class FlintConfig {
   }
 
   /**
+   * Allows implementation to setup the Flint config and bypass the default auto setup.
+   *
+   * <p>This method can only be called once.
+   *
+   * @param config The global configuration to use for Flint.
+   *
+   * @throws IllegalStateException if the setup method has already been called once.
+   */
+  public static synchronized void setup(IFlintConfig config) {
+    if (iconfig != null)
+      throw new IllegalStateException("The configuration has already been set to "+iconfig.getClass().getName());
+    iconfig = config;
+    LOGGER.info("Setup Flint config manually using {}", iconfig.getClass().getName());
+  }
+
+  /**
    * Initialize the Flint from the global configuration.
    */
-  protected static synchronized void init() {
+  private static synchronized void autoSetup() {
     // Detect which version of the configuration we should load
     legacy = isLegacy();
     if (legacy) {
-      config = LegacyConfig.newInstance();
+      iconfig = LegacyConfig.newInstance();
     } else {
-      config = GenericConfig.newInstance();
+      iconfig = GenericConfig.newInstance();
     }
+    LOGGER.info("Auto-Setup Flint config using {}", iconfig.getClass().getName());
   }
 
   /**
    * @return the default location of the index.
    */
   public static synchronized File directory() {
-    if (config == null) init();
-    return config.getDirectory();
-  }
-
-  /**
-   * Indicates whether to use the legacy mode.
-   *
-   * <p>In legacy mode, Flint stores path differently.
-   *
-   * @return <code>true</code> if Flint is in legacy mode;
-   *         <code>false</code> for a single index.
-   */
-  public static synchronized boolean inLegacyMode() {
-    return legacy;
+    if (iconfig == null) autoSetup();
+    return iconfig.getDirectory();
   }
 
   /**
@@ -103,8 +110,8 @@ public final class FlintConfig {
    *         <code>false</code> for a single index.
    */
   public static synchronized boolean hasMultiple() {
-    if (config == null) init();
-    return config.hasMultiple();
+    if (iconfig == null) autoSetup();
+    return iconfig.hasMultiple();
   }
 
   /**
@@ -113,8 +120,8 @@ public final class FlintConfig {
    * @return the index master for a single index.
    */
   public static synchronized IndexMaster getMaster() {
-    if (config == null) init();
-    if (config.hasMultiple()) {
+    if (iconfig == null) autoSetup();
+    if (iconfig.hasMultiple()) {
       LOGGER.warn("Requesting a single index in multiple index configuration!");
     }
     IndexMaster single = getOrCreateMaster(FlintConfig.directory());
@@ -129,9 +136,9 @@ public final class FlintConfig {
    * @return the index master for the specified index.
    */
   public static synchronized IndexMaster getMaster(String name) {
-    if (config == null) init();
+    if (iconfig == null) autoSetup();
     if (name == null) return getMaster();
-    if (!config.hasMultiple()) {
+    if (!iconfig.hasMultiple()) {
       LOGGER.warn("Requesting a named index in single index configuration!");
     }
     File directory = new File(directory(), name);
@@ -144,8 +151,8 @@ public final class FlintConfig {
    * @return the flint configuration used by default.
    */
   public static synchronized IFlintConfig get() {
-    if (config == null) init();
-    return config;
+    if (iconfig == null) autoSetup();
+    return iconfig;
   }
 
   /**
@@ -155,6 +162,13 @@ public final class FlintConfig {
    */
   public static synchronized void setAnalyzerFactory(AnalyzerFactory factory) {
     analyzerFactory = factory;
+  }
+
+  /**
+   * @return the list of index masters currently in use.
+   */
+  public static synchronized List<IndexMaster> getMasters() {
+    return new ArrayList<IndexMaster>(MASTERS.values());
   }
 
   /**

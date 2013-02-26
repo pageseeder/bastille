@@ -14,7 +14,6 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
@@ -26,6 +25,7 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.IndexException;
+import org.weborganic.flint.local.LocalIndex;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -64,10 +64,9 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
     xml.openElement("index-stats");
-    File indexRoot = FlintConfig.directory();
-    FSDirectory directory = FSDirectory.open(indexRoot);
+    File root = FlintConfig.directory();
 
-    if (IndexReader.indexExists(directory)) {
+    if (LocalIndex.exists(root)) {
       // single index, output it
       indexToXML(null, true, xml);
 
@@ -77,7 +76,7 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
         indexToXML(indexName, false, xml);
       } else {
         // multiple indexes maybe
-        File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
+        File[] dirs = root.listFiles(FOLDERS_ONLY);
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
             indexToXML(d.getName(), false, xml);
@@ -119,6 +118,7 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
         // list docs
         xml.openElement("documents");
         xml.attribute("count", reader.numDocs());
+        xml.attribute("max", reader.maxDoc());
         xml.closeElement();
         // terms
         if (terms) {

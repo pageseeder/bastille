@@ -11,9 +11,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
@@ -23,6 +20,7 @@ import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.ISO8601;
+import org.weborganic.flint.local.LocalIndex;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -80,23 +78,11 @@ public final class GetFlintConfig implements ContentGenerator {
   private void toBasicIndexXML(XMLWriter xml, File index) throws IOException {
     xml.openElement("index");
     xml.attribute("name", index.getName());
-    Directory dir = null;
-    try {
-      dir = FSDirectory.open(index);
-      boolean exists = IndexReader.indexExists(dir);
-      xml.attribute("exists", Boolean.toString(exists));
-      if (exists) {
-        long modified = IndexReader.lastModified(dir);
-        xml.attribute("modified", ISO8601.format(modified, ISO8601.DATETIME));
-      }
-
-    } catch (IOException ex) {
-      LOGGER.warn("Error while tring to read index {}", index.getName());
-
-    } finally {
-      if (dir != null) dir.close();
-    }
-
+    long modified = LocalIndex.getLastModified(index);
+    boolean exists = modified > 0;
+    xml.attribute("exists", Boolean.toString(exists));
+    if (exists)
+      xml.attribute("modified", ISO8601.format(modified, ISO8601.DATETIME));
     xml.closeElement();
   }
 

@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -20,6 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.weborganic.bastille.flint.config.FlintConfig;
+import org.weborganic.bastille.flint.config.IFlintConfig;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -41,17 +44,40 @@ public final class CheckTemplates implements ContentGenerator  {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
     // Get the templates from the config.
-    File def = FlintConfig.get().getIXMLTemplates("text/xml");
+    IFlintConfig config = FlintConfig.get();
+
+    // List all templates for the config
+    Map<String, File> templates = config.getIXMLTemplates();
 
     // Print XML
     xml.openElement("index-templates");
-    xml.attribute("name", def != null? def.getName() : "null");
-    if (def == null || !def.exists()) {
+    for (Entry<String, File> t : templates.entrySet()) {
+      String media = t.getKey();
+      File def = t.getValue();
+      toXML(media, def, xml);
+    }
+    xml.closeElement();
+  }
+
+  /**
+   * Check whether the templates can be compiled.
+   *
+   * @param media     The media type
+   * @param itemplate The templates to load.
+   * @param xml       XMl output
+   *
+   * @throws IOException If an IO error occurred while writing XML.
+   */
+  private static void toXML(String media, File itemplate, XMLWriter xml) throws IOException {
+    xml.openElement("index-templates");
+    xml.attribute("mediatype", media);
+    xml.attribute("filename", itemplate != null? itemplate.getName() : "null");
+    if (itemplate == null || !itemplate.exists()) {
       xml.attribute("status", "error");
       xml.attribute("cause", "not-found");
     } else {
       try {
-        compile(def);
+        compile(itemplate);
         xml.attribute("status", "ok");
       } catch (IOException ex) {
         xml.attribute("status", "error");
@@ -66,6 +92,7 @@ public final class CheckTemplates implements ContentGenerator  {
       }
     }
     xml.closeElement();
+
   }
 
   /**
@@ -78,7 +105,7 @@ public final class CheckTemplates implements ContentGenerator  {
    * @throws IOException          If an IO error occurred
    * @throws TransformerException If an XSLT compilation error occurs.
    */
-  private Templates compile(File itemplate) throws IOException, TransformerException {
+  private static Templates compile(File itemplate) throws IOException, TransformerException {
     // load the templates from the source file
     InputStream in = null;
     Templates templates = null;

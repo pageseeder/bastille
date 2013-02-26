@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
-import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
@@ -25,6 +24,7 @@ import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.util.ISO8601;
 import org.weborganic.flint.IndexException;
+import org.weborganic.flint.local.LocalIndex;
 
 import com.topologi.diffx.xml.XMLWriter;
 
@@ -62,9 +62,8 @@ public final class GetIndexSummary implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     // Getting the index
     xml.openElement("index-summary");
-    File indexRoot = FlintConfig.directory();
-    FSDirectory directory = FSDirectory.open(indexRoot);
-    if (IndexReader.indexExists(directory)) {
+    File root = FlintConfig.directory();
+    if (LocalIndex.exists(root)) {
       // single index, output it
       indexToXML(null, xml);
 
@@ -74,7 +73,7 @@ public final class GetIndexSummary implements ContentGenerator, Cacheable {
         indexToXML(indexName, xml);
       } else {
         // multiple indexes maybe
-        File[] dirs = indexRoot.listFiles(FOLDERS_ONLY);
+        File[] dirs = root.listFiles(FOLDERS_ONLY);
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
             indexToXML(d.getName(), xml);

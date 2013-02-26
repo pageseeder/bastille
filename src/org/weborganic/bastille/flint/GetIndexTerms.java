@@ -34,7 +34,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * @author Christophe Lauret
  * @author Jean-Baptiste Reure
  *
- * @version 0.7.4 - 19 October 2012
+ * @version 0.8.9 - 19 October 2012
  * @since 0.6.0
  */
 public final class GetIndexTerms implements ContentGenerator, Cacheable {
@@ -155,6 +155,7 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
    * @throws IOException
    */
   private static void toXML(Term t, TermEnum e, XMLWriter xml) throws IOException {
+    if (t == null) return;
     xml.openElement("term");
     xml.attribute("field", t.field());
     xml.attribute("text", t.text());

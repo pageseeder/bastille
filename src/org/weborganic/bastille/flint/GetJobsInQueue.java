@@ -23,7 +23,8 @@ import com.topologi.diffx.xml.XMLWriter;
 
 /**
  * @author Christophe Lauret
- * @version 26 February 2013
+ * @version 0.8.9 - 25 February 2013
+ * @since 0.8.8
  */
 public class GetJobsInQueue implements ContentGenerator {
 
@@ -81,6 +82,7 @@ public class GetJobsInQueue implements ContentGenerator {
         List<IndexJob> jobs = master.getJobsInQueue();
         xml.openElement("index-jobs");
         xml.attribute("index", name);
+        xml.attribute("count", jobs.size());
         for (IndexJob job : jobs) {
           toXML(job, xml);
         }

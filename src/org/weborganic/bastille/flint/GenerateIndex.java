@@ -50,7 +50,7 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * @author Christophe Lauret
  *
- * @version 0.7.7 - 25 February 2013
+ * @version 0.8.8 - 25 February 2013
  * @since 0.6.0
  */
 public final class GenerateIndex implements ContentGenerator  {
@@ -87,7 +87,7 @@ public final class GenerateIndex implements ContentGenerator  {
       root = folder == null ? env.getPrivateFile("xml") : new File(env.getPrivateFile("xml"), folder);
     }
 
-    LOGGER.debug("Scanning directory {}", root.getPath());
+    LOGGER.debug("Scanning directory {} for files updated since {}", root.getPath(), ISO8601.DATETIME.format(modified));
 
     // Force index all
     if ("true".equals(req.getParameter("all"))) {

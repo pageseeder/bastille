@@ -28,6 +28,7 @@ import org.weborganic.bastille.psml.PSMLConfig;
 import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.IndexException;
+import org.weborganic.flint.IndexJob;
 import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.IndexManager;
 import org.weborganic.flint.Requester;
@@ -188,6 +189,13 @@ public final class IndexMaster {
    */
   public void clear() {
     this.manager.clear(this.index, REQUESTER, Priority.HIGH);
+  }
+
+  /**
+   * @return the list of job waiting to be processed.
+   */
+  public List<IndexJob> getJobsInQueue() {
+    return this.manager.getStatus(REQUESTER);
   }
 
   /**

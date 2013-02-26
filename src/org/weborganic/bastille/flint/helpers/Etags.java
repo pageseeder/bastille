@@ -10,8 +10,6 @@ package org.weborganic.bastille.flint.helpers;
 import java.io.File;
 import java.io.FileFilter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.flint.local.LocalIndex;
 
@@ -24,11 +22,6 @@ import org.weborganic.flint.local.LocalIndex;
  * @since 0.8.6
  */
 public final class Etags {
-
-  /**
-   * Logger for debugging
-   */
-  private static final Logger LOGGER = LoggerFactory.getLogger(Etags.class);
 
   /** Utility class. */
   private Etags() {
@@ -68,7 +61,7 @@ public final class Etags {
         if (indexes != null) {
           for (File index : indexes) {
             long modified = LocalIndex.getLastModified(index);
-            etag.append(name).append('-').append(modified);
+            etag.append(index.getName()).append('-').append(modified);
           }
         }
       }

@@ -9,13 +9,11 @@ package org.weborganic.bastille.flint.helpers;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
+import org.weborganic.flint.local.LocalIndex;
 
 /**
  * A utility class to generate etags for the generators.
@@ -59,56 +57,27 @@ public final class Etags {
    */
   public static String getETag(String name) {
     StringBuilder etag = new StringBuilder();
-    try {
-      File index = FlintConfig.directory();
-      FSDirectory directory = FSDirectory.open(index);
-      if (IndexReader.indexExists(directory)) {
-        long modified = IndexReader.lastModified(directory);
-        etag.append(index.getName()).append('-').append(modified);
+    File root = FlintConfig.directory();
+    if (FlintConfig.hasMultiple()) {
+      // Multiple index
+      if (name != null && IndexNames.isValid(name)) {
+        long modified = LocalIndex.getLastModified(new File(root, name));
+        etag.append(name).append('-').append(modified);
       } else {
-        if (name != null) {
-          FSDirectory fsd = FSDirectory.open(index);
-          if (IndexReader.indexExists(fsd))
-            etag.append(name).append('-').append(IndexReader.lastModified(fsd));
-        } else {
-          File[] indexes = index.listFiles(FOLDERS_ONLY);
-          if (indexes != null) {
-            for (File indexDir : indexes) {
-              FSDirectory fsd = FSDirectory.open(index);
-              if (IndexReader.indexExists(fsd))
-                etag.append(indexDir.getName()).append('-').append(IndexReader.lastModified(fsd));
-            }
+        File[] indexes = root.listFiles(FOLDERS_ONLY);
+        if (indexes != null) {
+          for (File index : indexes) {
+            long modified = LocalIndex.getLastModified(index);
+            etag.append(name).append('-').append(modified);
           }
         }
       }
-      // TODO Close directories??
-    } catch (IOException ex) {
-      LOGGER.debug("Error while trying to get last modified date of index", ex);
+    } else {
+      // Single index
+      long modified = LocalIndex.getLastModified(root);
+      etag.append(root.getName()).append('-').append(modified);
     }
     return etag.length() > 0? etag.toString() : null;
   }
 
-  /**
-   * Returns the last modified date of the specified index.
-   *
-   *
-   * @param name The name of the index (optional)
-   *
-   * @return The corresponding etag
-
-  public static long getLastModified(String name) {
-    long modified = -1;
-    try {
-      File index = FlintConfig.directory();
-      FSDirectory directory = FSDirectory.open(index);
-      if (IndexReader.indexExists(directory)) {
-        modified = IndexReader.lastModified(directory);
-      }
-      directory.close();
-    } catch (IOException ex) {
-      LOGGER.debug("Error while trying to get last modified date of index", ex);
-    }
-    return modified;
-  }
-   */
 }

@@ -10,6 +10,7 @@ package org.weborganic.bastille.flint.config;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
@@ -102,7 +103,10 @@ public final class LegacyConfig implements IFlintConfig {
 
   @Override
   public Map<String, File> getIXMLTemplates() {
-    return null;
+    Map<String, File> m = new HashMap<String, File>();
+    m.put("text/xml", this._itemplates);
+    m.put(PSMLConfig.MEDIATYPE, this._itemplates);
+    return m;
   }
 
   @Override

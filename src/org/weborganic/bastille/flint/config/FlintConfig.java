@@ -88,11 +88,12 @@ public final class FlintConfig {
     // Detect which version of the configuration we should load
     legacy = isLegacy();
     if (legacy) {
+      LOGGER.info("Auto-Setup Flint config using LegacyConfig");
       iconfig = LegacyConfig.newInstance();
     } else {
+      LOGGER.info("Auto-Setup Flint config using GenericConfig");
       iconfig = GenericConfig.newInstance();
     }
-    LOGGER.info("Auto-Setup Flint config using {}", iconfig.getClass().getName());
   }
 
   /**

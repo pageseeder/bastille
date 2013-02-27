@@ -206,8 +206,21 @@ public final class FlintConfig {
    * @return a new instance based on whether it is using the legacy config or not.
    */
   private static IFlintConfig newAutoInstance() {
-    LOGGER.info("Auto-Setup Flint config using LegacyConfig");
-    return SimpleConfig.newInstance();
+    boolean simple = isSimple();
+    if (simple) {
+      LOGGER.info("Auto-Setup Flint config using SimpleConfig");
+      return SimpleConfig.newInstance();
+    } else {
+      LOGGER.info("Auto-Setup Flint config using ComplexConfig");
+      return ComplexConfig.newInstance();
+    }
+  }
+
+  private static boolean isSimple() {
+    // TODO: after checking with Obook2
+//    File ixml = new File(GlobalSettings.getRepository(), BaseConfig.DEFAULT_ITEMPLATES_LOCATION);
+//    return ixml.exists() && ixml.isDirectory() && ixml.listFiles(FileFilters.getXSLTFiles()).length > 1;
+    return true;
   }
 
   /**

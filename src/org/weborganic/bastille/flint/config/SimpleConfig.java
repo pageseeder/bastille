@@ -99,8 +99,8 @@ public final class SimpleConfig extends BaseConfig implements IFlintConfig {
   }
 
   /**
-   * @param config
-   * @param ixml
+   * @param config the config to load
+   * @param ixml   the ixml directory
    */
   private static void load(IndexConfig config, File ixml) {
     File xslt = new File(ixml, DEFAULT_TEMPLATES_NAME);

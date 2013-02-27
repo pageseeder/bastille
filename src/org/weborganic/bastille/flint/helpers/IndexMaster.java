@@ -10,7 +10,6 @@ package org.weborganic.bastille.flint.helpers;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,18 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.config.IFlintConfig;
-import org.weborganic.bastille.psml.PSMLConfig;
-import org.weborganic.flint.Index;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.IndexException;
 import org.weborganic.flint.IndexJob;
 import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.IndexManager;
-import org.weborganic.flint.Requester;
-import org.weborganic.flint.content.AutoXMLTranslatorFactory;
-import org.weborganic.flint.content.Content;
-import org.weborganic.flint.content.ContentFetcher;
-import org.weborganic.flint.content.ContentId;
+import org.weborganic.flint.api.ContentId;
+import org.weborganic.flint.api.Index;
+import org.weborganic.flint.api.Requester;
 import org.weborganic.flint.local.LocalFileContentId;
 import org.weborganic.flint.local.LocalIndex;
 import org.weborganic.flint.query.SearchPaging;
@@ -69,7 +64,7 @@ public final class IndexMaster {
   private static final Requester REQUESTER = new Requester() {
     @Override
     public String getRequesterID() {
-      return "IndexMaster";
+      return "Bastille";
     }
   };
 
@@ -87,11 +82,6 @@ public final class IndexMaster {
    * The underlying index used by this generator.
    */
   private volatile LocalIndex index = null;
-
-  /**
-   * The index config used by this generator.
-   */
-  private volatile IndexConfig config = null;
 
   /**
    * The last time this index was modified
@@ -114,35 +104,10 @@ public final class IndexMaster {
    * @param flintconfig the Flint configuration to use.
    */
   private IndexMaster(File indexDir, final IFlintConfig flintconfig) {
-
-    ContentFetcher fetcher = new ContentFetcher() {
-      @Override
-      public Content getContent(ContentId id) {
-        LocalFileContentId fid = (LocalFileContentId)id;
-        return new FileContent(fid.file(), flintconfig);
-      }
-    };
-
-    // Create the index
     this.index = new LocalIndex(indexDir, FlintConfig.newAnalyzer());
-
-    // Get the last modified from the index
     this.lastModified = this.index.getLastModified();
-
-    // Create a Manager
-    this.manager = new IndexManager(fetcher, new QuietListener(LOGGER));
-    List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
-    this.manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
-
-    // Setup the configuration
-    this.config = new IndexConfig();
-
-    // Configure the IndexXML
+    this.manager = FlintConfig.getManager();
     this.ifconfig = flintconfig;
-    this.ifconfig.configure(this.config);
-
-    // Start the index manager
-    this.manager.start();
   }
 
   /**
@@ -160,7 +125,8 @@ public final class IndexMaster {
    * @return the index config this class operates on.
    */
   public IndexConfig config() {
-    return this.config;
+    // TODO
+    return null; //this.ifconfig.get(this.index.getIndexID());
   }
 
   /**
@@ -181,7 +147,8 @@ public final class IndexMaster {
   public void index(File file, Map<String, String> parameters) {
     ContentId cid = new LocalFileContentId(file);
     this.lastModified = System.currentTimeMillis();
-    this.manager.index(cid, this.index, this.config, REQUESTER, Priority.HIGH, parameters);
+    IndexConfig ic = this.ifconfig.get(this.index.getIndexID());
+    this.manager.index(cid, this.index, ic, REQUESTER, Priority.HIGH, parameters);
   }
 
   /**
@@ -238,7 +205,7 @@ public final class IndexMaster {
    * Reload the IXML templates.
    */
   public void reloadTemplates() {
-    FlintConfig.get().configure(this.config);
+    //XXX: FlintConfig.get().configure(this.config);
   }
 
   /**

@@ -9,7 +9,7 @@ package org.weborganic.bastille.flint.helpers;
 
 import org.slf4j.Logger;
 import org.weborganic.flint.IndexJob;
-import org.weborganic.flint.IndexListener;
+import org.weborganic.flint.api.IndexListener;
 
 /**
  * A Flint listener which reports less events than the default.

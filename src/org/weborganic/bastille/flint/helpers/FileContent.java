@@ -11,7 +11,7 @@ import java.io.File;
 
 import org.weborganic.bastille.flint.config.IFlintConfig;
 import org.weborganic.berlioz.util.FileUtils;
-import org.weborganic.flint.content.Content;
+import org.weborganic.flint.api.Content;
 import org.weborganic.flint.content.DeleteRule;
 import org.weborganic.flint.local.LocalFileContent;
 

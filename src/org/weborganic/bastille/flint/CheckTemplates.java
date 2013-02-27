@@ -11,8 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -47,14 +46,12 @@ public final class CheckTemplates implements ContentGenerator  {
     IFlintConfig config = FlintConfig.get();
 
     // List all templates for the config
-    Map<String, File> templates = config.getIXMLTemplates();
+    List<File> templates = config.getIXMLTemplates();
 
     // Print XML
     xml.openElement("index-templates");
-    for (Entry<String, File> t : templates.entrySet()) {
-      String media = t.getKey();
-      File def = t.getValue();
-      toXML(media, def, xml);
+    for (File xslt : templates) {
+      toXML(xslt, xml);
     }
     xml.closeElement();
   }
@@ -62,15 +59,13 @@ public final class CheckTemplates implements ContentGenerator  {
   /**
    * Check whether the templates can be compiled.
    *
-   * @param media     The media type
-   * @param itemplate The templates to load.
+   * @param itemplate The XSLT file
    * @param xml       XMl output
    *
    * @throws IOException If an IO error occurred while writing XML.
    */
-  private static void toXML(String media, File itemplate, XMLWriter xml) throws IOException {
-    xml.openElement("index-templates");
-    xml.attribute("mediatype", media);
+  private static void toXML(File itemplate, XMLWriter xml) throws IOException {
+    xml.openElement("templates");
     xml.attribute("filename", itemplate != null? itemplate.getName() : "null");
     if (itemplate == null || !itemplate.exists()) {
       xml.attribute("status", "error");

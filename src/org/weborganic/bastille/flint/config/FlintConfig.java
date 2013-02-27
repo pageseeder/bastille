@@ -9,6 +9,7 @@ package org.weborganic.bastille.flint.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,8 +19,15 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.weborganic.bastille.flint.helpers.FileContent;
 import org.weborganic.bastille.flint.helpers.IndexMaster;
-import org.weborganic.berlioz.GlobalSettings;
+import org.weborganic.bastille.psml.PSMLConfig;
+import org.weborganic.flint.IndexManager;
+import org.weborganic.flint.api.Content;
+import org.weborganic.flint.api.ContentFetcher;
+import org.weborganic.flint.api.ContentId;
+import org.weborganic.flint.content.AutoXMLTranslatorFactory;
+import org.weborganic.flint.local.LocalFileContentId;
 
 
 /**
@@ -45,11 +53,6 @@ public final class FlintConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(FlintConfig.class);
 
   /**
-   * Whether to operate in legacy mode.
-   */
-  private static volatile boolean legacy = false;
-
-  /**
    * The flint configuration actually in use.
    */
   private static volatile IFlintConfig iconfig = null;
@@ -58,6 +61,11 @@ public final class FlintConfig {
    * Creates new analyzers when needed.
    */
   private static volatile AnalyzerFactory analyzerFactory = null;
+
+  /**
+   * Creates new analyzers when needed.
+   */
+  private static volatile IndexManager manager = null;
 
   /**
    * Utility class.
@@ -85,15 +93,12 @@ public final class FlintConfig {
    * Initialize the Flint from the global configuration.
    */
   private static synchronized void autoSetup() {
-    // Detect which version of the configuration we should load
-    legacy = isLegacy();
-    if (legacy) {
-      LOGGER.info("Auto-Setup Flint config using LegacyConfig");
-      iconfig = LegacyConfig.newInstance();
-    } else {
-      LOGGER.info("Auto-Setup Flint config using GenericConfig");
-      iconfig = GenericConfig.newInstance();
-    }
+    IFlintConfig config = newAutoInstance();
+    iconfig = config;
+    manager = new IndexManager(newFetcher(config));
+    List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
+    manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
+    manager.start();
   }
 
   /**
@@ -185,18 +190,24 @@ public final class FlintConfig {
     return analyzerFactory.getAnalyzer();
   }
 
+  /**
+   * @return the index manager
+   */
+  public static synchronized IndexManager getManager() {
+    return manager;
+  }
+
   // private helpers
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Indicates whether we are in legacy mode.
+   * Detects which version of the configuration we should load
    *
-   * @return <code>true</code> if we are in legacy mode;
-   *         <code>false</code> otherwise.
+   * @return a new instance based on whether it is using the legacy config or not.
    */
-  private static boolean isLegacy() {
-    File itemplates = new File(GlobalSettings.getRepository(), LegacyConfig.DEFAULT_ITEMPLATES_LOCATION);
-    return itemplates.exists();
+  private static IFlintConfig newAutoInstance() {
+    LOGGER.info("Auto-Setup Flint config using LegacyConfig");
+    return SimpleConfig.newInstance();
   }
 
   /**
@@ -217,4 +228,17 @@ public final class FlintConfig {
     return master;
   }
 
+  /**
+   * @param config the config.
+   * @return a new content fetcher using the specified flint config.
+   */
+  private static ContentFetcher newFetcher(final IFlintConfig config) {
+    return new ContentFetcher() {
+      @Override
+      public Content getContent(ContentId id) {
+        LocalFileContentId fid = (LocalFileContentId)id;
+        return new FileContent(fid.file(), config);
+      }
+    };
+  }
 }

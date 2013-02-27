@@ -8,10 +8,7 @@
 package org.weborganic.bastille.flint.config;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
@@ -29,24 +26,14 @@ import org.weborganic.flint.local.LocalFileContentType;
  * <p>Replaced by Generic config.
  *
  * @author Christophe Lauret
- * @version 19 October 2012
+ * @version 27 February 2013
  */
-public final class LegacyConfig implements IFlintConfig {
+public final class SimpleConfig extends BaseConfig implements IFlintConfig {
 
   /**
    * The logger for this.
    */
-  private static final Logger LOGGER = LoggerFactory.getLogger(LegacyConfig.class);
-
-  /**
-   * The default folder name for the index files.
-   */
-  private static final String DEFAULT_INDEX_LOCATION = "index";
-
-  /**
-   * The default templates to use for processing the data and generate the indexable XML.
-   */
-  protected static final String DEFAULT_ITEMPLATES_LOCATION = "ixml/default.xsl";
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleConfig.class);
 
   /**
    * The location of the public
@@ -64,61 +51,25 @@ public final class LegacyConfig implements IFlintConfig {
   private static final File PRIVATE_PSML = new File(GlobalSettings.getRepository(), "psml");
 
   /**
-   * Where the index is located.
-   */
-  private final File _directory;
-
-  /**
-   * Where the global itemplates are.
-   */
-  private final File _itemplates;
-
-  /**
-   * Whether multiple indexes are in use.
-   */
-  private final boolean _isMultiple;
-
-  /**
    * Creates a new legacy config.
    *
    * @param directory  The directory containing a single or a collection of indexes.
-   * @param itemplates The itemplates to use.
+   * @param ixml       The directory containing the ixml templates to use.
    * @param isMultiple <code>true</code> if there are multiple indexes; <code>false</code> for a single index.
    */
-  private LegacyConfig(File directory, File itemplates, boolean isMultiple) {
-    this._directory = directory;
-    this._itemplates = itemplates;
-    this._isMultiple = isMultiple;
+  private SimpleConfig(File directory, File ixml, boolean isMultiple) {
+    super(directory, ixml, isMultiple);
+    load(this.getDefaultConfig(), ixml);
   }
 
   @Override
-  public File getDirectory() {
-    return this._directory;
+  public void reload() {
+    load(this.getDefaultConfig(), this.getIXMLDirectory());
   }
 
   @Override
-  public File getIXMLTemplates(String mediatype) {
-    return this._itemplates;
-  }
-
-  @Override
-  public Map<String, File> getIXMLTemplates() {
-    Map<String, File> m = new HashMap<String, File>();
-    m.put("text/xml", this._itemplates);
-    m.put(PSMLConfig.MEDIATYPE, this._itemplates);
-    return m;
-  }
-
-  @Override
-  public boolean hasMultiple() {
-    return this._isMultiple;
-  }
-
-  @Override
-  public void configure(IndexConfig iconfig) {
-    URI uri = this._itemplates.toURI();
-    iconfig.setTemplates(LocalFileContentType.SINGLETON, "text/xml", uri);
-    iconfig.setTemplates(LocalFileContentType.SINGLETON, PSMLConfig.MEDIATYPE, uri);
+  public IndexConfig get(String name) {
+    return this.getDefaultConfig();
   }
 
   @Override
@@ -139,26 +90,27 @@ public final class LegacyConfig implements IFlintConfig {
    *
    * @return a new legacy config instance.
    */
-  public static LegacyConfig newInstance() {
+  public static SimpleConfig newInstance() {
     // Location of the index
     File directory = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
     File itemplates = new File(GlobalSettings.getRepository(), DEFAULT_ITEMPLATES_LOCATION);
     boolean isMultiple = hasMultiple(directory);
-    return new LegacyConfig(directory, itemplates, isMultiple);
+    return new SimpleConfig(directory, itemplates, isMultiple);
   }
 
   /**
-   * Returns a new legacy config instance loading the setting from the global settings.
-   *
-   * @param xslt The XSLT to use.
-   *
-   * @return a new legacy config instance.
+   * @param config
+   * @param ixml
    */
-  public static LegacyConfig newInstance(File xslt) {
-    // Location of the index
-    File directory = new File(GlobalSettings.getRepository(), DEFAULT_INDEX_LOCATION);
-    boolean isMultiple = hasMultiple(directory);
-    return new LegacyConfig(directory, xslt, isMultiple);
+  private static void load(IndexConfig config, File ixml) {
+    File xslt = new File(ixml, DEFAULT_TEMPLATES_NAME);
+    if (xslt.exists()) {
+      URI uri = xslt.toURI();
+      config.setTemplates(LocalFileContentType.SINGLETON,  "text/xml", uri);
+      config.setTemplates(LocalFileContentType.SINGLETON, PSMLConfig.MEDIATYPE, uri);
+    } else {
+      LOGGER.warn("Unable to find your IXML templates!");
+    }
   }
 
   /**
@@ -173,7 +125,7 @@ public final class LegacyConfig implements IFlintConfig {
    * @param f for the specified file.
    * @return the corresponding path or "" if an error occurs
    */
-  public static String asPath(File f) {
+  protected static String asPath(File f) {
     boolean isPrivateXML = f.getName().endsWith(".xml");
     boolean isPrivatePSML = f.getName().endsWith(".psml");
     try {
@@ -203,7 +155,7 @@ public final class LegacyConfig implements IFlintConfig {
    * @param doc The Lucene document.
    * @return The corresponding file.
    */
-  public static File asFile(Document doc) {
+  protected static File asFile(Document doc) {
     String path = doc.get("path");
     String mediatype = doc.get("mediatype");
     boolean isPublic = "public".equals(doc.get("visilibity"));
@@ -215,36 +167,6 @@ public final class LegacyConfig implements IFlintConfig {
       else
         return new File(PRIVATE_XML, path+".xml");
     }
-  }
-
-  /**
-   * Checks whether the specified index directory contains multiple indexes.
-   *
-   * @param directory the directory
-   * @return <code>true</code> If there are multiple directories; <code>false</code> for a single index.
-   */
-  protected static boolean hasMultiple(File directory) {
-//    if (GlobalSettings.get("bastille.index.multiple", true)) {
-//      LOGGER.debug("Set to multiple index configuration");
-//      return true;
-//    }
-    // Look for subdirectories
-    if (directory.exists() && directory.isDirectory()) {
-      final FileFilter directoriesOnly = new FileFilter() {
-        @Override
-        public boolean accept(File f) {
-          return f.isDirectory();
-        }
-      };
-      File[] subdirs = directory.listFiles(directoriesOnly);
-      if (subdirs.length > 0) {
-        LOGGER.info("Detected multiple index configuration");
-        return true;
-      }
-    }
-    // No directory, it must be a single index
-    LOGGER.info("Detected multiple index configuration");
-    return false;
   }
 
 }

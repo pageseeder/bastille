@@ -8,7 +8,7 @@
 package org.weborganic.bastille.flint.config;
 
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.lucene.document.Document;
 import org.weborganic.flint.IndexConfig;
@@ -31,12 +31,12 @@ public interface IFlintConfig {
    *
    * @return the templates to generate iXML.
    */
-  File getIXMLTemplates(String mediatype);
+//  File getIXMLTemplates(String mediatype);
 
   /**
    * @return the media types mapped to corresponding templates to generate iXML.
    */
-  Map<String, File> getIXMLTemplates();
+  List<File> getIXMLTemplates();
 
   /**
    * Indicates whether flint is configured for multiple indexes.
@@ -47,11 +47,15 @@ public interface IFlintConfig {
   boolean hasMultiple();
 
   /**
-   * Configures the IndexConfiguration from Flint.
-   *
-   * @param iconfig the index configuration.
+   * @param name The name of the index
+   * @return the index configuration for the specified index.
    */
-  void configure(IndexConfig iconfig);
+  IndexConfig get(String name);
+
+  /**
+   * Causes the config to be reloaded.
+   */
+  void reload();
 
   /**
    * Returns the file corresponding to the specified document.'

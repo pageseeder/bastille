@@ -8,7 +8,6 @@
 package org.weborganic.bastille.flint;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 import org.apache.lucene.index.IndexReader;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.helpers.Etags;
 import org.weborganic.bastille.flint.helpers.IndexMaster;
+import org.weborganic.bastille.util.FileFilters;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -45,15 +45,6 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetIndexStats.class);
 
-  /**
-   * To list only folders
-   */
-  private static final FileFilter FOLDERS_ONLY = new FileFilter() {
-    @Override
-    public boolean accept(File d) {
-      return d.isDirectory();
-    }
-  };
 
   @Override
   public String getETag(ContentRequest req) {
@@ -76,7 +67,7 @@ public final class GetIndexStats implements ContentGenerator, Cacheable {
         indexToXML(indexName, false, xml);
       } else {
         // multiple indexes maybe
-        File[] dirs = root.listFiles(FOLDERS_ONLY);
+        File[] dirs = root.listFiles(FileFilters.getFolders());
         if (dirs != null && dirs.length > 0) {
           for (File d : dirs) {
             indexToXML(d.getName(), false, xml);

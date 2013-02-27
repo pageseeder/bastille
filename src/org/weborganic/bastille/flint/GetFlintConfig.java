@@ -8,13 +8,13 @@
 package org.weborganic.bastille.flint;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.config.IFlintConfig;
+import org.weborganic.bastille.util.FileFilters;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -36,16 +36,6 @@ public final class GetFlintConfig implements ContentGenerator {
   /** Logger for debugging */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFlintConfig.class);
 
-  /**
-   * To list only folders
-   */
-  private static final FileFilter FOLDERS_ONLY = new FileFilter() {
-    @Override
-    public boolean accept(File d) {
-      return d.isDirectory();
-    }
-  };
-
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     IFlintConfig config = FlintConfig.get();
@@ -58,7 +48,7 @@ public final class GetFlintConfig implements ContentGenerator {
     xml.attribute("class", config.getClass().getName());
     if (config.hasMultiple()) {
       if (directory.exists() && directory.isDirectory()) {
-        File[] subdirs = directory.listFiles(FOLDERS_ONLY);
+        File[] subdirs = directory.listFiles(FileFilters.getFolders());
         for (File f : subdirs) {
           toBasicIndexXML(xml, f);
         }

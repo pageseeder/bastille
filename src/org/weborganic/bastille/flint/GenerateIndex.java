@@ -91,7 +91,7 @@ public final class GenerateIndex implements ContentGenerator  {
 
     // Force index all
     if ("true".equals(req.getParameter("all"))) {
-      master.reloadTemplates();
+      config.reload();
       modified = 0;
     }
 

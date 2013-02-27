@@ -19,13 +19,10 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.flint.config.FlintConfig;
 import org.weborganic.bastille.flint.config.IFlintConfig;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.IndexException;
-import org.weborganic.flint.IndexJob;
 import org.weborganic.flint.IndexJob.Priority;
 import org.weborganic.flint.IndexManager;
 import org.weborganic.flint.api.ContentId;
@@ -52,11 +49,6 @@ import org.weborganic.flint.util.Terms;
  * @since 0.6.0
  */
 public final class IndexMaster {
-
-  /**
-   * A logger for this class and to provide for Flint.
-   */
-  private static final Logger LOGGER = LoggerFactory.getLogger(IndexMaster.class);
 
   /**
    * The requester is always the index master.
@@ -125,8 +117,7 @@ public final class IndexMaster {
    * @return the index config this class operates on.
    */
   public IndexConfig config() {
-    // TODO
-    return null; //this.ifconfig.get(this.index.getIndexID());
+    return this.ifconfig.get(this.index.getIndexID());
   }
 
   /**
@@ -156,13 +147,6 @@ public final class IndexMaster {
    */
   public void clear() {
     this.manager.clear(this.index, REQUESTER, Priority.HIGH);
-  }
-
-  /**
-   * @return the list of job waiting to be processed.
-   */
-  public List<IndexJob> getJobsInQueue() {
-    return this.manager.getStatus(REQUESTER);
   }
 
   /**
@@ -199,13 +183,6 @@ public final class IndexMaster {
    */
   public long lastModified() {
     return this.lastModified;
-  }
-
-  /**
-   * Reload the IXML templates.
-   */
-  public void reloadTemplates() {
-    //XXX: FlintConfig.get().configure(this.config);
   }
 
   /**

@@ -31,8 +31,10 @@ public class GetJobsInQueue implements ContentGenerator {
     // Serialise as XML
     xml.openElement("index-jobs");
     xml.attribute("count", jobs.size());
-    for (IndexJob job : jobs) {
-      toXML(job, xml);
+    if (!"true".equals(req.getParameter("count-only"))) {
+      for (IndexJob job : jobs) {
+        toXML(job, xml);
+      }
     }
     xml.closeElement();
   }

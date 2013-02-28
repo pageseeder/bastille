@@ -9,6 +9,9 @@ package org.weborganic.bastille.flint.config;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,14 +26,19 @@ import org.weborganic.flint.local.LocalFileContentType;
 
 
 /**
- * The configuration used up until Bastille 0.7.
+ * A configuration for multiple indexes which uses templates depending on the index.
  *
- * <p>Replaced by Generic config.
+ * <p>This configuration is suitable for when:
+ * <ul>
+ *   <li>All indexes are located in the <code>[WEB-INF]/index</code> directory</li>
+ *   <li>Each index is a single folder in the index directory</li>
+ *   <li>Only one set of templates located in <code>[WEB-INF]/ixml/default.xsl</code> is used.</li>
+ * </ul>
  *
  * @author Christophe Lauret
- * @version 27 February 2013
+ * @version 28 February 2013
  */
-public final class ComplexConfig extends BaseConfig implements IFlintConfig {
+public final class ComplexConfig extends BaseDefaultConfig implements IFlintConfig {
 
   /**
    * The logger for this.
@@ -72,11 +80,23 @@ public final class ComplexConfig extends BaseConfig implements IFlintConfig {
 
   @Override
   public void reload() {
-    load(this._configs, this.getDefaultConfig(), this.getIXMLDirectory());
+    load(this._configs, this.getDefaultConfig(), this.getTemplatesDirectory());
   }
 
   @Override
-  public IndexConfig get(String name) {
+  public final List<File> getTemplates() {
+    File ixml = getTemplatesDirectory();
+    if (ixml.exists() && ixml.isDirectory()) {
+      File[] xslt = ixml.listFiles(FileFilters.getXSLTFiles());
+      return Arrays.asList(xslt);
+    } else {
+      LOGGER.warn("There are no ixml templates in your /WEB-INF/xml directory");
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public IndexConfig getIndexConfig(String name) {
     IndexConfig config = this._configs.get(name);
     return config != null? config : this.getDefaultConfig();
   }

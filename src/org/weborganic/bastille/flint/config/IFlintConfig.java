@@ -16,27 +16,19 @@ import org.weborganic.flint.IndexConfig;
 /**
  * An interface for the flint configurations.
  *
+ * <p>This API is used by Bastille to know how it should use Flint.
+ *
+ * <p>Implement this interface, if you're using a non-standard configuration.
+ *
  * @author Christophe Lauret
- * @version 19 October 2012
+ * @version 28 February 2013
  */
 public interface IFlintConfig {
 
   /**
-   * @return the directory containing the index.
+   * @return the root directory containing the index or indexes.
    */
   File getDirectory();
-
-  /**
-   * @param mediatype The media type to match.
-   *
-   * @return the templates to generate iXML.
-   */
-//  File getIXMLTemplates(String mediatype);
-
-  /**
-   * @return the media types mapped to corresponding templates to generate iXML.
-   */
-  List<File> getIXMLTemplates();
 
   /**
    * Indicates whether flint is configured for multiple indexes.
@@ -47,10 +39,20 @@ public interface IFlintConfig {
   boolean hasMultiple();
 
   /**
+   * @return the list of templates to generate iXML.
+   */
+  List<File> getTemplates();
+
+  /**
+   * @return the list of index names.
+   */
+  List<String> getIndexNames();
+
+  /**
    * @param name The name of the index
    * @return the index configuration for the specified index.
    */
-  IndexConfig get(String name);
+  IndexConfig getIndexConfig(String name);
 
   /**
    * Causes the config to be reloaded.
@@ -58,7 +60,7 @@ public interface IFlintConfig {
   void reload();
 
   /**
-   * Returns the file corresponding to the specified document.'
+   * Returns the file corresponding to the specified document.
    *
    * <p>This method is used to determine whether changes in some files require reindexing and is typically used
    * by the indexing process.

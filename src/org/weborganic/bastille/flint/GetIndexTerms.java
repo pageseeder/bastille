@@ -99,6 +99,9 @@ public final class GetIndexTerms implements ContentGenerator, Cacheable {
    */
   private void termsToXML(String index, String field, XMLWriter xml) throws IOException {
     xml.openElement("terms");
+    if (index != null) {
+      xml.attribute("index", index);
+    }
     if (field != null) {
       xml.attribute("field", field);
     }

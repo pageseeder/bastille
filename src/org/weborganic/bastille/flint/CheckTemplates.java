@@ -46,7 +46,7 @@ public final class CheckTemplates implements ContentGenerator  {
     IFlintConfig config = FlintConfig.get();
 
     // List all templates for the config
-    List<File> templates = config.getIXMLTemplates();
+    List<File> templates = config.getTemplates();
 
     // Print XML
     xml.openElement("index-templates");
@@ -64,7 +64,7 @@ public final class CheckTemplates implements ContentGenerator  {
    *
    * @throws IOException If an IO error occurred while writing XML.
    */
-  private static void toXML(File itemplate, XMLWriter xml) throws IOException {
+  protected static void toXML(File itemplate, XMLWriter xml) throws IOException {
     xml.openElement("templates");
     xml.attribute("filename", itemplate != null? itemplate.getName() : "null");
     if (itemplate == null || !itemplate.exists()) {

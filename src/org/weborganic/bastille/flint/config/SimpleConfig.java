@@ -9,46 +9,37 @@ package org.weborganic.bastille.flint.config;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.psml.PSMLConfig;
 import org.weborganic.berlioz.GlobalSettings;
-import org.weborganic.berlioz.util.FileUtils;
 import org.weborganic.flint.IndexConfig;
 import org.weborganic.flint.local.LocalFileContentType;
 
 
 /**
- * The configuration used up until Bastille 0.7.
+ * A simple configuration for single/multiple indexes which uses only one template common to all indexes.
  *
- * <p>Replaced by Generic config.
+ * <p>This configuration is suitable for when:
+ * <ul>
+ *   <li>All indexes are located in the <code>[WEB-INF]/index</code> directory</li>
+ *   <li>Each index is a single folder in the index directory</li>
+ *   <li>Only one set of templates located in <code>[WEB-INF]/ixml/default.xsl</code> is used.</li>
+ * </ul>
  *
  * @author Christophe Lauret
- * @version 27 February 2013
+ * @version 28 February 2013
  */
-public final class SimpleConfig extends BaseConfig implements IFlintConfig {
+public final class SimpleConfig extends BaseDefaultConfig implements IFlintConfig {
 
   /**
    * The logger for this.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleConfig.class);
-
-  /**
-   * The location of the public
-   */
-  private static final File PUBLIC = GlobalSettings.getRepository().getParentFile();
-
-  /**
-   * The location of the private folders for XML.
-   */
-  private static final File PRIVATE_XML = new File(GlobalSettings.getRepository(), "xml");
-
-  /**
-   * The location of the private folders for PSML.
-   */
-  private static final File PRIVATE_PSML = new File(GlobalSettings.getRepository(), "psml");
 
   /**
    * Creates a new legacy config.
@@ -63,12 +54,18 @@ public final class SimpleConfig extends BaseConfig implements IFlintConfig {
   }
 
   @Override
-  public void reload() {
-    load(this.getDefaultConfig(), this.getIXMLDirectory());
+  public final List<File> getTemplates() {
+    File ixml = getTemplatesDirectory();
+    return Collections.singletonList(new File(ixml, DEFAULT_TEMPLATES_NAME));
   }
 
   @Override
-  public IndexConfig get(String name) {
+  public void reload() {
+    load(this.getDefaultConfig(), this.getTemplatesDirectory());
+  }
+
+  @Override
+  public IndexConfig getIndexConfig(String name) {
     return this.getDefaultConfig();
   }
 
@@ -110,62 +107,6 @@ public final class SimpleConfig extends BaseConfig implements IFlintConfig {
       config.setTemplates(LocalFileContentType.SINGLETON, PSMLConfig.MEDIATYPE, uri);
     } else {
       LOGGER.warn("Unable to find your IXML templates!");
-    }
-  }
-
-  /**
-   * Returns the relative web path for the specified file.
-   *
-   * <p>This method returns:
-   * <ul>
-   *   <li>for private files, the relative path from the '/WEB-INF/xml' without the '.xml' extension.
-   *   <li>for public files, the relative path from the Web application root.
-   * </ul>
-   *
-   * @param f for the specified file.
-   * @return the corresponding path or "" if an error occurs
-   */
-  protected static String asPath(File f) {
-    boolean isPrivateXML = f.getName().endsWith(".xml");
-    boolean isPrivatePSML = f.getName().endsWith(".psml");
-    try {
-      if (isPrivateXML) {
-        String path = FileUtils.path(PRIVATE_XML, f);
-        return path.substring(0, path.length()-4);
-      } else if (isPrivatePSML) {
-        String path = FileUtils.path(PRIVATE_PSML, f);
-        return path.substring(0, path.length()-5);
-      } else {
-        return FileUtils.path(PUBLIC, f);
-      }
-    } catch (IllegalArgumentException ex) {
-      LOGGER.warn("Error while extracting path from file {}: {}", f.getAbsolutePath(), ex);
-    }
-    return "";
-  }
-
-  /**
-   * Returns the file corresponding to the specified Lucene document.
-   *
-   * <p>This method looks at the field named "visibility" to determine whether it is a public or
-   * private file.
-   *
-   * <p>It also looks at the mediatype to know in which directory it can be found.
-   *
-   * @param doc The Lucene document.
-   * @return The corresponding file.
-   */
-  protected static File asFile(Document doc) {
-    String path = doc.get("path");
-    String mediatype = doc.get("mediatype");
-    boolean isPublic = "public".equals(doc.get("visilibity"));
-    if (isPublic) {
-      return new File(PUBLIC, path);
-    } else {
-      if ("application/vnd.pageseeder.psml+xml".equals(mediatype))
-        return new File(PRIVATE_PSML, path+".psml");
-      else
-        return new File(PRIVATE_XML, path+".xml");
     }
   }
 

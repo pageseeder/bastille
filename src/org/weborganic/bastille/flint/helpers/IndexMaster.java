@@ -117,7 +117,7 @@ public final class IndexMaster {
    * @return the index config this class operates on.
    */
   public IndexConfig config() {
-    return this.ifconfig.get(this.index.getIndexID());
+    return this.ifconfig.getIndexConfig(this.index.getIndexID());
   }
 
   /**
@@ -138,7 +138,7 @@ public final class IndexMaster {
   public void index(File file, Map<String, String> parameters) {
     ContentId cid = new LocalFileContentId(file);
     this.lastModified = System.currentTimeMillis();
-    IndexConfig ic = this.ifconfig.get(this.index.getIndexID());
+    IndexConfig ic = this.ifconfig.getIndexConfig(this.index.getIndexID());
     this.manager.index(cid, this.index, ic, REQUESTER, Priority.HIGH, parameters);
   }
 

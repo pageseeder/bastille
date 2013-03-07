@@ -26,7 +26,7 @@ import org.weborganic.berlioz.content.ContentRequest;
  *
  * @author Christophe Lauret
  *
- * @version 0.8.1 - 19 December 2012
+ * @version 0.8.9 - 7 March 2013
  * @since 0.8.1
  */
 public final class PSUsers {
@@ -112,7 +112,11 @@ public final class PSUsers {
         LOGGER.warn("Config property '{}.password' left in clear - consider obfuscating.", property);
       }
       user = PageSeederAuthenticator.login(username, password);
-      CACHE.put(property, user);
+      if (user != null) {
+        CACHE.put(property, user);
+      } else {
+        LOGGER.warn("User config property '{}' not setup property - results in null user", property);
+      }
     }
     return user;
   }

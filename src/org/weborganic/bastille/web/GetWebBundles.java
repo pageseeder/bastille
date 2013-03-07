@@ -121,7 +121,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * <h3>ETag</h3>
  *
  * @author Christophe Lauret
- * @version 0.7.11 - 3 December 2012
+ * @version 0.8.9 - 8 March 2013
  * @since 0.6.0
  */
 public final class GetWebBundles implements ContentGenerator, Cacheable {
@@ -155,6 +155,11 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   }
 
   /**
+   * Indicates whether the bundle can be written..
+   */
+  private static volatile Boolean isWritable = null;
+
+  /**
    * The tool used for bundling JS.
    */
   private WebBundleTool jstool = null;
@@ -170,7 +175,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     Service service = hreq.getService();
     Environment env = req.getEnvironment();
     init(env);
-    boolean doBundle = !"false".equals(req.getParameter("berlioz-bundle", "true"));
+    boolean doBundle = canBundle(req);
     if (doBundle) {
       String config = req.getParameter("config", "default");
       try {
@@ -206,7 +211,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     Environment env = req.getEnvironment();
 
     // Parameters
-    boolean doBundle = !"false".equals(req.getParameter("berlioz-bundle", "true"));
+    boolean doBundle = canBundle(req);
     String config = req.getParameter("config", "default");
 
     // Scripts
@@ -302,11 +307,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    *
    * @param env The environment.
    */
-  private void init(Environment env) {
+  private synchronized void init(Environment env) {
     // Initialise the JavaScript bundling tool
     String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
     File bundles = env.getPublicFile(jsbundles);
     if (!bundles.exists()) bundles.mkdirs();
+    if (isWritable == null) {
+      isWritable = Boolean.valueOf(bundles.exists() && bundles.canWrite());
+    }
     if (this.jstool == null)
       this.jstool = new WebBundleTool(bundles);
     // Initialise the CSS bundling tool
@@ -457,6 +465,15 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       }
     }
     return bundles;
+  }
+
+  /**
+   * @param req content request
+   * @return <code>true</code> if bundles folder is writable and "bundle-bundle" parameter is set to "false"
+   */
+  private static boolean canBundle(ContentRequest req) {
+    return isWritable == Boolean.TRUE
+        && !"false".equals(req.getParameter("berlioz-bundle", "true"));
   }
 
   /**

@@ -35,7 +35,7 @@ public final class Resources {
    *
    * @param name the name of the resource to retrieve.
    *
-   * @return the corresponding byte array or <code>null</code>.
+   * @return the corresponding byte array or <code>null</code> if not found or I/O error occurs.
    */
   public static byte[] getResource(String name) {
     byte[] data = null;
@@ -43,8 +43,9 @@ public final class Resources {
     try {
       ClassLoader loader = Resources.class.getClassLoader();
       in = loader.getResourceAsStream(name);
-      data = IOUtils.toByteArray(in);
-      in.close();
+      if (in != null) {
+        data = IOUtils.toByteArray(in);
+      }
     } catch (IOException ex) {
       LOGGER.warn("An error occurred while retrieving resource", ex);
     } finally {

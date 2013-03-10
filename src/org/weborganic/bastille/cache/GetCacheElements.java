@@ -14,11 +14,11 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
+import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
-import org.weborganic.berlioz.content.ContentStatus;
 import org.weborganic.berlioz.util.ISO8601;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -36,9 +36,13 @@ public final class GetCacheElements implements ContentGenerator {
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
-      req.setStatus(ContentStatus.NOT_FOUND);
+      Errors.noParameter(req, xml, "name");
       return;
     }
+    int page = req.getIntParameter("page", 1);
+    int perpage = req.getIntParameter("pagesize", 1000);
+
+    // TODO
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();

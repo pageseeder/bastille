@@ -16,6 +16,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
+import org.weborganic.bastille.cache.util.SizeEstimator;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
 import org.weborganic.berlioz.content.ContentGenerator;
@@ -67,13 +68,13 @@ public final class GetCacheInfo implements ContentGenerator {
 
     // Basic info
     if (status == Status.STATUS_ALIVE) {
+      SizeEstimator estimator = SizeEstimator.singleton();
       xml.openElement("info");
       xml.attribute("size", cache.getSize());
       xml.attribute("memory-store-size",    Long.toString(cache.getMemoryStoreSize()));
       xml.attribute("disk-store-size",      cache.getDiskStoreSize());
-      xml.attribute("in-memory-size",       Long.toString(cache.calculateInMemorySize()));
-      xml.attribute("off-heap-size",        Long.toString(cache.calculateOffHeapSize()));
-      xml.attribute("on-disk-size",         Long.toString(cache.calculateOnDiskSize()));
+      xml.attribute("in-memory-size",       Long.toString(estimator.getInMemorySize(cache)));
+      xml.attribute("on-disk-size",         Long.toString(estimator.getOnDiskSize(cache)));
       xml.attribute("average-search-time",  Long.toString(cache.getAverageSearchTime()));
       xml.attribute("searches-per-seconds", Long.toString(cache.getSearchesPerSecond()));
       xml.attribute("average-get-time",     Float.toString(cache.getAverageGetTime()));

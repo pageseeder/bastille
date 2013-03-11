@@ -1,3 +1,10 @@
+/*
+ * This file is part of the Bastille library.
+ *
+ * For licensing information please see the file license.txt included in the release.
+ * A copy of this licence can also be found at
+ *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ */
 package org.weborganic.bastille.cache.util;
 
 import java.util.Map;
@@ -15,13 +22,13 @@ import net.sf.ehcache.Ehcache;
 public final class SizeEstimator {
 
   /** Singleton instance */
-  private final static SizeEstimator singleton = new SizeEstimator();
+  private static final SizeEstimator SINGLETON = new SizeEstimator();
 
   /**
    * A new sample is taken when the number of elements in the cache exceeds the number of elements in the sample
    * times this factor.
    */
-  private final static float RESAMPLE_FACTOR = 2.0f;
+  private static final float RESAMPLE_FACTOR = 2.0f;
 
   /**
    * Samples for "in memory" sizes mapped to the cache names.
@@ -43,7 +50,7 @@ public final class SizeEstimator {
    * @return the single instance.
    */
   public static SizeEstimator singleton() {
-    return singleton;
+    return SINGLETON;
   }
 
   /**
@@ -56,7 +63,7 @@ public final class SizeEstimator {
   public boolean checkInMemorySample(Ehcache cache) {
     Sample sample = this.inMemorySamples.get(cache.getName());
     int elements = cache.getSize();
-    if (sample == null || sample.elements()*RESAMPLE_FACTOR < elements) {
+    if (sample == null || sample.elements() * RESAMPLE_FACTOR < elements) {
       long bytesize = cache.calculateInMemorySize();
       sample = new Sample(elements, bytesize);
       this.inMemorySamples.put(cache.getName(), sample);
@@ -89,8 +96,7 @@ public final class SizeEstimator {
    *
    * <p>This method does not indicate whether the size was calculated or estimated from a previous sample.
    *
-   * @param name The name of the cache
-   * @param elements The number of elements
+   * @param cache The cache
    * @return return the actual value or -1;
    */
   public long getInMemorySize(Ehcache cache) {
@@ -105,8 +111,7 @@ public final class SizeEstimator {
    *
    * <p>This method does not indicate whether the size was calculated or estimated from a previous sample.
    *
-   * @param name The name of the cache
-   * @param elements The number of elements
+   * @param cache The cache
    * @return return the actual value or -1;
    */
   public long getOnDiskSize(Ehcache cache) {
@@ -154,7 +159,6 @@ public final class SizeEstimator {
     }
     return estimate;
   }
-
 
   /**
    * A byte size sample.

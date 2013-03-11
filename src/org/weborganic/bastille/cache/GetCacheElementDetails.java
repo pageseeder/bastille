@@ -17,7 +17,6 @@ import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.weborganic.bastille.cache.util.GenericResource;
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.Beta;
@@ -37,7 +36,7 @@ import com.topologi.diffx.xml.XMLWriter;
 public final class GetCacheElementDetails implements ContentGenerator {
 
   /** Where useful debug info goes. */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GenericResource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GetCacheElementDetails.class);
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {

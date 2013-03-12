@@ -76,7 +76,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
     xml.attribute("status", cache.getStatus().toString());
     xml.attribute("disabled", Boolean.toString(cache.isDisabled()));
 
-    xml.openElement("element");
+    xml.openElement("element", true);
     xml.attribute("key", key.toString());
     Element element = cache.getQuiet(key);
     if (element != null) {
@@ -105,8 +105,8 @@ public final class GetCacheElementDetails implements ContentGenerator {
   /**
    * Returns detailed information about the cache.
    *
-   * @param cache The cache
-   * @param xml   The XML Writer
+   * @param o   Object to serialize as XML
+   * @param xml The XML Writer
    *
    * @throws IOException If an error occurs while writing the XML
    */
@@ -122,8 +122,8 @@ public final class GetCacheElementDetails implements ContentGenerator {
   /**
    * Returns detailed information about the cache.
    *
-   * @param cache The cache
-   * @param xml   The XML Writer
+   * @param o   Object to serialize as XML
+   * @param xml The XML Writer
    *
    * @throws IOException If an error occurs while writing the XML
    */
@@ -169,7 +169,6 @@ public final class GetCacheElementDetails implements ContentGenerator {
         }
       }
     }
-    xml.closeElement();
   }
 
 }

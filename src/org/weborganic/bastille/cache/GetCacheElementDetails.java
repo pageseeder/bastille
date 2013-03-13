@@ -52,7 +52,6 @@ public final class GetCacheElementDetails implements ContentGenerator {
       return;
     }
 
-
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();
     Ehcache cache = manager.getEhcache(name);
@@ -64,6 +63,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
    * Returns detailed information about the cache.
    *
    * @param cache The cache
+   * @param key   The key of the cache entry
    * @param xml   The XML Writer
    *
    * @throws IOException If an error occurs while writing the XML

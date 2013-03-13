@@ -28,7 +28,7 @@ public final class SizeEstimator {
    * A new sample is taken when the number of elements in the cache exceeds the number of elements in the sample
    * times this factor.
    */
-  private static final float RESAMPLE_FACTOR = 2.0f;
+  private static final float RESAMPLE_FACTOR = 1.5f;
 
   /**
    * Samples for "in memory" sizes mapped to the cache names.
@@ -180,6 +180,10 @@ public final class SizeEstimator {
      */
     private final long _bytesize;
 
+    /**
+     * @param elements Number of elements
+     * @param bytesize The size in bytes
+     */
     public Sample(int elements, long bytesize) {
       this._elements = elements;
       this._bytesize = bytesize;
@@ -189,7 +193,7 @@ public final class SizeEstimator {
      * Returns an estimate for the specified number of elements
      *
      * @param elements The number of elements
-     * @return
+     * @return the estimated size
      */
     public long estimate(int elements) {
       if (this._elements == elements) return this._bytesize;
@@ -198,6 +202,9 @@ public final class SizeEstimator {
       return (this._bytesize * elements) / this._elements;
     }
 
+    /**
+     * @return the number of elements in the sample
+     */
     public int elements() {
       return this._elements;
     }

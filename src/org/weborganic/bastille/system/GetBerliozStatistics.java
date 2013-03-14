@@ -12,7 +12,6 @@ import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
 import org.weborganic.berlioz.content.GeneratorListener;
-import org.weborganic.berlioz.content.Initializable;
 import org.weborganic.berlioz.servlet.BerliozConfig;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -22,22 +21,12 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * @version Bastille 0.8.6 - 6 February 2013
  */
-public class GetBerliozStatistics implements ContentGenerator, Initializable {
+public class GetBerliozStatistics implements ContentGenerator {
 
   /**
    * A logger.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(ReCaptcha.class);
-
-  @Override
-  public void init() {
-    LOGGER.info("Hello!");
-  }
-
-  @Override
-  public void destroy() {
-    LOGGER.info("Bye bye!");
-  }
 
   /**
    * Will also create and bind a statistics collector to Berlioz.
@@ -55,6 +44,11 @@ public class GetBerliozStatistics implements ContentGenerator, Initializable {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
     BerliozStatisticsCollector collector = BerliozStatisticsCollector.getInstance();
+
+    if ("true".equals(req.getParameter("reset", "false"))) {
+      collector.clear();
+    }
+
     collector.toXML(xml);
   }
 

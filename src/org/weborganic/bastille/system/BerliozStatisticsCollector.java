@@ -60,6 +60,13 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
   }
 
   /**
+   * Clears all the statistics.
+   */
+  public void clear() {
+    this.stats.clear();
+  }
+
+  /**
    * @return The singleton instance.
    */
   public static BerliozStatisticsCollector getInstance() {

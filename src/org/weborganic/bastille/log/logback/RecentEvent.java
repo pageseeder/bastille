@@ -122,6 +122,25 @@ public final class RecentEvent implements XMLWritable, Serializable {
     String message = ft.getMessage();
     xml.attribute("message", message);
 
+    // FIXME remove
+    /*
+    xml.openElement("args");
+    xml.attribute("message", this._message == null? "null" : this._message);
+    xml.attribute("throwable", this._throwable == null? "null" : this._throwable.getClass().getName());
+    if (this._args != null) {
+      xml.attribute("length", this._args.length);
+      for (Object a : this._args) {
+        xml.openElement("arg");
+        if (a != null) {
+          xml.attribute("class", a.getClass().getName());
+          xml.attribute("string", a.toString());
+        }
+        xml.closeElement();
+      }
+    }
+    xml.closeElement();
+    */
+
     // Any marker?
     if (this._marker != null) xml.attribute("marker", this._marker.getName());
 
@@ -148,7 +167,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
       // If a throwable has been submitted
       if (proxy != null) {
-        toXML(xml, proxy, true);
+        toXML(xml, proxy, 0);
       }
     }
 
@@ -173,15 +192,15 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * Write a stack trace as XML.
    *
-   * @param xml        The XML writer.
-   * @param proxy      The stack trace to serialise
-   * @param isOriginal If it is the original exception.
+   * @param xml    The XML writer.
+   * @param proxy  The stack trace to serialise
+   * @param level  0 if it is the original exception.
    *
    * @throws IOException Should an error occur while writing the XML.
    */
-  private static void toXML(XMLWriter xml, IThrowableProxy proxy, boolean isOriginal) throws IOException {
+  private static void toXML(XMLWriter xml, IThrowableProxy proxy, int level) throws IOException {
     StackTraceElementProxy[] steps = proxy.getStackTraceElementProxyArray();
-    xml.openElement(isOriginal? "throwable" : "cause", true);
+    xml.openElement(level == 0? "throwable" : "cause", true);
     String message = proxy.getMessage();
     xml.attribute("message", message);
     for (StackTraceElementProxy step : steps) {
@@ -204,11 +223,10 @@ public final class RecentEvent implements XMLWritable, Serializable {
       xml.closeElement();
     }
     IThrowableProxy cause = proxy.getCause();
-    if (!isOriginal && cause != null) {
-      toXML(xml, cause, false);
+    if (cause != null && level < 8) {
+      toXML(xml, cause, level+1);
     }
     xml.closeElement();
-
   }
 
   /**

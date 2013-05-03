@@ -39,7 +39,7 @@ import org.weborganic.bastille.util.WebBundle.Type;
  * This class is used to bundles resources together as one in order to minimise the number of resources to request.
  *
  * @author Christophe Lauret
- * @version 30 November 2012
+ * @version 3 May 2013
  */
 public final class WebBundleTool {
 
@@ -478,7 +478,7 @@ public final class WebBundleTool {
       // Locate the referenced URL
       File ftarget = new File(source.getParentFile(), path);
       boolean isImage = path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".gif");
-      if (isImage && ftarget.exists() && ftarget.length() < DATA_URI_MAX_SIZE) {
+      if (isImage && ftarget.exists() && ftarget.length() < threshold) {
         // Replace short images by data uri
         location.append("data:image/").append(path.substring(path.lastIndexOf('.')+1)).append(";base64,");
         location.append(Base64.encodeFromFile(ftarget));

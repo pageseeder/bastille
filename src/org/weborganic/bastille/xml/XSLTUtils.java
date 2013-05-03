@@ -28,7 +28,7 @@ import org.weborganic.berlioz.BerliozException;
  * A utility class to help with XSLT operations.
  *
  * @author Christophe Lauret
- * @version 0.6.3 - 13 April 2011
+ * @version 0.6.3 - 3 May 2013
  * @since 0.6.0
  */
 public final class XSLTUtils {
@@ -67,7 +67,7 @@ public final class XSLTUtils {
       TransformerFactory factory = TransformerFactory.newInstance();
       templates = factory.newTemplates(source);
     } catch (TransformerConfigurationException ex) {
-      LOGGER.error("Transformer exception: {}", ex);
+      LOGGER.error("Transformer exception: {}", ex.getMessageAndLocation(), ex);
       throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url.toString(), ex);
     } catch (IOException ex) {
       LOGGER.error("IO error while trying to load template: {}", url);

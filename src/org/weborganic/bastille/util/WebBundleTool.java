@@ -39,7 +39,7 @@ import org.weborganic.bastille.util.WebBundle.Type;
  * This class is used to bundles resources together as one in order to minimise the number of resources to request.
  *
  * @author Christophe Lauret
- * @version 3 May 2013
+ * @version 14 June 2013
  */
 public final class WebBundleTool {
 
@@ -253,7 +253,7 @@ public final class WebBundleTool {
       // Write to the file
       StringReader reader = new StringReader(writer.toString());
       file = new File(this._bundles, filename);
-      if (minimize) {
+      if (minimize && !file.getName().endsWith(".min.css")) {
         CSSMin.minimize(reader, new PrintStream(file));
       } else {
         IOUtils.copy(reader, new FileOutputStream(file), "utf8");

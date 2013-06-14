@@ -178,22 +178,22 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     boolean doBundle = canBundle(req);
     if (doBundle) {
       String config = req.getParameter("config", "default");
+      boolean minJS = GlobalSettings.get("bastille.jsbundler.minimize", true);
+      boolean minCSS = GlobalSettings.get("bastille.cssbundler.minimize", true);
       try {
         long etag = 0L;
         List<BundleConfig> js = getJSConfig(config);
         for (BundleConfig bundle : js) {
-          boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
           String name = replaceTokens(bundle.filename(), service);
           List<File> files = getFiles(bundle.paths(), service, env);
-          File b = this.jstool.getBundle(files, name, min);
+          File b = this.jstool.getBundle(files, name, minJS);
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
         List<BundleConfig> css = getCSSConfig(config);
         for (BundleConfig bundle : css) {
-          boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
           String name = replaceTokens(bundle.filename(), service);
           List<File> files = getFiles(bundle.paths(), service, env);
-          File b = this.csstool.getBundle(files, name, min);
+          File b = this.csstool.getBundle(files, name, minCSS);
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
         return Long.toString(etag);

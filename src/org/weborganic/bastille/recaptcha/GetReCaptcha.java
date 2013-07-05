@@ -22,7 +22,8 @@ import com.topologi.diffx.xml.XMLWriter;
  * Returns the details for the recaptcha.
  *
  * @author Christophe Lauret
- * @version 1 Feb 2013
+ * @version Bastille 0.8.4 - 1 Feb 2013
+ *
  */
 public final class GetReCaptcha implements ContentGenerator, Cacheable {
 

@@ -11,7 +11,7 @@
 
   <!-- set properties specific to this project -->
   <property name="name.short"     value="wo-bastille"/>
-  <property name="name.display"   value="Weborganic Bastille"/>
+  <property name="name.display"   value="Bastille"/>
   <property name="package.names"  value="org.weborganic.bastille.*"/>
 
   <!-- set global properties for this build -->
@@ -67,8 +67,9 @@
 
   <!-- generate the documentation -->
   <target name="javadoc" depends="compile" description="generate the java documentation">
-    <mkdir dir="${dir.doc}"/>
-    <javadoc destdir="${dir.doc}" access="public"
+    <ivy:buildnumber organisation="weborganic" module="${name.short}" resolver="shared" />
+    <mkdir dir="${dir.doc}/${ivy.revision}/"/>
+    <javadoc destdir="${dir.doc}/${ivy.revision}/" access="public"
                                   use="true"
                                   notree="false"
                                   nonavbar="false"
@@ -79,14 +80,21 @@
                                   nodeprecated="false"
                                   sourcepath="${dir.src}"
                                   stylesheetfile="${dir.resource}/javadoc.css"
-                                  doctitle="${name.display} ${version} API">
+                                  doctitle="${name.display} ${ivy.revision} API">
       <classpath>
         <pathelement location="${dir.bin}"/>
         <fileset dir="${dir.lib}">
           <include name="**/*.jar"/>
         </fileset>
       </classpath>
-      <link href="http://java.sun.com/javase/6/docs/api/" />
+      <link href="http://docs.oracle.com/javase/6/docs/api/" />
+    	<link href="http://pageseeder.org/apidocs/berlioz/latest/"/>
+      <link href="http://pageseeder.org/apidocs/diffx/latest/"/>
+      <link href="http://pageseeder.org/apidocs/furi/latest/"/>
+    	<link href="http://pageseeder.org/apidocs/flint/latest/"/>
+      <link href="http://lucene.apache.org/core/3_0_3/api/all/"/>
+    	<link href="http://ehcache.org/apidocs/"/>
+      <link href="http://www.slf4j.org/apidocs/"/>
     </javadoc>
   </target>
 

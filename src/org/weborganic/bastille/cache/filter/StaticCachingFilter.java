@@ -57,7 +57,7 @@ import org.weborganic.berlioz.http.HttpHeaders;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3 - 31 January 2013
+ * @version Bastille 0.8.17 - 30 October 2013
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {
 
@@ -165,7 +165,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
 
         // Get last modified from file (also rounded to the second)
         File f = getResourceFile(this._context, req);
-        long fmodified = f.lastModified() / MILLISECONDS_PER_SECOND;
+        long fmodified = f == null? 0 : f.lastModified() / MILLISECONDS_PER_SECOND;
 
         // Check for freshness
         if (fmodified > modified || fmodified == 0) {
@@ -279,7 +279,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     if ("false".equals(req.getParameter("berlioz-cache"))) return false;
     // Check the file
     File f = getResourceFile(this._context, req);
-    if (f != null && f.length() > this.sizeThreshold) return false;
+    if (f == null || (f != null && f.length() > this.sizeThreshold)) return false;
     return true;
   }
 
@@ -387,9 +387,12 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     File f = (File)req.getAttribute(FILE_REQUEST_ATTRIBUTE);
     if (f == null) {
       String filepath = context.getRealPath(decode(req.getRequestURI()));
-//      LOGGER.debug("Resource path: {}", filepath);
-      f = new File(filepath);
-      req.setAttribute(FILE_REQUEST_ATTRIBUTE, f);
+      // filepath may be null on Windows due to case sensitivity, pfff...
+      if (filepath != null) {
+  //      LOGGER.debug("Resource path: {}", filepath);
+        f = new File(filepath);
+        req.setAttribute(FILE_REQUEST_ATTRIBUTE, f);
+      }
     }
     return f;
   }

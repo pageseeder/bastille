@@ -9,6 +9,7 @@ package org.weborganic.bastille.log.logback;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 
 import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
@@ -65,6 +66,11 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
   /** Throwable as passed by the filter */
   private final Throwable _throwable;
+
+  /**
+   * The Logback API has changed, so we may have to fall back on previous version
+   */
+  private static transient volatile boolean _fallbackOnOldCallerDataExtract = false;
 
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
@@ -155,7 +161,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
       // If caller info is available
       StackTraceElement[] caller = toCallerData(this._logger);
-      if ((caller != null) && (caller.length > 0)) {
+      if (caller != null && caller.length > 0) {
         toXML(xml, caller[0]);
       }
 
@@ -184,9 +190,21 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @return the stack trace element
    */
   private static StackTraceElement[] toCallerData(Logger logger) {
-    final String name = Logger.class.getName();
-    final LoggerContext context = logger.getLoggerContext();
-    return CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth());
+    StackTraceElement[] ste = null;
+    if (_fallbackOnOldCallerDataExtract) {
+      try {
+        final String name = Logger.class.getName();
+        final LoggerContext context = logger.getLoggerContext();
+        ste = CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth(), null);
+      } catch (Error error) {
+        error.printStackTrace();
+        ste = toCallerDataOld(logger);
+        _fallbackOnOldCallerDataExtract = true;
+      }
+    } else {
+      ste = toCallerDataOld(logger);
+    }
+    return ste;
   }
 
   /**
@@ -244,4 +262,27 @@ public final class RecentEvent implements XMLWritable, Serializable {
     xml.attribute("line", caller.getLineNumber());
     xml.closeElement();
   }
+
+
+  /**
+   * Using the previous Logback API (prior to 1.0.10)
+   *
+   * @param logger
+   * @return
+   */
+  private static StackTraceElement[] toCallerDataOld(Logger logger) {
+    final String name = Logger.class.getName();
+    final LoggerContext context = logger.getLoggerContext();
+    StackTraceElement[] ste = null;
+    try {
+      // Logback 1.0.7
+      Class<?> c = Class.forName("ch.qos.logback.classic.spi.CallerData");
+      Method m  = c.getMethod("extract", Throwable.class, String.class, Integer.TYPE);
+      m.invoke(null, new Throwable(), name, context.getMaxCallerDataDepth());
+    } catch (Exception ex) {
+      // ignore on purpose
+    }
+    return ste;
+  }
+
 }

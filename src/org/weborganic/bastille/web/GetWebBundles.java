@@ -9,9 +9,6 @@ package org.weborganic.bastille.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +16,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.util.WebBundleTool;
+import org.weborganic.bastille.web.BundleConfig.Type;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.content.Cacheable;
@@ -66,38 +64,32 @@ import com.topologi.diffx.xml.XMLWriter;
  *
  * <p>The <code>location</code> property can be used to define where the bundled files should be stored.
  *
- * <p>Each bundle is specified using the <code>bundles</code> property node where the bundle names are mapped
- * to the comma separated list of paths to include.
+ * <p>A bundle config defines the list of bundles to create. The "default" config is made of three bundles
+ * 'global', 'group', and 'service'.
+ *
+ * <p>Each bundle is specified using the <code>bundles</code> property each bundle name is mapped to the list
+ * of files to bundle, the {GROUP} and {SERVICE} values are automatically replaced by the Berlioz
+ * service/group name in use.
  *
  * <h4>Default configuration</h4>
  * <p>The default configuration is the equivalent of:</p>
- * <p><i>(Use curly brackets instead of square brackets)</i></p>
+ *
  * <pre>{@code
- * <node name="bastille.cssbundler">
- *   <map>
- *     <entry key="minimize"  value="true"/>
- *     <entry key="location"  value="/style/_/"/>
- *   </map>
- *   <node name="bundles">
- *     <map>
- *        <entry key="global"    value="/style/global.css"/>
- *        <entry key="[GROUP]"   value="/style/[GROUP].css"/>
- *        <entry key="[SERVICE]" value="/style/[GROUP]/[SERVICE].css"/>
- *      </map>
- *   </node>
- * </node>
- * <node name="bastille.jsbundler">
- *   <map>
- *     <entry key="minimize"  value="true"/>
- *     <entry key="location"  value="/script/_/"/>
- *   </map>
- *   <node name="bundles">
- *   <map>
- *     <entry key="global"    value="/script/global.js"/>
- *     <entry key="[GROUP]"   value="/script/[GROUP].js"/>
- *     <entry key="[SERVICE]" value="/script/[GROUP]/[SERVICE].js"/>
- *   </map>
- * </node>
+ * <bastille>
+ *   <cssbundler minimize="true" location="/style/_/">
+ *     <configs default="global,group,service"/>
+ *     <bundles global="/style/global.css"
+ *               group="/style/{GROUP}.css"
+ *             service="/style/{GROUP}/{SERVICE}.css"/>
+ *     <datauris threshold="4096"/>
+ *   </cssbundler>
+ *   <jsbundler minimize="true" location="/script/_/">
+ *     <configs default="global,group,service"/>
+ *     <bundles global="/style/global.js"
+ *               group="/script/{GROUP}.js"
+ *             service="/script/{GROUP}/{SERVICE}.js"/>
+ *   </jsbundler>
+ * </bastille>
  * }</pre>
  *
  *
@@ -129,30 +121,15 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   /** Logger. */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetWebBundles.class);
 
-  /** Where the bundled scripts should be located. */
-  private static final String DEFAULT_BUNDLED_SCRIPTS = "/script/_/";
+  /**
+   * The CSS configs.
+   */
+  private static final Map<String, BundleConfig> CSS_CONFIGS = new HashMap<String, BundleConfig>();
 
-  /** Where the bundled styles should be located. */
-  private static final String DEFAULT_BUNDLED_STYLES = "/style/_/";
-
-  /** The default bundle config. */
-  private static final String[] DEFAULT_BUNDLE_CONFIG = new String[]{ "global", "group", "service" };
-
-  /** The default JavaScript bundle. */
-  private static final Map<String, BundleConfig> DEFAULT_JS_BUNDLE = new HashMap<String, BundleConfig>();
-  static {
-    DEFAULT_JS_BUNDLE.put("global",  new BundleConfig("global",  "global",    "/script/global.js"));
-    DEFAULT_JS_BUNDLE.put("group",   new BundleConfig("group",   "{GROUP}",   "/script/{GROUP}.js"));
-    DEFAULT_JS_BUNDLE.put("service", new BundleConfig("service", "{SERVICE}", "/script/{GROUP}/{SERVICE}.js"));
-  }
-
-  /** The default CSS bundle. */
-  private static final Map<String, BundleConfig> DEFAULT_CSS_BUNDLE = new HashMap<String, BundleConfig>();
-  static {
-    DEFAULT_CSS_BUNDLE.put("global",  new BundleConfig("global",  "global",    "/style/global.css"));
-    DEFAULT_CSS_BUNDLE.put("group",   new BundleConfig("group",   "{GROUP}",   "/style/{GROUP}.css"));
-    DEFAULT_CSS_BUNDLE.put("service", new BundleConfig("service", "{SERVICE}", "/style/{GROUP}/{SERVICE}.css"));
-  }
+  /**
+   * The JS configs.
+   */
+  private static final Map<String, BundleConfig> JS_CONFIGS = new HashMap<String, BundleConfig>();
 
   /**
    * Indicates whether the bundle can be written..
@@ -174,26 +151,24 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     HttpContentRequest hreq = (HttpContentRequest)req;
     Service service = hreq.getService();
     Environment env = req.getEnvironment();
-    init(env);
+    String config = req.getParameter("config", "default");
+    init(env, config);
     boolean doBundle = canBundle(req);
     if (doBundle) {
-      String config = req.getParameter("config", "default");
-      boolean minJS = GlobalSettings.get("bastille.jsbundler.minimize", true);
-      boolean minCSS = GlobalSettings.get("bastille.cssbundler.minimize", true);
       try {
         long etag = 0L;
-        List<BundleConfig> js = getJSConfig(config);
-        for (BundleConfig bundle : js) {
-          String name = replaceTokens(bundle.filename(), service);
-          List<File> files = getFiles(bundle.paths(), service, env);
-          File b = this.jstool.getBundle(files, name, minJS);
+        BundleConfig js = getConfig(config, Type.JS);
+        List<BundleInstance> jsbundles = js.instantiate(service, env);
+        for (BundleInstance bundle : jsbundles) {
+          List<File> files = bundle.files(env);
+          File b = this.jstool.getBundle(files, bundle.name(), js.minimize());
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
-        List<BundleConfig> css = getCSSConfig(config);
-        for (BundleConfig bundle : css) {
-          String name = replaceTokens(bundle.filename(), service);
-          List<File> files = getFiles(bundle.paths(), service, env);
-          File b = this.csstool.getBundle(files, name, minCSS);
+        BundleConfig css = getConfig(config, Type.CSS);
+        List<BundleInstance> cssbundles = js.instantiate(service, env);
+        for (BundleInstance bundle : cssbundles) {
+          List<File> files = bundle.files(env);
+          File b = this.csstool.getBundle(files, bundle.name(), css.minimize());
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
         return Long.toString(etag);
@@ -215,14 +190,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     String config = req.getParameter("config", "default");
 
     // Scripts
-    List<BundleConfig> js = getJSConfig(config);
-    for (BundleConfig bundle : js) {
-      String name = replaceTokens(bundle.filename(), service);
+    BundleConfig js = getConfig(config, Type.JS);
+    List<BundleInstance> jsbundles = js.instantiate(service, env);
+    for (BundleInstance bundle : jsbundles) {
       if (doBundle) {
-        List<File> files = getFiles(bundle.paths(), service, env);
-        bundleScripts(this.jstool, files, name, xml);
+        List<File> files = bundle.files(env);
+        bundleScripts(this.jstool, js, files, bundle.name(), xml);
       } else {
-        List<String> paths = getPathsOnly(bundle.paths(), service, env);
+        List<String> paths = bundle.paths(env);
         for (String path : paths) {
           xml.openElement("script", false);
           xml.attribute("src", path);
@@ -234,14 +209,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     }
 
     // Styles
-    List<BundleConfig> css = getCSSConfig(config);
-    for (BundleConfig bundle : css) {
-      String name = replaceTokens(bundle.filename(), service);
+    BundleConfig css = getConfig(config, Type.CSS);
+    List<BundleInstance> cssbundles = js.instantiate(service, env);
+    for (BundleInstance bundle : cssbundles) {
       if (doBundle) {
-        List<File> files = getFiles(bundle.paths(), service, env);
-        bundleStyles(this.csstool, files, name, xml);
+        List<File> files = bundle.files(env);
+        bundleStyles(this.csstool, css, files, bundle.name(), xml);
       } else {
-        List<String> paths = getPathsOnly(bundle.paths(), service, env);
+        List<String> paths = bundle.paths(env);
         for (String path : paths) {
           xml.openElement("style", false);
           xml.attribute("src", path);
@@ -260,20 +235,21 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    * Bundles the scripts using the specified bundler
    *
    * @param bundler The bundler to use.
+   * @param config  The bundle config
    * @param files   The files to bundle.
    * @param name    The name of the bundle.
    * @param xml     The XML output
    *
    * @throws IOException Should an IO error occur
    */
-  private void bundleScripts(WebBundleTool bundler, List<File> files, String name, XMLWriter xml) throws IOException {
+  private void bundleScripts(WebBundleTool bundler, BundleConfig config, List<File> files, String name, XMLWriter xml) throws IOException {
     if (files.isEmpty()) return;
-    boolean min = GlobalSettings.get("bastille.jsbundler.minimize", true);
+    boolean min = config.minimize();
     File bundle = bundler.bundle(files, name, min);
     LOGGER.debug("{} -> {}", files, bundle.getName());
-    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
+    String location = config.location();
     xml.openElement("script", false);
-    xml.attribute("src", jsbundles+bundle.getName());
+    xml.attribute("src", location+bundle.getName());
     xml.attribute("bundled", "true");
     xml.attribute("minimized", Boolean.toString(min));
     xml.closeElement();
@@ -283,20 +259,21 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    * Bundles the scripts using the specified bundler
    *
    * @param bundler The bundler to use.
+   * @param config  The bundle config
    * @param files   The files to bundle.
    * @param name    The name of the bundle.
    * @param xml     The XML output
    *
    * @throws IOException Should an IO error occur
    */
-  private void bundleStyles(WebBundleTool bundler, List<File> files, String name, XMLWriter xml) throws IOException {
+  private void bundleStyles(WebBundleTool bundler, BundleConfig config, List<File> files, String name, XMLWriter xml) throws IOException {
     if (files.isEmpty()) return;
-    boolean min = GlobalSettings.get("bastille.cssbundler.minimize", true);
+    boolean min = config.minimize();
     File bundle = bundler.bundle(files, name, min);
     LOGGER.debug("{} -> {}", files, bundle.getName());
-    String cssbundles = GlobalSettings.get("bastille.cssbundler.location", DEFAULT_BUNDLED_STYLES);
+    String location = config.location();
     xml.openElement("style", false);
-    xml.attribute("src", cssbundles+bundle.getName());
+    xml.attribute("src", location+bundle.getName());
     xml.attribute("bundled", "true");
     xml.attribute("minimized", Boolean.toString(min));
     xml.closeElement();
@@ -305,11 +282,15 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   /**
    * Initialises the bundlers.
    *
+   * <p>We check that the we can write bundles.
+   *
+   *
    * @param env The environment.
    */
-  private synchronized void init(Environment env) {
+  private synchronized void init(Environment env, String config) {
     // Initialise the JavaScript bundling tool
-    String jsbundles = GlobalSettings.get("bastille.jsbundler.location", DEFAULT_BUNDLED_SCRIPTS);
+    BundleConfig js = getConfig(config, Type.JS);
+    String jsbundles = js.location();
     File bundles = env.getPublicFile(jsbundles);
     if (!bundles.exists()) bundles.mkdirs();
     if (isWritable == null) {
@@ -318,7 +299,8 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     if (this.jstool == null)
       this.jstool = new WebBundleTool(bundles);
     // Initialise the CSS bundling tool
-    String cssbundles = GlobalSettings.get("bastille.cssbundler.location", DEFAULT_BUNDLED_STYLES);
+    BundleConfig css =  getConfig(config, Type.CSS);
+    String cssbundles = css.location();
     int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
     File bundles2 = env.getPublicFile(cssbundles);
     if (!bundles2.exists()) bundles2.mkdirs();
@@ -326,145 +308,6 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
       this.csstool = new WebBundleTool(bundles2);
       this.csstool.setDataURIThreshold(threshold);
     }
-  }
-
-  /**
-   * Returns the files in the bundle filtering out files which do not exist and automatically replacing tokens.
-   *
-   * @param paths   The list of paths
-   * @param service The service
-   * @param env     The environment
-   * @return the list of files to bundles.
-   */
-  private static List<String> getPathsOnly(String[] paths, Service service, Environment env) {
-    if (paths == null) return Collections.emptyList();
-    if (paths.length > 1) {
-      // multiple paths specified
-      List<String> existing = new ArrayList<String>();
-      for (String path : paths) {
-        String p = replaceTokens(path, service);
-        File file = env.getPublicFile(p);
-        if (file.exists()) existing.add(p);
-      }
-      return existing;
-    } else if (paths.length == 1) {
-      // only one path
-      String p = replaceTokens(paths[0], service);
-      File file = env.getPublicFile(p);
-      if (file.exists()) return Collections.singletonList(p);
-    }
-    return Collections.emptyList();
-  }
-
-  /**
-   * Returns the files in the bundle filtering out files which do not exist and automatically replacing tokens.
-   *
-   * @param paths   The list of paths
-   * @param service The service
-   * @param env     The environment
-   * @return the list of files to bundles.
-   */
-  private static List<File> getFiles(String[] paths, Service service, Environment env) {
-    if (paths == null) return Collections.emptyList();
-    if (paths.length > 1) {
-      // multiple paths specified
-      List<File> files = new ArrayList<File>();
-      for (String path : paths) {
-        String p = replaceTokens(path, service);
-        File file = env.getPublicFile(p);
-        if (file.exists()) files.add(file);
-      }
-      return files;
-    } else if (paths.length == 1) {
-      // only one paths
-      String p = replaceTokens(paths[0], service);
-      File file = env.getPublicFile(p);
-      if (file.exists()) return Collections.singletonList(file);
-    }
-    return Collections.emptyList();
-  }
-
-  /**
-   * Replaces the tokens in the string.
-   *
-   * @param value   The value containing tokens to be replaced.
-   * @param service The service.
-   *
-   * @return The corresponding value with all tokens replaced.
-   */
-  private static String replaceTokens(String value, Service service) {
-    String out = value;
-    while (out.contains("{GROUP}"))   {
-      out = out.replace("{GROUP}", service.group());
-    }
-    while (out.contains("{SERVICE}")) {
-      out = out.replace("{SERVICE}", service.id());
-    }
-    return out;
-  }
-
-  /**
-   * @param name the name of the JavaScript bundles to load for the specified configuration name.
-   * @return the configuration for the JavaScript bundle.
-   */
-  private static List<BundleConfig> getJSConfig(String name) {
-    String[] names = getBundleNames("bastille.jsbundler.configs."+name);
-    LOGGER.debug("Config:{} (JS) => {}", name, names);
-    List<BundleConfig> js = toBundleConfigs(names, "bastille.jsbundler.bundles.", DEFAULT_JS_BUNDLE);
-    return js;
-  }
-
-  /**
-   * @param name the name of the CSS bundles to load for the specified configuration name.
-   * @return the configuration for the CSS bundle.
-   */
-  private static List<BundleConfig> getCSSConfig(String name) {
-    String[] names = getBundleNames("bastille.cssbundler.configs."+name);
-    LOGGER.debug("Config:{} (CSS) => {}", name, names);
-    List<BundleConfig> css = toBundleConfigs(names, "bastille.cssbundler.bundles.", DEFAULT_CSS_BUNDLE);
-    return css;
-  }
-
-  /**
-   * Returns The configuration for the specified property.
-   *
-   * @param property the name of the property in the global config.
-   *
-   * @return The corresponding bundle names.
-   */
-  private static String[] getBundleNames(String property) {
-    String names = GlobalSettings.get(property);
-    return names != null? names.split(",") : DEFAULT_BUNDLE_CONFIG;
-  }
-
-  /**
-   * Returns the list of bundle configurations for the specified names from the global settings
-   * and falling back on the defaults defined in this class.
-   *
-   * @param names    the names of the bundle configuration to get.
-   * @param prefix   the prefix in the global properties
-   * @param defaults the default bundle configurations.
-   *
-   * @return The corresponding list.
-   */
-  private static List<BundleConfig> toBundleConfigs(String[] names, String prefix, Map<String, BundleConfig> defaults) {
-    List<BundleConfig> bundles = new ArrayList<BundleConfig>();
-    for (String name : names) {
-      BundleConfig bc = defaults.get(name);
-      // Same as the name if the 'filename' sub-property isn't defined
-      String filename = GlobalSettings.get(prefix + name + ".filename", name);
-      // The value of the property if the 'paths' sub-property isn't defined.
-      String paths = GlobalSettings.get(prefix + name + ".include", GlobalSettings.get(prefix + name));
-      if (paths != null) {
-        bc = new BundleConfig(name, filename, paths);
-      }
-      if (bc != null) {
-        bundles.add(bc);
-      } else {
-        LOGGER.warn("Bundle '{}' is undefined", name);
-      }
-    }
-    return bundles;
   }
 
   /**
@@ -477,59 +320,16 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   }
 
   /**
-   * Holds the basic configurations for a bundle.
+   *
    */
-  private static final class BundleConfig implements Serializable {
-
-    /** As per requirement for <code>Serializable</code> */
-    private static final long serialVersionUID = -663743071617576797L;
-
-    /**
-     * The name of the bundle.
-     */
-    private final String _name;
-
-    /**
-     * The name to use of the filename of the bundle.
-     */
-    private final String _filename;
-
-    /**
-     * The list of paths to include in the bundle.
-     */
-    private final String[] _paths;
-
-    /**
-     * @param name     The name of the bundle.
-     * @param filename The name to use of the filename of the bundle.
-     * @param paths    The list of paths to include in the bundle.
-     */
-    public BundleConfig(String name, String filename, String paths) {
-      this._name = name;
-      this._filename = filename;
-      this._paths = paths.split(",");
+  private BundleConfig getConfig(String name, Type type) {
+    Map<String, BundleConfig> configs = type == Type.JS? JS_CONFIGS : CSS_CONFIGS;
+    BundleConfig config = configs.get(name);
+    if (config == null) {
+      config = BundleConfig.newInstance(name, type);
+      configs.put(name, config);
     }
-
-    /**
-     * @return The name of the bundle.
-     */
-    public String name() {
-      return this._name;
-    }
-
-    /**
-     * @return The name to use of the filename of the bundle.
-     */
-    public String filename() {
-      return this._filename;
-    }
-
-    /**
-     * @return The list of paths to include in the bundle.
-     */
-    public String[] paths() {
-      return this._paths;
-    }
+    return config;
   }
 
 }

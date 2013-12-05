@@ -62,10 +62,10 @@ import org.slf4j.LoggerFactory;
 /**
  * CSSMin takes in well-formed, human-readable CSS and reduces its size substantially.
  *
- * It removes unnecessary whitespace and comments, and orders the contents of CSS
+ * <p>It removes unnecessary whitespace and comments, and orders the contents of CSS
  * selectors alphabetically to enhance GZIP compression.
  *
- * Originally by Barry van Oudtshoorn, with bug reports, fixes, and contributions by
+ * <p>Originally by Barry van Oudtshoorn, with bug reports, fixes, and contributions by
  * <ul>
  *   <li>Kevin de Groote</li>
  *   <li>Pedro Pinheiro</li>
@@ -75,7 +75,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 3 December 2012
+ * @version 0.8.18 - 5 December 2013
+ * @since 0.6.0
  */
 public final class CSSMin {
 
@@ -91,13 +92,14 @@ public final class CSSMin {
   /**
    * Main entry point for CSSMin from the command-line.
    *
-   * <b>Usage:</b> CSSMin <i>[Input file]</i>, <i>[Output file]</i>, <i>[DEBUG]</i>
+   * <b>Usage:</b> CSSMin <i>[Input file]</i>, <i>[Output file]</i>
+   *
    * @param args The command-line arguments
    */
   public static void main(String[] args) {
     if (args.length < 1) {
       System.out.println("Usage: ");
-      System.out.println("CSSMin [Input file] [Output file] [DEBUG]");
+      System.out.println("CSSMin [Input file] [Output file]");
       System.out.println("If no output file is specified, stdout will be used.");
       return;
     }
@@ -180,9 +182,14 @@ public final class CSSMin {
       }
 
       // Let's write it out
+      int countRules = 0;
       min.println(comment);
       for (Rule rule : rules) {
+        if (countRules % 10 == 0 || rule.subrules != null) {
+          min.println();
+        }
         min.print(rule.toString());
+        countRules++;
       }
       min.println();
       min.close();
@@ -323,9 +330,8 @@ public final class CSSMin {
           if (parts[i].length() > 0 && (i+1) < parts.length) {
             // properties of sub selector
             parts[i + 1] = parts[i + 1].trim();
-            if (!("".equals(parts[i + 1]))) {
+            if (parts[i + 1].length() > 0) {
               this.subrules.add(new Rule(parts[i] + "{" + parts[i + 1] + "}"));
-              LOGGER.warn("Empty subrule for {}", parts[i]);
             }
           }
         }
@@ -620,9 +626,6 @@ public final class CSSMin {
 
   /**
    * A property part.
-   *
-   * @author Christophe Lauret
-   * @version 21 November 2012
    */
   private static class Part {
 
@@ -647,7 +650,6 @@ public final class CSSMin {
       // For simpler regexes.
       this._contents = " " + contents;
       this._property = property;
-
       simplify();
     }
 

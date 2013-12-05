@@ -39,7 +39,9 @@ import org.weborganic.bastille.util.WebBundle.Type;
  * This class is used to bundles resources together as one in order to minimise the number of resources to request.
  *
  * @author Christophe Lauret
- * @version 14 June 2013
+ *
+ * @version 0.8.18 - 5 December 2013
+ * @since 0.6.0
  */
 public final class WebBundleTool {
 
@@ -413,15 +415,20 @@ public final class WebBundleTool {
           // Expand the file
           if (line.trim().toLowerCase().startsWith("@import")) {
             String path = unquote(m.group(1));
-            File imported = new File(file.getParentFile(), path);
-            if (imported.exists()) {
-              out.write("/* START @import "+path+" */\n");
-              bundle.addImport(imported);
-              expandStylesTo(bundle, imported, virtual, out, processed, threshold);
-              out.write("/* END @import "+path+ " */\n");
+            if (isRelative(path)) {
+              File imported = new File(file.getParentFile(), path);
+              if (imported.exists()) {
+                out.write("/* START import "+path+" */\n");
+                bundle.addImport(imported);
+                expandStylesTo(bundle, imported, virtual, out, processed, threshold);
+                out.write("/* END import "+path+ " */\n");
+              } else {
+                out.write("/* ERROR Unable to import */\n");
+                LOGGER.warn("Unable to find referenced CSS file: {}", path);
+                out.write(line);
+                out.write('\n');
+              }
             } else {
-              out.write("/* ERROR Unable to @import */\n");
-              LOGGER.warn("Unable to find referenced CSS file: {}", path);
               out.write(line);
               out.write('\n');
             }
@@ -437,7 +444,6 @@ public final class WebBundleTool {
                 query = url.substring(q);
                 url = url.substring(0, q);
               }
-              // TODO: data URIs
               m.appendReplacement(sb, "url("+getLocation(file, virtual, url, threshold)+query+")");
             }
             m.appendTail(sb);
@@ -471,8 +477,8 @@ public final class WebBundleTool {
    * @return The location based on the target file.
    */
   protected static String getLocation(File source, File target, String path, long threshold) {
-    // Ignore data URIs and absolute paths
-    if (path.startsWith("data:") || path.startsWith("/")) { return path; }
+    // Ignore data URIs, full URLs and absolute paths
+    if (!isRelative(path)) { return path; }
     StringBuilder location = new StringBuilder();
     try {
       // Locate the referenced URL
@@ -536,4 +542,19 @@ public final class WebBundleTool {
     }
   }
 
+  /**
+   * Indicates whether the specified URL is relative.
+   *
+   * <p>It is NOT considered relative if starting with "http://", "https://", "data:", "/" or "<".
+   *
+   * @param url The URL to check
+   * @return <code>true</code> if considered relative; <code>false</code> otherwise.
+   */
+  private static boolean isRelative(String url) {
+    return !(url.startsWith("https://")
+          || url.startsWith("http://")
+          || url.startsWith("data:")
+          || url.startsWith("/")
+          || url.startsWith("<"));
+  }
 }

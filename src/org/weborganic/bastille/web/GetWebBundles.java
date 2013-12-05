@@ -121,7 +121,7 @@ import com.topologi.diffx.xml.XMLWriter;
  * <h3>ETag</h3>
  *
  * @author Christophe Lauret
- * @version 0.8.9 - 8 March 2013
+ * @version 0.8.18 - 5 December 2013
  * @since 0.6.0
  */
 public final class GetWebBundles implements ContentGenerator, Cacheable {

@@ -19,7 +19,9 @@ import org.weborganic.berlioz.util.MD5;
  * A bundle of files to serve.
  *
  * @author Christophe Lauret
- * @version 17 February 2012
+ *
+ * @version 0.8.18 - 5 December 2013
+ * @since 0.6.0
  */
 public final class WebBundle {
 

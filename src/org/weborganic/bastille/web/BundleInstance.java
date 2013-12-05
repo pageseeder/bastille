@@ -14,6 +14,8 @@ final class BundleInstance {
 
   private final String[] _ipaths;
 
+  private File bundle = null;
+
   private BundleInstance(String name, String[] ipaths) {
     this._name = name;
     this._ipaths = ipaths;
@@ -22,6 +24,16 @@ final class BundleInstance {
   public String name() {
     return this._name;
   }
+
+
+  public void setBundle(File bundle) {
+    this.bundle = bundle;
+  }
+
+  public File getBundle() {
+    return this.bundle;
+  }
+
 
   public List<String> paths(Environment env) {
     return computePaths(this._ipaths, env);

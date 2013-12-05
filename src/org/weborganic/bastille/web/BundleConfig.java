@@ -7,6 +7,7 @@
  */
 package org.weborganic.bastille.web;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,11 +16,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.weborganic.bastille.util.WebBundleTool;
 import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.content.Service;
 
 /**
+ * The configuration for the bundling for a given type.
+ *
+ * <p>Stores the bundles definitions and instantiate bundles.
  *
  * @author Christophe Lauret
  * @version 5 December 2013
@@ -66,7 +71,6 @@ public class BundleConfig implements Serializable {
   // TODO Use Web Bundle type
   public enum Type {JS, CSS};
 
-
   // Class attributes
   // ----------------------------------------------------------------------------------------------
 
@@ -91,13 +95,26 @@ public class BundleConfig implements Serializable {
   private final String _location;
 
   /**
+   * The root of the web application.
+   */
+  private final File _root;
+
+  /**
+   * The tool used for bundling JS.
+   */
+  private WebBundleTool bundler = null;
+
+  /**
    * Create a new config - use factory method instead.
    */
-  private BundleConfig(List<BundleDefinition> definitions, Type type, boolean minimize, String location) {
+  private BundleConfig(List<BundleDefinition> definitions, Type type, boolean minimize, String location, File root) {
     this._definitions = null;
     this._type = type;
     this._minimize = minimize;
     this._location = location;
+    this._root = root;
+    // Initialise the bundler
+    initBundler();
   }
 
   /**
@@ -129,10 +146,7 @@ public class BundleConfig implements Serializable {
   }
 
   /**
-   * Creates new instance of a bundle configuration.
-   *
-   * @param name The name of the config.
-   * @param type The type "js" or "css".
+   * Creates new instance of a bundle configuration for the specific service.
    *
    * @return the corresponding configuration.
    */
@@ -150,10 +164,11 @@ public class BundleConfig implements Serializable {
    *
    * @param name The name of the config.
    * @param type The type "js" or "css".
+   * @param root The root of the web application.
    *
    * @return the corresponding configuration.
    */
-  public static BundleConfig newInstance(String name, Type type) {
+  public static BundleConfig newInstance(String name, Type type, File root) {
     String lctype = type.name().toLowerCase();
     String[] names = getBundleNames("bastille."+lctype+"bundler.configs."+name);
     LOGGER.debug("Config:{} ("+type+") => {}", name, names);
@@ -162,7 +177,14 @@ public class BundleConfig implements Serializable {
     boolean minimize = GlobalSettings.get("bastille."+lctype+"bundler.minimize", true);
     String defaultLocation = getDefaultLocation(type);
     String location = GlobalSettings.get("bastille."+lctype+"bundler.location", defaultLocation);
-    return new BundleConfig(definitions, type, minimize, location);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Loading bundle config:{} ({})", name, type);
+      LOGGER.debug("Bundler settings minimize:{} location:{}", minimize, location);
+      for (BundleDefinition d : definitions) {
+        LOGGER.debug("{} -> {} ({})", d.name(), d.filename(), d.paths());
+      }
+    }
+    return new BundleConfig(definitions, type, minimize, location, root);
   }
 
   public static String getDefaultLocation(Type type) {
@@ -171,6 +193,15 @@ public class BundleConfig implements Serializable {
 
   // private helpers
   // ----------------------------------------------------------------------------------------------
+
+  private void initBundler() {
+    // Initialise the bundler
+    this.bundler = new WebBundleTool(new File(this._root, this._location));
+    if (this._type == Type.CSS) {
+       int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
+       this.bundler.setDataURIThreshold(threshold);
+    }
+  }
 
   /**
    * Returns the list of bundle configurations for the specified names from the global settings

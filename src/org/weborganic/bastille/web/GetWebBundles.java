@@ -157,14 +157,14 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     if (doBundle) {
       try {
         long etag = 0L;
-        BundleConfig js = getConfig(config, Type.JS);
+        BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
         List<BundleInstance> jsbundles = js.instantiate(service, env);
         for (BundleInstance bundle : jsbundles) {
           List<File> files = bundle.files(env);
           File b = this.jstool.getBundle(files, bundle.name(), js.minimize());
           if (b != null && b.lastModified() > etag) etag = b.lastModified();
         }
-        BundleConfig css = getConfig(config, Type.CSS);
+        BundleConfig css = getConfig(config, Type.CSS, env.getPublicFolder());
         List<BundleInstance> cssbundles = js.instantiate(service, env);
         for (BundleInstance bundle : cssbundles) {
           List<File> files = bundle.files(env);
@@ -190,7 +190,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     String config = req.getParameter("config", "default");
 
     // Scripts
-    BundleConfig js = getConfig(config, Type.JS);
+    BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
     List<BundleInstance> jsbundles = js.instantiate(service, env);
     for (BundleInstance bundle : jsbundles) {
       if (doBundle) {
@@ -209,7 +209,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     }
 
     // Styles
-    BundleConfig css = getConfig(config, Type.CSS);
+    BundleConfig css = getConfig(config, Type.CSS, env.getPublicFolder());
     List<BundleInstance> cssbundles = js.instantiate(service, env);
     for (BundleInstance bundle : cssbundles) {
       if (doBundle) {
@@ -289,7 +289,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    */
   private synchronized void init(Environment env, String config) {
     // Initialise the JavaScript bundling tool
-    BundleConfig js = getConfig(config, Type.JS);
+    BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
     String jsbundles = js.location();
     File bundles = env.getPublicFile(jsbundles);
     if (!bundles.exists()) bundles.mkdirs();
@@ -299,7 +299,7 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
     if (this.jstool == null)
       this.jstool = new WebBundleTool(bundles);
     // Initialise the CSS bundling tool
-    BundleConfig css =  getConfig(config, Type.CSS);
+    BundleConfig css =  getConfig(config, Type.CSS, env.getPublicFolder());
     String cssbundles = css.location();
     int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
     File bundles2 = env.getPublicFile(cssbundles);
@@ -320,13 +320,17 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
   }
 
   /**
+   * @param name The name of the config ("defaut")
+   * @param type The type (JS or CSS)
+   * @param root The root of the public folder
    *
+   * @return the bundle config for the given type creating a new instance if necessary.
    */
-  private BundleConfig getConfig(String name, Type type) {
+  private BundleConfig getConfig(String name, Type type, File root) {
     Map<String, BundleConfig> configs = type == Type.JS? JS_CONFIGS : CSS_CONFIGS;
     BundleConfig config = configs.get(name);
     if (config == null) {
-      config = BundleConfig.newInstance(name, type);
+      config = BundleConfig.newInstance(name, type, root);
       configs.put(name, config);
     }
     return config;

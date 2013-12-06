@@ -161,11 +161,11 @@
     <jar jarfile="${dir.release}/${DSTAMP}/${name.short}-${publish.revision}.jar" basedir="${dir.bin}" index="true">
       <fileset dir="${dir.resource}" excludes="javadoc.css"/>
       <manifest>
-        <attribute name="Built-By"               value="Weborganic/${user.name}"/>
+        <attribute name="Built-By"               value="Allette/${user.name}"/>
         <attribute name="Implementation-Title"   value="${name.display}"/>
         <attribute name="Implementation-Version" value="${publish.revision}"/>
-        <attribute name="Implementation-Vendor"  value="Weborganic Pty Ltd (Australia)"/>
-        <attribute name="Implementation-URL"     value="http://www.weborganic.com/"/>
+        <attribute name="Implementation-Vendor"  value="Allette (Australia)"/>
+        <attribute name="Implementation-URL"     value="http://pageseeder.org/bastille.html"/>
       </manifest>
     </jar>
     <!-- Publish to the local Ivy repository  -->

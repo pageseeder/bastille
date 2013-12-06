@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -142,7 +141,7 @@ public final class WebBundleTool {
    *
    * @throws IOException should an error occur while reading the files or writing the bundle.
    */
-  public File getBundle(List<File> files, String prefix, boolean minimize) throws IOException {
+  public File getBundle(List<File> files, String prefix, boolean minimize) {
     if (files.isEmpty()) return null;
     String filename = new WebBundle(prefix, files, minimize).getFileName();
     return new File(this._bundles, filename);
@@ -206,6 +205,7 @@ public final class WebBundleTool {
     File bundle = getBundle(files, name, minimize);
     // concatenate the content if the file does not already exist
     if (!bundle.exists()) {
+      LOGGER.debug("Generating bundle:{} with {} files", bundle.getName(), files.size());
       concatenate(files, bundle, minimize);
       bundle.deleteOnExit();
     }
@@ -243,11 +243,12 @@ public final class WebBundleTool {
 
     // concatenate the content if the file does not already exist
     if (stale || !file.exists()) {
+      LOGGER.debug("Generating bundle:{} with {} files", filename, files.size());
 
       // Write to the file
       bundle.clearImport();
       StringWriter writer = new StringWriter();
-      expandStyles(bundle, writer, new File(this._virtual, file.getName()), this._dataURIThreshold);
+      expandStyles(bundle, writer, new File(this._virtual, file.getName()), minimize, this._dataURIThreshold);
       bundle.getETag(true);
       filename = bundle.getFileName();
       instances.put(key, bundle);
@@ -255,8 +256,8 @@ public final class WebBundleTool {
       // Write to the file
       StringReader reader = new StringReader(writer.toString());
       file = new File(this._bundles, filename);
-      if (minimize && !file.getName().endsWith(".min.css")) {
-        CSSMin.minimize(reader, new PrintStream(file));
+      if (minimize && bundle.isCSSMinimizable()) {
+        CSSMin.minimize(reader, new FileOutputStream(file));
       } else {
         IOUtils.copy(reader, new FileOutputStream(file), "utf8");
       }
@@ -304,13 +305,13 @@ public final class WebBundleTool {
    *
    * @throws IOException if an input/output error occurs.
    */
-  protected static void expandStyles(WebBundle bundle, Writer writer, File virtual, long threshold) throws IOException {
+  protected static void expandStyles(WebBundle bundle, Writer writer, File virtual, boolean minimize, long threshold) throws IOException {
 
     // Copy the input stream to the output stream
     IOException exception = null;
     List<File> processed = new ArrayList<File>();
     for (File f : bundle.files()) {
-      exception = expandStylesTo(bundle, f, virtual, writer, processed, threshold);
+      exception = expandStylesTo(bundle, f, virtual, writer, processed, minimize, threshold);
       writer.write('\n'); // insert new line
     }
 
@@ -398,7 +399,7 @@ public final class WebBundleTool {
    *
    * @throws IOException if unable to read file.
    */
-  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed, long threshold)
+  private static IOException expandStylesTo(WebBundle bundle, File file, File virtual, Writer out, List<File> processed, boolean minimize, long threshold)
       throws IOException {
     IOException exception = null;
     // prevent circular references
@@ -418,10 +419,12 @@ public final class WebBundleTool {
             if (isRelative(path)) {
               File imported = new File(file.getParentFile(), path);
               if (imported.exists()) {
+                if (minimize && path.endsWith("min.css")) out.write("/*!nomin*/\n");
                 out.write("/* START import "+path+" */\n");
                 bundle.addImport(imported);
-                expandStylesTo(bundle, imported, virtual, out, processed, threshold);
+                expandStylesTo(bundle, imported, virtual, out, processed, minimize, threshold);
                 out.write("/* END import "+path+ " */\n");
+                if (minimize && path.endsWith("min.css")) out.write("/*!min*/\n");
               } else {
                 out.write("/* ERROR Unable to import */\n");
                 LOGGER.warn("Unable to find referenced CSS file: {}", path);

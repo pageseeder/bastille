@@ -172,6 +172,24 @@ public final class WebBundle {
   }
 
   /**
+   * Indicates whether the web bundle is minimized.
+   *
+   * @return <code>true</code> if minimized; <code>false</code> otherwise.
+   */
+  public boolean isMinimized() {
+    return this._minimized;
+  }
+
+  /**
+   * @return <code>true</code> if it can be safely minimized; <code>false</code> otherwise.
+   */
+  public boolean isCSSMinimizable() {
+    for (File f : this._files) if (f.getName().endsWith(".min.css")) return false;
+    for (File f : this._imported) if (f.getName().endsWith(".min.css")) return false;
+    return true;
+  }
+
+  /**
    * Returns the filename of this bundle.
    *
    * <p>The filename is: <code>[name]-[isodate]-[etag-suffix].[extension]</code>.

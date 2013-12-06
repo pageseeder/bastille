@@ -13,12 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.weborganic.bastille.util.WebBundleTool;
 import org.weborganic.bastille.web.BundleConfig.Type;
 import org.weborganic.berlioz.BerliozException;
-import org.weborganic.berlioz.GlobalSettings;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
@@ -118,16 +114,13 @@ import com.topologi.diffx.xml.XMLWriter;
  */
 public final class GetWebBundles implements ContentGenerator, Cacheable {
 
-  /** Logger. */
-  private static final Logger LOGGER = LoggerFactory.getLogger(GetWebBundles.class);
-
   /**
-   * The CSS configs.
+   * The CSS bundle configuration - static as it is common to all generators.
    */
   private static final Map<String, BundleConfig> CSS_CONFIGS = new HashMap<String, BundleConfig>();
 
   /**
-   * The JS configs.
+   * The JS bundle configuration - static as it is common to all generators.
    */
   private static final Map<String, BundleConfig> JS_CONFIGS = new HashMap<String, BundleConfig>();
 
@@ -136,45 +129,24 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
    */
   private static volatile Boolean isWritable = null;
 
-  /**
-   * The tool used for bundling JS.
-   */
-  private WebBundleTool jstool = null;
-
-  /**
-   * The tool used for bundling CSS.
-   */
-  private WebBundleTool csstool = null;
-
   @Override
   public String getETag(ContentRequest req) {
     HttpContentRequest hreq = (HttpContentRequest)req;
     Service service = hreq.getService();
     Environment env = req.getEnvironment();
     String config = req.getParameter("config", "default");
-    init(env, config);
+    // Get the bundle configurations
+    BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
+    BundleConfig css =  getConfig(config, Type.CSS, env.getPublicFolder());
+    // Ensure that we can use bundles
+    if (isWritable == null) {
+      isWritable = Boolean.valueOf(js.store().exists() && js.store().canWrite());
+    }
     boolean doBundle = canBundle(req);
     if (doBundle) {
-      try {
-        long etag = 0L;
-        BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
-        List<BundleInstance> jsbundles = js.instantiate(service, env);
-        for (BundleInstance bundle : jsbundles) {
-          List<File> files = bundle.files(env);
-          File b = this.jstool.getBundle(files, bundle.name(), js.minimize());
-          if (b != null && b.lastModified() > etag) etag = b.lastModified();
-        }
-        BundleConfig css = getConfig(config, Type.CSS, env.getPublicFolder());
-        List<BundleInstance> cssbundles = js.instantiate(service, env);
-        for (BundleInstance bundle : cssbundles) {
-          List<File> files = bundle.files(env);
-          File b = this.csstool.getBundle(files, bundle.name(), css.minimize());
-          if (b != null && b.lastModified() > etag) etag = b.lastModified();
-        }
-        return Long.toString(etag);
-      } catch (IOException ex) {
-        LOGGER.warn("Unable to generate ETag", ex);
-      }
+      long etagJS = js.getLastModifiedBundle(service);
+      long etagCSS = css.getLastModifiedBundle(service);
+      return Long.toString(Math.max(etagJS, etagCSS));
     }
     return null;
   }
@@ -191,124 +163,53 @@ public final class GetWebBundles implements ContentGenerator, Cacheable {
 
     // Scripts
     BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
-    List<BundleInstance> jsbundles = js.instantiate(service, env);
-    for (BundleInstance bundle : jsbundles) {
-      if (doBundle) {
-        List<File> files = bundle.files(env);
-        bundleScripts(this.jstool, js, files, bundle.name(), xml);
-      } else {
-        List<String> paths = bundle.paths(env);
-        for (String path : paths) {
-          xml.openElement("script", false);
-          xml.attribute("src", path);
-          xml.attribute("bundled", "false");
-          xml.attribute("minimized", "false");
-          xml.closeElement();
-        }
+    if (doBundle) {
+      List<File> bundles = js.getBundles(service);
+      String location = js.location();
+      for (File bundle :  bundles) {
+        xml.openElement("script", false);
+        xml.attribute("src", location+bundle.getName());
+        xml.attribute("bundled", "true");
+        xml.attribute("minimized", Boolean.toString(js.minimize()));
+        xml.closeElement();
+      }
+    } else {
+      List<String> paths = js.getPaths(service);
+      for (String path : paths) {
+        xml.openElement("script", false);
+        xml.attribute("src", path);
+        xml.attribute("bundled", "false");
+        xml.attribute("minimized", "false");
+        xml.closeElement();
       }
     }
 
     // Styles
     BundleConfig css = getConfig(config, Type.CSS, env.getPublicFolder());
-    List<BundleInstance> cssbundles = js.instantiate(service, env);
-    for (BundleInstance bundle : cssbundles) {
-      if (doBundle) {
-        List<File> files = bundle.files(env);
-        bundleStyles(this.csstool, css, files, bundle.name(), xml);
-      } else {
-        List<String> paths = bundle.paths(env);
-        for (String path : paths) {
-          xml.openElement("style", false);
-          xml.attribute("src", path);
-          xml.attribute("bundled", "false");
-          xml.attribute("minimized", "false");
-          xml.closeElement();
-        }
+    if (doBundle) {
+      List<File> bundles = css.getBundles(service);
+      String location = css.location();
+      for (File bundle :  bundles) {
+        xml.openElement("style", false);
+        xml.attribute("src", location+bundle.getName());
+        xml.attribute("bundled", "true");
+        xml.attribute("minimized", Boolean.toString(css.minimize()));
+        xml.closeElement();
+      }
+    } else {
+      List<String> paths = css.getPaths(service);
+      for (String path : paths) {
+        xml.openElement("style", false);
+        xml.attribute("src", path);
+        xml.attribute("bundled", "false");
+        xml.attribute("minimized", "false");
+        xml.closeElement();
       }
     }
   }
 
   // Private helpers
   // ----------------------------------------------------------------------------------------------
-
-  /**
-   * Bundles the scripts using the specified bundler
-   *
-   * @param bundler The bundler to use.
-   * @param config  The bundle config
-   * @param files   The files to bundle.
-   * @param name    The name of the bundle.
-   * @param xml     The XML output
-   *
-   * @throws IOException Should an IO error occur
-   */
-  private void bundleScripts(WebBundleTool bundler, BundleConfig config, List<File> files, String name, XMLWriter xml) throws IOException {
-    if (files.isEmpty()) return;
-    boolean min = config.minimize();
-    File bundle = bundler.bundle(files, name, min);
-    LOGGER.debug("{} -> {}", files, bundle.getName());
-    String location = config.location();
-    xml.openElement("script", false);
-    xml.attribute("src", location+bundle.getName());
-    xml.attribute("bundled", "true");
-    xml.attribute("minimized", Boolean.toString(min));
-    xml.closeElement();
-  }
-
-  /**
-   * Bundles the scripts using the specified bundler
-   *
-   * @param bundler The bundler to use.
-   * @param config  The bundle config
-   * @param files   The files to bundle.
-   * @param name    The name of the bundle.
-   * @param xml     The XML output
-   *
-   * @throws IOException Should an IO error occur
-   */
-  private void bundleStyles(WebBundleTool bundler, BundleConfig config, List<File> files, String name, XMLWriter xml) throws IOException {
-    if (files.isEmpty()) return;
-    boolean min = config.minimize();
-    File bundle = bundler.bundle(files, name, min);
-    LOGGER.debug("{} -> {}", files, bundle.getName());
-    String location = config.location();
-    xml.openElement("style", false);
-    xml.attribute("src", location+bundle.getName());
-    xml.attribute("bundled", "true");
-    xml.attribute("minimized", Boolean.toString(min));
-    xml.closeElement();
-  }
-
-  /**
-   * Initialises the bundlers.
-   *
-   * <p>We check that the we can write bundles.
-   *
-   *
-   * @param env The environment.
-   */
-  private synchronized void init(Environment env, String config) {
-    // Initialise the JavaScript bundling tool
-    BundleConfig js = getConfig(config, Type.JS, env.getPublicFolder());
-    String jsbundles = js.location();
-    File bundles = env.getPublicFile(jsbundles);
-    if (!bundles.exists()) bundles.mkdirs();
-    if (isWritable == null) {
-      isWritable = Boolean.valueOf(bundles.exists() && bundles.canWrite());
-    }
-    if (this.jstool == null)
-      this.jstool = new WebBundleTool(bundles);
-    // Initialise the CSS bundling tool
-    BundleConfig css =  getConfig(config, Type.CSS, env.getPublicFolder());
-    String cssbundles = css.location();
-    int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
-    File bundles2 = env.getPublicFile(cssbundles);
-    if (!bundles2.exists()) bundles2.mkdirs();
-    if (this.csstool == null) {
-      this.csstool = new WebBundleTool(bundles2);
-      this.csstool.setDataURIThreshold(threshold);
-    }
-  }
 
   /**
    * @param req content request

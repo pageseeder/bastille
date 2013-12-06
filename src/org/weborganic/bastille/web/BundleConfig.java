@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weborganic.bastille.util.WebBundleTool;
 import org.weborganic.berlioz.GlobalSettings;
-import org.weborganic.berlioz.content.Environment;
 import org.weborganic.berlioz.content.Service;
 
 /**
@@ -27,14 +27,16 @@ import org.weborganic.berlioz.content.Service;
  * <p>Stores the bundles definitions and instantiate bundles.
  *
  * @author Christophe Lauret
- * @version 5 December 2013
+ * @version 6 December 2013
  */
-public class BundleConfig implements Serializable {
+public final class BundleConfig implements Serializable {
 
   /** Serializable */
   private static final long serialVersionUID = 5709906856099064344L;
 
-  /** Logger. */
+  /**
+   * Logger.
+   */
   private static final Logger LOGGER = LoggerFactory.getLogger(BundleConfig.class);
 
   /**
@@ -80,6 +82,11 @@ public class BundleConfig implements Serializable {
   private final List<BundleDefinition> _definitions;
 
   /**
+   * The list of bundle instances mapped to service IDs.
+   */
+  private final Map<String, List<BundleInstance>> _instances = new WeakHashMap<String, List<BundleInstance>>();
+
+  /**
    * The type of bundle config.
    */
   private final Type _type;
@@ -102,19 +109,18 @@ public class BundleConfig implements Serializable {
   /**
    * The tool used for bundling JS.
    */
-  private WebBundleTool bundler = null;
+  private final WebBundleTool _bundler;
 
   /**
    * Create a new config - use factory method instead.
    */
   private BundleConfig(List<BundleDefinition> definitions, Type type, boolean minimize, String location, File root) {
-    this._definitions = null;
+    this._definitions = definitions;
     this._type = type;
     this._minimize = minimize;
     this._location = location;
     this._root = root;
-    // Initialise the bundler
-    initBundler();
+    this._bundler = initBundler();
   }
 
   /**
@@ -146,18 +152,84 @@ public class BundleConfig implements Serializable {
   }
 
   /**
+   * @return The root of the web application.
+   */
+  public File root() {
+    return this._root;
+  }
+
+  /**
+   * @return Where the bundles are stored
+   */
+  public File store() {
+    return new File(this._root, this._location);
+  }
+
+
+  /**
+   * @return The bundler.
+   */
+  public WebBundleTool bundler() {
+    return this._bundler;
+  }
+
+  /**
+   * @param service The service.
+   * @return the list of bundles for this service
+   */
+  public List<File> getBundles(Service service) {
+    List<BundleInstance> instances = this.getInstances(service);
+    List<File> files = new ArrayList<File>(instances.size());
+    for (BundleInstance instance : instances) {
+      File b = instance.getBundleFile(this);
+      if (b != null) files.add(b);
+    }
+    return files;
+  }
+
+  /**
+   * @param service The service.
+   * @return the last modified bundle file for this service
+   */
+  public long getLastModifiedBundle(Service service) {
+    List<BundleInstance> instances = this.getInstances(service);
+    long lastModified = 0L;
+    for (BundleInstance instance : instances) {
+      File bundle = instance.getBundleFile(this);
+      if (bundle != null && bundle.lastModified() > lastModified) lastModified = bundle.lastModified();
+    }
+    return lastModified;
+  }
+
+  /**
+   * @param service The service.
+   * @return the list of paths for this service
+   */
+  public List<String> getPaths(Service service) {
+    List<BundleInstance> instances = this.getInstances(service);
+    List<String> paths = new ArrayList<String>();
+    for (BundleInstance instance : instances) {
+      instance.addToExistingPaths(paths);
+    }
+    return paths;
+  }
+
+  /**
    * Creates new instance of a bundle configuration for the specific service.
    *
    * @return the corresponding configuration.
    */
-  public List<BundleInstance> instantiate(Service service, Environment env) {
-    List<BundleInstance> instances = new ArrayList<BundleInstance>();
-    for (BundleDefinition def : this._definitions) {
-      BundleInstance instance = BundleInstance.instantiate(this, def, service, env);
-      instances.add(instance);
+  public List<BundleInstance> getInstances(Service service) {
+    List<BundleInstance> instances = this._instances.get(service.id());
+    if (instances == null) {
+      instances = instantiate(service);
+      this._instances.put(service.id(), instances);
     }
     return instances;
   }
+
+  // static helpers
+  // ----------------------------------------------------------------------------------------------
 
   /**
    * Creates new instance of a bundle configuration.
@@ -171,40 +243,55 @@ public class BundleConfig implements Serializable {
   public static BundleConfig newInstance(String name, Type type, File root) {
     String lctype = type.name().toLowerCase();
     String[] names = getBundleNames("bastille."+lctype+"bundler.configs."+name);
-    LOGGER.debug("Config:{} ("+type+") => {}", name, names);
     Map<String, BundleDefinition> defaults = Type.JS == type? DEFAULT_JS_BUNDLE : DEFAULT_CSS_BUNDLE;
-    List<BundleDefinition> definitions = toBundleConfigs(names, "bastille."+lctype+"bundler.bundles.", defaults);
+    List<BundleDefinition> definitions = loadDefinitions(names, "bastille."+lctype+"bundler.bundles.", defaults);
     boolean minimize = GlobalSettings.get("bastille."+lctype+"bundler.minimize", true);
+
+    // Create the bundle store
     String defaultLocation = getDefaultLocation(type);
     String location = GlobalSettings.get("bastille."+lctype+"bundler.location", defaultLocation);
+    File store = new File(root, location);
+    if (!store.exists()) store.mkdirs();
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Loading bundle config:{} ({})", name, type);
+      LOGGER.debug("Loading bundle config:{} ({}) => {}", name, type, names);
       LOGGER.debug("Bundler settings minimize:{} location:{}", minimize, location);
       for (BundleDefinition d : definitions) {
-        LOGGER.debug("{} -> {} ({})", d.name(), d.filename(), d.paths());
+        LOGGER.debug("Bundle definition:{} -> {} ({})", d.name(), d.filename(), d.paths());
       }
     }
     return new BundleConfig(definitions, type, minimize, location, root);
   }
 
-  public static String getDefaultLocation(Type type) {
-    return Type.JS == type? DEFAULT_BUNDLED_SCRIPTS : DEFAULT_BUNDLED_STYLES;
-  }
-
   // private helpers
   // ----------------------------------------------------------------------------------------------
 
-  private void initBundler() {
+  private WebBundleTool initBundler() {
     // Initialise the bundler
-    this.bundler = new WebBundleTool(new File(this._root, this._location));
+    WebBundleTool bundler = new WebBundleTool(new File(this._root, this._location));
     if (this._type == Type.CSS) {
-       int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
-       this.bundler.setDataURIThreshold(threshold);
+      int threshold = GlobalSettings.get("bastille.cssbundler.datauris.threshold", 4096);
+      bundler.setDataURIThreshold(threshold);
     }
+    return bundler;
   }
 
   /**
-   * Returns the list of bundle configurations for the specified names from the global settings
+   * Create a bundle instance for each bundle definition for that service.
+   *
+   * @param service the service
+   * @return the corresponding list of instances.
+   */
+  private List<BundleInstance> instantiate(Service service) {
+    List<BundleInstance> instances = new ArrayList<BundleInstance>();
+    for (BundleDefinition def : this._definitions) {
+      BundleInstance instance = BundleInstance.instantiate(this, def, service);
+      instances.add(instance);
+    }
+    return instances;
+  }
+
+  /**
+   * Returns the list of bundle definitions for the specified names from the global settings
    * and falling back on the defaults defined in this class.
    *
    * @param names    the names of the bundle configuration to get.
@@ -213,7 +300,7 @@ public class BundleConfig implements Serializable {
    *
    * @return The corresponding list.
    */
-  private static List<BundleDefinition> toBundleConfigs(String[] names, String prefix, Map<String, BundleDefinition> defaults) {
+  private static List<BundleDefinition> loadDefinitions(String[] names, String prefix, Map<String, BundleDefinition> defaults) {
     List<BundleDefinition> bundles = new ArrayList<BundleDefinition>();
     for (String name : names) {
       BundleDefinition bc = defaults.get(name);
@@ -243,6 +330,14 @@ public class BundleConfig implements Serializable {
   private static String[] getBundleNames(String property) {
     String names = GlobalSettings.get(property);
     return names != null? names.split(",") : DEFAULT_BUNDLE_CONFIG;
+  }
+
+  /**
+   * @param type JS or CSS.
+   * @return the default location for the specified type.
+   */
+  private static String getDefaultLocation(Type type) {
+    return Type.JS == type? DEFAULT_BUNDLED_SCRIPTS : DEFAULT_BUNDLED_STYLES;
   }
 
 }

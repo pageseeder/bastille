@@ -47,8 +47,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -138,7 +141,7 @@ public final class CSSMin {
    * @param out   Where to send the result
    */
   public static void minimize(Reader input, OutputStream out) {
-    minimize(input, new PrintStream(out));
+    minimize(input, new PrintWriter(new OutputStreamWriter(out, Charset.forName("utf8"))));
   }
 
   /**
@@ -147,7 +150,7 @@ public final class CSSMin {
    * @param input Where to read the CSS from
    * @param min   Where to write the result to
    */
-  public static void minimize(Reader input, PrintStream min) {
+  public static void minimize(Reader input, PrintWriter min) {
     try {
       StringBuilder buffer = toBuffer(input);
       String comment = stripComments(buffer);
@@ -340,12 +343,13 @@ public final class CSSMin {
         if (contents.charAt(contents.length() - 1) != '}') { // Ensure that we have a leading and trailing brace.
           throw new ParsingException("Unterminated selector: " +rule, -1, -1);
         }
-        if (contents.length() == 1) {
-          throw new ParsingException("Empty selector body: " + rule, -1, -1);
+        // No need to include empty selectors
+        if (contents.length() > 1) {
+          contents = contents.substring(0, contents.length() - 1);
+          this._properties = parseProperties(contents);
+          // We do not sort the properties as it may affect result
+//          Arrays.sort(this._properties);
         }
-        contents = contents.substring(0, contents.length() - 1);
-        this._properties = parseProperties(contents);
-        sortProperties(this._properties);
       }
     }
 
@@ -427,13 +431,6 @@ public final class CSSMin {
       return results;
     }
 
-    /**
-     * Sorts the properties array to enhance gzipping.
-     * @param properties The array to be sorted.
-     */
-    private void sortProperties(Property[] properties) {
-      Arrays.sort(properties);
-    }
   }
 
   /**
@@ -444,9 +441,6 @@ public final class CSSMin {
    *   <li><code>"border: solid 1px red;"</code></li>
    *   <li><code>"-moz-box-shadow: 3px 3px 3px rgba(255, 255, 0, 0.5);"</code></li>
    * </ul>
-   *
-   * @author Christophe Lauret
-   * @version 21 November 2012
    */
   private static class Property implements Comparable<Property> {
 
@@ -469,37 +463,35 @@ public final class CSSMin {
      * @throws ParsingException If the property is incomplete and cannot be parsed.
      */
     public Property(String property) throws ParsingException {
+      // Parse the property.
+      List<String> parts = new ArrayList<String>();
+      boolean inquotes = false;   // If we're inside a string
+      boolean inbrackets = false; // If we're inside brackets
+      int j = 0;
+      String substr;
+      for (int i = 0; i < property.length(); i++) {
+        if (inquotes) {
+          inquotes = (property.charAt(i) != '"');
+        } else if (inbrackets) {
+          inbrackets = (property.charAt(i) != ')');
+        } else if (property.charAt(i) == '"') {
+          inquotes = true;
+        } else if (property.charAt(i) == '(') {
+          inbrackets = true;
+        } else if (property.charAt(i) == ':') {
+          substr = property.substring(j, i);
+          if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
+          j = i + 1;
+        }
+      }
+      substr = property.substring(j, property.length());
+      if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
+      if (parts.size() < 2) {
+        throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
+      }
       try {
-        // Parse the property.
-        List<String> parts = new ArrayList<String>();
-        boolean inquotes = false;   // If we're inside a string
-        boolean inbrackets = false; // If we're inside brackets
-        int j = 0;
-        String substr;
-        for (int i = 0; i < property.length(); i++) {
-          if (inquotes) {
-            inquotes = (property.charAt(i) != '"');
-          } else if (inbrackets) {
-            inbrackets = (property.charAt(i) != ')');
-          } else if (property.charAt(i) == '"') {
-            inquotes = true;
-          } else if (property.charAt(i) == '(') {
-            inbrackets = true;
-          } else if (property.charAt(i) == ':') {
-            substr = property.substring(j, i);
-            if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
-            j = i + 1;
-          }
-        }
-        substr = property.substring(j, property.length());
-        if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
-        if (parts.size() < 2) {
-          throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
-        }
         this._property = parts.get(0).trim().toLowerCase();
-
         this._parts = parseValues(simplifyColours(parts.get(1).trim().replaceAll(", ", ",")));
-
       } catch (PatternSyntaxException ex) {
         // Invalid regular expression used.
       }

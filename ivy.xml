@@ -28,6 +28,9 @@
     <dependency org="weborganic" name="wo-furi"         rev="0.8+"   conf="core"/>
     <dependency org="weborganic" name="wo-diffx"        rev="0.7+"   conf="core"/>
 
+    <!-- Documentation -->
+    <dependency org="weborganic" name="wo-cobble"       rev="0.1+"   conf="core"/>
+
     <!-- Indexing libraries -->
     <dependency org="weborganic" name="wo-flint"        rev="1.9+"   conf="core"/>
     <dependency org="apache"     name="lucene-core"     rev="3.0+"   conf="core"/>

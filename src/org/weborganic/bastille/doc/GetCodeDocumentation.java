@@ -2,16 +2,16 @@ package org.weborganic.bastille.doc;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
 
-import org.apache.commons.io.output.WriterOutputStream;
 import org.weborganic.bastille.util.Errors;
 import org.weborganic.berlioz.BerliozException;
 import org.weborganic.berlioz.content.Cacheable;
 import org.weborganic.berlioz.content.ContentGenerator;
 import org.weborganic.berlioz.content.ContentRequest;
+import org.weborganic.berlioz.content.ContentStatus;
 import org.weborganic.berlioz.content.Environment;
+import org.weborganic.cobble.CobbleException;
 import org.weborganic.cobble.XMLGenerator;
 
 import com.topologi.diffx.xml.XMLWriter;
@@ -46,15 +46,15 @@ public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
       return;
     }
 
-    File webinf = env.getPrivateFolder();
-
     // Generate the document
     XMLGenerator docgen = new XMLGenerator(code);
-    StringWriter w = new StringWriter();
-    OutputStream os = new WriterOutputStream(w, "utf-8");
-    docgen.generate(os);
-    os.flush();
-    xml.writeXML(w.toString());
+    try {
+      StringWriter w = new StringWriter();
+      docgen.generate(w);
+      xml.writeXML(w.toString());
+    } catch (CobbleException ex) {
+      Errors.error(req, xml, "server", ex.getMessage(), ContentStatus.INTERNAL_SERVER_ERROR);
+    }
 
   }
 

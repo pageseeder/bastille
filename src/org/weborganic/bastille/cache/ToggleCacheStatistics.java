@@ -41,7 +41,6 @@ public final class ToggleCacheStatistics implements ContentGenerator {
 
       // Clear a specific cache
       Ehcache cache = manager.getEhcache(name);
-      cache.setStatisticsEnabled(enable);
       toXML(cache, xml);
 
     } else {
@@ -50,7 +49,6 @@ public final class ToggleCacheStatistics implements ContentGenerator {
       String[] names = manager.getCacheNames();
       for (String n : names) {
         Ehcache cache = manager.getEhcache(n);
-        cache.setStatisticsEnabled(enable);
         toXML(cache, xml);
       }
 
@@ -64,7 +62,6 @@ public final class ToggleCacheStatistics implements ContentGenerator {
    *
    * @param cache  The cache
    * @param xml    The XML Writer
-   * @param enable <code>true</code> if stat
    *
    * @throws IOException If an error occurs while writing the XML
    */
@@ -74,7 +71,7 @@ public final class ToggleCacheStatistics implements ContentGenerator {
     xml.attribute("name", cache.getName());
     xml.attribute("guid", cache.getGuid());
     xml.openElement("statistics", true);
-    xml.attribute("enabled", Boolean.toString(cache.isStatisticsEnabled()));
+    xml.attribute("enabled", "false");
     xml.closeElement();
     xml.closeElement();
   }

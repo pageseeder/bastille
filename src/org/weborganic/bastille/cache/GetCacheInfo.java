@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -75,9 +74,6 @@ public final class GetCacheInfo implements ContentGenerator {
       xml.attribute("disk-store-size",      cache.getDiskStoreSize());
       xml.attribute("in-memory-size",       Long.toString(estimator.getInMemorySize(cache)));
       xml.attribute("on-disk-size",         Long.toString(estimator.getOnDiskSize(cache)));
-      xml.attribute("average-search-time",  Long.toString(cache.getAverageSearchTime()));
-      xml.attribute("searches-per-seconds", Long.toString(cache.getSearchesPerSecond()));
-      xml.attribute("average-get-time",     Float.toString(cache.getAverageGetTime()));
       xml.closeElement();
     }
 
@@ -86,14 +82,9 @@ public final class GetCacheInfo implements ContentGenerator {
 
     // Statistics
     if (status == Status.STATUS_ALIVE) {
-      boolean hasStatistics = cache.isStatisticsEnabled();
-      if (hasStatistics) {
-        toXML(cache.getStatistics(), xml);
-      } else {
-        xml.openElement("statistics");
-        xml.attribute("enabled", "false");
-        xml.closeElement();
-      }
+      xml.openElement("statistics");
+      xml.attribute("enabled", "false");
+      xml.closeElement();
     }
 
     xml.closeElement();
@@ -111,8 +102,6 @@ public final class GetCacheInfo implements ContentGenerator {
     // configuration
     xml.openElement("configuration");
     xml.attribute("disk-spool-buffer-size-mb", config.getDiskSpoolBufferSizeMB());
-    if (config.getDiskStorePath() != null)
-      xml.attribute("store-path", config.getDiskStorePath());
     xml.attribute("expiry-thread-interval-seconds", Long.toString(config.getDiskExpiryThreadIntervalSeconds()));
     xml.attribute("max-bytes-local-disk", Long.toString(config.getMaxBytesLocalDisk()));
     xml.attribute("max-bytes-local-disk-percentage-set", Boolean.toString(config.isMaxBytesLocalDiskPercentageSet()));
@@ -135,28 +124,4 @@ public final class GetCacheInfo implements ContentGenerator {
     xml.attribute("memory-store-eviction-policy", policy.toString());
     xml.closeElement();
   }
-
-  /**
-   * Display information about the cache configuration
-   *
-   * @param statistics Statistics about the cache
-   * @param xml        The XML Writer.
-   *
-   * @throws IOException If an error occurs while writing the XML
-   */
-  private static void toXML(Statistics statistics, XMLWriter xml) throws IOException {
-    // configuration
-    xml.openElement("statistics");
-    xml.attribute("enabled", "true");
-    xml.attribute("accuracy", statistics.getStatisticsAccuracyDescription());
-    xml.attribute("cache-hits",       Long.toString(statistics.getCacheHits()));
-    xml.attribute("cache-misses",     Long.toString(statistics.getCacheMisses()));
-    xml.attribute("eviction-count",   Long.toString(statistics.getEvictionCount()));
-    xml.attribute("in-memory-hits",   Long.toString(statistics.getInMemoryHits()));
-    xml.attribute("in-memory-misses", Long.toString(statistics.getInMemoryMisses()));
-    xml.attribute("on-disk-hits",     Long.toString(statistics.getOnDiskHits()));
-    xml.attribute("on-disk-misses",   Long.toString(statistics.getOnDiskMisses()));
-    xml.closeElement();
-  }
-
 }

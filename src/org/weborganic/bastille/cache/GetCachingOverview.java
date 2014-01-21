@@ -76,13 +76,7 @@ public final class GetCachingOverview implements ContentGenerator {
       xml.attribute("disk-store-size",      cache.getDiskStoreSize());
       xml.attribute("in-memory-size",       Long.toString(estimator.getInMemorySize(cache)));
       xml.attribute("on-disk-size",         Long.toString(estimator.getOnDiskSize(cache)));
-      boolean statsOn = cache.isStatisticsEnabled();
-      xml.attribute("statistics-enabled",  Boolean.toString(statsOn));
-      if (statsOn) {
-        xml.attribute("average-search-time",  Long.toString(cache.getAverageSearchTime()));
-        xml.attribute("searches-per-seconds", Long.toString(cache.getSearchesPerSecond()));
-        xml.attribute("average-get-time",     Float.toString(cache.getAverageGetTime()));
-      }
+      xml.attribute("statistics-enabled",  "false");
       xml.closeElement();
     }
 

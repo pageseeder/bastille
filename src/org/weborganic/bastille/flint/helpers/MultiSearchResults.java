@@ -8,18 +8,14 @@
 package org.weborganic.bastille.flint.helpers;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.zip.DataFormatException;
 
-import org.apache.lucene.document.CompressionTools;
-import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.CorruptIndexException;
@@ -35,7 +31,9 @@ import org.weborganic.flint.IndexException;
 import org.weborganic.flint.query.SearchPaging;
 import org.weborganic.flint.query.SearchQuery;
 import org.weborganic.flint.query.TermExtractable;
+import org.weborganic.flint.util.Dates;
 import org.weborganic.flint.util.Documents;
+import org.weborganic.flint.util.Fields;
 
 import com.topologi.diffx.xml.XMLWritable;
 import com.topologi.diffx.xml.XMLWriter;
@@ -61,17 +59,16 @@ public final class MultiSearchResults implements XMLWritable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiSearchResults.class);
 
-  /**
-   * The ISO 8601 Date and time format
-   *
-   * @see <a href="http://www.iso.org/iso/date_and_time_format">ISO: Numeric representation of Dates and Time</a>
-   */
-  private static final String ISO8601_DATETIME = "yyyy-MM-dd'T'HH:mm:ssZ";
 
   /**
    * The maximum length for a field to expand.
    */
   private static final int MAX_FIELD_VALUE_LENGTH = 1000;
+  
+  /**
+   * Types of values formatted in the result.
+   */
+  private static enum ValueType {STRING, DATE, DATETIME};
 
   /**
    * The actual search results from Lucene.
@@ -258,7 +255,6 @@ public final class MultiSearchResults implements XMLWritable {
     xml.openElement("documents", true);
 
     // iterate over the hits
-    final DateFormat iso = new SimpleDateFormat(ISO8601_DATETIME);
     for (int i = firsthit - 1; i < lasthit; i++) {
       xml.openElement("document", true);
       String score = Float.toString(this.scoredocs[i].score);
@@ -273,7 +269,7 @@ public final class MultiSearchResults implements XMLWritable {
         for (Fieldable f : doc.getFields()) {
           for (Term t : terms) {
             if (t.field().equals(f.name())) {
-              String extract = Documents.extract(value(f), t.text(), 200);
+              String extract = Documents.extract(Fields.toString(f), t.text(), 200);
               if (extract != null) {
                 xml.openElement("extract");
                 xml.attribute("from", t.field());
@@ -287,16 +283,30 @@ public final class MultiSearchResults implements XMLWritable {
 
       // display the value of each field
       for (Fieldable f : doc.getFields()) {
-        // Retrieve the value
-        String value = value(f);
-        // format dates using ISO 8601
-        if (f.name().contains("date")) {
-          value = formatISO8601(value, iso, this.timezoneOffset);
+     // Retrieve the value
+        String value = Fields.toString(f);
+        ValueType type = ValueType.STRING;
+        // format dates using ISO 8601 when possible
+        if (value != null && value.length() > 0 && f.name().contains("date") && Dates.isLuceneDate(value)) {
+          try {
+            if (value.length() > 8) {
+              value = Dates.toISODateTime(value, this.timezoneOffset);
+              type = ValueType.DATETIME;
+            } else {
+              value = Dates.toISODate(value);
+              if (value.length() == 10) type = ValueType.DATE;
+            }
+          } catch (ParseException ex) {
+            LOGGER.warn("Unparseable date found {}", value);
+          }
         }
         // unnecessary to return the full value of long fields
         if (value != null && value.length() < MAX_FIELD_VALUE_LENGTH) {
           xml.openElement("field");
           xml.attribute("name", f.name());
+          // Display the correct attributes so that we know we can format the date
+          if (type == ValueType.DATE) xml.attribute("date", value);
+          else if (type == ValueType.DATETIME) xml.attribute("datetime", value);
           xml.writeText(value);
           xml.closeElement();
         }
@@ -370,44 +380,5 @@ public final class MultiSearchResults implements XMLWritable {
     super.finalize();
   }
 
-  /**
-   *
-   * @param value  the value from the index
-   * @param iso    the ISO 8601 date formatter
-   * @param offset the timezone offset
-   * @return
-   */
-  private static String formatISO8601(String value, DateFormat iso, int offset) {
-    if (value == null) return null;
-    if ("0".equals(value)) return "";
-    if (!"".equals(value)) try {
-      Date date = DateTools.stringToDate(value);
-      TimeZone tz = TimeZone.getDefault();
-      int rawOffset = tz.inDaylightTime(date)? offset - 3600000 : offset;
-      tz.setRawOffset(rawOffset);
-      iso.setTimeZone(tz);
-      String formatted = iso.format(date);
-      // the Java timezone does not include the required ':'
-      return formatted.substring(0, formatted.length() - 2) + ":" + formatted.substring(formatted.length() - 2);
-    } catch (Exception ex) {
-      // oh well, the field is probably not a date then, we'll keep going with the index value
-      LOGGER.error("Failed to format date field", ex);
-    }
-    // return the value 'as is'
-    return value;
-  }
-
-  private static String value(Fieldable f) {
-    String value = f.stringValue();
-    // is it a compressed field?
-    if (value == null && f.getBinaryLength() > 0) try {
-      value = CompressionTools.decompressString(f.getBinaryValue());
-    } catch (DataFormatException ex) {
-      // strange but true, unable to decompress
-      LOGGER.error("Failed to decompress field value", ex);
-      return null;
-    }
-    return value;
-  }
 
 }

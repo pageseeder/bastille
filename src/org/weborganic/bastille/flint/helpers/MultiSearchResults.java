@@ -12,7 +12,9 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -379,6 +381,100 @@ public final class MultiSearchResults implements XMLWritable {
     if (!this.terminated) terminate();
     super.finalize();
   }
+  
+  /**
+   * Provides an iterable class over the Lucene documents.
+   *
+   * <p>This allows Lucene documents from these results to be iterated over in a for each loop:
+   * <pre>
+   *   for (Document doc : results.documents()) {
+   *     ...
+   *   }
+   * </pre>
+   *
+   * @return an iterable class over the Lucene documents.
+   *
+   * @throws IllegalStateException If these results have been closed (terminated already).
+   */
+  public Iterable<Document> documents() {
+    if (this.terminated)
+      throw new IllegalStateException();
+    return new DocIterable();
+  }
 
+  
+  
+  // Private classes
+  // ----------------------------------------------------------------------------------------------
+
+  /**
+   * An iterable class over the documents in these results.
+   *
+   * @author christophe Lauret
+   * @version 6 October 2011
+   */
+  private final class DocIterable implements Iterable<Document> {
+
+    /**
+     * Provides an iterable class over the Lucene documents.
+     *
+     * <p>this can be used in a for each loop
+     *
+     * @return an iterable class over the Lucene documents.
+     */
+    @Override
+    public Iterator<Document> iterator() {
+      return new DocIterator();
+    }
+
+  }
+
+  /**
+   * An iterator over the documents in these results.
+   *
+   * @author Christophe Lauret
+   * @author Jean-Baptiste Reure
+   * @version 16 August 2013
+   */
+  private final class DocIterator implements Iterator<Document> {
+
+    /**
+     * The index searcher used.
+     */
+    private final MultiSearcher searcher = MultiSearchResults.this.searcher;
+
+    /**
+     * The actual search results from Lucene.
+     */
+    private final ScoreDoc[] scoredocs = MultiSearchResults.this.scoredocs;
+
+    /**
+     * The current index for this iterator.
+     */
+    private int index = 0;
+
+    @Override
+    public boolean hasNext() {
+      return this.index < this.scoredocs.length;
+    }
+
+    @Override
+    public Document next() {
+      if (!hasNext()) throw new NoSuchElementException();
+      try {
+        return this.searcher.doc(this.scoredocs[this.index++].doc);
+      } catch (IOException ex) {
+        throw new IllegalStateException("Error retrieving document", ex);
+      }
+    }
+
+    /**
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Cannot remove documents from searc results");
+    }
+  }
 
 }

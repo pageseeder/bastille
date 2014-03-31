@@ -59,15 +59,28 @@ public final class MultipleIndex {
    * The list of indexes for this MultipleIndex
    */
   private final List<File> indexDirs = new ArrayList<File>();
-
+  
+  /**
+   * The last time this index was modified
+   */
+  private volatile long lastModified = -1;
+  
+  
   /**
    * Build a new multiple index.
    *
    * @param indexDirectories the root folders for all indexes
    */
   public MultipleIndex(List<File> indexDirectories) {
-    if (indexDirectories != null)
+    if (indexDirectories != null) {
       this.indexDirs.addAll(indexDirectories);
+      // get the last modified date
+      for (File f: indexDirectories ) {
+        if (f.exists() && f.isDirectory() && f.lastModified()>lastModified ) {
+          lastModified = f.lastModified();
+        }
+      }
+    }
   }
 
   /**
@@ -203,6 +216,15 @@ public final class MultipleIndex {
    */
   public MultipleIndexReader getMultiReader() {
     return new MultipleIndexReader();
+  }
+  
+  /**
+   * Returns the last time the index was updated.
+   *
+   * @return the last time the index was updated.
+   */
+  public long lastModified() {
+    return lastModified;
   }
 
   /**

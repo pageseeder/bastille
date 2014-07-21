@@ -105,6 +105,8 @@ public final class GetIndexSummary implements ContentGenerator, Cacheable {
       reader = master.grabReader();
     } catch (IndexException ex) {
       xml.attribute("error", "Failed to load reader: "+ex.getMessage());
+      xml.closeElement();
+      return;
     }
     if (reader != null) {
       try {

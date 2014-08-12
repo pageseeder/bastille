@@ -7,6 +7,8 @@
  */
 package org.weborganic.bastille.security;
 
+import java.security.Principal;
+
 import com.topologi.diffx.xml.XMLWritable;
 
 /**
@@ -21,11 +23,12 @@ import com.topologi.diffx.xml.XMLWritable;
  * @version 0.6.2
  * @since 0.6.2
  */
-public interface User extends XMLWritable {
+public interface User extends XMLWritable, Principal {
 
   /**
    * @return the name of the user.
    */
+  @Override
   String getName();
 
 }

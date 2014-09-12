@@ -34,7 +34,7 @@ import org.weborganic.flint.local.LocalFileContentId;
  * Centralizes the configuration for flint.
  *
  * @author Christophe Lauret
- * @version 0.8.7 - 25 February 2013
+ * @version 0.8.23 - 12 September 2014
  * @since 0.7.9
  */
 public final class FlintConfig {
@@ -95,17 +95,15 @@ public final class FlintConfig {
   private static synchronized void autoSetup() {
     IFlintConfig config = newAutoInstance();
     iconfig = config;
-    manager = new IndexManager(newFetcher(config));
-    List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
-    manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
-    manager.start();
   }
 
   /**
    * @return the default location of the index.
    */
   public static synchronized File directory() {
-    if (iconfig == null) autoSetup();
+    if (iconfig == null) {
+      autoSetup();
+    }
     return iconfig.getDirectory();
   }
 
@@ -116,7 +114,9 @@ public final class FlintConfig {
    *         <code>false</code> for a single index.
    */
   public static synchronized boolean hasMultiple() {
-    if (iconfig == null) autoSetup();
+    if (iconfig == null) {
+      autoSetup();
+    }
     return iconfig.hasMultiple();
   }
 
@@ -126,7 +126,9 @@ public final class FlintConfig {
    * @return the index master for a single index.
    */
   public static synchronized IndexMaster getMaster() {
-    if (iconfig == null) autoSetup();
+    if (iconfig == null) {
+      autoSetup();
+    }
     if (iconfig.hasMultiple()) {
       LOGGER.warn("Requesting a single index in multiple index configuration!");
     }
@@ -142,7 +144,9 @@ public final class FlintConfig {
    * @return the index master for the specified index.
    */
   public static synchronized IndexMaster getMaster(String name) {
-    if (iconfig == null) autoSetup();
+    if (iconfig == null) {
+      autoSetup();
+    }
     if (name == null) return getMaster();
     if (!iconfig.hasMultiple()) {
       LOGGER.warn("Requesting a named index in single index configuration!");
@@ -157,7 +161,9 @@ public final class FlintConfig {
    * @return the flint configuration used by default.
    */
   public static synchronized IFlintConfig get() {
-    if (iconfig == null) autoSetup();
+    if (iconfig == null) {
+      autoSetup();
+    }
     return iconfig;
   }
 
@@ -194,6 +200,12 @@ public final class FlintConfig {
    * @return the index manager
    */
   public static synchronized IndexManager getManager() {
+    if (manager == null) {
+      manager = new IndexManager(newFetcher(iconfig));
+      List<String> psml = Collections.singletonList(PSMLConfig.MEDIATYPE);
+      manager.registerTranslatorFactory(new AutoXMLTranslatorFactory(psml));
+      manager.start();
+    }
     return manager;
   }
 
@@ -254,4 +266,5 @@ public final class FlintConfig {
       }
     };
   }
+
 }

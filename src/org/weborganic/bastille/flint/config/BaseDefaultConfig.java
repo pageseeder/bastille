@@ -231,7 +231,7 @@ public abstract class BaseDefaultConfig implements IFlintConfig {
    */
   protected static File asFile(Document doc) {
     String path = doc.get("path");
-    boolean isPublic = "public".equals(doc.get("visilibity"));
+    boolean isPublic = "public".equals(doc.get("visibility"));
     if (isPublic) {
       return new File(PUBLIC, path);
     } else {

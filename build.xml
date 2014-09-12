@@ -25,6 +25,11 @@
     <funnel:lib-milestone/>
   </target>
 
+  <!-- deploy latest integration on local web app -->
+  <target name="deploy-local" description="deploy latest integration on local web app">
+    <funnel:lib-deploy-local/>
+  </target>
+
   <!-- Generate the java doc and publish on code website -->
   <target name="publish-doc" description="generate the java documentation">
     <funnel:lib-javadoc/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   @author Christophe Lauret (Weborganic)
-  @version 12 September 2014
+  @version 16 September 2014
 -->
 <project name="weborganic-bastille" default="integration" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:funnel="antlib:com.weborganic.ant.funnel">
 
@@ -27,6 +27,7 @@
 
   <!-- deploy latest integration on local web app -->
   <target name="deploy-local" description="deploy latest integration on local web app">
+    <loadproperties srcFile="local.properties"/>
     <funnel:lib-deploy-local/>
   </target>
 

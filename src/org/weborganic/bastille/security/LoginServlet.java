@@ -122,7 +122,7 @@ public final class LoginServlet extends HttpServlet {
       if (result == AuthenticationResult.LOGGED_IN || result == AuthenticationResult.ALREADY_LOGGED_IN) {
 
         // Forward the original request
-        if (target != null) {
+        if (target != null && !target.startsWith(loginPage)) {
           LOGGER.debug("Redirecting to {}", target.toString());
           res.sendRedirect(target.toString());
           if (session != null) session.removeAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);

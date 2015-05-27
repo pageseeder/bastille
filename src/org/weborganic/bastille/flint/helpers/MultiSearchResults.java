@@ -66,7 +66,7 @@ public final class MultiSearchResults implements XMLWritable {
    * The maximum length for a field to expand.
    */
   private static final int MAX_FIELD_VALUE_LENGTH = 1000;
-  
+
   /**
    * Types of values formatted in the result.
    */
@@ -118,6 +118,14 @@ public final class MultiSearchResults implements XMLWritable {
   private int timezoneOffset;
 
   /**
+   * The field value will not be returned if its length is longer than or equal
+   * _maxFieldValueLength.
+   * Negative value is not allowed and if the 0 the program automatically
+   * change to the default MAX_FIELD_VALUE_LENGTH.
+   */
+  private final int _maxFieldValueLength;
+
+  /**
    * Creates a new SearchResults.
    *
    * @param fielddocs The actual search results from Lucene in TopFieldDocs.
@@ -128,7 +136,27 @@ public final class MultiSearchResults implements XMLWritable {
    */
   public MultiSearchResults(SearchQuery query, TopFieldDocs fielddocs, SearchPaging paging, MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes)
       throws IOException, IndexException {
-    this(query, fielddocs.scoreDocs, fielddocs.fields, fielddocs.totalHits, paging, searcher, indexes);
+    this(query, fielddocs, paging, searcher, indexes, MAX_FIELD_VALUE_LENGTH);
+  }
+
+  /**
+   * Creates a new SearchResults.
+   *
+   * @param fielddocs           The actual search results from Lucene in TopFieldDocs.
+   * @param paging              The paging configuration.
+   * @param io                  The IndexIO object, used to release the searcher
+   *                            when terminated
+   * @param searcher            The Lucene searcher.
+   * @param maxFieldValueLength The field value will not be returned if its
+   *                            length is longer than or equal
+   *                            maxFieldValueLength.
+   * @throws IndexException if the documents could not be retrieved from the Index
+   */
+  public MultiSearchResults(SearchQuery query, TopFieldDocs fielddocs, SearchPaging paging,
+      MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes, int maxFieldValueLength)
+      throws IOException, IndexException {
+    this(query, fielddocs.scoreDocs, fielddocs.fields, fielddocs.totalHits,
+        paging, searcher, indexes, maxFieldValueLength);
   }
 
   /**
@@ -142,27 +170,42 @@ public final class MultiSearchResults implements XMLWritable {
    */
   public MultiSearchResults(SearchQuery query, ScoreDoc[] hits, int totalHits, SearchPaging paging, MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes)
       throws IndexException {
-    this(query, hits, null, totalHits, paging, searcher, indexes);
-  }
-
-  /**
-   * @return the paging used
-   */
-  public SearchPaging getPaging() {
-    return this.paging;
+    this(query, hits, totalHits, paging, searcher, indexes, MAX_FIELD_VALUE_LENGTH);
   }
 
   /**
    * Creates a new SearchResults.
    *
-   * @param hits The actual search results from Lucene in ScoreDoc.
-   * @param sortf The Field used to sort the results
-   * @param paging The paging configuration.
-   * @param searcher The Lucene searcher.
+   * @param hits                The actual search results from Lucene in ScoreDoc.
+   * @param paging              The paging configuration.
+   * @param io                  The IndexIO object, used to release the searcher
+   *                            when terminated
+   * @param searcher            The Lucene searcher.
+   * @param maxFieldValueLength The field value will not be returned if its
+   *                            length is longer than or equal
+   *                            maxFieldValueLength.
+   * @throws IndexException if the documents could not be retrieved from the Index
+   */
+  public MultiSearchResults(SearchQuery query, ScoreDoc[] hits, int totalHits, SearchPaging paging,
+      MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes, int maxFieldValueLength)
+      throws IndexException {
+    this(query, hits, null, totalHits, paging, searcher, indexes, maxFieldValueLength);
+  }
+
+  /**
+   * Creates a new SearchResults.
+   *
+   * @param hits                The actual search results from Lucene in ScoreDoc.
+   * @param sortf               The Field used to sort the results
+   * @param paging              The paging configuration.
+   * @param searcher            The Lucene searcher.
+   * @param maxFieldValueLength The field value will not be returned if its
+   *                            length is longer than or equal
+   *                            maxFieldValueLength.
    * @throws IndexException if the documents could not be retrieved from the Index
    */
   private MultiSearchResults(SearchQuery query, ScoreDoc[] hits, SortField[] sortf, int totalResults, SearchPaging paging,
-      MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes) throws IndexException {
+      MultiSearcher searcher, Map<IndexMaster, IndexSearcher> indexes, int maxFieldValueLength) throws IndexException {
     this.query = query;
     this.scoredocs = hits;
     this.sortfields = sortf;
@@ -178,6 +221,24 @@ public final class MultiSearchResults implements XMLWritable {
     this.timezoneOffset = tz.getRawOffset();
     // take daylight savings into account
     if (tz.inDaylightTime(new Date())) this.timezoneOffset += 3600000;
+
+    //Define the max field value length
+    if(maxFieldValueLength > 0){
+      this._maxFieldValueLength = maxFieldValueLength;
+    } else if(maxFieldValueLength == 0) {
+      this._maxFieldValueLength = MAX_FIELD_VALUE_LENGTH;
+    } else {
+      //negative value is not allowed
+      throw new IllegalArgumentException("Max field value length cannot be negative.");
+    }
+  }
+
+
+  /**
+   * @return the paging used
+   */
+  public SearchPaging getPaging() {
+    return this.paging;
   }
 
   /**
@@ -303,7 +364,7 @@ public final class MultiSearchResults implements XMLWritable {
           }
         }
         // unnecessary to return the full value of long fields
-        if (value != null && value.length() < MAX_FIELD_VALUE_LENGTH) {
+        if (value != null && value.length() < _maxFieldValueLength) {
           xml.openElement("field");
           xml.attribute("name", f.name());
           // Display the correct attributes so that we know we can format the date
@@ -381,7 +442,7 @@ public final class MultiSearchResults implements XMLWritable {
     if (!this.terminated) terminate();
     super.finalize();
   }
-  
+
   /**
    * Provides an iterable class over the Lucene documents.
    *
@@ -402,8 +463,8 @@ public final class MultiSearchResults implements XMLWritable {
     return new DocIterable();
   }
 
-  
-  
+
+
   // Private classes
   // ----------------------------------------------------------------------------------------------
 

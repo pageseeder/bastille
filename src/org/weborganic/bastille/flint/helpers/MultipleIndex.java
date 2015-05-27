@@ -59,13 +59,13 @@ public final class MultipleIndex {
    * The list of indexes for this MultipleIndex
    */
   private final List<File> indexDirs = new ArrayList<File>();
-  
+
   /**
    * The last time this index was modified
    */
   private volatile long lastModified = -1;
-  
-  
+
+
   /**
    * Build a new multiple index.
    *
@@ -113,6 +113,25 @@ public final class MultipleIndex {
    * @throws IllegalStateException If one of the indexes is not initialised
    */
   public MultiSearchResults query(SearchQuery query, SearchPaging paging) throws IndexException {
+    return query(query, paging, 0);
+  }
+
+  /**
+   * Perform a query on multiple indexes.
+   *
+   * <p>Note that all the indexes MUST be initialised before calling this method.
+   *
+   * @param query                The query to perform.
+   * @param paging               The paging mechanism
+   * @param maxFieldValueLength  The field value will not be returned if its
+   *                             length is longer than or equal maxFieldValueLength.
+   * @return The search results
+   *
+   * @throws IndexException        If the query failed
+   * @throws IllegalStateException If one of the indexes is not initialised
+   */
+  public MultiSearchResults query(SearchQuery query, SearchPaging paging,
+      int maxFieldValueLength) throws IndexException {
     // retrieve all searchers
     IndexSearcher[] searchers = new IndexSearcher[this.indexDirs.size()];
     Map<IndexMaster, IndexSearcher> indexes = new HashMap<IndexMaster, IndexSearcher>();
@@ -137,7 +156,7 @@ public final class MultipleIndex {
       // run query
       multiSearcher.search(query.toQuery(), tfc);
       // build search result object
-      return new MultiSearchResults(query, tfc.topDocs().scoreDocs, tfc.getTotalHits(), paging, multiSearcher, indexes);
+      return new MultiSearchResults(query, tfc.topDocs().scoreDocs, tfc.getTotalHits(), paging, multiSearcher, indexes, maxFieldValueLength);
     } catch (IOException e) {
       throw new IndexException("Failed performing a query on Multiple Index because of an I/O problem", e);
     }
@@ -217,7 +236,7 @@ public final class MultipleIndex {
   public MultipleIndexReader getMultiReader() {
     return new MultipleIndexReader();
   }
-  
+
   /**
    * Returns the last time the index was updated.
    *

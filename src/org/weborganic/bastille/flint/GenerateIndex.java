@@ -60,6 +60,11 @@ public final class GenerateIndex implements ContentGenerator  {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndex.class);
 
+  /**
+   * The max number of documents to return.
+   */
+  private static final int MAX_FILES_RETURNED = 1000;
+
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
 
@@ -90,25 +95,35 @@ public final class GenerateIndex implements ContentGenerator  {
     LOGGER.debug("Scanning directory {} for files updated since {}", root.getPath(), ISO8601.DATETIME.format(modified));
 
     // Force index all
-    if ("true".equals(req.getParameter("all"))) {
+    boolean indexAll = "true".equals(req.getParameter("all"));
+    if (indexAll) {
       config.reload();
       modified = 0;
     }
 
     // Identify the files
     IndexUpdateFilter filter = new IndexUpdateFilter(modified, indexed);
-    int updated = FileCollector.list(root, filter).size();
+    int updated = FileCollector.list(root, filter).size(); // TODO this could consume much less memory
     Map<File, Action> files = filter.getActions();
+
+    // Actually counts the number of files returned in the interface
+    int count=0;
 
     // Send the files for indexing
     xml.openElement("index-job", true);
-    if (index != null) xml.attribute("index", index);
+    if (index != null) {
+      xml.attribute("index", index);
+    }
     xml.attribute("last-modified", ISO8601.format(modified, ISO8601.DATETIME));
     for (Entry<File, Action> entry : files.entrySet()) {
       File f = entry.getKey();
       Action action = entry.getValue();
       String path = config.toPath(entry.getKey());
-      toXML(xml, path, ISO8601.format(f.lastModified(), ISO8601.DATETIME), action.toString());
+      if (count < MAX_FILES_RETURNED) {
+        // XXX: This is a pretty cheap way of fixing this, but we'll refactor this soon
+        toXML(xml, path, ISO8601.format(f.lastModified(), ISO8601.DATETIME), action.toString());
+        count++;
+      }
       // Parameters send to iXML
       if (action == Action.INSERT || action == Action.UPDATE) {
         Map<String, String> p = new HashMap<String, String>();

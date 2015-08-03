@@ -1,6 +1,0 @@
-# --------------------------------------------------------------------------- #
-# Configuration for the build                                                 #
-# --------------------------------------------------------------------------- #
-
-# The Web application where this library should be deployed
-#local.webapp=

@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.util;
 
@@ -285,10 +293,11 @@ public final class WebBundleTool {
     // Copy the input stream to the output stream
     try {
       for (File f : files) {
-        if (minimize && !f.getName().endsWith(".min.js"))
+        if (minimize && !f.getName().endsWith(".min.js")) {
           minimizeAndCopyTo(f, out);
-        else
+        } else {
           copyTo(f, out);
+        }
       }
     } finally {
       IOUtils.closeQuietly(out);
@@ -419,12 +428,16 @@ public final class WebBundleTool {
             if (isRelative(path)) {
               File imported = new File(file.getParentFile(), path);
               if (imported.exists()) {
-                if (minimize && path.endsWith("min.css")) out.write("/*!nomin*/\n");
+                if (minimize && path.endsWith("min.css")) {
+                  out.write("/*!nomin*/\n");
+                }
                 out.write("/* START import "+path+" */\n");
                 bundle.addImport(imported);
                 expandStylesTo(bundle, imported, virtual, out, processed, minimize, threshold);
                 out.write("/* END import "+path+ " */\n");
-                if (minimize && path.endsWith("min.css")) out.write("/*!min*/\n");
+                if (minimize && path.endsWith("min.css")) {
+                  out.write("/*!min*/\n");
+                }
               } else {
                 out.write("/* ERROR Unable to import */\n");
                 LOGGER.warn("Unable to find referenced CSS file: {}", path);
@@ -481,7 +494,7 @@ public final class WebBundleTool {
    */
   protected static String getLocation(File source, File target, String path, long threshold) {
     // Ignore data URIs, full URLs and absolute paths
-    if (!isRelative(path)) { return path; }
+    if (!isRelative(path)) return path;
     StringBuilder location = new StringBuilder();
     try {
       // Locate the referenced URL
@@ -499,7 +512,9 @@ public final class WebBundleTool {
         // Start path to return to common base
         String rbundle = ctarget.substring(x);
         for (int i = 0; i < rbundle.length(); i++) {
-          if (rbundle.charAt(i) == File.separatorChar) location.append("../");
+          if (rbundle.charAt(i) == File.separatorChar) {
+            location.append("../");
+          }
         }
         // Continue with remaining path
         location.append(csource.substring(x).replace('\\', '/'));
@@ -536,13 +551,10 @@ public final class WebBundleTool {
     if (url.length() < 2) return url;
     char first = url.charAt(0);
     char last  = url.charAt(url.length()-1);
-    if ((first == '\'' && last == '\'') || first == '"' && last == '"') {
-      // quoted
-      return url.substring(1, url.length()-1);
-    } else {
-      // unquoted
-      return url;
-    }
+    if ((first == '\'' && last == '\'') || first == '"' && last == '"') // quoted
+    return url.substring(1, url.length()-1);
+    else // unquoted
+    return url;
   }
 
   /**

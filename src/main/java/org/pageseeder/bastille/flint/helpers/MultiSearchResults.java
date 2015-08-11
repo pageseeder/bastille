@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.flint.helpers;
 
@@ -27,8 +35,6 @@ import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopFieldDocs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.flint.IndexException;
 import org.pageseeder.flint.query.SearchPaging;
 import org.pageseeder.flint.query.SearchQuery;
@@ -36,9 +42,10 @@ import org.pageseeder.flint.query.TermExtractable;
 import org.pageseeder.flint.util.Dates;
 import org.pageseeder.flint.util.Documents;
 import org.pageseeder.flint.util.Fields;
-
 import org.pageseeder.xmlwriter.XMLWritable;
 import org.pageseeder.xmlwriter.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A container for search results of a query ran on multiple indexes.
@@ -209,10 +216,11 @@ public final class MultiSearchResults implements XMLWritable {
     this.query = query;
     this.scoredocs = hits;
     this.sortfields = sortf;
-    if (paging == null)
+    if (paging == null) {
       this.paging = new SearchPaging();
-    else
+    } else {
       this.paging = paging;
+    }
     this.searcher = searcher;
     this.searchers.putAll(indexes);
     this.totalNbOfResults = totalResults;
@@ -220,17 +228,17 @@ public final class MultiSearchResults implements XMLWritable {
     TimeZone tz = TimeZone.getDefault();
     this.timezoneOffset = tz.getRawOffset();
     // take daylight savings into account
-    if (tz.inDaylightTime(new Date())) this.timezoneOffset += 3600000;
+    if (tz.inDaylightTime(new Date())) {
+      this.timezoneOffset += 3600000;
+    }
 
     //Define the max field value length
     if(maxFieldValueLength > 0){
       this._maxFieldValueLength = maxFieldValueLength;
     } else if(maxFieldValueLength == 0) {
       this._maxFieldValueLength = MAX_FIELD_VALUE_LENGTH;
-    } else {
-      //negative value is not allowed
-      throw new IllegalArgumentException("Max field value length cannot be negative.");
-    }
+    } else //negative value is not allowed
+    throw new IllegalArgumentException("Max field value length cannot be negative.");
   }
 
 
@@ -357,19 +365,24 @@ public final class MultiSearchResults implements XMLWritable {
               type = ValueType.DATETIME;
             } else {
               value = Dates.toISODate(value);
-              if (value.length() == 10) type = ValueType.DATE;
+              if (value.length() == 10) {
+                type = ValueType.DATE;
+              }
             }
           } catch (ParseException ex) {
             LOGGER.warn("Unparseable date found {}", value);
           }
         }
         // unnecessary to return the full value of long fields
-        if (value != null && value.length() < _maxFieldValueLength) {
+        if (value != null && value.length() < this._maxFieldValueLength) {
           xml.openElement("field");
           xml.attribute("name", f.name());
           // Display the correct attributes so that we know we can format the date
-          if (type == ValueType.DATE) xml.attribute("date", value);
-          else if (type == ValueType.DATETIME) xml.attribute("datetime", value);
+          if (type == ValueType.DATE) {
+            xml.attribute("date", value);
+          } else if (type == ValueType.DATETIME) {
+            xml.attribute("datetime", value);
+          }
           xml.writeText(value);
           xml.closeElement();
         }
@@ -439,7 +452,9 @@ public final class MultiSearchResults implements XMLWritable {
 
   @Override
   protected void finalize() throws Throwable {
-    if (!this.terminated) terminate();
+    if (!this.terminated) {
+      terminate();
+    }
     super.finalize();
   }
 

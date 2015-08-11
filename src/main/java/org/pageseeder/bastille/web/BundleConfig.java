@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.web;
 
@@ -15,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.util.WebBundleTool;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The configuration for the bundling for a given type.
@@ -178,11 +186,13 @@ public final class BundleConfig implements Serializable {
    * @return the list of bundles for this service
    */
   public List<File> getBundles(Service service) {
-    List<BundleInstance> instances = this.getInstances(service);
+    List<BundleInstance> instances = getInstances(service);
     List<File> files = new ArrayList<File>(instances.size());
     for (BundleInstance instance : instances) {
       File b = instance.getBundleFile(this);
-      if (b != null) files.add(b);
+      if (b != null) {
+        files.add(b);
+      }
     }
     return files;
   }
@@ -192,11 +202,13 @@ public final class BundleConfig implements Serializable {
    * @return the last modified bundle file for this service
    */
   public long getLastModifiedBundle(Service service) {
-    List<BundleInstance> instances = this.getInstances(service);
+    List<BundleInstance> instances = getInstances(service);
     long lastModified = 0L;
     for (BundleInstance instance : instances) {
       File bundle = instance.getBundleFile(this);
-      if (bundle != null && bundle.lastModified() > lastModified) lastModified = bundle.lastModified();
+      if (bundle != null && bundle.lastModified() > lastModified) {
+        lastModified = bundle.lastModified();
+      }
     }
     return lastModified;
   }
@@ -206,7 +218,7 @@ public final class BundleConfig implements Serializable {
    * @return the list of paths for this service
    */
   public List<String> getPaths(Service service) {
-    List<BundleInstance> instances = this.getInstances(service);
+    List<BundleInstance> instances = getInstances(service);
     List<String> paths = new ArrayList<String>();
     for (BundleInstance instance : instances) {
       instance.addToExistingPaths(paths);
@@ -251,7 +263,9 @@ public final class BundleConfig implements Serializable {
     String defaultLocation = getDefaultLocation(type);
     String location = GlobalSettings.get("bastille."+lctype+"bundler.location", defaultLocation);
     File store = new File(root, location);
-    if (!store.exists()) store.mkdirs();
+    if (!store.exists()) {
+      store.mkdirs();
+    }
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Loading bundle config:{} ({}) => {}", name, type, names);
       LOGGER.debug("Bundler settings minimize:{} location:{}", minimize, location);

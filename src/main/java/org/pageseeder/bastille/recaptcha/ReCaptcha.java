@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.recaptcha;
 
@@ -17,13 +25,12 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.servlet.HttpContentRequest;
-
 import org.pageseeder.xmlwriter.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple object encapsulating the ReCaptcha configuration.
@@ -249,9 +256,7 @@ public final class ReCaptcha {
     if (req instanceof HttpContentRequest) {
       HttpContentRequest http = (HttpContentRequest)req;
       return recaptcha.verify(http.getHttpRequest().getRemoteAddr(), challenge, response);
-    } else {
-      throw new ReCaptchaException("Unable to get remote IP");
-    }
+    } else throw new ReCaptchaException("Unable to get remote IP");
   }
 
   // private helpers
@@ -291,10 +296,11 @@ public final class ReCaptcha {
       byte[] buf = new byte[1024];
       while (true) {
         int rc = in.read(buf);
-        if (rc <= 0)
+        if (rc <= 0) {
           break;
-        else
+        } else {
           bout.write(buf, 0, rc);
+        }
       }
 
       out.close();

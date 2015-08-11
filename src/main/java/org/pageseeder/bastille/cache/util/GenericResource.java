@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.util;
 
@@ -16,10 +24,10 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.cache.util.HttpHeader.Type;
 import org.pageseeder.berlioz.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A <code>Serializable</code> representation of a cached resource.
@@ -119,11 +127,8 @@ public final class GenericResource implements Serializable, CachedResource {
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
   public byte[] getGzippedBody() {
-    if (this._storeGzipped) {
-      return this._content;
-    } else {
-      return null;
-    }
+    if (this._storeGzipped) return this._content;
+    else return null;
   }
 
   /**
@@ -136,11 +141,8 @@ public final class GenericResource implements Serializable, CachedResource {
    * @throws IOException if thrown whil ungzippind the content.
    */
   public byte[] getUngzippedBody() throws IOException {
-    if (this._storeGzipped) {
-      return GZIPUtils.ungzip(this._content);
-    } else {
-      return this._content;
-    }
+    if (this._storeGzipped) return GZIPUtils.ungzip(this._content);
+    else return this._content;
   }
 
   /**
@@ -160,11 +162,8 @@ public final class GenericResource implements Serializable, CachedResource {
 
   @Override
   public byte[] getBody(boolean gzipped) throws IOException {
-    if (gzipped) {
-      return getGzippedBody();
-    } else {
-      return getUngzippedBody();
-    }
+    if (gzipped) return getGzippedBody();
+    else return getUngzippedBody();
   }
 
   /**
@@ -204,9 +203,7 @@ public final class GenericResource implements Serializable, CachedResource {
   @Override
   public String getETag(boolean gzipped) {
     for (HttpHeader<? extends Serializable> h : this._headers) {
-      if (HttpHeaders.ETAG.equals(h.name())) {
-        return adjustEtag(h.value().toString(), gzipped);
-      }
+      if (HttpHeaders.ETAG.equals(h.name())) return adjustEtag(h.value().toString(), gzipped);
     }
     return null;
   }
@@ -309,7 +306,7 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   private static boolean isBodyParameterGzipped(Collection<HttpHeader<? extends Serializable>> headers) {
     for (HttpHeader<? extends Serializable> header : headers) {
-      if ("gzip".equals(header.value())) { return true; }
+      if ("gzip".equals(header.value())) return true;
     }
     return false;
   }

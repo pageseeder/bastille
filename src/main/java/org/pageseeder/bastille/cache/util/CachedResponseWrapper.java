@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.util;
 
@@ -266,6 +274,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /**
    * @return the status code for this response.
    */
+  @Override
   public int getStatus() {
     return this._status;
   }
@@ -324,11 +333,10 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @param name the name of the header
    * @return All of the headersMap set/added on the response
    */
+  @Override
   public String getHeader(String name) {
     List<Serializable> values = this._headers.get(name);
-    if (values != null && values.size() > 0) {
-      return values.get(0).toString();
-    }
+    if (values != null && values.size() > 0) return values.get(0).toString();
     return null;
   }
 
@@ -341,9 +349,8 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     List<Serializable> values = this._headers.get(name);
     if (values != null && values.size() > 0) {
       Serializable value = values.get(0);
-      if (value instanceof Long) {
-        return (Long)value;
-      } else if (value instanceof String) {
+      if (value instanceof Long) return (Long)value;
+      else if (value instanceof String) {
         // XXX: Not great, we should look into making it
         new HttpDateFormat().parse((String)value);
       }
@@ -388,14 +395,18 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     }
     if (value == null) {
       // Set if not found
-      if (add) setHeader(HttpHeaders.VARY, "Accept-Encoding");
+      if (add) {
+        setHeader(HttpHeaders.VARY, "Accept-Encoding");
+      }
     } else if (!"*".equals(value)) {
       if (value.contains("Accept-Encoding")) {
         if (!add && "Accept-Encoding".equals(value)) {
           this._headers.remove(HttpHeaders.VARY);
         }
       } else {
-        if (add) setHeader(HttpHeaders.VARY, value + ",Accept-Encoding");
+        if (add) {
+          setHeader(HttpHeaders.VARY, value + ",Accept-Encoding");
+        }
       }
     }
   }

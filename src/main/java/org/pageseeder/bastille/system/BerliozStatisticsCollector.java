@@ -1,5 +1,17 @@
 /*
- * Copyright (c) 1999-2012 weborganic systems pty. ltd.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.system;
 
@@ -17,7 +29,6 @@ import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.GeneratorListener;
 import org.pageseeder.berlioz.content.Service;
-
 import org.pageseeder.xmlwriter.XMLWritable;
 import org.pageseeder.xmlwriter.XMLWriter;
 
@@ -186,16 +197,28 @@ public final class BerliozStatisticsCollector implements GeneratorListener, XMLW
       long e = etag / 1000;
       long p = process / 1000;
       // min and max
-      if (e > this.maxEtagTime.get()) this.maxEtagTime.set(e);
-      if (e < this.minEtagTime.get()) this.minEtagTime.set(e);
-      if (p > this.maxProcessTime.get()) this.maxProcessTime.set(p);
-      if (p < this.minProcessTime.get()) this.minProcessTime.set(p);
+      if (e > this.maxEtagTime.get()) {
+        this.maxEtagTime.set(e);
+      }
+      if (e < this.minEtagTime.get()) {
+        this.minEtagTime.set(e);
+      }
+      if (p > this.maxProcessTime.get()) {
+        this.maxProcessTime.set(p);
+      }
+      if (p < this.minProcessTime.get()) {
+        this.minProcessTime.set(p);
+      }
       // Total
       this.totalEtagTime.addAndGet(e);
       this.totalProcessTime.addAndGet(p);
-      if (this.lastEtag.remainingCapacity() == 0) this.lastEtag.pollFirst();
+      if (this.lastEtag.remainingCapacity() == 0) {
+        this.lastEtag.pollFirst();
+      }
       this.lastEtag.offerLast(e);
-      if (this.lastProcess.remainingCapacity() == 0) this.lastProcess.pollFirst();
+      if (this.lastProcess.remainingCapacity() == 0) {
+        this.lastProcess.pollFirst();
+      }
       this.lastProcess.offerLast(p);
     }
 

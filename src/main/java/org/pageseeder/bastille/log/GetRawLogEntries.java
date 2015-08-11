@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.log;
 
@@ -19,7 +27,6 @@ import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-
 import org.pageseeder.xmlwriter.XMLWriter;
 
 /**
@@ -114,8 +121,9 @@ public final class GetRawLogEntries implements ContentGenerator {
       xml.openElement("line");
       xml.attribute("n", ++n);
       String level = getLevel(line);
-      if (level != null)
+      if (level != null) {
         xml.attribute("level", level);
+      }
       xml.writeText(line);
       xml.closeElement();
     }
@@ -133,9 +141,7 @@ public final class GetRawLogEntries implements ContentGenerator {
     // Identify the log directory to read
     for (File f : info.listLogDirectories()) {
       File log = new File(f, name);
-      if (log.exists()) {
-        return log;
-      }
+      if (log.exists()) return log;
     }
     return null;
   }
@@ -168,7 +174,9 @@ public final class GetRawLogEntries implements ContentGenerator {
     } catch (IOException ex) {
       throw ex;
     } finally {
-      if (reader != null) reader.close();
+      if (reader != null) {
+        reader.close();
+      }
     }
     return lines;
   }

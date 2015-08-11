@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.util;
 
@@ -60,7 +68,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   @Override
   @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaderNames() {
-    List<String> headers = Collections.list((Enumeration<String>)super.getHeaderNames());
+    List<String> headers = Collections.list(super.getHeaderNames());
     for (Iterator<String> i = headers.iterator(); i.hasNext();) {
       if (EXCLUDE.contains(i.next().toLowerCase())) {
         i.remove();
@@ -72,29 +80,20 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   @Override
   @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaders(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) {
-      return new EmptyEnumeration<String>();
-    } else {
-      return super.getHeaders(name);
-    }
+    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<String>();
+    else return super.getHeaders(name);
   }
 
   @Override
   public long getDateHeader(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) {
-      return -1;
-    } else {
-      return super.getDateHeader(name);
-    }
+    if (EXCLUDE.contains(name.toLowerCase())) return -1;
+    else return super.getDateHeader(name);
   }
 
   @Override
   public String getHeader(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) {
-      return null;
-    } else {
-      return super.getHeader(name);
-    }
+    if (EXCLUDE.contains(name.toLowerCase())) return null;
+    else return super.getHeader(name);
   }
 
   // An Empty enumeration

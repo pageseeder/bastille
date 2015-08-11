@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.psml;
 
@@ -64,8 +72,9 @@ class PSMLOverviewHandler extends DefaultHandler {
        this.buffer = new StringBuilder();
        this.property = attributes.getValue("name");
        String value = attributes.getValue("value");
-       if (value != null)
-         this.properties.put(this.property, value);
+       if (value != null) {
+        this.properties.put(this.property, value);
+      }
      }
    }
 
@@ -78,8 +87,9 @@ class PSMLOverviewHandler extends DefaultHandler {
        this.summary = this.buffer.toString();
        this.buffer = null;
      } else if ("property".equals(qName)) {
-       if (!this.properties.containsKey(this.property))
-         this.properties.put(this.property, this.buffer.toString());
+       if (!this.properties.containsKey(this.property)) {
+        this.properties.put(this.property, this.buffer.toString());
+      }
        this.property = null;
        this.buffer = null;
      }
@@ -87,8 +97,9 @@ class PSMLOverviewHandler extends DefaultHandler {
 
    @Override
    public void characters(char[] ch, int start, int length) throws SAXException {
-     if (this.buffer != null)
-       this.buffer.append(ch, start, length);
+     if (this.buffer != null) {
+      this.buffer.append(ch, start, length);
+    }
    }
 
    /**

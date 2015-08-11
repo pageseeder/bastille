@@ -1,25 +1,32 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.xml;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.util.MD5;
-
 import org.pageseeder.xmlwriter.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>This generator returns the breadcrumb status based on Berlioz path.<p>
@@ -93,11 +100,8 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
     File file = env.getPublicFile(req.getPathInfo());
-    if (file != null && file.exists()) {
-      return MD5.hash(req.getPathInfo() + "_" + file.length() + "x" + file.lastModified());
-    } else {
-      return "not-exist";
-    }
+    if (file != null && file.exists()) return MD5.hash(req.getPathInfo() + "_" + file.length() + "x" + file.lastModified());
+    else return "not-exist";
   }
 
   @Override
@@ -135,13 +139,10 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
     File folder = new File(rootfolder, path);
 
     // request file exists
-    if (file.exists()) {
-      return true;
-    } else {
+    if (file.exists()) return true;
+    else {
       // request file is a directory
-      if (folder.isDirectory()) {
-        return true;
-      }
+      if (folder.isDirectory()) return true;
     }
     return false;
   }

@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 /*
  * CSSMin Copyright License Agreement (BSD License)
@@ -164,9 +172,7 @@ public final class CSSMin {
       char c;    // Character being read
       for (int i = 0; i < buffer.length(); i++) {
         c = buffer.charAt(i);
-        if (j < 0) {
-          throw new ParsingException("Unbalanced braces!", -1, -1);
-        }
+        if (j < 0) throw new ParsingException("Unbalanced braces!", -1, -1);
         if (c == '{') {
           j++;
         } else if (c == '}') {
@@ -246,12 +252,12 @@ public final class CSSMin {
         keep = true;
       }
       k = buffer.indexOf("*/", n + 2);
-      if (k == -1) {
-        throw new ParsingException("Unterminated comment. Aborting.", -1, -1);
-      }
+      if (k == -1) throw new ParsingException("Unterminated comment. Aborting.", -1, -1);
       int s = 0;
       for (int i = n; i < k; i++) {
-        if (buffer.charAt(i) == '\n') s++;
+        if (buffer.charAt(i) == '\n') {
+          s++;
+        }
       }
       if (keep) {
         comments.append(buffer.substring(n, k+2));
@@ -312,10 +318,8 @@ public final class CSSMin {
      */
     public Rule(String rule) throws ParsingException {
       String[] parts = rule.split("\\{");
-      if (parts.length < 2) {
-        // TODO detect line and column
-        throw new ParsingException("Warning: Incomplete selector: " + rule, -1, -1);
-      }
+      if (parts.length < 2) // TODO detect line and column
+      throw new ParsingException("Warning: Incomplete selector: " + rule, -1, -1);
 
       // Always starts with the selector
       this._selector = parts[0].toString().trim();
@@ -340,9 +344,7 @@ public final class CSSMin {
         }
       } else {
         String contents = parts[parts.length - 1].trim();
-        if (contents.charAt(contents.length() - 1) != '}') { // Ensure that we have a leading and trailing brace.
-          throw new ParsingException("Unterminated selector: " +rule, -1, -1);
-        }
+        if (contents.charAt(contents.length() - 1) != '}') throw new ParsingException("Unterminated selector: " +rule, -1, -1);
         // No need to include empty selectors
         if (contents.length() > 1) {
           contents = contents.substring(0, contents.length() - 1);
@@ -411,12 +413,16 @@ public final class CSSMin {
           inbrackets = true;
         } else if (contents.charAt(i) == ';') {
           substr = contents.substring(j, i);
-          if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
+          if (!("".equals(substr.trim()) || (substr == null))) {
+            parts.add(substr);
+          }
           j = i + 1;
         }
       }
       substr = contents.substring(j, contents.length());
-      if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
+      if (!("".equals(substr.trim()) || (substr == null))) {
+        parts.add(substr);
+      }
       Property[] results = new Property[parts.size()];
 
       for (int i = 0; i < parts.size(); i++) {
@@ -480,15 +486,17 @@ public final class CSSMin {
           inbrackets = true;
         } else if (property.charAt(i) == ':') {
           substr = property.substring(j, i);
-          if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
+          if (!("".equals(substr.trim()) || (substr == null))) {
+            parts.add(substr);
+          }
           j = i + 1;
         }
       }
       substr = property.substring(j, property.length());
-      if (!("".equals(substr.trim()) || (substr == null))) parts.add(substr);
-      if (parts.size() < 2) {
-        throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
+      if (!("".equals(substr.trim()) || (substr == null))) {
+        parts.add(substr);
       }
+      if (parts.size() < 2) throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
       try {
         this._property = parts.get(0).trim().toLowerCase();
         this._parts = parseValues(simplifyColours(parts.get(1).trim().replaceAll(", ", ",")));
@@ -659,9 +667,15 @@ public final class CSSMin {
       this._contents = this._contents.trim();
 
       // Simplify multiple zeroes
-      if (this._contents.equals("0 0 0 0")) this._contents = "0";
-      if (this._contents.equals("0 0 0")) this._contents = "0";
-      if (this._contents.equals("0 0")) this._contents = "0";
+      if (this._contents.equals("0 0 0 0")) {
+        this._contents = "0";
+      }
+      if (this._contents.equals("0 0 0")) {
+        this._contents = "0";
+      }
+      if (this._contents.equals("0 0")) {
+        this._contents = "0";
+      }
 
       // Simplify multiple-parameter properties
       simplifyParameters();

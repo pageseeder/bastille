@@ -1,26 +1,33 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.xml;
 
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
-
 import org.pageseeder.xmlwriter.XMLWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 /**
  * This generator returns the content of an XML file from the specified path.
@@ -65,7 +72,9 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
     if (path == null) throw new BerliozException("Path parameter is missing");
 
     // Setup the cache
-    if (this.cache == null) this.cache = XMLHelper.initCache();
+    if (this.cache == null) {
+      this.cache = XMLHelper.initCache();
+    }
 
     // Identify the file
     path = normalise(path);
@@ -94,9 +103,7 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
    * Filters and normalises the value in the path informations.
    */
   private String normalise(String pathInfo) {
-    if (pathInfo.endsWith("/")) {
-      return pathInfo.substring(0, pathInfo.length()-1);
-    }
+    if (pathInfo.endsWith("/")) return pathInfo.substring(0, pathInfo.length()-1);
     return pathInfo;
   }
 

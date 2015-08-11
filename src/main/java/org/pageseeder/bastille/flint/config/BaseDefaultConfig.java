@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.flint.config;
 
@@ -13,12 +21,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.util.FileFilters;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.util.FileUtils;
 import org.pageseeder.flint.IndexConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -121,11 +129,8 @@ public abstract class BaseDefaultConfig implements IFlintConfig {
   @Override
   public final List<String> getIndexNames() {
     File index = getDirectory();
-    if (hasMultiple()) {
-      return listIndexes(index);
-    } else {
-      return Collections.singletonList("");
-    }
+    if (hasMultiple()) return listIndexes(index);
+    else return Collections.singletonList("");
   }
 
   /**
@@ -209,9 +214,7 @@ public abstract class BaseDefaultConfig implements IFlintConfig {
       } else if (isPrivatePSML) {
         String path = FileUtils.path(PRIVATE_PSML, f);
         return path.substring(0, path.length()-5);
-      } else {
-        return FileUtils.path(PUBLIC, f);
-      }
+      } else return FileUtils.path(PUBLIC, f);
     } catch (IllegalArgumentException ex) {
       LOGGER.warn("Error while extracting path from file {}: {}", f.getAbsolutePath(), ex);
     }
@@ -232,9 +235,8 @@ public abstract class BaseDefaultConfig implements IFlintConfig {
   protected static File asFile(Document doc) {
     String path = doc.get("path");
     boolean isPublic = "public".equals(doc.get("visibility"));
-    if (isPublic) {
-      return new File(PUBLIC, path);
-    } else {
+    if (isPublic) return new File(PUBLIC, path);
+    else {
       String mediatype = doc.get("mediatype");
       if ("application/vnd.pageseeder.psml+xml".equals(mediatype))
         return new File(PRIVATE_PSML, path+".psml");

@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.security.ps;
 
@@ -13,14 +21,14 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.pageseeder.PSUser;
 import org.pageseeder.bastille.security.Constants;
 import org.pageseeder.bastille.security.Obfuscator;
 import org.pageseeder.bastille.security.User;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.ContentRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a PageSeeder User.
@@ -117,11 +125,8 @@ public final class PageSeederUser extends PSUser implements User, Serializable {
       o = session.getAttribute(Constants.SESSION_USER_ATTRIBUTE);
     }
     // try to cast from PageSeeder user
-    if (o instanceof PageSeederUser) {
-      return (PageSeederUser)o;
-    } else {
-      return null;
-    }
+    if (o instanceof PageSeederUser) return (PageSeederUser)o;
+    else return null;
   }
 
   /**

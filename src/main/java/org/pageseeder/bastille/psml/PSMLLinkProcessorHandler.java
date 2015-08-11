@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.psml;
 
@@ -13,17 +21,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.util.Paths;
 import org.pageseeder.berlioz.xml.XMLCopy;
+import org.pageseeder.xmlwriter.XMLWriter;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
-
-import org.pageseeder.xmlwriter.XMLWriter;
 
 /**
  * Parses PSML to process the links.
@@ -166,8 +173,12 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
         // compute path to target file
         String base = this._source.getBase();
         String path = base + attributes.getValue("href");
-        if (path.indexOf('/') == 0) path = path.substring(1);
-        if (path.endsWith(".psml")) path = path.substring(0, path.length()-5);
+        if (path.indexOf('/') == 0) {
+          path = path.substring(1);
+        }
+        if (path.endsWith(".psml")) {
+          path = path.substring(0, path.length()-5);
+        }
 
         // grab the level (if we need to adjust the headings)
 
@@ -195,38 +206,45 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   @Override
   public void endElement(String uri, String localName, String qName) throws SAXException {
     // Copy the XML
-    if (this._copy != null)
+    if (this._copy != null) {
       this._copy.endElement(uri, localName, qName);
+    }
 
-    if ("blockxref".equals(qName)) this.insideLink = false;
+    if ("blockxref".equals(qName)) {
+      this.insideLink = false;
+    }
   }
 
   @Override
   public void characters(char[] ch, int start, int length) throws SAXException {
     // Copy the XML
-    if (this._copy != null && !this.insideLink)
+    if (this._copy != null && !this.insideLink) {
       this._copy.characters(ch, start, length);
+    }
   }
 
   @Override
   public void startPrefixMapping(String prefix, String uri) throws SAXException {
     // Copy the XML
-    if (this._copy != null)
+    if (this._copy != null) {
       this._copy.startPrefixMapping(prefix, uri);
+    }
   }
 
   @Override
   public void processingInstruction(String target, String data) throws SAXException {
     // Copy the XML
-    if (this._copy != null)
+    if (this._copy != null) {
       this._copy.processingInstruction(target, data);
+    }
   }
 
   @Override
   public void comment(char[] ch, int start, int length) throws SAXException {
     // Copy the XML
-    if (this._copy != null)
+    if (this._copy != null) {
       this._copy.comment(ch, start, length);
+    }
   }
 
   @Override

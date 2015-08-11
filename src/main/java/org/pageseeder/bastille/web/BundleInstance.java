@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.pageseeder.bastille.web;
 
 import java.io.File;
@@ -55,7 +70,7 @@ final class BundleInstance {
    * @return the corresponding file
    */
   public File getBundleFile(BundleConfig config) {
-    List<File> files = this.listExistingFiles();
+    List<File> files = listExistingFiles();
     WebBundleTool bundler = config.bundler();
     File bundle = null;
     try {
@@ -77,7 +92,9 @@ final class BundleInstance {
   public void addToExistingPaths(List<String> paths) {
     if (paths == null) return;
     for (int i=0; i < this._ifiles.length; i++) {
-      if (this._ifiles[i].exists()) paths.add(this._ipaths[i]);
+      if (this._ifiles[i].exists()) {
+        paths.add(this._ipaths[i]);
+      }
     }
   }
 
@@ -129,7 +146,9 @@ final class BundleInstance {
       // multiple paths specified
       List<String> existing = new ArrayList<String>(paths.length);
       for (int i=0; i < files.length; i++) {
-        if (files[i].exists()) existing.add(paths[i]);
+        if (files[i].exists()) {
+          existing.add(paths[i]);
+        }
       }
       return existing;
     } else if (paths.length == 1) {
@@ -152,7 +171,9 @@ final class BundleInstance {
       // multiple paths specified
       List<File> existing = new ArrayList<File>(files.length);
       for (File f : files) {
-        if (f.exists()) existing.add(f);
+        if (f.exists()) {
+          existing.add(f);
+        }
       }
       return existing;
     } else if (files.length == 1) {
@@ -189,8 +210,9 @@ final class BundleInstance {
   private static long getMostRecent(List<File> files) {
     long mostRecent = 0;
     for (File f : files) {
-      if (f.lastModified() > mostRecent)
+      if (f.lastModified() > mostRecent) {
         mostRecent = f.lastModified();
+      }
     }
     return mostRecent;
   }

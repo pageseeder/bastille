@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.flint.config;
 
@@ -13,12 +21,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.psml.PSMLConfig;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.flint.IndexConfig;
 import org.pageseeder.flint.local.LocalFileContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -50,7 +58,7 @@ public final class SimpleConfig extends BaseDefaultConfig implements IFlintConfi
    */
   private SimpleConfig(File directory, File ixml, boolean isMultiple) {
     super(directory, ixml, isMultiple);
-    load(this.getDefaultConfig(), ixml);
+    load(getDefaultConfig(), ixml);
   }
 
   @Override
@@ -61,12 +69,12 @@ public final class SimpleConfig extends BaseDefaultConfig implements IFlintConfi
 
   @Override
   public void reload() {
-    load(this.getDefaultConfig(), this.getTemplatesDirectory());
+    load(getDefaultConfig(), getTemplatesDirectory());
   }
 
   @Override
   public IndexConfig getIndexConfig(String name) {
-    return this.getDefaultConfig();
+    return getDefaultConfig();
   }
 
   @Override

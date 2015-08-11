@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.filter;
 
@@ -20,16 +28,16 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.pageseeder.bastille.cache.util.CachedResource;
+import org.pageseeder.bastille.cache.util.GZIPUtils;
+import org.pageseeder.berlioz.http.HttpHeaderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.pageseeder.bastille.cache.util.CachedResource;
-import org.pageseeder.bastille.cache.util.GZIPUtils;
-import org.pageseeder.berlioz.http.HttpHeaderUtils;
 
 /**
  * A base class for caching filters.
@@ -101,9 +109,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
 
         // Initialise the cache
         Ehcache cache = getCacheManager().getEhcache(localCacheName);
-        if (cache == null) {
-          throw new CacheException("cache '" + localCacheName + "' not found in configuration");
-        }
+        if (cache == null) throw new CacheException("cache '" + localCacheName + "' not found in configuration");
         if (!(cache instanceof BlockingCache)) {
           // decorate and substitute
           BlockingCache newBlockingCache = new BlockingCache(cache);

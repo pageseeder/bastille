@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.util;
 
@@ -80,9 +88,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
      */
     public static Type determineType(Class<? extends Serializable> clazz) {
       Type lookupType = TYPE_LOOKUP.get(clazz);
-      if (lookupType != null) {
-        return lookupType;
-      }
+      if (lookupType != null) return lookupType;
 
       for (final Type t : Type.values()) {
         if (clazz == t.getTypeClass()) {
@@ -91,9 +97,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
           return t;
         }
 
-        if (clazz.isAssignableFrom(t.getTypeClass())) {
-          return t;
-        }
+        if (clazz.isAssignableFrom(t.getTypeClass())) return t;
       }
 
       throw new IllegalArgumentException("No Type for class " + clazz);
@@ -164,33 +168,19 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) { return true; }
-    if (o == null) { return false; }
-    if (getClass() != o.getClass()) {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null) return false;
+    if (getClass() != o.getClass()) return false;
     HttpHeader<?> other = (HttpHeader<?>) o;
     if (this._name == null) {
-      if (other._name != null) {
-        return false;
-      }
-    } else if (!this._name.equals(other._name)) {
-      return false;
-    }
+      if (other._name != null) return false;
+    } else if (!this._name.equals(other._name)) return false;
     if (this._type == null) {
-      if (other._type != null) {
-        return false;
-      }
-    } else if (!this._type.equals(other._type)) {
-      return false;
-    }
+      if (other._type != null) return false;
+    } else if (!this._type.equals(other._type)) return false;
     if (this._value == null) {
-      if (other._value != null) {
-        return false;
-      }
-    } else if (!this._value.equals(other._value)) {
-      return false;
-    }
+      if (other._value != null) return false;
+    } else if (!this._value.equals(other._value)) return false;
     return true;
   }
 

@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.util;
 
@@ -14,10 +22,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.berlioz.http.HttpHeaderUtils;
 import org.pageseeder.berlioz.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A <code>Serializable</code> representation of a cached resource designed for
@@ -123,11 +131,8 @@ public final class StaticResource implements Serializable, CachedResource {
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
   public byte[] getGzippedBody() {
-    if (this._gzippable) {
-      return this._content;
-    } else {
-      return null;
-    }
+    if (this._gzippable) return this._content;
+    else return null;
   }
 
   /**
@@ -140,20 +145,14 @@ public final class StaticResource implements Serializable, CachedResource {
    * @throws IOException if thrown whil ungzippind the content.
    */
   public byte[] getUngzippedBody() throws IOException {
-    if (this._gzippable) {
-      return GZIPUtils.ungzip(this._content);
-    } else {
-      return this._content;
-    }
+    if (this._gzippable) return GZIPUtils.ungzip(this._content);
+    else return this._content;
   }
 
   @Override
   public byte[] getBody(boolean gzipped) throws IOException {
-    if (gzipped) {
-      return getGzippedBody();
-    } else {
-      return getUngzippedBody();
-    }
+    if (gzipped) return getGzippedBody();
+    else return getUngzippedBody();
   }
 
   @Override
@@ -201,8 +200,9 @@ public final class StaticResource implements Serializable, CachedResource {
     headers.add(new HttpHeader<Serializable>(HttpHeaders.ETAG, getETag(gzipped)));
     headers.add(new HttpHeader<Serializable>(HttpHeaders.LAST_MODIFIED, this._lastModified));
     headers.add(new HttpHeader<Serializable>(HttpHeaders.EXPIRES, this._expires));
-    if (this._gzippable)
+    if (this._gzippable) {
       headers.add(new HttpHeader<Serializable>(HttpHeaders.VARY, "Accept-Encoding"));
+    }
     return headers;
   }
 
@@ -212,8 +212,9 @@ public final class StaticResource implements Serializable, CachedResource {
     res.setHeader(HttpHeaders.ETAG, getETag(gzipped));
     res.setDateHeader(HttpHeaders.LAST_MODIFIED, this._lastModified);
     res.setDateHeader(HttpHeaders.EXPIRES, this._expires);
-    if (this._gzippable)
+    if (this._gzippable) {
       res.setHeader(HttpHeaders.VARY, "Accept-Encoding");
+    }
   }
 
   // public utility class
@@ -234,7 +235,9 @@ public final class StaticResource implements Serializable, CachedResource {
       raw = raw.substring(1, raw.length()-1);
     }
     // Remove "-gzip" suffix if any
-    if (raw.endsWith("-gzip")) raw = raw.substring(0, raw.length()-5);
+    if (raw.endsWith("-gzip")) {
+      raw = raw.substring(0, raw.length()-5);
+    }
     try {
       return Long.parseLong(raw, 16);
     } catch (NumberFormatException ex) {

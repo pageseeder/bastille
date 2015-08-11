@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.flint.config;
 
@@ -16,13 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.lucene.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.psml.PSMLConfig;
 import org.pageseeder.bastille.util.FileFilters;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.flint.IndexConfig;
 import org.pageseeder.flint.local.LocalFileContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -75,12 +83,12 @@ public final class ComplexConfig extends BaseDefaultConfig implements IFlintConf
   private ComplexConfig(File directory, File ixml, boolean isMultiple) {
     super(directory, ixml, isMultiple);
     this._configs = new ConcurrentHashMap<String, IndexConfig>();
-    load(this._configs, this.getDefaultConfig(), ixml);
+    load(this._configs, getDefaultConfig(), ixml);
   }
 
   @Override
   public void reload() {
-    load(this._configs, this.getDefaultConfig(), this.getTemplatesDirectory());
+    load(this._configs, getDefaultConfig(), getTemplatesDirectory());
   }
 
   @Override
@@ -98,7 +106,7 @@ public final class ComplexConfig extends BaseDefaultConfig implements IFlintConf
   @Override
   public IndexConfig getIndexConfig(String name) {
     IndexConfig config = this._configs.get(name);
-    return config != null? config : this.getDefaultConfig();
+    return config != null? config : getDefaultConfig();
   }
 
   @Override

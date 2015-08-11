@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.security.ps;
 
@@ -27,13 +35,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.security.AuthenticationResult;
 import org.pageseeder.bastille.security.Authenticator;
 import org.pageseeder.bastille.security.Constants;
 import org.pageseeder.bastille.security.User;
 import org.pageseeder.berlioz.GlobalSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -77,9 +85,7 @@ public final class PageSeederAuthenticator implements Authenticator {
     String password = req.getParameter("password") != null ? req.getParameter("password").trim() : null;
 
     // Required details
-    if ((username == null && email == null) || password == null) {
-      return AuthenticationResult.INSUFFICIENT_DETAILS;
-    }
+    if ((username == null && email == null) || password == null) return AuthenticationResult.INSUFFICIENT_DETAILS;
 
     // If the username given was an email address
     if (email == null && MAYBE_EMAIL.matcher(username).matches()) {
@@ -95,14 +101,9 @@ public final class PageSeederAuthenticator implements Authenticator {
       if (o instanceof PageSeederUser) {
         PageSeederUser current = (PageSeederUser)o;
         // Already logged in and it is the current user
-        if (username.equals(current.getUsername())) {
-          return AuthenticationResult.ALREADY_LOGGED_IN;
-
-        } else if (email != null && email.equals(current.getEmail())) {
-          return AuthenticationResult.ALREADY_LOGGED_IN;
-
-        // Already logged in as a different user
-        } else {
+        if (username.equals(current.getUsername())) return AuthenticationResult.ALREADY_LOGGED_IN;
+        else if (email != null && email.equals(current.getEmail())) return AuthenticationResult.ALREADY_LOGGED_IN;
+        else {
           logout(current);
           session.invalidate();
           session = req.getSession(true);
@@ -113,12 +114,12 @@ public final class PageSeederAuthenticator implements Authenticator {
     // Perform login
     User user = login(username, password);
     if (user != null) {
-      if (session == null) session = req.getSession(true);
+      if (session == null) {
+        session = req.getSession(true);
+      }
       session.setAttribute(Constants.SESSION_USER_ATTRIBUTE, user);
       return AuthenticationResult.LOGGED_IN;
-    } else {
-      return AuthenticationResult.INCORRECT_DETAILS;
-    }
+    } else return AuthenticationResult.INCORRECT_DETAILS;
   }
 
   @Override
@@ -367,8 +368,11 @@ public final class PageSeederAuthenticator implements Authenticator {
      */
     public PSUserHandler() {
       String mof = GlobalSettings.get("bastille.authenticator.member-of");
-      if (mof == null) this.groups = new String[0];
-      else this.groups = mof.split(",");
+      if (mof == null) {
+        this.groups = new String[0];
+      } else {
+        this.groups = mof.split(",");
+      }
     }
 
     @Override
@@ -390,15 +394,26 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     @Override
     public void endElement(String uri, String local, String name) throws SAXException {
-      if (MEMBER.equals(name)) this.inMem = false;
-      if (CURRENTGROUPS.equals(name)) this.inCurrentgroups = false;
-      if (this.inCurrentgroups && CURRENTGROUP.equals(name)) this.inGroup = false;
+      if (MEMBER.equals(name)) {
+        this.inMem = false;
+      }
+      if (CURRENTGROUPS.equals(name)) {
+        this.inCurrentgroups = false;
+      }
+      if (this.inCurrentgroups && CURRENTGROUP.equals(name)) {
+        this.inGroup = false;
+      }
 
       if (this.inMem) {
-        if (ID.equals(name)) this.map.put(ID, this.buffer.toString());
-        else if (SURNAME.equals(name)) this.map.put(SURNAME, this.buffer.toString());
-        else if (USERNAME.equals(name)) this.map.put(USERNAME, this.buffer.toString());
-        else if (FIRSTNAME.equals(name)) this.map.put(FIRSTNAME, this.buffer.toString());
+        if (ID.equals(name)) {
+          this.map.put(ID, this.buffer.toString());
+        } else if (SURNAME.equals(name)) {
+          this.map.put(SURNAME, this.buffer.toString());
+        } else if (USERNAME.equals(name)) {
+          this.map.put(USERNAME, this.buffer.toString());
+        } else if (FIRSTNAME.equals(name)) {
+          this.map.put(FIRSTNAME, this.buffer.toString());
+        }
         this.buffer.setLength(0);
       } else if (EMAIL.equals(name)) {
         this.map.put(EMAIL, this.buffer.toString());
@@ -434,7 +449,9 @@ public final class PageSeederAuthenticator implements Authenticator {
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-      if (this.record) this.buffer.append(ch, start, length);
+      if (this.record) {
+        this.buffer.append(ch, start, length);
+      }
     }
 
     /**

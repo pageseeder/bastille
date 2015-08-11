@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 /*
  * JSMin.java 2006-02-13
@@ -135,7 +143,7 @@ public final class JSMin {
       this.column++;
     }
 
-    if (c >= ' ' || c == '\n' || c == EOF) { return c; }
+    if (c >= ' ' || c == '\n' || c == EOF) return c;
 
     if (c == '\r') {
       this.column = 0;
@@ -173,7 +181,7 @@ public final class JSMin {
         case '/':
           for (;;) {
             c = get();
-            if (c <= '\n') { return c; }
+            if (c <= '\n') return c;
           }
 
         case '*':
@@ -236,7 +244,7 @@ public final class JSMin {
             if (this.theA == this.theB) {
               break;
             }
-            if (this.theA <= '\n') { throw new UnterminatedStringLiteralException(this.line, this.column); }
+            if (this.theA <= '\n') throw new UnterminatedStringLiteralException(this.line, this.column);
             if (this.theA == '\\') {
               this._out.write(this.theA);
               this.theA = get();
@@ -260,7 +268,7 @@ public final class JSMin {
             } else if (this.theA == '\\') {
               this._out.write(this.theA);
               this.theA = get();
-            } else if (this.theA <= '\n') { throw new UnterminatedRegExpLiteralException(this.line, this.column); }
+            } else if (this.theA <= '\n') throw new UnterminatedRegExpLiteralException(this.line, this.column);
             this._out.write(this.theA);
           }
           this.theB = next();

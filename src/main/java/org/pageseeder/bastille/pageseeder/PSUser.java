@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.pageseeder;
 
@@ -227,16 +235,26 @@ public class PSUser implements User, Serializable {
     xml.openElement("user");
     xml.attribute("type", "pageseeder");
     xml.element("id", this._id.toString());
-    if (this._username != null) xml.element("username", this._username);
-    if (this._firstname != null) xml.element("firstname", this._firstname);
-    if (this._surname != null) xml.element("surname", this._surname);
-    if (this._email != null) xml.element("email", this._email);
+    if (this._username != null) {
+      xml.element("username", this._username);
+    }
+    if (this._firstname != null) {
+      xml.element("firstname", this._firstname);
+    }
+    if (this._surname != null) {
+      xml.element("surname", this._surname);
+    }
+    if (this._email != null) {
+      xml.element("email", this._email);
+    }
     if (this._memberOf != null) {
       String[] memberOf = this._memberOf;
       xml.openElement("member-of");
       StringBuilder groups = new StringBuilder();
       for (int i = 0; i < memberOf.length; i++) {
-        if (i > 0) groups.append(',');
+        if (i > 0) {
+          groups.append(',');
+        }
         groups.append(memberOf[i]);
       }
       xml.attribute("groups", groups.toString());

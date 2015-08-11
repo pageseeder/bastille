@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.cache.filter;
 
@@ -20,15 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.constructs.blocking.LockTimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.pageseeder.bastille.cache.util.CachedResource;
 import org.pageseeder.bastille.cache.util.CachedResponseWrapper;
 import org.pageseeder.bastille.cache.util.GenericResource;
@@ -37,6 +36,15 @@ import org.pageseeder.bastille.cache.util.StaticRequestWrapper;
 import org.pageseeder.bastille.cache.util.StaticResource;
 import org.pageseeder.berlioz.http.HttpHeaderUtils;
 import org.pageseeder.berlioz.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 
 /**
  * A caching filter for static resources such as scripts, images, styles, etc..
@@ -404,15 +412,11 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * @return time to live in milliseconds
    */
   private static long computeTimeToLiveMilliseconds(Ehcache cache) {
-    if (cache.isDisabled()) {
-      return -1;
-    } else {
+    if (cache.isDisabled()) return -1;
+    else {
       CacheConfiguration config = cache.getCacheConfiguration();
-      if (config.isEternal()) {
-        return ONE_YEAR_IN_MILLISECONDS;
-      } else {
-        return config.getTimeToLiveSeconds() * MILLISECONDS_PER_SECOND;
-      }
+      if (config.isEternal()) return ONE_YEAR_IN_MILLISECONDS;
+      else return config.getTimeToLiveSeconds() * MILLISECONDS_PER_SECOND;
     }
   }
 

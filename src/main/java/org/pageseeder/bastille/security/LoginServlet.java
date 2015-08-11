@@ -1,9 +1,17 @@
 /*
- * This file is part of the Bastille library.
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
  *
- * For licensing information please see the file license.txt included in the release.
- * A copy of this licence can also be found at
- *   http://www.opensource.org/licenses/artistic-license-2.0.php
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.pageseeder.bastille.security;
 
@@ -79,8 +87,9 @@ public final class LoginServlet extends HttpServlet {
     super.init(config);
     this.loginPage = config.getInitParameter("login-page");
     this.defaultTarget = config.getInitParameter("default-target");
-    if (this.defaultTarget == null)
+    if (this.defaultTarget == null) {
       this.defaultTarget = DEFAULT_TARGET;
+    }
   }
 
   @Override
@@ -122,10 +131,12 @@ public final class LoginServlet extends HttpServlet {
       if (result == AuthenticationResult.LOGGED_IN || result == AuthenticationResult.ALREADY_LOGGED_IN) {
 
         // Forward the original request
-        if (target != null && !target.startsWith(loginPage)) {
+        if (target != null && !target.startsWith(this.loginPage)) {
           LOGGER.debug("Redirecting to {}", target.toString());
           res.sendRedirect(target.toString());
-          if (session != null) session.removeAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
+          if (session != null) {
+            session.removeAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
+          }
 
         } else {
           LOGGER.debug("Redirecting to {}", this.defaultTarget);
@@ -171,7 +182,9 @@ public final class LoginServlet extends HttpServlet {
     // Check if target in session already
     if (session != null) {
       Object t = session.getAttribute(Constants.SESSION_REQUEST_ATTRIBUTE);
-      if (t != null) target = t.toString();
+      if (t != null) {
+        target = t.toString();
+      }
     }
 
     // No target, let's look for it somewhere else

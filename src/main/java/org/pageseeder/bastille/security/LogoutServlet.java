@@ -38,7 +38,7 @@ public final class LogoutServlet extends HttpServlet {
   /**
    * URL of resource of the ping.
    */
-  private static final String RESOURCE_URL = "/org/weborganic/bastille/security/resource/tick.png";
+  private static final String RESOURCE_URL = "/org/pageseeder/bastille/security/resource/tick.png";
 
   /**
    * If the content type is specified.
@@ -56,8 +56,9 @@ public final class LogoutServlet extends HttpServlet {
     if ("image/png".equals(content)) {
       this._contentType = content;
       this._data = Resources.getResource(RESOURCE_URL);
-      if (this._data == null)
+      if (this._data == null) {
         LoggerFactory.getLogger(LogoutServlet.class).warn("Unable to get resource "+RESOURCE_URL);
+      }
     }
   }
 

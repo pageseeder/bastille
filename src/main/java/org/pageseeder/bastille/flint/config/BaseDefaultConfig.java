@@ -188,7 +188,7 @@ public abstract class BaseDefaultConfig implements IFlintConfig {
       }
     }
     // No directory, it must be a single index
-    LOGGER.info("Detected multiple index configuration");
+    LOGGER.info("Detected single index configuration");
     return false;
   }
 

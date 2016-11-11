@@ -1,0 +1,44 @@
+plugins {
+  id "com.jfrog.bintray" version "1.7"
+}
+
+group       = 'org.pageseeder.bastille'
+version     = file('version.txt').text
+description = "$title"
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply from: 'gradle/publishing.gradle'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+  maven { url 'http://dl.bintray.com/pageseeder/maven' }
+  jcenter()
+}
+
+dependencies {
+
+  compile (
+    'org.slf4j:slf4j-api:1.7.21',
+    'net.sf.ehcache:ehcache:2.8.6',
+    'commons-io:commons-io:2.4',
+    'org.pageseeder.berlioz:pso-berlioz:0.10.7',
+    'org.pageseeder.xmlwriter:pso-xmlwriter:1.0.2',
+    'org.pageseeder.cobble:pso-cobble:0.3.1'
+  )
+
+  compileOnly (
+    'ch.qos.logback:logback-core:1.0.13',
+    'ch.qos.logback:logback-classic:1.0.13',
+    'javax.servlet:javax.servlet-api:3.0.1' // TODO update servlet API!
+  )
+
+  runtime 'net.sf.saxon:Saxon-HE:9.6.0-6'
+
+}

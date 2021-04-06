@@ -1,14 +1,10 @@
-plugins {
-  id "com.jfrog.bintray" version "1.7"
-}
-
 group       = 'org.pageseeder.bastille'
 version     = file('version.txt').text
 description = "$title"
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply from: 'gradle/publishing.gradle'
+apply from: 'gradle/publish-mavencentral.gradle'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -24,7 +20,7 @@ repositories {
 
 dependencies {
 
-  compile (
+  implementation (
     'org.slf4j:slf4j-api:1.7.21',
     'net.sf.ehcache:ehcache:2.8.6',
     'commons-io:commons-io:2.4',
@@ -39,6 +35,6 @@ dependencies {
     'javax.servlet:javax.servlet-api:3.0.1' // TODO update servlet API!
   )
 
-  runtime 'net.sf.saxon:Saxon-HE:9.6.0-6'
+  runtimeOnly 'net.sf.saxon:Saxon-HE:9.6.0-6'
 
 }

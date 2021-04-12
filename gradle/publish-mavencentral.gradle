@@ -1,5 +1,6 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'io.codearte.nexus-staging'
 
 task sourceJar(type: Jar) {
   description 'Packages up the source in a Jar for Maven publishing'
@@ -35,12 +36,12 @@ if (secretPropsFile.exists()) {
     ext[name] = value
   }
 } else {
-  ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
-  ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
-  ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
-  ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
-  ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
-  ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+  ext["signing.keyId"] = project.properties["SIGNING_KEY_ID"]
+  ext["signing.password"] = project.properties["SIGNING_PASSWORD"]
+  ext["signing.secretKeyRingFile"] = project.properties["SIGNING_SECRET_KEY_RING_FILE"]
+  ext["ossrhUsername"] = project.properties["OSSRH_USERNAME"]
+  ext["ossrhPassword"] = project.properties["OSSRH_PASSWORD"]
+  ext["sonatypeStagingProfileId"] = project.properties["SONATYPE_STAGING_PROFILE_ID"]
 }
 
 publishing {
@@ -112,4 +113,12 @@ publishing {
 
 signing {
   sign publishing.publications.mavenJava
+}
+
+nexusStaging {
+  packageGroup = group
+  stagingProfileId = sonatypeStagingProfileId
+  serverUrl = "https://s01.oss.sonatype.org/service/local/"
+  username = ossrhUsername
+  password = ossrhPassword
 }

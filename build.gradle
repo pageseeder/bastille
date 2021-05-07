@@ -15,16 +15,20 @@ buildscript {
   }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
 repositories {
-  maven { url 'http://dl.bintray.com/pageseeder/maven' }
-  jcenter()
+  mavenCentral {
+    url = uri("https://maven-central.storage.googleapis.com/maven2")
+  }
+
+  // Takes our libraries immediately
+  maven { url 'https://s01.oss.sonatype.org/content/groups/public/' }
 }
 
 dependencies {

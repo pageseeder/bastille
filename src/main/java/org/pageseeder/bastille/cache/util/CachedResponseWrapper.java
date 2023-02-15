@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -43,7 +44,7 @@ import org.pageseeder.berlioz.http.HttpHeaders;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 11.0
  */
 public final class CachedResponseWrapper extends HttpServletResponseWrapper implements Serializable {
 
@@ -183,7 +184,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void addHeader(String name, String value) {
     List<Serializable> values = this._headers.get(name);
     if (values == null) {
-      values = new LinkedList<Serializable>();
+      values = new LinkedList<>();
       this._headers.put(name, values);
     }
     values.add(value);
@@ -192,7 +193,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void setHeader(String name, String value) {
-    List<Serializable> values = new LinkedList<Serializable>();
+    List<Serializable> values = new LinkedList<>();
     values.add(value);
     this._headers.put(name, values);
     super.setHeader(name, value);
@@ -202,7 +203,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void addDateHeader(String name, long date) {
     List<Serializable> values = this._headers.get(name);
     if (values == null) {
-      values = new LinkedList<Serializable>();
+      values = new LinkedList<>();
       this._headers.put(name, values);
     }
     values.add(date);
@@ -211,7 +212,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void setDateHeader(String name, long date) {
-    List<Serializable> values = new LinkedList<Serializable>();
+    List<Serializable> values = new LinkedList<>();
     values.add(date);
     this._headers.put(name, values);
     super.setDateHeader(name, date);
@@ -221,7 +222,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void addIntHeader(String name, int value) {
     List<Serializable> values = this._headers.get(name);
     if (values == null) {
-      values = new LinkedList<Serializable>();
+      values = new LinkedList<>();
       this._headers.put(name, values);
     }
     values.add(value);
@@ -230,7 +231,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void setIntHeader(String name, int value) {
-    List<Serializable> values = new LinkedList<Serializable>();
+    List<Serializable> values = new LinkedList<>();
     values.add(value);
     this._headers.put(name, values);
     super.setIntHeader(name, value);
@@ -429,6 +430,16 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
      */
     public FilterOutputStream() {
       this.stream = new ByteArrayOutputStream();
+    }
+
+    @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
+    public void setWriteListener(WriteListener writeListener) {
+      // Ignore
     }
 
     @Override

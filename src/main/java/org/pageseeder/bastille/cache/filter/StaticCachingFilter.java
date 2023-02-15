@@ -65,7 +65,7 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.17 - 30 October 2013
+ * @version Bastille 0.11.0
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {
 
@@ -256,22 +256,15 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       String cacheControl = this.cacheControlPattern.replaceAll("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
       long expires = System.currentTimeMillis() + ttlMilliseconds;
       resource = new StaticResource(r.getStatus(), r.getContentType(), r.toByteArray(), lastModified, cacheControl, expires);
-      return resource;
 
     } else {
 
-      // Return a generic cache resource.
-//      LOGGER.debug("=== Response headers ===");
-//      for (HttpHeader<? extends Serializable> header : r.getAllHeaders()) {
-//        LOGGER.debug("R {}: {}", header.name(), header.value());
-//      }
       LOGGER.debug("Building generic cached resource {}", req.getRequestURI());
-
       boolean gzip = HttpHeaderUtils.isCompressible(r.getContentType());
       resource = new GenericResource(r.getStatus(), r.getContentType(), r.toByteArray(), gzip, r.getAllHeaders());
 
-      return resource;
     }
+    return resource;
 
   }
 

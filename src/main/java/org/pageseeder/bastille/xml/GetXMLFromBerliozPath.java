@@ -82,7 +82,7 @@ public final class GetXMLFromBerliozPath implements ContentGenerator, Cacheable 
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    LOGGER.debug(req.getPathInfo());
+    LOGGER.debug(req.getBerliozPath());
 
     // Setup the cache
     if (this.cache == null) {

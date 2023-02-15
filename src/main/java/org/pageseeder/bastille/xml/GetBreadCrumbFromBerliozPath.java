@@ -99,8 +99,8 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
   @Override
   public String getETag(ContentRequest req) {
     Environment env = req.getEnvironment();
-    File file = env.getPublicFile(req.getPathInfo());
-    if (file != null && file.exists()) return MD5.hash(req.getPathInfo() + "_" + file.length() + "x" + file.lastModified());
+    File file = env.getPublicFile(req.getBerliozPath());
+    if (file != null && file.exists()) return MD5.hash(req.getBerliozPath() + "_" + file.length() + "x" + file.lastModified());
     else return "not-exist";
   }
 

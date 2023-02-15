@@ -1,19 +1,14 @@
+plugins {
+  id 'java-library'
+  id 'maven-publish'
+  id 'io.codearte.nexus-staging' version '0.30.0'
+}
+
 group       = 'org.pageseeder.bastille'
 version     = file('version.txt').text
 description = "$title"
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
 apply from: 'gradle/publish-mavencentral.gradle'
-
-buildscript {
-  repositories {
-    maven { url "https://plugins.gradle.org/m2/" }
-  }
-  dependencies {
-    classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.30.0'
-  }
-}
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -34,20 +29,24 @@ repositories {
 dependencies {
 
   implementation (
-    'org.slf4j:slf4j-api:1.7.21',
-    'net.sf.ehcache:ehcache:2.8.6',
-    'commons-io:commons-io:2.4',
-    'org.pageseeder.berlioz:pso-berlioz:0.10.7',
-    'org.pageseeder.xmlwriter:pso-xmlwriter:1.0.2',
-    'org.pageseeder.cobble:pso-cobble:0.3.1'
+    'org.slf4j:slf4j-api:2.0.6',
+    'net.sf.ehcache:ehcache:2.10.9.2',
+    'commons-io:commons-io:2.11.0',
+    'org.pageseeder.berlioz:pso-berlioz:0.12.2',
+    'org.pageseeder.xmlwriter:pso-xmlwriter:1.0.4',
+    'org.pageseeder.cobble:pso-cobble:0.3.2'
   )
 
   compileOnly (
-    'ch.qos.logback:logback-core:1.0.13',
-    'ch.qos.logback:logback-classic:1.0.13',
-    'javax.servlet:javax.servlet-api:3.0.1' // TODO update servlet API!
+    'ch.qos.logback:logback-core:1.3.5',
+    'ch.qos.logback:logback-classic:1.3.5',
+    'javax.servlet:javax.servlet-api:3.1.0'
   )
 
-  runtimeOnly 'net.sf.saxon:Saxon-HE:9.6.0-6'
+  runtimeOnly 'net.sf.saxon:Saxon-HE:11.5'
 
+}
+
+test {
+  useJUnitPlatform()
 }

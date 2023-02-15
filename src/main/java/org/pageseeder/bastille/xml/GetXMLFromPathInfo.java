@@ -72,14 +72,14 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
   public String getETag(ContentRequest req) {
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
-    String pathInfo = normalise(req.getPathInfo());
+    String pathInfo = normalise(req.getBerliozPath());
     File file = new File(folder, pathInfo + ext);
     return pathInfo+"__"+file.length()+"x"+file.lastModified();
   }
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-    LOGGER.debug(req.getPathInfo());
+    LOGGER.debug(req.getBerliozPath());
 
     // Setup the cache
     if (this.cache == null) {
@@ -87,7 +87,7 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
     }
 
     // Identify the file
-    String pathInfo = normalise(req.getPathInfo());
+    String pathInfo = normalise(req.getBerliozPath());
     File folder = XMLConfiguration.getXMLRootFolder(req);
     String ext = XMLConfiguration.getXMLExtension(req);
     File file = new File(folder, pathInfo + ext);

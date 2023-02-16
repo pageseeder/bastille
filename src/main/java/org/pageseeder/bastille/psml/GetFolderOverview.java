@@ -78,7 +78,7 @@ public final class GetFolderOverview implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Check that the path has been specified
     String path = req.getParameter("path");

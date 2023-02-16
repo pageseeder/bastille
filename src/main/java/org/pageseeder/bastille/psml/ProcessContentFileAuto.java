@@ -46,7 +46,7 @@ public final class ProcessContentFileAuto implements ContentGenerator, Cacheable
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Identify the file
     String pathInfo = req.getBerliozPath();

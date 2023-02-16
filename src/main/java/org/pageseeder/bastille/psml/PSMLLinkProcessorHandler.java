@@ -99,7 +99,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * @param source the source PSML document
    */
   public PSMLLinkProcessorHandler(PSMLFile source) {
-    this(source, (XMLWriter)null);
+    this(source, null);
   }
 
   /**

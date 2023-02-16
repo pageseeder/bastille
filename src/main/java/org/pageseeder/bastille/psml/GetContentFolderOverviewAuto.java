@@ -53,7 +53,7 @@ public final class GetContentFolderOverviewAuto implements ContentGenerator, Cac
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     // Get all the files

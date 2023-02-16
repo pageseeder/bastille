@@ -150,7 +150,7 @@ public final class PSMLConfig {
    */
   public static File getRoot(boolean create) {
     String name = GlobalSettings.get(BASTILLE_PSML_ROOT, DEFAULT_PSML_ROOT);
-    File folder = new File(GlobalSettings.getRepository(), name);
+    File folder = new File(GlobalSettings.getAppData(), name);
     if (create && !folder.exists()) {
       LOGGER.warn("Creating PSML root folder ({})", name);
       boolean created = folder.mkdirs();

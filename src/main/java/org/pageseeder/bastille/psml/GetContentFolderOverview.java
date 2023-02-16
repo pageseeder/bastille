@@ -59,7 +59,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     String path = req.getParameter("path");

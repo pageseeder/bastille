@@ -43,12 +43,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
   /**
    * Filters XML files only.
    */
-  private static final FileFilter DIRECTORIES_OR_PSML_FILES = new FileFilter() {
-    @Override
-    public boolean accept(File file) {
-      return file.isDirectory() || file.getName().endsWith(PSMLConfig.DEFAULT_PSML_EXTENSION);
-    }
-  };
+  private static final FileFilter DIRECTORIES_OR_PSML_FILES = file -> file.isDirectory() || file.getName().endsWith(PSMLConfig.DEFAULT_PSML_EXTENSION);
 
   /**
    * Logger for debugging

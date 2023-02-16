@@ -65,11 +65,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   @Override
   public Enumeration<String> getHeaderNames() {
     List<String> headers = Collections.list(super.getHeaderNames());
-    for (Iterator<String> i = headers.iterator(); i.hasNext();) {
-      if (EXCLUDE.contains(i.next().toLowerCase())) {
-        i.remove();
-      }
-    }
+    headers.removeIf(s -> EXCLUDE.contains(s.toLowerCase()));
     return Collections.enumeration(headers);
   }
 

@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -84,7 +83,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
     xml.attribute("disabled", Boolean.toString(cache.isDisabled()));
 
     xml.openElement("element", true);
-    xml.attribute("key", key.toString());
+    xml.attribute("key", key);
     Element element = cache.getQuiet(key);
     if (element != null) {
       xml.attribute("creation-time", ISO8601.DATETIME.format(element.getCreationTime()));

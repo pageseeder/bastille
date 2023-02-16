@@ -246,7 +246,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /**
    * Flushes buffer and commits response to client.
    *
-   * <p>This method does not flush the buffer of the underlying stream so as to avoid the
+   * <p>This method does not flush the buffer of the underlying streams to avoid the
    * response to commit the response prematurely.
    *
    * @throws IOException if thrown while flushing the underlying buffer.
@@ -295,7 +295,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   }
 
   /**
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   public List<HttpHeader<? extends Serializable>> getAllHeaders() {
     List<HttpHeader<? extends Serializable>> headers = new LinkedList<>();
@@ -323,7 +323,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   /**
    * @param name the name of the header
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   public List<Serializable> getHeaderValues(String name) {
     return this._headers.get(name);
@@ -332,7 +332,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   /**
    * @param name the name of the header
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   @Override
   public String getHeader(String name) {

@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -90,7 +89,7 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     LOGGER.debug("relative path  {} ", relativepath);
     LOGGER.debug("root folder {} ", rootfolder);
 
-    // Setup the cache
+    // Set up the cache
     if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }

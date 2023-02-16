@@ -82,7 +82,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * The default file size threshold.
    *
-   * <p>Beyond this files are not cached but served directly.
+   * <p>Beyond these files are not cached but served directly.
    */
   public static final long DEFAULT_FILESIZE_THRESHOLD = 1024*1024L;
 
@@ -337,7 +337,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
         Date requestDate = new Date(ifModifiedSince);
         Date resourceDate = new Date(resource.getLastModified());
         if (!requestDate.before(resourceDate)) {
-          LOGGER.debug("Returning Not Modified (304) for {} from ", req.getRequestURI(), HttpHeaders.IF_MODIFIED_SINCE);
+          LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_MODIFIED_SINCE);
           resource.copyHeadersTo(res, sendGzip);
           res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           res.flushBuffer();
@@ -367,9 +367,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    */
   @Override
   public String calculateKey(HttpServletRequest req) {
-    StringBuilder key = new StringBuilder();
-    key.append(req.getMethod()).append('_').append(req.getRequestURI());
-    return key.toString();
+    return req.getMethod() + '_' + req.getRequestURI();
   }
 
   // Private helpers
@@ -413,7 +411,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   }
 
   /**
-   * Try to decoded a URL encoded path.
+   * Try to decode a URL's encoded path.
    *
    * @param encoded the encoded path
    * @return the decoded path

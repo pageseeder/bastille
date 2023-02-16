@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;

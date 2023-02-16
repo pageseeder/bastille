@@ -181,7 +181,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @return the stack trace element
    */
   private static StackTraceElement[] toCallerData(Logger logger) {
-    StackTraceElement[] ste = null;
+    StackTraceElement[] ste;
     if (_fallbackOnOldCallerDataExtract) {
       try {
         final String name = Logger.class.getName();
@@ -261,9 +261,6 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
   /**
    * Using the previous Logback API (prior to 1.0.10)
-   *
-   * @param logger
-   * @return
    */
   private static StackTraceElement[] toCallerDataOld(Logger logger) {
     final String name = Logger.class.getName();

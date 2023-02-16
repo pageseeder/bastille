@@ -140,7 +140,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the ungzipped version of the body.
    *
-   * @throws IOException if thrown whil ungzippind the content.
+   * @throws IOException if thrown while ungzippind the content.
    */
   public byte[] getUngzippedBody() throws IOException {
     if (this._gzippable) return GZIPUtils.ungzip(this._content);
@@ -178,7 +178,7 @@ public final class StaticResource implements Serializable, CachedResource {
   /**
    * Returns the last modified date for this resource.
    *
-   * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
+   * @return the last modified date if there is a "Last-Modified" header defined; -1 otherwise.
    */
   @Override
   public long getLastModified() {

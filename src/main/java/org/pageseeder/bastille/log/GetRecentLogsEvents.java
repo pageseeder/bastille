@@ -18,7 +18,6 @@ package org.pageseeder.bastille.log;
 import java.io.IOException;
 import java.util.List;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
@@ -67,7 +66,7 @@ public final class GetRecentLogsEvents implements ContentGenerator {
       // No recent logs
       xml.openElement("no-recent-logs");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
-                     + "Switch to the LogBack library http://logback.qos.ch";
+                     + "Switch to the LogBack library https://logback.qos.ch";
       xml.writeComment(message);
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
 

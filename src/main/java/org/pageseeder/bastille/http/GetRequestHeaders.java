@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;

@@ -20,7 +20,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;

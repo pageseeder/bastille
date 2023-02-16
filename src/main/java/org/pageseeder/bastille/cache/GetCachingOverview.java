@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;

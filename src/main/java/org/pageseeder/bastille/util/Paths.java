@@ -30,7 +30,7 @@ public final class Paths {
   }
 
   /**
-   * Filters and normalizes the value in the path informations.
+   * Filters and normalizes the value in the path information.
    *
    * @param path The path to normalize.
    * @return The same path without an '/' at the end.

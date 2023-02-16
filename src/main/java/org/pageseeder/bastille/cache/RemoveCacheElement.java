@@ -18,7 +18,6 @@ package org.pageseeder.bastille.cache;
 import java.io.IOException;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;

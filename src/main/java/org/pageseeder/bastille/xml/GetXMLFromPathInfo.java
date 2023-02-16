@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -81,7 +80,7 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
-    // Setup the cache
+    // Set up the cache
     if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }
@@ -110,7 +109,7 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Filters and normalises the value in the path informations.
+   * Filters and normalises the value in the path information.
    */
   private String normalise(String pathInfo) {
     if (pathInfo != null && pathInfo.endsWith("/")) return pathInfo.substring(0, pathInfo.length()-1);

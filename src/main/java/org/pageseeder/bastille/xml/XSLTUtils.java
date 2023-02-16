@@ -114,7 +114,7 @@ public final class XSLTUtils {
   /**
    * Return the XSLT templates from the given style.
    *
-   * <p>This method will firt try to load the resource using the class loader used for this class.
+   * <p>This method will first try to load the resource using the class loader used for this class.
    *
    * <p>Use this class to load XSLT from the system.
    *
@@ -134,7 +134,7 @@ public final class XSLTUtils {
   /**
    * Return the XSLT templates from the given style.
    *
-   * <p>This method will firt try to load the resource using the class loader used for this class.
+   * <p>This method will first try to load the resource using the class loader used for this class.
    *
    * <p>Use this class to load XSLT from the system.
    *

@@ -44,14 +44,12 @@ import javax.servlet.http.HttpServletRequestWrapper;
 public final class StaticRequestWrapper extends HttpServletRequestWrapper {
 
   /**
-   * The HTTP headers to exclude stored as lower case since headers are case insensitive.
+   * The HTTP headers to exclude stored as lower case since headers are case- insensitive.
    */
-  private static final List<String> EXCLUDE = Arrays.asList(new String[]{
-    "if-mone-match",
-    "if-modified-since",
-    "if-match",
-    "if-unmodified-since"
-  });
+  private static final List<String> EXCLUDE = Arrays.asList("if-mone-match",
+      "if-modified-since",
+      "if-match",
+      "if-unmodified-since");
 
   /**
    * Wraps the HTTP servlet request.
@@ -98,7 +96,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * A enumeration over an empty collection.
+   * An enumeration over an empty collection.
    *
    * <p>The {@link #hasMoreElements()} method always returns <code>false</code> and the
    * {@link #nextElement()} method always throws a {@link NoSuchElementException}.

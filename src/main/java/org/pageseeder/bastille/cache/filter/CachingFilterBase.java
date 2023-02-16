@@ -222,7 +222,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   /**
    * A meaningful name representative of the page being cached.
    *
-   * <p>The <code>cacheName</code> field is be set by the <code>doInit</code> method.
+   * <p>The <code>cacheName</code> field is set by the <code>doInit</code> method.
    *
    * <p>Override to with key control the name used.
    *
@@ -286,7 +286,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    *
    * @param req    the client HTTP request
    * @param status the HTTP status code of the response.
-   * @return <code>true</code> if the response should be 0, even if it is isn't.
+   * @return <code>true</code> if the response should be 0, even if it isn't.
    */
   private static boolean hasContent(HttpServletRequest req, int status) {
     if (status == HttpServletResponse.SC_NO_CONTENT

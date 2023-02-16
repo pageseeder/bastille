@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Generic implementation of a HTTP header.
+ * Generic implementation of an HTTP header.
  *
  * <p>Handles String, Int and Date typed headers.
  *
@@ -47,7 +47,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
     /** A date Header. {@link javax.servlet.http.HttpServletResponse#setDateHeader(String, long)} */
     DATE(Long.class),
 
-    /** A int Header. {@link javax.servlet.http.HttpServletResponse#setIntHeader(String, int)} */
+    /** An int Header. {@link javax.servlet.http.HttpServletResponse#setIntHeader(String, int)} */
     INT(Integer.class);
 
     /**

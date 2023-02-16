@@ -21,7 +21,7 @@ import java.io.FileFilter;
 /**
  * Filename filter for XML files.
  *
- * <p>This filter assumes that an file simply as the .xml file extension.
+ * <p>This filter assumes that a file simply as the .xml file extension.
  *
  * @author  Christophe Lauret
  * @version 4 April 2005
@@ -63,7 +63,7 @@ public final class XMLFilenameFilter implements FileFilter {
   }
 
   /**
-   * Tests whether or not the specified abstract pathname should be included in a pathname
+   * Tests whether the specified abstract pathname should be included in a pathname
    * list.
    *
    * <p>A file is accepted if its name has a file extension matching the "xml".

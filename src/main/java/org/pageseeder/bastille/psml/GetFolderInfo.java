@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;

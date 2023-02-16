@@ -37,7 +37,7 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 
 /**
- * A implementation of the log info interface for the Logback framework.
+ * An implementation of the log info interface for the Logback framework.
  *
  * @author Christophe Lauret
  *

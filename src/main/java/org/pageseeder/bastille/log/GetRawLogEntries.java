@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -94,7 +93,7 @@ public final class GetRawLogEntries implements ContentGenerator {
       // No logs directories
       xml.openElement("no-log");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support the listing log files.\n"
-          + "Switch to the LogBack library http://logback.qos.ch";
+          + "Switch to the LogBack library https://logback.qos.ch";
       xml.writeComment(message);
       xml.closeElement();
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
@@ -107,7 +106,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @param log      The log file to read.
    * @param xml      The XML writer
-   * @param maxLines The maximum amount of lines to includes in the result.
+   * @param maxLines The maximum amount of lines to include in the result.
    *
    * @throws IOException If thrown while reading the file or writing the XML out
    */

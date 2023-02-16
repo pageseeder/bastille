@@ -152,7 +152,7 @@ public final class GenericResource implements Serializable, CachedResource {
   }
 
   /**
-   * @return <code>true</code> if there is a non null ungzipped body
+   * @return <code>true</code> if there is a non-null ungzipped body
    */
   public boolean hasUngzippedBody() {
     return !this._storeGzipped && this._content != null;
@@ -178,7 +178,7 @@ public final class GenericResource implements Serializable, CachedResource {
   /**
    * Returns the last modified date for this resource.
    *
-   * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
+   * @return the last modified date if there is a "Last-Modified" header defined; -1 otherwise.
    */
   @Override
   public long getLastModified() {

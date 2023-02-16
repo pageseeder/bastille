@@ -80,7 +80,7 @@ public final class GZIPUtils {
    *
    * @param compressed the gzipped response body
    *
-   * @return <code>true</code> if the response should be 0, even if it is isn't.
+   * @return <code>true</code> if the response should be 0, even if it isn't.
    */
   public static boolean shouldGzippedBodyBeZero(byte[] compressed) {
     return compressed.length == EMPTY_GZIPPED_CONTENT_SIZE;

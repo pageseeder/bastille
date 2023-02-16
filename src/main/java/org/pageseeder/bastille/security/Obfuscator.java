@@ -87,7 +87,7 @@ public final class Obfuscator {
    */
   public static String obfuscate(String clear) {
     StringBuilder obfuscated = new StringBuilder();
-    String base32 = Base32.encode(clear.toString().getBytes(UTF8));
+    String base32 = Base32.encode(clear.getBytes(UTF8));
     obfuscated.append(rot13(base32));
     obfuscated.append('1');
     long r = Math.round(Math.random() * Long.MAX_VALUE);

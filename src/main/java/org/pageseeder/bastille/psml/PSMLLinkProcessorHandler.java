@@ -54,12 +54,12 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   private final int _depth;
 
   /**
-   * The list of outbound cross references found.
+   * The list of outbound cross-references found.
    */
   private final List<String> _types;
 
   /**
-   * The list of outbound cross references found.
+   * The list of outbound cross-references found.
    */
   private final List<File> _links;
 

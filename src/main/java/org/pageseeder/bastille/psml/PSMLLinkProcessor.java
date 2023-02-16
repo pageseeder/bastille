@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
@@ -197,7 +196,7 @@ public final class PSMLLinkProcessor {
       try {
         XMLHelper.parse(reader, source.file());
       } catch (SAXException ex) {
-        LOGGER.warn("Unparseable file found: {}", source.file().getName(), ex.getMessage());
+        LOGGER.warn("Unparseable file found: {} ({})", source.file().getName(), ex.getMessage());
       }
     } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);

@@ -707,7 +707,7 @@ public final class CSSMin {
       }
       if (params.length == 2) {
         // We can drop off the second item if the first and second items match
-        // ie turn 3px 3px into 3px
+        // ie turn '3px 3px' into 3px
         if (params[0].equalsIgnoreCase(params[1])) {
           params = Arrays.copyOf(params, 1);
         }

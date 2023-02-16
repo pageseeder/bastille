@@ -21,7 +21,7 @@ import java.util.List;
 import org.pageseeder.xmlwriter.XMLWritable;
 
 /**
- * A interface centralizing all common functionalities for the log implementations.
+ * An interface centralizing all common functionalities for the log implementations.
  *
  * @author Christophe Lauret
  *

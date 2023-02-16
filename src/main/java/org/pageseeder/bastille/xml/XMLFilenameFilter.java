@@ -23,9 +23,12 @@ import java.io.FileFilter;
  *
  * <p>This filter assumes that a file simply as the .xml file extension.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author  Christophe Lauret
  * @version 4 April 2005
  */
+@Deprecated
 public final class XMLFilenameFilter implements FileFilter {
 
   /**

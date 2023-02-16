@@ -21,40 +21,28 @@ import java.io.FileFilter;
 /**
  * A utility class providing some common file filters.
  *
+ * @deprecated Will be remove in 0.12.0 (unused)
+ *
  * @author Christophe Lauret
- * @version 27/02/2013
+ * @version Bastille 0.6.7
  */
+@Deprecated
 public final class FileFilters {
 
   /**
    * Only accepts folders (<code>isDirectory</code> returns <code>true</code>)
    */
-  private static final FileFilter FOLDERS = new FileFilter() {
-    @Override
-    public boolean accept(File d) {
-      return d.isDirectory();
-    }
-  };
+  private static final FileFilter FOLDERS = d -> d.isDirectory();
 
   /**
    * Only accepts XML files (ending with ".xml")
    */
-  private static final FileFilter XML = new FileFilter() {
-    @Override
-    public boolean accept(File f) {
-      return f.isFile() && f.getName().endsWith(".xml");
-    }
-  };
+  private static final FileFilter XML = f -> f.isFile() && f.getName().endsWith(".xml");
 
   /**
    * Only accepts XSLT files (ending with ".xsl")
    */
-  private static final FileFilter XSLT = new FileFilter() {
-    @Override
-    public boolean accept(File f) {
-      return f.isFile() && f.getName().endsWith(".xsl");
-    }
-  };
+  private static final FileFilter XSLT = f -> f.isFile() && f.getName().endsWith(".xsl");
 
   /**
    * Utility class.

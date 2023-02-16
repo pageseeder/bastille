@@ -68,10 +68,13 @@ import net.sf.ehcache.Element;
  * <generator class="org.pageseeder.bastille.xml.GetFolderOverview" name="overview" target="main" />
  * }</pre>
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
- * @version 0.6.35 - 21 May 2012
+ * @version 0.6.35
  * @since 0.6.33
  */
+@Deprecated
 public class GetFolderOverview implements ContentGenerator, Cacheable {
 
   /**

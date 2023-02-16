@@ -29,10 +29,13 @@ import org.slf4j.LoggerFactory;
 /**
  * This generator returns the content of the navigation file.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.7.0 - 6 October 2012
  * @since 0.7.0
  */
+@Deprecated
 public final class GetNavigation implements ContentGenerator, Cacheable {
 
   /**

@@ -25,7 +25,7 @@ import org.pageseeder.xmlwriter.XMLWritable;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public interface LogInfo {

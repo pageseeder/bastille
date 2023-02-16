@@ -51,9 +51,12 @@ import java.nio.file.Files;
  * <p>This class is a slightly modified version of the work done by John Reilly who initially
  * adapted Douglas Crockford's C version of his JavaScript minimiser.
  *
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
+ *
  * @author Christophe Lauret
  * @version 20 February 2012
  */
+@Deprecated
 public final class JSMin {
 
   /**

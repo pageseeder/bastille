@@ -16,4 +16,5 @@
 /**
  * Contains classes and generators for using ReCaptcha.
  */
+@Deprecated
 package org.pageseeder.bastille.recaptcha;

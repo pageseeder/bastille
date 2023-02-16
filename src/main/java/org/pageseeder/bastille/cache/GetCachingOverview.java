@@ -32,7 +32,7 @@ import net.sf.ehcache.Status;
  * Display a summary of the information about the cache in the application.
  *
  * @author Christophe Lauret
- * @version 24 November 2011
+ * @version Bastille 0.6.7
  */
 @Beta
 public final class GetCachingOverview implements ContentGenerator {

@@ -42,8 +42,7 @@ import java.util.TimeZone;
  * For example: <code>Sun, 07 Jan 2013 04:17:56 GMT</code>
  *
  * @author Christophe Lauret
- *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3
  */
 public final class HttpDateFormat {
 

@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.pageseeder.bastille.util.Base32;
 
-
 /**
  * A utility class to obfuscate passwords.
  *
@@ -30,7 +29,7 @@ import org.pageseeder.bastille.util.Base32;
  * make passwords harder to guess.
  *
  * @author Christophe Lauret
- * @version 26 September 2011
+ * @version Bastille 0.6.7
  */
 public final class Obfuscator {
 

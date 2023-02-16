@@ -78,10 +78,12 @@ import org.xml.sax.helpers.DefaultHandler;
  * </generator>
  * }</pre>
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Ciber Cai
  * @version 11 May 2011
- *
  */
+@Deprecated
 public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   /**

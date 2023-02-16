@@ -46,10 +46,13 @@ import org.xml.sax.XMLReader;
 /**
  * A content generator that can be used to get content from a URI template.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 19 July 2010
  * @since 0.6.0
  */
+@Deprecated
 public class GetXMLFromURITemplate implements ContentGenerator {
 
   /**

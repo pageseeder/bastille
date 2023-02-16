@@ -27,10 +27,12 @@ import org.pageseeder.xmlwriter.XMLWriter;
 /**
  * Returns the details for the recaptcha.
  *
- * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 Feb 2013
+ * @deprecated The ReCaptcha API is no longer accessible
  *
+ * @author Christophe Lauret
+ * @version Bastille 0.8.4
  */
+@Deprecated
 public final class GetReCaptcha implements ContentGenerator, Cacheable {
 
   @Override

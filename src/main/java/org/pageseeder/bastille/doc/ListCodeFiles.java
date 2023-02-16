@@ -32,7 +32,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the XSLT documentation using the Cobble format
  *
  * @author Christophe Lauret
- *
+ * @version Bastille 0.9.0
  */
 public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
@@ -72,12 +72,16 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
-        for (File x : f.listFiles(DIRECTORIES_OR_XSLT_FILES)) {
-          toXML(x, xml, ancestor, iso);
+        File[] children = f.listFiles(DIRECTORIES_OR_XSLT_FILES);
+        if (children != null) {
+          for (File x : children) {
+            toXML(x, xml, ancestor, iso);
+          }
         }
 
       } else {
         xml.attribute("type", "file");
+        // TODO Remove `content-type`
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));

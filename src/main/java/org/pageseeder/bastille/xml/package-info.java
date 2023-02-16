@@ -19,5 +19,6 @@
  *
  * <p>See individual content generator implementation for details.
  */
+@Deprecated
 package org.pageseeder.bastille.xml;
 

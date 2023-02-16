@@ -34,7 +34,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * Display information about the cache.
  *
  * @author Christophe Lauret
- * @version 24 November 2011
+ * @version Bastille 0.6.7
  */
 @Beta
 public final class GetCacheInfo implements ContentGenerator {

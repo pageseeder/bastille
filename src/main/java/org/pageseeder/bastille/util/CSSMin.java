@@ -77,11 +77,12 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * Some code is based on the YUI CssCompressor code, by Julien Lecomte.
  *
- * @author Christophe Lauret
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
  *
- * @version 0.8.18 - 5 December 2013
- * @since 0.6.0
+ * @author Christophe Lauret
+ * @version 0.8.18
  */
+@Deprecated
 public final class CSSMin {
 
   /**
@@ -812,9 +813,12 @@ public final class CSSMin {
 /**
  * Constants for replacement.
  *
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
+ *
  * @author Christophe Lauret
  * @version 21 November 2012
  */
+@Deprecated
 final class Constants {
 
   /**

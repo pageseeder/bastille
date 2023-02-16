@@ -51,10 +51,13 @@ import net.sf.ehcache.Element;
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 5 July 2010
  * @since 0.6.0
  */
+@Deprecated
 public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
 
   /**

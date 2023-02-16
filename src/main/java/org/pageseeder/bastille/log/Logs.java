@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public final class Logs {
@@ -125,8 +125,6 @@ public final class Logs {
       } else if ("org.slf4j.helpers.NOPLogger".equals(implementation)) {
         fm = LoggingFramework.NOP;
       }
-      // TODO org.apache.log4j
-      // TODO java.util.logging
     }
     framework = fm;
   }

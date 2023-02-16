@@ -33,10 +33,13 @@ import net.sf.ehcache.CacheManager;
  *
  * <p>Should not be public.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.6 - 27 May 2011
  * @since 0.6.0
  */
+@Deprecated
 public final class XMLHelper {
 
   /**

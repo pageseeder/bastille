@@ -28,7 +28,7 @@ import net.sf.ehcache.Ehcache;
  * Toggles cache statistics On and Off.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 2 February 2013
+ * @version Bastille 0.8.4
  */
 public final class ToggleCacheStatistics implements ContentGenerator {
 

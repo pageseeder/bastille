@@ -38,8 +38,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * </ul>
  *
  * @author Christophe Lauret
- *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3
  */
 public final class StaticRequestWrapper extends HttpServletRequestWrapper {
 

@@ -91,10 +91,13 @@ import org.slf4j.LoggerFactory;
  *   <li><code>status</code> equals 'not-found</li>
  * </ul>
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.5 - 23 May 2010
  * @since 0.6.0
  */
+@Deprecated
 public final class GetXMLFileInfo implements ContentGenerator, Cacheable {
 
   /**

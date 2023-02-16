@@ -13,29 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.pageseeder.bastille.log;
-
 /**
- * A logging level common to all frameworks for use by local interfaces.
- *
- * @author Christophe Lauret
- * @version Bastille 0.8.6
+ * A collection of generators for viewing documentation.
  */
-public enum LogLevel {
-
-  /** For Debugging. */
-  DEBUG,
-
-  /** Default level. */
-  INFO,
-
-  /** For warnings. */
-  WARN,
-
-  /** for errors. */
-  ERROR,
-
-  /** To disable/ignore all levels. */
-  OFF
-
-}
+package org.pageseeder.bastille.doc;

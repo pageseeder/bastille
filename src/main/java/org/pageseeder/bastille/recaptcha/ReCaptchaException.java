@@ -18,9 +18,12 @@ package org.pageseeder.bastille.recaptcha;
 /**
  * Class of exceptions thrown by the ReCaptcha.
  *
+ * @deprecated The ReCaptcha API is no longer accessible
+ *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 Feb 2013
+ * @version Bastille 0.8.4
  */
+@Deprecated
 public final class ReCaptchaException extends Exception {
 
   /** As per requirement for serializable */

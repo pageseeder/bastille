@@ -41,7 +41,7 @@ import ch.qos.logback.core.FileAppender;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public final class LogbackInfo implements LogInfo {
@@ -122,17 +122,17 @@ public final class LogbackInfo implements LogInfo {
    * @return The list of appenders in use.
    */
   private static Set<FileAppender<ILoggingEvent>> getFileAppenders(LoggerContext context) {
-    Set<FileAppender<ILoggingEvent>> fileappenders = new HashSet<>();
+    Set<FileAppender<ILoggingEvent>> fileAppenders = new HashSet<>();
     List<Logger> loggers = context.getLoggerList();
     for (Logger logger : loggers) {
       for (Iterator<Appender<ILoggingEvent>> i = logger.iteratorForAppenders(); i.hasNext();) {
         Appender<ILoggingEvent> appender = i.next();
         if (appender instanceof FileAppender) {
-          fileappenders.add((FileAppender<ILoggingEvent>)appender);
+          fileAppenders.add((FileAppender<ILoggingEvent>)appender);
         }
       }
     }
-    return fileappenders;
+    return fileAppenders;
   }
 
   /**

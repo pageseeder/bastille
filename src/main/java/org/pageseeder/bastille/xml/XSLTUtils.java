@@ -35,10 +35,13 @@ import org.slf4j.LoggerFactory;
 /**
  * A utility class to help with XSLT operations.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.3 - 3 May 2013
  * @since 0.6.0
  */
+@Deprecated
 public final class XSLTUtils {
 
   /** Logger for this class */

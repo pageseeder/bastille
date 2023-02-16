@@ -31,7 +31,7 @@ import net.sf.ehcache.Ehcache;
  * Removes an entry from the cache content.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 February 2013
+ * @version Bastille 0.8.4
  */
 @Beta
 public final class RemoveCacheElement implements ContentGenerator {

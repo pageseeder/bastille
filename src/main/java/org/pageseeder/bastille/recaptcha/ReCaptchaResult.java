@@ -32,9 +32,12 @@ package org.pageseeder.bastille.recaptcha;
  *
  * @see <a href="https://developers.google.com/recaptcha/docs/verify">ReCaptcha - Verify</a>
  *
+ * @deprecated The ReCaptcha API is no longer accessible
+ *
  * @author Christophe Lauret
  * @version 1 February 2013
  */
+@Deprecated
 public final class ReCaptchaResult {
 
   /**

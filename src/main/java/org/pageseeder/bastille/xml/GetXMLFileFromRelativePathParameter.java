@@ -47,11 +47,13 @@ import net.sf.ehcache.Element;
  *   </generator>
  * } </pre>
  *
+ * @deprecated Will be removed in 0.12
  *
  * @author Christophe Lauret
  * @author Ciber Cai
  * @version 8 July 2011
  */
+@Deprecated
 public final class GetXMLFileFromRelativePathParameter implements ContentGenerator, Cacheable {
 
   /**

@@ -64,7 +64,6 @@ import net.sf.ehcache.constructs.blocking.LockTimeoutException;
  * and <code>POST</code> methods are equivalent.
  *
  * @author Christophe Lauret
- *
  * @version Bastille 0.11.0
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {

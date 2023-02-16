@@ -32,7 +32,7 @@ import ch.qos.logback.core.spi.FilterReply;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public final class RecentEventsFilter extends TurboFilter {
@@ -55,7 +55,7 @@ public final class RecentEventsFilter extends TurboFilter {
   /**
    * Singleton instance.
    */
-  private static RecentEventsFilter singleton = new RecentEventsFilter();
+  private static final RecentEventsFilter SINGLETON = new RecentEventsFilter();
 
   /**
    * Use singleton method.
@@ -112,6 +112,6 @@ public final class RecentEventsFilter extends TurboFilter {
    * @return a singleton instance.
    */
   public static RecentEventsFilter singleton() {
-    return singleton;
+    return SINGLETON;
   }
 }

@@ -82,10 +82,13 @@ import org.slf4j.LoggerFactory;
  * <p>Since Version 0.6.1, this generator returns both the <code>media-type</code> and
  * <code>content-type</code> attributes. Use <code>media-type</code>.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
- * @version 0.6.35 - 21 May 2012
+ * @version 0.6.35
  * @since 0.6.0
  */
+@Deprecated
 public final class GetFileInfo implements ContentGenerator, Cacheable  {
 
   /**

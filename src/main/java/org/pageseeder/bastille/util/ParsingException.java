@@ -18,9 +18,12 @@ package org.pageseeder.bastille.util;
 /**
  * Class of exceptions occurring while minimising content.
  *
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
+ *
  * @author Christophe Lauret
  * @version 17 February 2012
  */
+@Deprecated
 public class ParsingException extends Exception {
 
   /**

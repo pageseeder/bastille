@@ -67,12 +67,14 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * <p>Note: this generator does not return anything, if the content request is not made from an
  * HTTP request.
  *
+ * @deprecated Will be removed in the next version
+ *
  * @author Christophe Lauret
- * @version 0.6.7 - 31 May 2011
+ * @version 0.6.7
  * @since 0.6.3
  */
+@Deprecated
 public final class GetRequestHeaders implements ContentGenerator {
-
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {

@@ -39,11 +39,13 @@ import net.sf.ehcache.Element;
  *   </generator>
  * }
  *
+ * @deprecated Will be removed in 0.12
  *
  * @author Christophe Lauret
- * @version 0.6.8 - 29 June 2011
+ * @version 0.6.8
  * @since 0.6.0
  */
+@Deprecated
 public final class GetXMLFromPath implements ContentGenerator, Cacheable {
 
   /**

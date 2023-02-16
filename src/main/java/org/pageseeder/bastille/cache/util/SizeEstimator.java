@@ -25,7 +25,7 @@ import net.sf.ehcache.Ehcache;
  * and the number of elements.
  *
  * @author Christophe Lauret
- * @version 10 March 2013
+ * @version Bastille 0.8.3
  */
 public final class SizeEstimator {
 

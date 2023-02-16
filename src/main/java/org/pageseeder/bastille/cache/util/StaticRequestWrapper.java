@@ -44,9 +44,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
 public final class StaticRequestWrapper extends HttpServletRequestWrapper {
 
   /**
-   * The HTTP headers to exclude stored as lower case since headers are case- insensitive.
+   * The HTTP headers to exclude stored as lower case since headers are case-insensitive.
    */
-  private static final List<String> EXCLUDE = Arrays.asList("if-mone-match",
+  private static final List<String> EXCLUDE = Arrays.asList("if-none-match",
       "if-modified-since",
       "if-match",
       "if-unmodified-since");

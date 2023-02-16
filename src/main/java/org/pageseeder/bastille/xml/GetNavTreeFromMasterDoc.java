@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -108,7 +109,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String treeData;
     try {
       // get the content as a etag
@@ -409,7 +410,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
       InputStream in = null;
       try {
         // Get the source as input stream
-        in = new FileInputStream(file);
+        in = Files.newInputStream(file.toPath());
         if (in != null) {
           InputSource source = new InputSource(in);
           source.setEncoding("utf-8");

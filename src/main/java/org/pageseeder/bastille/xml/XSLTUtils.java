@@ -47,7 +47,7 @@ public final class XSLTUtils {
   /**
    * Maps XSLT templates to their URL as a string for easy retrieval.
    */
-  private static final Map<String, Templates> CACHE = new Hashtable<String, Templates>();
+  private static final Map<String, Templates> CACHE = new Hashtable<>();
 
   /** Utility class. */
   private XSLTUtils() {
@@ -76,10 +76,10 @@ public final class XSLTUtils {
       templates = factory.newTemplates(source);
     } catch (TransformerConfigurationException ex) {
       LOGGER.error("Transformer exception: {}", ex.getMessageAndLocation(), ex);
-      throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url.toString(), ex);
+      throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url, ex);
     } catch (IOException ex) {
       LOGGER.error("IO error while trying to load template: {}", url);
-      throw new BerliozException("IO error while trying to load XSLT templates"+ url.toString(), ex);
+      throw new BerliozException("IO error while trying to load XSLT templates"+ url, ex);
     } finally {
       IOUtils.closeQuietly(in);
     }

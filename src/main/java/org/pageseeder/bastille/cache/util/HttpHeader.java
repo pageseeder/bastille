@@ -54,7 +54,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
      * Used to lookup types by class.
      */
     private static final Map<Class<? extends Serializable>, Type> TYPE_LOOKUP =
-        new ConcurrentHashMap<Class<? extends Serializable>, Type>();
+        new ConcurrentHashMap<>();
 
     /**
      * The underlying class for the specified type.
@@ -66,7 +66,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
      *
      * @param type The class used for this type.
      */
-    private Type(Class<? extends Serializable> type) {
+    Type(Class<? extends Serializable> type) {
       this._type = type;
     }
 

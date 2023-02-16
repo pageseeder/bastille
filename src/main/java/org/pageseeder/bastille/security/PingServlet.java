@@ -58,7 +58,7 @@ public final class PingServlet extends HttpServlet {
   private byte[] _data = null;
 
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(ServletConfig config) {
     String content = config.getInitParameter("content-type");
     if ("image/png".equals(content)) {
       this._contentType = content;
@@ -70,7 +70,7 @@ public final class PingServlet extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
 
     // If the data is defined and found
     if (this._data != null) {

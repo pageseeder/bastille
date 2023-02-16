@@ -128,7 +128,7 @@ public final class GetXMLFileInfo implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     if (this.folder == null) {
       this.folder = XMLConfiguration.getXMLRootFolder(req);
     }

@@ -251,7 +251,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @throws IOException      For I/O errors only
    * @throws ServletException For all other errors.
    */
-  public static final void writeContent(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
+  public static void writeContent(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
       throws IOException, ServletException {
     byte[] body;
 

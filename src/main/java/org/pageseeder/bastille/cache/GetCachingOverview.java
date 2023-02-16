@@ -39,7 +39,7 @@ import net.sf.ehcache.Status;
 public final class GetCachingOverview implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     List<CacheManager> managers = CacheManager.ALL_CACHE_MANAGERS;
     for (CacheManager manager : managers) {
       xml.openElement("cache-manager", true);

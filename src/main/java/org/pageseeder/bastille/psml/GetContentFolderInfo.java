@@ -72,7 +72,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Initialise
     if (this.ancestor == null) {

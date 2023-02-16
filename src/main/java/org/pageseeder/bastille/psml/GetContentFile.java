@@ -83,7 +83,7 @@ public final class GetContentFile implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Identify the file
     String path = req.getParameter("path");

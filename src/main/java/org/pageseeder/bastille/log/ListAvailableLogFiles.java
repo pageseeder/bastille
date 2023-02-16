@@ -50,7 +50,7 @@ public final class ListAvailableLogFiles implements ContentGenerator {
   };
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Get the information about the log framework
     LogInfo info = Logs.getLogInfo();

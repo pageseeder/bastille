@@ -101,7 +101,7 @@ public final class GetFileInfo implements ContentGenerator, Cacheable  {
 
   /**
    * Returns a weak Etag based on the file path, length and last modified date.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -112,7 +112,7 @@ public final class GetFileInfo implements ContentGenerator, Cacheable  {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     Environment env = req.getEnvironment();
     if (this.folder == null) {
       this.folder = env.getPublicFolder();

@@ -153,12 +153,12 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
 
   /**
    * Get the requested resource either from the cache or by invoking the page directly.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
   public CachedResource getResource(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-      throws IOException, ServletException, CacheException {
+      throws ServletException, CacheException {
     // Look up the cached page
     String key = calculateKey(req);
     CachedResource resource = null;
@@ -223,7 +223,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    * </ul>
    * Any of these headers already set in the response are ignored, and new ones generated. To control
    * your own caching headers, use {@link StaticCachingFilter}.
-   *
+   * <p>
    *
    * @param req   The HTTP Servlet request
    * @param res   The HTTP Servlet response
@@ -271,7 +271,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * Always return <code>true</code> unless the "berlioz-cache" parameter is set to "false"
    * or the file is too large or does not exist.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -280,8 +280,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     if ("false".equals(req.getParameter("berlioz-cache"))) return false;
     // Check the file
     File f = getResourceFile(this._context, req);
-    if (f == null || (f != null && f.length() > this.sizeThreshold)) return false;
-    return true;
+    return f != null && (f == null || f.length() <= this.sizeThreshold);
   }
 
   /**
@@ -322,7 +321,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       // Check "If-None-Match" header
       String ifNoneMatch = req.getHeader(HttpHeaders.IF_NONE_MATCH);
       if (ifNoneMatch != null) {
-        String etag = resource.getETag(ifNoneMatch.indexOf("-gzip") != -1);
+        String etag = resource.getETag(ifNoneMatch.contains("-gzip"));
         if (etag.equals(ifNoneMatch)) {
           LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_NONE_MATCH);
           resource.copyHeadersTo(res, sendGzip);

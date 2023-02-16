@@ -70,7 +70,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
 
   /**
    * The XMLCopy handler to make it easier to perform the copy from the handler method.
-   *
+   * <p>
    * MUST use the same XML writer.
    */
   private final XMLCopy _copy;
@@ -114,7 +114,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     this._types = Collections.singletonList("transclude");
     this._shift = "";
     this._copy = xml != null? new XMLCopy(xml) : null;
-    this._links = new ArrayList<File>();
+    this._links = new ArrayList<>();
     this._links.add(source.file());
     this._level = 0;
   }
@@ -319,7 +319,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
 
   /**
    * Updates the attributes so that the attributes include the new attribute.
-   *
+   * <p>
    * This method will automatically add or update the attribute.
    *
    * @param atts  The attributes

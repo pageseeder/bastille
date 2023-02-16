@@ -42,14 +42,14 @@ public final class Paths {
       normalized = path.substring(0, path.length()-1);
     }
     // double '//'
-    if (normalized.indexOf("//") >= 0) {
+    if (normalized.contains("//")) {
       normalized = normalized.replaceAll("//+", "/");
     }
     // self
     if (normalized.indexOf("./") == 0) {
       normalized = normalized.substring(2);
     }
-    if (normalized.indexOf("/./") >= 0) {
+    if (normalized.contains("/./")) {
       normalized = normalized.replaceAll("/\\./", "/");
     }
     // parent
@@ -98,25 +98,5 @@ public final class Paths {
     }
     return path.toString();
   }
-
-//  public static void main(String[] args) {
-//    String[][] pairs = new String[][]{
-//      {"/",    "/"},    // "."
-//      {"/a",   "/a"},   // "."
-//      {"/a",   "/b"},   // "../b"
-//      {"/a/a/../c", "/a"},   // ".."
-//      {"/",    "/b"},   // "b"
-//      {"/",    "b/c"},  // "b/c"
-//      {"a",    "a"},   // "."
-//      {"a",    "b"},   // "../b"
-//      {"a/a/../c", "a"},   // ".."
-//      {"",     "b"},   // "b"
-//      {"",     "b/c"}  // "b/c"
-//    };
-//
-//    for (String[] p : pairs) {
-//      System.err.println(p[0]+" \tto "+p[1]+" \t=> "+Paths.normalize(p[0])+" \tto "+Paths.normalize(p[1])+" \t=>"+path(p[0], p[1]));
-//    }
-//  }
 
 }

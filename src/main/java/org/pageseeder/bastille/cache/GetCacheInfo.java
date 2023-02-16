@@ -41,7 +41,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 public final class GetCacheInfo implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       req.setStatus(ContentStatus.NOT_FOUND);

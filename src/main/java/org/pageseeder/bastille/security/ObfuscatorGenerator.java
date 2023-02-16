@@ -31,7 +31,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
 public final class ObfuscatorGenerator implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String password = req.getParameter("password", "");
     if (password.length() > 0) {
 

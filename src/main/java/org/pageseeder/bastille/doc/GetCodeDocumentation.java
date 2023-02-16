@@ -44,7 +44,7 @@ public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     String path = req.getParameter("path");
     if (path == null) {

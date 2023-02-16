@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.pageseeder.berlioz.util.ISO8601;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWritable;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -77,7 +78,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * The Logback API has changed, so we may have to fall back on previous version
    */
-  private static transient volatile boolean _fallbackOnOldCallerDataExtract = false;
+  private static volatile boolean _fallbackOnOldCallerDataExtract = false;
 
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
@@ -123,7 +124,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @throws IOException Should an error occur while writing the XML.
    */
   private String toXML() throws IOException {
-    XMLStringWriter xml = new XMLStringWriter(false, false);
+    XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("event");
     xml.attribute("level", this._level.toString());
     xml.attribute("logger", this._logger.getName());
@@ -134,25 +135,6 @@ public final class RecentEvent implements XMLWritable, Serializable {
     FormattingTuple ft = MessageFormatter.arrayFormat(this._message, this._args);
     String message = ft.getMessage();
     xml.attribute("message", message);
-
-    // FIXME remove
-    /*
-    xml.openElement("args");
-    xml.attribute("message", this._message == null? "null" : this._message);
-    xml.attribute("throwable", this._throwable == null? "null" : this._throwable.getClass().getName());
-    if (this._args != null) {
-      xml.attribute("length", this._args.length);
-      for (Object a : this._args) {
-        xml.openElement("arg");
-        if (a != null) {
-          xml.attribute("class", a.getClass().getName());
-          xml.attribute("string", a.toString());
-        }
-        xml.closeElement();
-      }
-    }
-    xml.closeElement();
-    */
 
     // Any marker?
     if (this._marker != null) {
@@ -246,7 +228,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
       String s = step.toString();
       xml.writeText(s);
       // do not go past the servlet API
-      if (s.indexOf("javax.servlet") != -1) {
+      if (s.contains("javax.servlet")) {
         xml.writeXML("...");
         xml.closeElement();
         break;

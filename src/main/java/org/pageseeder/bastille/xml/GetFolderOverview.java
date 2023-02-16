@@ -27,6 +27,7 @@ import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -93,7 +94,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     // Get all the files
@@ -111,7 +112,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
       Element cached = this.cache.get(pathInfo);
       String data = null;
       if ((cached == null) || (cached.getLastUpdateTime() < modified)) {
-        XMLStringWriter buffer = new XMLStringWriter(false);
+        XMLStringWriter buffer = new XMLStringWriter(XML.NamespaceAware.No);
         processOverview(dir, files, buffer);
         data = buffer.toString();
         this.cache.put(new Element(pathInfo, data));
@@ -166,9 +167,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
         }
         xml.closeElement();
       }
-    } catch (ParserConfigurationException ex) {
-      throw new IOException(ex);
-    } catch (SAXException ex) {
+    } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
     }
     xml.closeElement();
@@ -183,8 +182,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
   private static File getDirectory(ContentRequest req) {
     String pathInfo = normalise(req.getBerliozPath());
     File folder = XMLConfiguration.getXMLRootFolder(req);
-    File dir = new File(folder, pathInfo);
-    return dir;
+    return new File(folder, pathInfo);
   }
 
   /**

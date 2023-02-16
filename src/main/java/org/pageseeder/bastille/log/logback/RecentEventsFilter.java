@@ -45,7 +45,7 @@ public final class RecentEventsFilter extends TurboFilter {
   /**
    * Where the events are stored temporarily.
    */
-  private static final Queue<RecentEvent> RECENT = new ConcurrentLinkedQueue<RecentEvent>();
+  private static final Queue<RecentEvent> RECENT = new ConcurrentLinkedQueue<>();
 
   /**
    * The threshold for the recent events.
@@ -78,7 +78,7 @@ public final class RecentEventsFilter extends TurboFilter {
       }
     }
     return FilterReply.NEUTRAL;
-  };
+  }
 
   /**
    * Clear the list of recent events.
@@ -105,7 +105,7 @@ public final class RecentEventsFilter extends TurboFilter {
    * @return a copy of all the events on hol.
    */
   static synchronized List<RecentEvent> getCopyOfEvents() {
-    return new ArrayList<RecentEvent>(RECENT);
+    return new ArrayList<>(RECENT);
   }
 
   /**

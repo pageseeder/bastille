@@ -18,6 +18,7 @@ package org.pageseeder.bastille.log;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.pageseeder.bastille.log.logback.LogbackInfo;
 import org.pageseeder.xmlwriter.XMLWritable;
@@ -41,7 +42,7 @@ public final class Logs {
 
     /**
      * Logback framework.
-     * @see http://logback.qos.ch/
+     * @see <a href="https://logback.qos.ch">logback.qos.ch</a>
      */
     LOGBACK,
 
@@ -52,7 +53,7 @@ public final class Logs {
 
     /**
      * Apache Log4j.
-     * @see http://logging.apache.org/log4j/1.2/
+     * @see <a href="https://logging.apache.org/log4j/1.2/">logging.apache.org/log4j/1.2/</a>
      */
     LOG4J,
 
@@ -137,13 +138,10 @@ public final class Logs {
     if (framework == null) {
       initFramework();
     }
-    switch (framework) {
-      case LOGBACK:
-        info = new LogbackInfo();
-        break;
-      default:
-        info = new NoLogInfo();
-        break;
+    if (Objects.requireNonNull(framework) == LoggingFramework.LOGBACK) {
+      info = new LogbackInfo();
+    } else {
+      info = new NoLogInfo();
     }
   }
 

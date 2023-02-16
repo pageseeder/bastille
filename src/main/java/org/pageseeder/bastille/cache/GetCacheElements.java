@@ -40,7 +40,7 @@ import net.sf.ehcache.Element;
 public final class GetCacheElements implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       Errors.noParameter(req, xml, "name");

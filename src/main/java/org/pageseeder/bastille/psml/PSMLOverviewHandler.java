@@ -48,7 +48,7 @@ class PSMLOverviewHandler extends DefaultHandler {
    /**
     * The internal buffer.
     */
-   private Map<String, String> properties = new HashMap<String, String>();
+   private Map<String, String> properties = new HashMap<>();
 
    /**
     * A state variable indicating that a property is being looked for.

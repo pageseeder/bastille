@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This generators only work with the <i>LogBack</i> logging framework and if the filter has
  * been configured in the logs.
- *
+ * <p>
  *
  * @author Christophe Lauret
  * @version Bastille 0.8.6 - 6 February 2013
@@ -53,7 +53,7 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     LogInfo info = Logs.getLogInfo();
     if (info.supportsRecentEvents()) {

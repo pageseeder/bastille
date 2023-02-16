@@ -36,6 +36,6 @@ public enum LogLevel {
   ERROR,
 
   /** To disable/ignore all levels. */
-  OFF;
+  OFF
 
 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.pageseeder.bastille.util.Paths;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.xml.XMLCopy;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +177,7 @@ public final class PSMLConfig {
    */
   public static String load(PSMLFile psml) throws IOException {
     File file = psml.file();
-    XMLStringWriter xml = new XMLStringWriter(false, false);
+    XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("psml-file");
     xml.attribute("name", file.getName());
 

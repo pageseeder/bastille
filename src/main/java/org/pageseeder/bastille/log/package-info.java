@@ -15,7 +15,7 @@
  */
 /**
  * Basic generators to read and access logs.
- *
+ * <p>
  * This package also defines generics interfaces to implement for specific logging framework:
  *
  * <p><b>THERE SHOULD BE NO DEPENDENCY ON SPECIFIC LOGGING FRAMEWORKS</b></p>

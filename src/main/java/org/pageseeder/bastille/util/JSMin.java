@@ -42,12 +42,8 @@
  */
 package org.pageseeder.bastille.util;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
+import java.nio.file.Files;
 
 /**
  * A JavaScript minimiser.
@@ -82,7 +78,7 @@ public final class JSMin {
   /**
    * The minimised version.
    */
-  private OutputStream _out;
+  private final OutputStream _out;
 
   /** What to do with byte A. */
   private int theA;
@@ -229,7 +225,8 @@ public final class JSMin {
    * @throws UnterminatedCommentException       Thrown when a comment does not terminate properly
    * @throws UnterminatedStringLiteralException Thrown when a string does not terminate properly
    */
-  private void process(int action) throws IOException, UnterminatedRegExpLiteralException, UnterminatedCommentException, UnterminatedStringLiteralException {
+  private void process(int action)
+      throws IOException, UnterminatedRegExpLiteralException, UnterminatedCommentException, UnterminatedStringLiteralException {
     switch (action) {
       case WRITE:
         this._out.write(this.theA);
@@ -368,7 +365,6 @@ public final class JSMin {
   /**
    * A comment that does not terminate properly.
    */
-  @SuppressWarnings("serial")
   public static class UnterminatedCommentException extends ParsingException {
 
     /**
@@ -383,7 +379,6 @@ public final class JSMin {
   /**
    * A string that does not terminate properly.
    */
-  @SuppressWarnings("serial")
   public static class UnterminatedStringLiteralException extends ParsingException {
 
     /**
@@ -398,7 +393,6 @@ public final class JSMin {
   /**
    * A regular expression that does not terminate properly.
    */
-  @SuppressWarnings("serial")
   public static class UnterminatedRegExpLiteralException extends ParsingException {
 
     /**
@@ -413,21 +407,25 @@ public final class JSMin {
   /**
    * To invoke the minimizer on the command line.
    *
-   * @param arg name of file to minimize
+   * @param args name of file to minimize
    */
-  public static void main(String[] arg) {
-    try {
-      JSMin jsmin = new JSMin(new FileInputStream(arg[0]), System.out);
+  public static void main(String[] args) {
+    File f = getFile(args);
+    try (InputStream in = Files.newInputStream(f.toPath())) {
+      JSMin jsmin = new JSMin(in, System.out);
       jsmin.jsmin();
-    } catch (FileNotFoundException ex) {
-      ex.printStackTrace();
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      ex.printStackTrace();
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    } catch (ParsingException ex) {
+    } catch (IOException | ParsingException ex) {
       ex.printStackTrace();
     }
+  }
+
+  private static File getFile(String[] args) {
+    if (args.length == 0)
+      throw new IllegalArgumentException("Missing file path");
+    File f = new File(args[0]);
+    if (!f.exists() || f.isDirectory() || !f.canRead())
+      throw new IllegalArgumentException("Illegal file path");
+    return f;
   }
 
 }

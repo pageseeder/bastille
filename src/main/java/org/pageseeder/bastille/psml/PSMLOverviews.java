@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.pageseeder.berlioz.BerliozException;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -79,10 +80,9 @@ public final class PSMLOverviews {
    *
    * @return the XML content as a string.
    *
-   * @throws BerliozException If an error occurs during parsing.
    * @throws IOException      Should any error occur.
    */
-  public static String getOverview(PSMLFile folder) throws BerliozException, IOException {
+  public static String getOverview(PSMLFile folder) throws IOException {
     // Get all the files
     File dir = folder.file();
     if (dir.exists() && dir.isDirectory()) {
@@ -96,7 +96,7 @@ public final class PSMLOverviews {
       Element cached = cache.get(folder.path());
       String data = null;
       if (cached == null || cached.getLastUpdateTime() < modified) {
-        XMLStringWriter buffer = new XMLStringWriter(false);
+        XMLStringWriter buffer = new XMLStringWriter(XML.NamespaceAware.No);
         processOverview(folder, files, buffer);
         data = buffer.toString();
         cache.put(new Element(folder.path(), data));
@@ -163,9 +163,7 @@ public final class PSMLOverviews {
 
         xml.closeElement();
       }
-    } catch (ParserConfigurationException ex) {
-      throw new IOException(ex);
-    } catch (SAXException ex) {
+    } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
     }
     xml.closeElement();

@@ -96,10 +96,8 @@ public final class StaticResource implements Serializable, CachedResource {
    * @param cacheControl The cache control header for this static resource
    * @param expires      When this resource expires
    *
-   * @throws IOException If the content was already gzipped
    */
-  public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires)
-      throws IOException {
+  public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires) {
     this._contentType = contentType;
     this._gzippable = HttpHeaderUtils.isCompressible(contentType);
     this._status = status;
@@ -194,7 +192,7 @@ public final class StaticResource implements Serializable, CachedResource {
 
   @Override
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
-    List<HttpHeader<? extends Serializable>> headers = new ArrayList<HttpHeader<? extends Serializable>>();
+    List<HttpHeader<? extends Serializable>> headers = new ArrayList<>();
     // Set the headers of the HTTP response
     headers.add(new HttpHeader<Serializable>(HttpHeaders.CACHE_CONTROL, this._cacheControl));
     headers.add(new HttpHeader<Serializable>(HttpHeaders.ETAG, getETag(gzipped)));

@@ -82,7 +82,7 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     String relativepath = addXMLExtension(req.getParameter("relative-path", ""));
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);

@@ -105,7 +105,7 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug("Berlioz path {}", req.getBerliozPath());
 
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);
@@ -142,8 +142,7 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
     if (file.exists()) return true;
     else {
       // request file is a directory
-      if (folder.isDirectory()) return true;
+      return folder.isDirectory();
     }
-    return false;
   }
 }

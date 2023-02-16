@@ -50,7 +50,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   private static final int DEFAULT_MAX_LINES = 1000;
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // the line
     int lines = req.getIntParameter("lines", DEFAULT_MAX_LINES);
@@ -157,7 +157,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    */
   private static String getLevel(String line) {
     for (String level : LEVELS) {
-      if (line.indexOf(level) != -1) return level;
+      if (line.contains(level)) return level;
     }
     return null;
   }

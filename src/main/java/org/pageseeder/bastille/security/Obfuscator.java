@@ -16,6 +16,7 @@
 package org.pageseeder.bastille.security;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.pageseeder.bastille.util.Base32;
 
@@ -34,7 +35,7 @@ import org.pageseeder.bastille.util.Base32;
 public final class Obfuscator {
 
   /** We use UTF-8. */
-  private static final Charset UTF8 = Charset.forName("utf-8");
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   /**
    * Utility class.

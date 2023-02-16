@@ -23,6 +23,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.pageseeder.berlioz.BerliozException;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -76,10 +77,9 @@ public final class PSMLLinkProcessor {
    *
    * @return the XML content as a string.
    *
-   * @throws BerliozException If an error occurs during parsing.
    * @throws IOException      Should any error occur.
    */
-  public static String process(PSMLFile psml) throws BerliozException, IOException {
+  public static String process(PSMLFile psml) throws IOException {
     // Get all the files
     File file = psml.file();
     if (file.exists() && !file.isDirectory()) {
@@ -101,7 +101,7 @@ public final class PSMLLinkProcessor {
       if (cached == null || cached.getLastUpdateTime() < modified) {
 
         // Process
-        XMLStringWriter xml = new XMLStringWriter(false);
+        XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No);
         try {
 
           xml.openElement("psml-file");
@@ -119,7 +119,7 @@ public final class PSMLLinkProcessor {
 
         } catch (IOException ex) {
 
-          xml = new XMLStringWriter(false);
+          xml = new XMLStringWriter(XML.NamespaceAware.No);
           xml.openElement("psml-file");
           xml.attribute("name", file.getName());
           xml.attribute("base", psml.getBase());
@@ -199,9 +199,7 @@ public final class PSMLLinkProcessor {
       } catch (SAXException ex) {
         LOGGER.warn("Unparseable file found: {}", source.file().getName(), ex.getMessage());
       }
-    } catch (ParserConfigurationException ex) {
-      throw new IOException(ex);
-    } catch (SAXException ex) {
+    } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
     }
     return handler.getLinks();

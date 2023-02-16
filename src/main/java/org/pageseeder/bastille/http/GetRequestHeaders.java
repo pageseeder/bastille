@@ -75,9 +75,8 @@ import org.pageseeder.xmlwriter.XMLWriter;
 public final class GetRequestHeaders implements ContentGenerator {
 
 
-  @SuppressWarnings("unchecked")
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     if (req instanceof HttpRequestWrapper) {
       HttpServletRequest r = ((HttpRequestWrapper)req).getHttpRequest();
       String match = req.getParameter("match", GlobalSettings.get("bastille.http.headers", "*"));
@@ -115,7 +114,7 @@ public final class GetRequestHeaders implements ContentGenerator {
    */
   private List<String> matching(String match) {
     if ("*".equals(match)) return Collections.emptyList();
-    List<String> matching = new ArrayList<String>();
+    List<String> matching = new ArrayList<>();
     for (String m : match.split("\\s*,\\s*")) {
       if (m.length() > 0) {
         matching.add(m);

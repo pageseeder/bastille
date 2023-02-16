@@ -34,7 +34,7 @@ import net.sf.ehcache.Ehcache;
 public final class ToggleCacheStatistics implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Grab the cache name
     String name = req.getParameter("name", null);

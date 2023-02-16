@@ -72,7 +72,7 @@ public final class LogbackInfo implements LogInfo {
    */
   @Override
   public List<File> listLogDirectories() {
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     try {
       LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
       Set<FileAppender<ILoggingEvent>> fileappenders = getFileAppenders(context);
@@ -122,7 +122,7 @@ public final class LogbackInfo implements LogInfo {
    * @return The list of appenders in use.
    */
   private static Set<FileAppender<ILoggingEvent>> getFileAppenders(LoggerContext context) {
-    Set<FileAppender<ILoggingEvent>> fileappenders = new HashSet<FileAppender<ILoggingEvent>>();
+    Set<FileAppender<ILoggingEvent>> fileappenders = new HashSet<>();
     List<Logger> loggers = context.getLoggerList();
     for (Logger logger : loggers) {
       for (Iterator<Appender<ILoggingEvent>> i = logger.iteratorForAppenders(); i.hasNext();) {

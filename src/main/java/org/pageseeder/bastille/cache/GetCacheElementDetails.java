@@ -46,7 +46,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetCacheElementDetails.class);
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       Errors.noParameter(req, xml, "name");
@@ -167,9 +167,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
             } else {
               toElementObjectXML(f.get(o), xml);
             }
-          } catch (IllegalArgumentException ex) {
-            LOGGER.warn("Unable to extract object value field", ex);
-          } catch (IllegalAccessException ex) {
+          } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.warn("Unable to extract object value field", ex);
           }
           xml.closeElement();

@@ -40,7 +40,7 @@ public final class GetReCaptcha implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     xml.openElement("recaptcha");
 
     // Display the public key

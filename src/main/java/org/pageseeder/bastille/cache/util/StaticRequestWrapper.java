@@ -66,7 +66,6 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   // ----------------------------------------------------------------------------------------------
 
   @Override
-  @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaderNames() {
     List<String> headers = Collections.list(super.getHeaderNames());
     for (Iterator<String> i = headers.iterator(); i.hasNext();) {
@@ -78,9 +77,8 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaders(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<String>();
+    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<>();
     else return super.getHeaders(name);
   }
 

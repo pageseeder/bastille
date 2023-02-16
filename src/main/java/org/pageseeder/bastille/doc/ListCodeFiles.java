@@ -53,7 +53,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     Environment env = req.getEnvironment();
     File root = env.getPrivateFolder();

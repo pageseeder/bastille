@@ -70,7 +70,7 @@ public interface CachingFilter {
 
   /**
    * CachingFilter works off a key.
-   *
+   * <p>
    * The key should be unique. Factors to consider in generating a key are:
    * <ul>
    *   <li>The various hostnames that a request could come through
@@ -98,16 +98,15 @@ public interface CachingFilter {
    *
    * @return the corresponding cached resource
    *
-   * @throws IOException      Should an IO error occur
    * @throws ServletException For general errors or errors while invoking the filetr chain.
    * @throws CacheException   For caching-specific error.
    */
   CachedResource getResource(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-    throws IOException, ServletException, CacheException;
+    throws ServletException, CacheException;
 
   /**
    * Writes the response from a PageInfo object.
-   *
+   * <p>
    * Headers are set last so that there is an opportunity to override
    *
    * @param req The HTTP servlet request.

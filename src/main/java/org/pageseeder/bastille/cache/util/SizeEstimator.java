@@ -41,12 +41,12 @@ public final class SizeEstimator {
   /**
    * Samples for "in memory" sizes mapped to the cache names.
    */
-  private final Map<String, Sample> inMemorySamples = new ConcurrentHashMap<String, Sample>();
+  private final Map<String, Sample> inMemorySamples = new ConcurrentHashMap<>();
 
   /**
    * Samples for "in memory" sizes mapped to the cache names.
    */
-  private final Map<String, Sample> onDiskSamples = new ConcurrentHashMap<String, Sample>();
+  private final Map<String, Sample> onDiskSamples = new ConcurrentHashMap<>();
 
   /**
    * Request singleton instead.

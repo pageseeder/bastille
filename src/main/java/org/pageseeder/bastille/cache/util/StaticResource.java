@@ -140,7 +140,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the ungzipped version of the body.
    *
-   * @throws IOException if thrown while ungzippind the content.
+   * @throws IOException if thrown while ungzipping the content.
    */
   public byte[] getUngzippedBody() throws IOException {
     if (this._gzippable) return GZIPUtils.ungzip(this._content);

@@ -92,7 +92,7 @@ public final class Base64 {
    * in Section 4 of RFC3548:
    * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
    * It is important to note that data encoded this way is <em>not</em> officially valid Base64,
-   * or at the very least should not be called Base64 without also specifying that is
+   * or at the very least should not be called Base64 without also specifying that it
    * was encoded using the URL- and Filename-safe dialect.
    */
   public static final int URL_SAFE = 16;
@@ -445,8 +445,8 @@ public final class Base64 {
    * Performs Base64 encoding on the <code>raw</code> ByteBuffer, writing it to the
    * <code>encoded</code> ByteBuffer.
    * <p>
-   * This is an experimental feature. Currently it does not pass along any options
-   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}.
+   * This is an experimental feature. Currently, it does not pass along any options
+   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}).
    *
    * @param raw input buffer
    * @param encoded output buffer
@@ -468,8 +468,8 @@ public final class Base64 {
    * Performs Base64 encoding on the <code>raw</code> ByteBuffer, writing it to the
    * <code>encoded</code> CharBuffer.
    * <p>
-   * This is an experimental feature. Currently it does not pass along any options
-   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}.
+   * This is an experimental feature. Currently, it does not pass along any options
+   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}).
    *
    * @param raw input buffer
    * @param encoded output buffer

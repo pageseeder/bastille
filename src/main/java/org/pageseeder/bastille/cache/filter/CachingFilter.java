@@ -98,7 +98,7 @@ public interface CachingFilter {
    *
    * @return the corresponding cached resource
    *
-   * @throws ServletException For general errors or errors while invoking the filetr chain.
+   * @throws ServletException For general errors or errors while invoking the filter chain.
    * @throws CacheException   For caching-specific error.
    */
   CachedResource getResource(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
@@ -114,7 +114,7 @@ public interface CachingFilter {
    * @param resource The cached resource build previously.
    *
    * @throws IOException      Should an IO error occur
-   * @throws ServletException For general errors or errors while invoking the filetr chain.
+   * @throws ServletException For general errors or errors while invoking the filter chain.
    * @throws CacheException   For caching-specific error.
    */
   void writeResponse(HttpServletRequest req, HttpServletResponse res, CachedResource resource)

@@ -45,7 +45,7 @@ public interface CachedResource {
    *
    * <p>If the content is gzippable, this method will unzip the content on demand.
    *
-   * <p>If the content is not gzippable, this method will trown a
+   * <p>If the content is not gzippable, this method will thrown a
    *
    * @param gzipped <code>true</code> to request the gzipped content;
    *                <code>false</code> to get the raw content.

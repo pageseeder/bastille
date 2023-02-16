@@ -190,14 +190,14 @@ public final class PSMLOverviews {
    * @return the date of the last modified file in the list.
    */
   public static long lastModified(List<File> files) {
-    long mostrecent = 0;
+    long mostRecent = 0;
     for (File f : files) {
       long date = f.lastModified();
-      if (date > mostrecent) {
-        mostrecent = date;
+      if (date > mostRecent) {
+        mostRecent = date;
       }
     }
-    return mostrecent;
+    return mostRecent;
   }
 
   /**

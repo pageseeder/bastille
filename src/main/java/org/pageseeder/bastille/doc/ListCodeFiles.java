@@ -39,12 +39,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
   /**
    * Filters XML files only.
    */
-  private static final FileFilter DIRECTORIES_OR_XSLT_FILES = new FileFilter() {
-    @Override
-    public boolean accept(File file) {
-      return file.isDirectory() || file.getName().endsWith(".xsl");
-    }
-  };
+  private static final FileFilter DIRECTORIES_OR_XSLT_FILES = file -> file.isDirectory() || file.getName().endsWith(".xsl");
 
   @Override
   public String getETag(ContentRequest req) {
@@ -53,7 +48,6 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
-
     Environment env = req.getEnvironment();
     File root = env.getPrivateFolder();
     File xslt = env.getPrivateFile("xslt");
@@ -61,7 +55,6 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
     // XSLT documentation first
     SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     toXML(xslt, xml, root, ISO8601Local);
-
   }
 
   /**

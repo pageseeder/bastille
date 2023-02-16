@@ -213,7 +213,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   /**
    * This is a SAX extension handler.
-   * It is to resolve the cross-reference and process the xml tree based on cross- reference links.
+   * It is to resolve the cross-reference and process the xml tree based on cross-reference links.
    *
    * <h3>The XML Tree Structure</h3>
    * <pre> {@code

@@ -143,7 +143,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * Performs the filtering for a request. This method caches based responses keyed by
    * {@link #calculateKey(javax.servlet.http.HttpServletRequest)}
    *
-   * <p>By default this method will queue requests requesting the page response for a given key until
+   * <p>By default this method will queue requests for the page response for a given key until
    * the first thread in the queue has completed. The request which occurs when the page expires
    * incurs the cost of waiting for the downstream processing to return the response.
    *

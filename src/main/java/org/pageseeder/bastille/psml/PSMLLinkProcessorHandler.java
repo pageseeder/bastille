@@ -322,15 +322,15 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * <p>
    * This method will automatically add or update the attribute.
    *
-   * @param atts  The attributes
+   * @param attributes  The attributes
    * @param name  The name of the attribute to update
    * @param value The value of the attribute to update
    *
    * @return A new set of attributes
    */
-  private static Attributes update(Attributes atts, String name, String value) {
-    AttributesImpl updated = new AttributesImpl(atts);
-    int i = atts.getIndex(name);
+  private static Attributes update(Attributes attributes, String name, String value) {
+    AttributesImpl updated = new AttributesImpl(attributes);
+    int i = attributes.getIndex(name);
     if (i != -1) {
       updated.setAttribute(i, "", name, name, "CDATA", value);
     } else {

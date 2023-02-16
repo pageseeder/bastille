@@ -124,13 +124,15 @@ public final class CSSMin {
   }
 
   /**
-   * Process a file from a filename.
-   * @param filename The file name of the CSS file to process.
+   * Process a file from a filepath.
+   *
+   * @param filepath The file name of the CSS file to process.
    * @param out Where to send the result
    */
-  public static void minimize(String filename, OutputStream out) {
+  public static void minimize(String filepath, OutputStream out) {
     try {
-      minimize(new FileReader(filename), out);
+      // It OK to let user access any file from the command-line
+      minimize(new FileReader(filepath), out);
     } catch (FileNotFoundException ex) {
       LOGGER.debug("Unable to find file", ex);
     }

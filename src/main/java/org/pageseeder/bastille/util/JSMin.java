@@ -411,6 +411,7 @@ public final class JSMin {
    */
   public static void main(String[] args) {
     File f = getFile(args);
+    // It OK to let user access any file from the command-line
     try (InputStream in = Files.newInputStream(f.toPath())) {
       JSMin jsmin = new JSMin(in, System.out);
       jsmin.jsmin();

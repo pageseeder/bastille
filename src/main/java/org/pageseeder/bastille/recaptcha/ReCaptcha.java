@@ -35,9 +35,12 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple object encapsulating the ReCaptcha configuration.
  *
+ * @deprecated The ReCaptcha API is no longer accessible
+ *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 Feb 2013
+ * @version Bastille 0.8.4
  */
+@Deprecated
 public final class ReCaptcha {
 
   /**
@@ -56,7 +59,7 @@ public final class ReCaptcha {
   public static final String DEFAULT_HTTPS_SERVER = "https://api-secure.recaptcha.net";
 
   /**
-   * The verify URL to use.
+   * The URL to verify.
    */
   public static final String VERIFY_URL = "http://api-verify.recaptcha.net/verify";
 

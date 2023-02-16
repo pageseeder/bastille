@@ -38,20 +38,17 @@ import javax.servlet.http.HttpServletRequestWrapper;
  * </ul>
  *
  * @author Christophe Lauret
- *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3
  */
 public final class StaticRequestWrapper extends HttpServletRequestWrapper {
 
   /**
-   * The HTTP headers to exclude stored as lower case since headers are case insensitive.
+   * The HTTP headers to exclude stored as lower case since headers are case-insensitive.
    */
-  private static final List<String> EXCLUDE = Arrays.asList(new String[]{
-    "if-mone-match",
-    "if-modified-since",
-    "if-match",
-    "if-unmodified-since"
-  });
+  private static final List<String> EXCLUDE = Arrays.asList("if-none-match",
+      "if-modified-since",
+      "if-match",
+      "if-unmodified-since");
 
   /**
    * Wraps the HTTP servlet request.
@@ -66,7 +63,6 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   // ----------------------------------------------------------------------------------------------
 
   @Override
-  @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaderNames() {
     List<String> headers = Collections.list(super.getHeaderNames());
     for (Iterator<String> i = headers.iterator(); i.hasNext();) {
@@ -78,9 +74,8 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Enumeration<String> getHeaders(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<String>();
+    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<>();
     else return super.getHeaders(name);
   }
 
@@ -100,7 +95,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * A enumeration over an empty collection.
+   * An enumeration over an empty collection.
    *
    * <p>The {@link #hasMoreElements()} method always returns <code>false</code> and the
    * {@link #nextElement()} method always throws a {@link NoSuchElementException}.

@@ -27,14 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.pageseeder.bastille.util.Resources;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A Servlet to allow another ping servlet to ping it.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
- * @version 0.8.11 - 8 March 2013
- * @since 9 January 2011
+ * @version 0.8.11
  */
+@Deprecated
 public final class PingServlet extends HttpServlet {
 
   /**
@@ -58,7 +59,7 @@ public final class PingServlet extends HttpServlet {
   private byte[] _data = null;
 
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(ServletConfig config) {
     String content = config.getInitParameter("content-type");
     if ("image/png".equals(content)) {
       this._contentType = content;
@@ -70,8 +71,7 @@ public final class PingServlet extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-
+  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     // If the data is defined and found
     if (this._data != null) {
 
@@ -88,9 +88,7 @@ public final class PingServlet extends HttpServlet {
       res.setStatus(HttpServletResponse.SC_NO_CONTENT);
       res.setContentLength(0);
     }
-
   }
-
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {

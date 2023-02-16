@@ -47,7 +47,7 @@ public final class GenericResource implements Serializable, CachedResource {
   /**
    * List of response HTTP headers to include in response.
    */
-  private final List<HttpHeader<? extends Serializable>> _headers = new ArrayList<HttpHeader<? extends Serializable>>();
+  private final List<HttpHeader<? extends Serializable>> _headers = new ArrayList<>();
 
   /**
    * Indicates whether we store the compressed version of the content.
@@ -79,11 +79,9 @@ public final class GenericResource implements Serializable, CachedResource {
    *                     <code>false</code> otherwise (for image)
    * @param headers      The headers for this cached resource.
    *
-   * @throws IOException If the content was already gzipped
    */
   public GenericResource(int status, String contentType, byte[] body,
-      boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers)
-      throws IOException {
+      boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers) {
     if (headers != null) {
       this._headers.addAll(headers);
     }
@@ -154,7 +152,7 @@ public final class GenericResource implements Serializable, CachedResource {
   }
 
   /**
-   * @return <code>true</code> if there is a non null ungzipped body
+   * @return <code>true</code> if there is a non-null ungzipped body
    */
   public boolean hasUngzippedBody() {
     return !this._storeGzipped && this._content != null;
@@ -180,7 +178,7 @@ public final class GenericResource implements Serializable, CachedResource {
   /**
    * Returns the last modified date for this resource.
    *
-   * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
+   * @return the last modified date if there is a "Last-Modified" header defined; -1 otherwise.
    */
   @Override
   public long getLastModified() {
@@ -217,7 +215,7 @@ public final class GenericResource implements Serializable, CachedResource {
   @Override
   public void copyHeadersTo(HttpServletResponse res, boolean gzipped) {
     // Track which headers have been set so all headers of the same name after the first are added
-    Collection<String> setHeaders = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    Collection<String> setHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     for (HttpHeader<? extends Serializable> header : this._headers) {
       String name = header.name();
       switch (header.type()) {

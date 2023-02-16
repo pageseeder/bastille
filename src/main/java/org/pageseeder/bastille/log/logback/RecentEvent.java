@@ -17,9 +17,9 @@ package org.pageseeder.bastille.log.logback;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 
 import org.pageseeder.berlioz.util.ISO8601;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWritable;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -45,7 +45,7 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.12.1
  * @since Bastille 0.8.5
  */
 public final class RecentEvent implements XMLWritable, Serializable {
@@ -77,7 +77,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * The Logback API has changed, so we may have to fall back on previous version
    */
-  private static transient volatile boolean _fallbackOnOldCallerDataExtract = false;
+  private static volatile boolean _callerDataExtractFailed = false;
 
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
@@ -123,7 +123,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @throws IOException Should an error occur while writing the XML.
    */
   private String toXML() throws IOException {
-    XMLStringWriter xml = new XMLStringWriter(false, false);
+    XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("event");
     xml.attribute("level", this._level.toString());
     xml.attribute("logger", this._logger.getName());
@@ -134,25 +134,6 @@ public final class RecentEvent implements XMLWritable, Serializable {
     FormattingTuple ft = MessageFormatter.arrayFormat(this._message, this._args);
     String message = ft.getMessage();
     xml.attribute("message", message);
-
-    // FIXME remove
-    /*
-    xml.openElement("args");
-    xml.attribute("message", this._message == null? "null" : this._message);
-    xml.attribute("throwable", this._throwable == null? "null" : this._throwable.getClass().getName());
-    if (this._args != null) {
-      xml.attribute("length", this._args.length);
-      for (Object a : this._args) {
-        xml.openElement("arg");
-        if (a != null) {
-          xml.attribute("class", a.getClass().getName());
-          xml.attribute("string", a.toString());
-        }
-        xml.closeElement();
-      }
-    }
-    xml.closeElement();
-    */
 
     // Any marker?
     if (this._marker != null) {
@@ -181,9 +162,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
       }
 
       // If a throwable has been submitted
-      if (proxy != null) {
-        toXML(xml, proxy, 0);
-      }
+      toXML(xml, proxy, 0);
     }
 
     xml.closeElement();
@@ -193,25 +172,23 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * Generate the stack trace element for an event.
    *
-   * <p>The actual work is delegated to the {@link CallerData#extract(Throwable, String, int)} method.
+   * <p>The actual work is delegated to the {@link CallerData#extract} method.
    *
    * @param logger the logger for the event.
    * @return the stack trace element
    */
   private static StackTraceElement[] toCallerData(Logger logger) {
     StackTraceElement[] ste = null;
-    if (_fallbackOnOldCallerDataExtract) {
+    if (!_callerDataExtractFailed) {
       try {
         final String name = Logger.class.getName();
         final LoggerContext context = logger.getLoggerContext();
         ste = CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth(), null);
       } catch (Error error) {
+        System.err.println("Unable to extract caller data - this message will only be shown once");
         error.printStackTrace();
-        ste = toCallerDataOld(logger);
-        _fallbackOnOldCallerDataExtract = true;
+        _callerDataExtractFailed = true;
       }
-    } else {
-      ste = toCallerDataOld(logger);
     }
     return ste;
   }
@@ -246,7 +223,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
       String s = step.toString();
       xml.writeText(s);
       // do not go past the servlet API
-      if (s.indexOf("javax.servlet") != -1) {
+      if (s.contains("javax.servlet")) {
         xml.writeXML("...");
         xml.closeElement();
         break;
@@ -274,28 +251,6 @@ public final class RecentEvent implements XMLWritable, Serializable {
     xml.attribute("file", caller.getFileName());
     xml.attribute("line", caller.getLineNumber());
     xml.closeElement();
-  }
-
-
-  /**
-   * Using the previous Logback API (prior to 1.0.10)
-   *
-   * @param logger
-   * @return
-   */
-  private static StackTraceElement[] toCallerDataOld(Logger logger) {
-    final String name = Logger.class.getName();
-    final LoggerContext context = logger.getLoggerContext();
-    StackTraceElement[] ste = null;
-    try {
-      // Logback 1.0.7
-      Class<?> c = Class.forName("ch.qos.logback.classic.spi.CallerData");
-      Method m  = c.getMethod("extract", Throwable.class, String.class, Integer.TYPE);
-      m.invoke(null, new Throwable(), name, context.getMaxCallerDataDepth());
-    } catch (Exception ex) {
-      // ignore on purpose
-    }
-    return ste;
   }
 
 }

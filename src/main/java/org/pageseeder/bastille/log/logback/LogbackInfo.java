@@ -37,11 +37,11 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 
 /**
- * A implementation of the log info interface for the Logback framework.
+ * An implementation of the log info interface for the Logback framework.
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public final class LogbackInfo implements LogInfo {
@@ -72,7 +72,7 @@ public final class LogbackInfo implements LogInfo {
    */
   @Override
   public List<File> listLogDirectories() {
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     try {
       LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
       Set<FileAppender<ILoggingEvent>> fileappenders = getFileAppenders(context);
@@ -122,17 +122,17 @@ public final class LogbackInfo implements LogInfo {
    * @return The list of appenders in use.
    */
   private static Set<FileAppender<ILoggingEvent>> getFileAppenders(LoggerContext context) {
-    Set<FileAppender<ILoggingEvent>> fileappenders = new HashSet<FileAppender<ILoggingEvent>>();
+    Set<FileAppender<ILoggingEvent>> fileAppenders = new HashSet<>();
     List<Logger> loggers = context.getLoggerList();
     for (Logger logger : loggers) {
       for (Iterator<Appender<ILoggingEvent>> i = logger.iteratorForAppenders(); i.hasNext();) {
         Appender<ILoggingEvent> appender = i.next();
         if (appender instanceof FileAppender) {
-          fileappenders.add((FileAppender<ILoggingEvent>)appender);
+          fileAppenders.add((FileAppender<ILoggingEvent>)appender);
         }
       }
     }
-    return fileappenders;
+    return fileAppenders;
   }
 
   /**

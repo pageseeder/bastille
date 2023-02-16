@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -33,13 +32,13 @@ import net.sf.ehcache.Status;
  * Display a summary of the information about the cache in the application.
  *
  * @author Christophe Lauret
- * @version 24 November 2011
+ * @version Bastille 0.6.7
  */
 @Beta
 public final class GetCachingOverview implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     List<CacheManager> managers = CacheManager.ALL_CACHE_MANAGERS;
     for (CacheManager manager : managers) {
       xml.openElement("cache-manager", true);

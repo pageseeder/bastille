@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -33,19 +32,14 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the XSLT documentation using the Cobble format
  *
  * @author Christophe Lauret
- *
+ * @version Bastille 0.9.0
  */
 public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
   /**
    * Filters XML files only.
    */
-  private static final FileFilter DIRECTORIES_OR_XSLT_FILES = new FileFilter() {
-    @Override
-    public boolean accept(File file) {
-      return file.isDirectory() || file.getName().endsWith(".xsl");
-    }
-  };
+  private static final FileFilter DIRECTORIES_OR_XSLT_FILES = file -> file.isDirectory() || file.getName().endsWith(".xsl");
 
   @Override
   public String getETag(ContentRequest req) {
@@ -53,8 +47,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
-
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     Environment env = req.getEnvironment();
     File root = env.getPrivateFolder();
     File xslt = env.getPrivateFile("xslt");
@@ -62,7 +55,6 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
     // XSLT documentation first
     SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     toXML(xslt, xml, root, ISO8601Local);
-
   }
 
   /**
@@ -80,12 +72,16 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
-        for (File x : f.listFiles(DIRECTORIES_OR_XSLT_FILES)) {
-          toXML(x, xml, ancestor, iso);
+        File[] children = f.listFiles(DIRECTORIES_OR_XSLT_FILES);
+        if (children != null) {
+          for (File x : children) {
+            toXML(x, xml, ancestor, iso);
+          }
         }
 
       } else {
         xml.attribute("type", "file");
+        // TODO Remove `content-type`
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));

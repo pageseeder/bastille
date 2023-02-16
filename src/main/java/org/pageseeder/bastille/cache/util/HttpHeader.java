@@ -20,14 +20,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Generic implementation of a HTTP header.
+ * Generic implementation of an HTTP header.
  *
  * <p>Handles String, Int and Date typed headers.
  *
  * @author Eric Dalquist
  * @author Christophe Lauret
  *
- * @version 27 January 2013
+ * @version Bastille 0.8.3
  *
  * @param <T> The type of Header value being stored. Must implement {@link Serializable}
  */
@@ -47,14 +47,14 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
     /** A date Header. {@link javax.servlet.http.HttpServletResponse#setDateHeader(String, long)} */
     DATE(Long.class),
 
-    /** A int Header. {@link javax.servlet.http.HttpServletResponse#setIntHeader(String, int)} */
+    /** An int Header. {@link javax.servlet.http.HttpServletResponse#setIntHeader(String, int)} */
     INT(Integer.class);
 
     /**
      * Used to lookup types by class.
      */
     private static final Map<Class<? extends Serializable>, Type> TYPE_LOOKUP =
-        new ConcurrentHashMap<Class<? extends Serializable>, Type>();
+        new ConcurrentHashMap<>();
 
     /**
      * The underlying class for the specified type.
@@ -66,7 +66,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
      *
      * @param type The class used for this type.
      */
-    private Type(Class<? extends Serializable> type) {
+    Type(Class<? extends Serializable> type) {
       this._type = type;
     }
 

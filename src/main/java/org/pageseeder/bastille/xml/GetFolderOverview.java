@@ -23,10 +23,10 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -68,10 +68,13 @@ import net.sf.ehcache.Element;
  * <generator class="org.pageseeder.bastille.xml.GetFolderOverview" name="overview" target="main" />
  * }</pre>
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
- * @version 0.6.35 - 21 May 2012
+ * @version 0.6.35
  * @since 0.6.33
  */
+@Deprecated
 public class GetFolderOverview implements ContentGenerator, Cacheable {
 
   /**
@@ -93,7 +96,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     // Get all the files
@@ -111,7 +114,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
       Element cached = this.cache.get(pathInfo);
       String data = null;
       if ((cached == null) || (cached.getLastUpdateTime() < modified)) {
-        XMLStringWriter buffer = new XMLStringWriter(false);
+        XMLStringWriter buffer = new XMLStringWriter(XML.NamespaceAware.No);
         processOverview(dir, files, buffer);
         data = buffer.toString();
         this.cache.put(new Element(pathInfo, data));
@@ -166,9 +169,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
         }
         xml.closeElement();
       }
-    } catch (ParserConfigurationException ex) {
-      throw new IOException(ex);
-    } catch (SAXException ex) {
+    } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
     }
     xml.closeElement();
@@ -183,8 +184,7 @@ public class GetFolderOverview implements ContentGenerator, Cacheable {
   private static File getDirectory(ContentRequest req) {
     String pathInfo = normalise(req.getBerliozPath());
     File folder = XMLConfiguration.getXMLRootFolder(req);
-    File dir = new File(folder, pathInfo);
-    return dir;
+    return new File(folder, pathInfo);
   }
 
   /**

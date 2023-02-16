@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -34,7 +33,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the XSLT documentation using the Cobble format
  *
  * @author Christophe Lauret
- *
+ * @version Bastille 0.9.0
  */
 public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
 
@@ -44,7 +43,7 @@ public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     String path = req.getParameter("path");
     if (path == null) {

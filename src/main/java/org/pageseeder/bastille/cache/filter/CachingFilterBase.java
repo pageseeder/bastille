@@ -53,8 +53,7 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * </ul>
  *
  * @author Christophe Lauret
- *
- * @version Bastille 0.8.3 - 27 January 2013
+ * @version Bastille 0.8.3
  */
 public abstract class CachingFilterBase implements Filter, CachingFilter {
 
@@ -143,7 +142,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * Performs the filtering for a request. This method caches based responses keyed by
    * {@link #calculateKey(javax.servlet.http.HttpServletRequest)}
    *
-   * <p>By default this method will queue requests requesting the page response for a given key until
+   * <p>By default this method will queue requests for the page response for a given key until
    * the first thread in the queue has completed. The request which occurs when the page expires
    * incurs the cost of waiting for the downstream processing to return the response.
    *
@@ -222,7 +221,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   /**
    * A meaningful name representative of the page being cached.
    *
-   * <p>The <code>cacheName</code> field is be set by the <code>doInit</code> method.
+   * <p>The <code>cacheName</code> field is set by the <code>doInit</code> method.
    *
    * <p>Override to with key control the name used.
    *
@@ -251,7 +250,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @throws IOException      For I/O errors only
    * @throws ServletException For all other errors.
    */
-  public static final void writeContent(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
+  public static void writeContent(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
       throws IOException, ServletException {
     byte[] body;
 
@@ -286,7 +285,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    *
    * @param req    the client HTTP request
    * @param status the HTTP status code of the response.
-   * @return <code>true</code> if the response should be 0, even if it is isn't.
+   * @return <code>true</code> if the response should be 0, even if it isn't.
    */
   private static boolean hasContent(HttpServletRequest req, int status) {
     if (status == HttpServletResponse.SC_NO_CONTENT

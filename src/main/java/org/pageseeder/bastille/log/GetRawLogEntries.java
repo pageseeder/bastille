@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -33,7 +32,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 @Beta
@@ -50,7 +49,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   private static final int DEFAULT_MAX_LINES = 1000;
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // the line
     int lines = req.getIntParameter("lines", DEFAULT_MAX_LINES);
@@ -94,7 +93,7 @@ public final class GetRawLogEntries implements ContentGenerator {
       // No logs directories
       xml.openElement("no-log");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support the listing log files.\n"
-          + "Switch to the LogBack library http://logback.qos.ch";
+          + "Switch to the LogBack library https://logback.qos.ch";
       xml.writeComment(message);
       xml.closeElement();
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
@@ -107,7 +106,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @param log      The log file to read.
    * @param xml      The XML writer
-   * @param maxLines The maximum amount of lines to includes in the result.
+   * @param maxLines The maximum amount of lines to include in the result.
    *
    * @throws IOException If thrown while reading the file or writing the XML out
    */
@@ -157,7 +156,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    */
   private static String getLevel(String line) {
     for (String level : LEVELS) {
-      if (line.indexOf(level) != -1) return level;
+      if (line.contains(level)) return level;
     }
     return null;
   }

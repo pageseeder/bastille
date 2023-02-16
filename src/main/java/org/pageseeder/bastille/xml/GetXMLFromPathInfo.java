@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -52,10 +51,13 @@ import net.sf.ehcache.Element;
  * <p>To define the location of the XML folder, use the Berlioz config property:
  * <code>bastille.xml.root</code>.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.0 - 5 July 2010
  * @since 0.6.0
  */
+@Deprecated
 public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
 
   /**
@@ -78,10 +80,10 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
-    // Setup the cache
+    // Set up the cache
     if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }
@@ -110,7 +112,7 @@ public final class GetXMLFromPathInfo implements ContentGenerator, Cacheable {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Filters and normalises the value in the path informations.
+   * Filters and normalises the value in the path information.
    */
   private String normalise(String pathInfo) {
     if (pathInfo != null && pathInfo.endsWith("/")) return pathInfo.substring(0, pathInfo.length()-1);

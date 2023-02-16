@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
  * @see <a href="http://tools.ietf.org/html/rfc1952">GZIP file format specification version 4.3</a>
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3 - 31 January 2013
+ * @version Bastille 0.8.3
  */
 public final class GZIPUtils {
 
@@ -80,7 +80,7 @@ public final class GZIPUtils {
    *
    * @param compressed the gzipped response body
    *
-   * @return <code>true</code> if the response should be 0, even if it is isn't.
+   * @return <code>true</code> if the response should be 0, even if it isn't.
    */
   public static boolean shouldGzippedBodyBeZero(byte[] compressed) {
     return compressed.length == EMPTY_GZIPPED_CONTENT_SIZE;

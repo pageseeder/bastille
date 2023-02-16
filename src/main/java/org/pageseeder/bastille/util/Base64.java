@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
@@ -48,7 +49,7 @@ import java.io.UnsupportedEncodingException;
  * <p>to compress the data before encoding it and then making the output have newline characters.</p>
  * <p>Also...</p>
  * <code>String encoded = Base64.encodeBytes( crazyString.getBytes() );</code>
- *
+ * <p>
  *
  * <p>This class was originally developed by Robert Harder and is in the Public Domain.
  *
@@ -58,8 +59,11 @@ import java.io.UnsupportedEncodingException;
  * @author rob@iharder.net
  * @author Christophe Lauret
  *
+ * @deprecated Use Base64 class now part of JDK8
+ *
  * @version 2.3.7
  */
+@Deprecated
 public final class Base64 {
 
   // Public fields
@@ -88,7 +92,7 @@ public final class Base64 {
    * in Section 4 of RFC3548:
    * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
    * It is important to note that data encoded this way is <em>not</em> officially valid Base64,
-   * or at the very least should not be called Base64 without also specifying that is
+   * or at the very least should not be called Base64 without also specifying that it
    * was encoded using the URL- and Filename-safe dialect.
    */
   public static final int URL_SAFE = 16;
@@ -184,7 +188,7 @@ public final class Base64 {
   /**
    * Used in the URL- and Filename-safe dialect described in Section 4 of RFC3548:
    * <a href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs.org/rfcs/rfc3548.html</a>.
-   *
+   * <p>
    * Notice that the last two bytes become "hyphen" and "underscore" instead of "plus" and "slash."
    */
   private static final byte[] URL_SAFE_ALPHABET = {
@@ -310,7 +314,7 @@ public final class Base64 {
 
   /**
    * Returns one of the byte arrays depending on the options specified.
-   *
+   * <p>
    * It's possible, though silly, to specify ORDERED <b>and</b> URLSAFE in which case one of
    * them will be picked, though there is no guarantee as to which one will be picked.
    *
@@ -326,7 +330,7 @@ public final class Base64 {
 
   /**
    * Returns one of the "decodabet" byte array depending on the options specified.
-   *
+   * <p>
    * It's possible, though silly, to specify ORDERED and URL_SAFE in which case one of them will
    * be picked, though there is no guarantee as to which one will be picked.
    *
@@ -440,9 +444,9 @@ public final class Base64 {
   /**
    * Performs Base64 encoding on the <code>raw</code> ByteBuffer, writing it to the
    * <code>encoded</code> ByteBuffer.
-   *
-   * This is an experimental feature. Currently it does not pass along any options
-   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}.
+   * <p>
+   * This is an experimental feature. Currently, it does not pass along any options
+   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}).
    *
    * @param raw input buffer
    * @param encoded output buffer
@@ -463,9 +467,9 @@ public final class Base64 {
   /**
    * Performs Base64 encoding on the <code>raw</code> ByteBuffer, writing it to the
    * <code>encoded</code> CharBuffer.
-   *
-   * This is an experimental feature. Currently it does not pass along any options
-   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}.
+   * <p>
+   * This is an experimental feature. Currently, it does not pass along any options
+   * (such as {@link #DO_BREAK_LINES} or {@link #GZIP}).
    *
    * @param raw input buffer
    * @param encoded output buffer
@@ -583,7 +587,7 @@ public final class Base64 {
 
   /**
    * Encodes a byte array into Base64 notation.
-   *
+   * <p>
    * Does not GZip-compress data.
    *
    * @param source The data to convert
@@ -737,7 +741,7 @@ public final class Base64 {
 
   /**
    * Similar to {@link #encodeBytes(byte[], int, int, int)} but returns a byte array instead of instantiating a String.
-   *
+   * <p>
    * This is more efficient if you're working with I/O streams and have large data sets to encode.
    *
    * @see Base64#GZIP
@@ -1151,9 +1155,7 @@ public final class Base64 {
       }
 
       obj = ois.readObject();
-    } catch (IOException ex) {
-      throw ex;
-    } catch (java.lang.ClassNotFoundException ex) {
+    } catch (IOException | ClassNotFoundException ex) {
       throw ex;
     } finally {
       closeQuietly(bais);
@@ -1345,7 +1347,7 @@ public final class Base64 {
     java.io.OutputStream out = null;
     try {
       out = new java.io.BufferedOutputStream(new java.io.FileOutputStream(outfile));
-      out.write(encoded.getBytes("US-ASCII")); // Strict, 7-bit output.
+      out.write(encoded.getBytes(StandardCharsets.US_ASCII)); // Strict, 7-bit output.
     } catch (IOException ex) {
       throw ex;
     } finally {
@@ -1457,7 +1459,7 @@ public final class Base64 {
      * </pre>
      * <p>
      * Example: <code>new Base64.InputStream( in, Base64.DECODE )</code>
-     *
+     * <p>
      *
      * @param in the <tt>java.io.InputStream</tt> from which to read data.
      * @param options Specified options
@@ -1480,7 +1482,7 @@ public final class Base64 {
 
     /**
      * Reads enough of the input stream to convert to/from Base64 and returns the next byte.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @return next byte
@@ -1567,7 +1569,7 @@ public final class Base64 {
      * Calls {@link #read()} repeatedly until the end of stream is reached or <var>len</var> bytes are read.
      *
      * <p>Returns number of bytes read into array or -1 if end of stream is encountered.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @param dest array to hold values
@@ -1672,7 +1674,7 @@ public final class Base64 {
      * gets a write() call.
      *
      * <p>When decoding, bytes are buffered four at a time.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @param theByte the byte to write
@@ -1719,7 +1721,7 @@ public final class Base64 {
 
     /**
      * Calls {@link #write(int)} repeatedly until <var>len</var> bytes are written.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @param theBytes array from which to read bytes
@@ -1756,7 +1758,7 @@ public final class Base64 {
 
     /**
      * Flushes and closes (I think, in the superclass) the stream.
-     *
+     * <p>
      * {@inheritDoc}
      *
      * @since 1.3

@@ -37,8 +37,7 @@ import org.slf4j.LoggerFactory;
  * otherwise it is sent raw.
  *
  * @author Christophe Lauret
- *
- * @version Bastille 0.8.3 - 31 January 2013
+ * @version Bastille 0.8.3
  */
 public final class StaticResource implements Serializable, CachedResource {
 
@@ -96,10 +95,8 @@ public final class StaticResource implements Serializable, CachedResource {
    * @param cacheControl The cache control header for this static resource
    * @param expires      When this resource expires
    *
-   * @throws IOException If the content was already gzipped
    */
-  public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires)
-      throws IOException {
+  public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires) {
     this._contentType = contentType;
     this._gzippable = HttpHeaderUtils.isCompressible(contentType);
     this._status = status;
@@ -142,7 +139,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the ungzipped version of the body.
    *
-   * @throws IOException if thrown whil ungzippind the content.
+   * @throws IOException if thrown while ungzipping the content.
    */
   public byte[] getUngzippedBody() throws IOException {
     if (this._gzippable) return GZIPUtils.ungzip(this._content);
@@ -180,7 +177,7 @@ public final class StaticResource implements Serializable, CachedResource {
   /**
    * Returns the last modified date for this resource.
    *
-   * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
+   * @return the last modified date if there is a "Last-Modified" header defined; -1 otherwise.
    */
   @Override
   public long getLastModified() {
@@ -194,7 +191,7 @@ public final class StaticResource implements Serializable, CachedResource {
 
   @Override
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
-    List<HttpHeader<? extends Serializable>> headers = new ArrayList<HttpHeader<? extends Serializable>>();
+    List<HttpHeader<? extends Serializable>> headers = new ArrayList<>();
     // Set the headers of the HTTP response
     headers.add(new HttpHeader<Serializable>(HttpHeaders.CACHE_CONTROL, this._cacheControl));
     headers.add(new HttpHeader<Serializable>(HttpHeaders.ETAG, getETag(gzipped)));

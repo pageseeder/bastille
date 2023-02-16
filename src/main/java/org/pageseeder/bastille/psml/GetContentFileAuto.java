@@ -18,7 +18,6 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -52,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * <h3>Returned XML</h3>
  * <p>Like most PSML generators returning a PSML file, this generator will wrap the content of the file with
  * the <code>{@code <psml-file>}</code> element.
- *
+ * <p>
  * The base attribute is the relative path from the PSML root to the folder, since references (xrefs and image
  * sources) in PSML are relative, this attribute can be used to construct the path to images or cross-referenced
  * documents.
@@ -78,7 +77,7 @@ public final class GetContentFileAuto implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Identify the file
     String pathInfo = req.getBerliozPath();

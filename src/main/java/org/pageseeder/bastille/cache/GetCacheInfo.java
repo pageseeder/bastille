@@ -18,7 +18,6 @@ package org.pageseeder.bastille.cache;
 import java.io.IOException;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -35,13 +34,13 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * Display information about the cache.
  *
  * @author Christophe Lauret
- * @version 24 November 2011
+ * @version Bastille 0.6.7
  */
 @Beta
 public final class GetCacheInfo implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       req.setStatus(ContentStatus.NOT_FOUND);

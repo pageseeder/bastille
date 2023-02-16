@@ -21,11 +21,11 @@ import java.util.List;
 import org.pageseeder.xmlwriter.XMLWritable;
 
 /**
- * A interface centralizing all common functionalities for the log implementations.
+ * An interface centralizing all common functionalities for the log implementations.
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public interface LogInfo {

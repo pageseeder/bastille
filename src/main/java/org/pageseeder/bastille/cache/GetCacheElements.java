@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -34,13 +33,13 @@ import net.sf.ehcache.Element;
  * Display the elements in the cache.
  *
  * @author Christophe Lauret
- * @version 24 November 2011
+ * @version Bastille 0.6.7
  */
 @Beta
 public final class GetCacheElements implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       Errors.noParameter(req, xml, "name");

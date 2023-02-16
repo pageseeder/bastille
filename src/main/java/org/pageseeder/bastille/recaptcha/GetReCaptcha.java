@@ -17,7 +17,6 @@ package org.pageseeder.bastille.recaptcha;
 
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -28,10 +27,12 @@ import org.pageseeder.xmlwriter.XMLWriter;
 /**
  * Returns the details for the recaptcha.
  *
- * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 Feb 2013
+ * @deprecated The ReCaptcha API is no longer accessible
  *
+ * @author Christophe Lauret
+ * @version Bastille 0.8.4
  */
+@Deprecated
 public final class GetReCaptcha implements ContentGenerator, Cacheable {
 
   @Override
@@ -40,7 +41,7 @@ public final class GetReCaptcha implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     xml.openElement("recaptcha");
 
     // Display the public key

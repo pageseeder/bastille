@@ -18,7 +18,6 @@ package org.pageseeder.bastille.log;
 import java.io.IOException;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
@@ -31,10 +30,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This generators only work with the <i>LogBack</i> logging framework and if the filter has
  * been configured in the logs.
- *
+ * <p>
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 public final class SetRecentLogsThreshold implements ContentGenerator {
@@ -53,7 +52,7 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     LogInfo info = Logs.getLogInfo();
     if (info.supportsRecentEvents()) {
@@ -86,7 +85,7 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
       // No recent logs
       xml.openElement("no-recent-logs");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
-                     + "Switch to the LogBack library http://logback.qos.ch";
+                     + "Switch to the LogBack library https://logback.qos.ch";
       xml.writeComment(message);
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
 

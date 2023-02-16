@@ -16,16 +16,15 @@
 package org.pageseeder.bastille.xml;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.file.Files;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -79,10 +78,12 @@ import org.xml.sax.helpers.DefaultHandler;
  * </generator>
  * }</pre>
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Ciber Cai
  * @version 11 May 2011
- *
  */
+@Deprecated
 public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   /**
@@ -99,7 +100,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
     etag.append(req.getParameter("pswebsite-content", ""));
 
     try {
-      // get the content as a etag
+      // get the content as an etag
       etag.append(buildNavTree(req));
     } catch (IOException ex) {
       etag.append("incorrect");
@@ -108,10 +109,10 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String treeData;
     try {
-      // get the content as a etag
+      // get the content as an etag
       treeData = buildNavTree(req);
     } catch (IOException ex) {
       treeData = "";
@@ -150,7 +151,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
     // add extension
     if (reqFilePath != null && !reqFilePath.contains(".xml")) {
       if (reqFilePath.endsWith("/")) {
-        reqFilePath.substring(0, (reqFilePath.toString().length() - 1));
+        reqFilePath.substring(0, (reqFilePath.length() - 1));
       }
       reqFilePath += ".xml";
     }
@@ -214,7 +215,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
 
   /**
    * This is a SAX extension handler.
-   * It is to resolve the cross reference and process the xml tree based on cross reference links.
+   * It is to resolve the cross-reference and process the xml tree based on cross-reference links.
    *
    * <h3>The XML Tree Structure</h3>
    * <pre> {@code
@@ -409,7 +410,7 @@ public class GetNavTreeFromMasterDoc implements ContentGenerator, Cacheable {
       InputStream in = null;
       try {
         // Get the source as input stream
-        in = new FileInputStream(file);
+        in = Files.newInputStream(file.toPath());
         if (in != null) {
           InputSource source = new InputSource(in);
           source.setEncoding("utf-8");

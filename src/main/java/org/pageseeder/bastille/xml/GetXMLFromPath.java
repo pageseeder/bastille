@@ -39,11 +39,13 @@ import net.sf.ehcache.Element;
  *   </generator>
  * }
  *
+ * @deprecated Will be removed in 0.12
  *
  * @author Christophe Lauret
- * @version 0.6.8 - 29 June 2011
+ * @version 0.6.8
  * @since 0.6.0
  */
+@Deprecated
 public final class GetXMLFromPath implements ContentGenerator, Cacheable {
 
   /**
@@ -71,7 +73,7 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
     String path = req.getParameter("path");
     if (path == null) throw new BerliozException("Path parameter is missing");
 
-    // Setup the cache
+    // Set up the cache
     if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }
@@ -100,7 +102,7 @@ public final class GetXMLFromPath implements ContentGenerator, Cacheable {
   // ----------------------------------------------------------------------------------------------
 
   /**
-   * Filters and normalises the value in the path informations.
+   * Filters and normalises the value in the path information.
    */
   private String normalise(String pathInfo) {
     if (pathInfo.endsWith("/")) return pathInfo.substring(0, pathInfo.length()-1);

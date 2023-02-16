@@ -51,15 +51,8 @@
  */
 package org.pageseeder.bastille.util;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.nio.charset.Charset;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,11 +77,12 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * Some code is based on the YUI CssCompressor code, by Julien Lecomte.
  *
- * @author Christophe Lauret
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
  *
- * @version 0.8.18 - 5 December 2013
- * @since 0.6.0
+ * @author Christophe Lauret
+ * @version 0.8.18
  */
+@Deprecated
 public final class CSSMin {
 
   /**
@@ -103,7 +97,7 @@ public final class CSSMin {
   /**
    * Main entry point for CSSMin from the command-line.
    *
-   * <b>Usage:</b> CSSMin <i>[Input file]</i>, <i>[Output file]</i>
+   * <p><b>Usage:</b> CSSMin <i>[Input file]</i>, <i>[Output file]</i>
    *
    * @param args The command-line arguments
    */
@@ -131,14 +125,16 @@ public final class CSSMin {
   }
 
   /**
-   * Process a file from a filename.
-   * @param filename The file name of the CSS file to process.
+   * Process a file from a filepath.
+   *
+   * @param filepath The file name of the CSS file to process.
    * @param out Where to send the result
    */
-  public static void minimize(String filename, OutputStream out) {
+  public static void minimize(String filepath, OutputStream out) {
     try {
-      minimize(new FileReader(filename), out);
-    } catch (java.io.FileNotFoundException ex) {
+      // It OK to let user access any file from the command-line
+      minimize(new FileReader(filepath), out);
+    } catch (FileNotFoundException ex) {
       LOGGER.debug("Unable to find file", ex);
     }
   }
@@ -149,7 +145,7 @@ public final class CSSMin {
    * @param out   Where to send the result
    */
   public static void minimize(Reader input, OutputStream out) {
-    minimize(input, new PrintWriter(new OutputStreamWriter(out, Charset.forName("utf8"))));
+    minimize(input, new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8)));
   }
 
   /**
@@ -165,7 +161,7 @@ public final class CSSMin {
       LOGGER.debug("Parsing and processing selectors.");
 
       // Reset for selector
-      List<Rule> rules = new ArrayList<Rule>();
+      List<Rule> rules = new ArrayList<>();
       int line = 0;
       int n = 0; // Current position in stream
       int j = 0; // Number of open braces
@@ -293,7 +289,7 @@ public final class CSSMin {
   /**
    * A CSS rule.
    *
-   * For example, "div { border: solid 1px red; color: blue; }"
+   * <p>For example, "div { border: solid 1px red; color: blue; }"
    *
    * @author Christophe Lauret
    * @version 18 June 2012
@@ -318,19 +314,19 @@ public final class CSSMin {
      */
     public Rule(String rule) throws ParsingException {
       String[] parts = rule.split("\\{");
-      if (parts.length < 2) // TODO detect line and column
-      throw new ParsingException("Warning: Incomplete selector: " + rule, -1, -1);
+      if (parts.length < 2)
+        throw new ParsingException("Warning: Incomplete selector: " + rule, -1, -1);
 
       // Always starts with the selector
-      this._selector = parts[0].toString().trim();
+      this._selector = parts[0].trim();
 
       // Simplify combinators
       this._selector = this._selector.replaceAll("\\s?(\\+|~|,|=|~=|\\^=|\\$=|\\*=|\\|=|>)\\s?", "$1");
 
       // We're dealing with a nested property, eg @-webkit-keyframes or @media
       if (parts.length > 2) {
-        this.subrules = new ArrayList<Rule>();
-        parts = rule.split("\\{|\\}");
+        this.subrules = new ArrayList<>();
+        parts = rule.split("[{}]");
         for (int i = 1; i < parts.length; i += 2) {
           // sub selector
           parts[i] = parts[i].trim();
@@ -397,7 +393,7 @@ public final class CSSMin {
      * @return An array of properties parsed from this selector.
      */
     private Property[] parseProperties(String contents) {
-      List<String> parts = new ArrayList<String>();
+      List<String> parts = new ArrayList<>();
       boolean inquotes = false;
       boolean inbrackets = false;
       int j = 0;
@@ -413,14 +409,14 @@ public final class CSSMin {
           inbrackets = true;
         } else if (contents.charAt(i) == ';') {
           substr = contents.substring(j, i);
-          if (!("".equals(substr.trim()) || (substr == null))) {
+          if (!"".equals(substr.trim())) {
             parts.add(substr);
           }
           j = i + 1;
         }
       }
-      substr = contents.substring(j, contents.length());
-      if (!("".equals(substr.trim()) || (substr == null))) {
+      substr = contents.substring(j);
+      if (!"".equals(substr.trim())) {
         parts.add(substr);
       }
       Property[] results = new Property[parts.size()];
@@ -463,14 +459,14 @@ public final class CSSMin {
     /**
      * Creates a new Property using the supplied strings.
      *
-     * Parses out the values of the property selector.
+     * <p>Parses out the values of the property selector.
      *
      * @param property The property;
      * @throws ParsingException If the property is incomplete and cannot be parsed.
      */
     public Property(String property) throws ParsingException {
       // Parse the property.
-      List<String> parts = new ArrayList<String>();
+      List<String> parts = new ArrayList<>();
       boolean inquotes = false;   // If we're inside a string
       boolean inbrackets = false; // If we're inside brackets
       int j = 0;
@@ -486,14 +482,14 @@ public final class CSSMin {
           inbrackets = true;
         } else if (property.charAt(i) == ':') {
           substr = property.substring(j, i);
-          if (!("".equals(substr.trim()) || (substr == null))) {
+          if (!"".equals(substr.trim())) {
             parts.add(substr);
           }
           j = i + 1;
         }
       }
-      substr = property.substring(j, property.length());
-      if (!("".equals(substr.trim()) || (substr == null))) {
+      substr = property.substring(j);
+      if (!"".equals(substr.trim())) {
         parts.add(substr);
       }
       if (parts.size() < 2) throw new ParsingException("Warning: Incomplete property: "+property, -1, -1);
@@ -535,7 +531,7 @@ public final class CSSMin {
      *
      * <p>We can't just use <code>String.compareTo()</code>, because we need to sort properties that have hack
      * prefixes last -- eg, *display should come after display.
-     *
+     * <p>
      * {@inheritDoc}
      */
     @Override
@@ -714,14 +710,14 @@ public final class CSSMin {
       }
       if (params.length == 2) {
         // We can drop off the second item if the first and second items match
-        // ie turn 3px 3px into 3px
+        // ie turn '3px 3px' into 3px
         if (params[0].equalsIgnoreCase(params[1])) {
           params = Arrays.copyOf(params, 1);
         }
       }
 
       for (String param : params) {
-        newContents.append(param + " ");
+        newContents.append(param).append(" ");
       }
       newContents.deleteCharAt(newContents.length() - 1); // Delete the trailing space
 
@@ -817,9 +813,12 @@ public final class CSSMin {
 /**
  * Constants for replacement.
  *
+ * @deprecated Will be remove in 0.12.0 (now part of Berlioz bundler)
+ *
  * @author Christophe Lauret
  * @version 21 November 2012
  */
+@Deprecated
 final class Constants {
 
   /**
@@ -1133,4 +1132,5 @@ final class Constants {
     "900",
     "100"
   };
+
 }

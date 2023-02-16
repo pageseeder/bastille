@@ -18,7 +18,6 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -30,10 +29,13 @@ import org.slf4j.LoggerFactory;
 /**
  * This generator returns the content of the navigation file.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.7.0 - 6 October 2012
  * @since 0.7.0
  */
+@Deprecated
 public final class GetNavigation implements ContentGenerator, Cacheable {
 
   /**
@@ -50,7 +52,7 @@ public final class GetNavigation implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Identify the file
     PSMLFile psml = PSMLConfig.getConfigFile("navigation");

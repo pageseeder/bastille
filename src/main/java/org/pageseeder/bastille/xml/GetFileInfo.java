@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -83,10 +82,13 @@ import org.slf4j.LoggerFactory;
  * <p>Since Version 0.6.1, this generator returns both the <code>media-type</code> and
  * <code>content-type</code> attributes. Use <code>media-type</code>.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
- * @version 0.6.35 - 21 May 2012
+ * @version 0.6.35
  * @since 0.6.0
  */
+@Deprecated
 public final class GetFileInfo implements ContentGenerator, Cacheable  {
 
   /**
@@ -101,7 +103,7 @@ public final class GetFileInfo implements ContentGenerator, Cacheable  {
 
   /**
    * Returns a weak Etag based on the file path, length and last modified date.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -112,7 +114,7 @@ public final class GetFileInfo implements ContentGenerator, Cacheable  {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     Environment env = req.getEnvironment();
     if (this.folder == null) {
       this.folder = env.getPublicFolder();

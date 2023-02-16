@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -68,16 +67,17 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * <p>Note: this generator does not return anything, if the content request is not made from an
  * HTTP request.
  *
+ * @deprecated Will be removed in the next version
+ *
  * @author Christophe Lauret
- * @version 0.6.7 - 31 May 2011
+ * @version 0.6.7
  * @since 0.6.3
  */
+@Deprecated
 public final class GetRequestHeaders implements ContentGenerator {
 
-
-  @SuppressWarnings("unchecked")
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     if (req instanceof HttpRequestWrapper) {
       HttpServletRequest r = ((HttpRequestWrapper)req).getHttpRequest();
       String match = req.getParameter("match", GlobalSettings.get("bastille.http.headers", "*"));
@@ -115,7 +115,7 @@ public final class GetRequestHeaders implements ContentGenerator {
    */
   private List<String> matching(String match) {
     if ("*".equals(match)) return Collections.emptyList();
-    List<String> matching = new ArrayList<String>();
+    List<String> matching = new ArrayList<>();
     for (String m : match.split("\\s*,\\s*")) {
       if (m.length() > 0) {
         matching.add(m);

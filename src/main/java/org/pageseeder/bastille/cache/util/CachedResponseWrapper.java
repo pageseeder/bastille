@@ -64,12 +64,12 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * List of response headers.
    */
   private final Map<String, List<Serializable>> _headers =
-      new TreeMap<String, List<Serializable>>(String.CASE_INSENSITIVE_ORDER);
+      new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   /**
    * Cookies.
    */
-  private final List<Cookie> _cookies = new ArrayList<Cookie>();
+  private final List<Cookie> _cookies = new ArrayList<>();
 
   /**
    * A servlet output stream backed by a byte array.
@@ -120,7 +120,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    *
    * <p>If the response is not OK, most of the logic is bypassed and the error is sent raw and
    * the content is not cached.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -134,7 +134,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    *
    * <p>If the response is not OK, most of the logic is bypassed and the error is sent raw and
    * the content is not cached.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -148,7 +148,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    *
    * <p>If the response is not OK, most of the logic is bypassed and the error is sent raw and
    * the content is not cached.
-   *
+   * <p>
    * {@inheritDoc}
    */
   @Override
@@ -246,7 +246,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /**
    * Flushes buffer and commits response to client.
    *
-   * <p>This method does not flush the buffer of the underlying stream so as to avoid the
+   * <p>This method does not flush the buffer of the underlying streams to avoid the
    * response to commit the response prematurely.
    *
    * @throws IOException if thrown while flushing the underlying buffer.
@@ -295,23 +295,23 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   }
 
   /**
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   public List<HttpHeader<? extends Serializable>> getAllHeaders() {
-    List<HttpHeader<? extends Serializable>> headers = new LinkedList<HttpHeader<? extends Serializable>>();
+    List<HttpHeader<? extends Serializable>> headers = new LinkedList<>();
     for (Map.Entry<String, List<Serializable>> headerEntry : this._headers.entrySet()) {
       String name = headerEntry.getKey();
       for (Serializable value : headerEntry.getValue()) {
         final Type type = HttpHeader.Type.determineType(value.getClass());
         switch (type) {
           case STRING:
-            headers.add(new HttpHeader<String>(name, (String) value));
+            headers.add(new HttpHeader<>(name, (String) value));
             break;
           case DATE:
-            headers.add(new HttpHeader<Long>(name, (Long) value));
+            headers.add(new HttpHeader<>(name, (Long) value));
             break;
           case INT:
-            headers.add(new HttpHeader<Integer>(name, (Integer) value));
+            headers.add(new HttpHeader<>(name, (Integer) value));
             break;
           default:
             throw new IllegalArgumentException("No mapping for Header.Type: " + type);
@@ -323,7 +323,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   /**
    * @param name the name of the header
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   public List<Serializable> getHeaderValues(String name) {
     return this._headers.get(name);
@@ -332,7 +332,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   /**
    * @param name the name of the header
-   * @return All of the headersMap set/added on the response
+   * @return All the headersMap set/added on the response
    */
   @Override
   public String getHeader(String name) {
@@ -443,7 +443,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
       this.stream.write(b);
     }
 
@@ -453,7 +453,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) {
       this.stream.write(b, off, len);
     }
 

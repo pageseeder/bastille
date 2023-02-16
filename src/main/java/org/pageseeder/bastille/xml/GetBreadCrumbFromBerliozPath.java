@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -84,11 +83,12 @@ import org.slf4j.LoggerFactory;
  *  </breadcrumbs>
  * } </pre>
  *
- *
+ * @deprecated Will be removed in 0.12
  *
  * @author Ciber Cai
  * @version 14 July 2011
  */
+@Deprecated
 public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cacheable {
 
   /**
@@ -105,7 +105,7 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug("Berlioz path {}", req.getBerliozPath());
 
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);
@@ -142,8 +142,7 @@ public final class GetBreadCrumbFromBerliozPath implements ContentGenerator, Cac
     if (file.exists()) return true;
     else {
       // request file is a directory
-      if (folder.isDirectory()) return true;
+      return folder.isDirectory();
     }
-    return false;
   }
 }

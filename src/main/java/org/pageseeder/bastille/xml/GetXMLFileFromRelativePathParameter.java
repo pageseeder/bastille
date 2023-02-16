@@ -18,7 +18,6 @@ package org.pageseeder.bastille.xml;
 import java.io.File;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -48,11 +47,13 @@ import net.sf.ehcache.Element;
  *   </generator>
  * } </pre>
  *
+ * @deprecated Will be removed in 0.12
  *
  * @author Christophe Lauret
  * @author Ciber Cai
  * @version 8 July 2011
  */
+@Deprecated
 public final class GetXMLFileFromRelativePathParameter implements ContentGenerator, Cacheable {
 
   /**
@@ -82,7 +83,7 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     String relativepath = addXMLExtension(req.getParameter("relative-path", ""));
     File rootfolder = XMLConfiguration.getXMLRootFolder(req);
@@ -90,7 +91,7 @@ public final class GetXMLFileFromRelativePathParameter implements ContentGenerat
     LOGGER.debug("relative path  {} ", relativepath);
     LOGGER.debug("root folder {} ", rootfolder);
 
-    // Setup the cache
+    // Set up the cache
     if (this.cache == null) {
       this.cache = XMLHelper.initCache();
     }

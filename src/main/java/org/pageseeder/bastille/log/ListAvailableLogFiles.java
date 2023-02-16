@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -31,7 +30,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6 - 6 February 2013
+ * @version Bastille 0.8.6
  * @since Bastille 0.8.5
  */
 @Beta
@@ -50,7 +49,7 @@ public final class ListAvailableLogFiles implements ContentGenerator {
   };
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Get the information about the log framework
     LogInfo info = Logs.getLogInfo();
@@ -79,7 +78,7 @@ public final class ListAvailableLogFiles implements ContentGenerator {
       // No recent logs
       xml.openElement("no-log-directories");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
-          + "Switch to the LogBack library http://logback.qos.ch";
+          + "Switch to the LogBack library https://logback.qos.ch";
       xml.writeComment(message);
       xml.closeElement();
       req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);

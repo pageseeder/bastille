@@ -35,10 +35,13 @@ import org.slf4j.LoggerFactory;
 /**
  * A utility class to help with XSLT operations.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.3 - 3 May 2013
  * @since 0.6.0
  */
+@Deprecated
 public final class XSLTUtils {
 
   /** Logger for this class */
@@ -47,7 +50,7 @@ public final class XSLTUtils {
   /**
    * Maps XSLT templates to their URL as a string for easy retrieval.
    */
-  private static final Map<String, Templates> CACHE = new Hashtable<String, Templates>();
+  private static final Map<String, Templates> CACHE = new Hashtable<>();
 
   /** Utility class. */
   private XSLTUtils() {
@@ -76,10 +79,10 @@ public final class XSLTUtils {
       templates = factory.newTemplates(source);
     } catch (TransformerConfigurationException ex) {
       LOGGER.error("Transformer exception: {}", ex.getMessageAndLocation(), ex);
-      throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url.toString(), ex);
+      throw new BerliozException("Transformer exception while trying to load XSLT templates"+ url, ex);
     } catch (IOException ex) {
       LOGGER.error("IO error while trying to load template: {}", url);
-      throw new BerliozException("IO error while trying to load XSLT templates"+ url.toString(), ex);
+      throw new BerliozException("IO error while trying to load XSLT templates"+ url, ex);
     } finally {
       IOUtils.closeQuietly(in);
     }
@@ -114,7 +117,7 @@ public final class XSLTUtils {
   /**
    * Return the XSLT templates from the given style.
    *
-   * <p>This method will firt try to load the resource using the class loader used for this class.
+   * <p>This method will first try to load the resource using the class loader used for this class.
    *
    * <p>Use this class to load XSLT from the system.
    *
@@ -134,7 +137,7 @@ public final class XSLTUtils {
   /**
    * Return the XSLT templates from the given style.
    *
-   * <p>This method will firt try to load the resource using the class loader used for this class.
+   * <p>This method will first try to load the resource using the class loader used for this class.
    *
    * <p>Use this class to load XSLT from the system.
    *

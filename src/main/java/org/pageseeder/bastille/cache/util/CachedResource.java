@@ -22,7 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * A interface for cached resources.
+ * An interface for cached resources.
  *
  * @author Christophe Lauret
  *
@@ -45,7 +45,7 @@ public interface CachedResource {
    *
    * <p>If the content is gzippable, this method will unzip the content on demand.
    *
-   * <p>If the content is not gzippable, this method will trown a
+   * <p>If the content is not gzippable, this method will thrown a
    *
    * @param gzipped <code>true</code> to request the gzipped content;
    *                <code>false</code> to get the raw content.
@@ -77,7 +77,7 @@ public interface CachedResource {
   /**
    * Returns the last modified date for this resource.
    *
-   * @return the last modified date if there is an "Last-Modified" header defined; -1 otherwise.
+   * @return the last modified date if there is a "Last-Modified" header defined; -1 otherwise.
    */
   long getLastModified();
 
@@ -92,7 +92,7 @@ public interface CachedResource {
   String getETag(boolean gzipped);
 
   /**
-   * @return All of the headers set on the page.
+   * @return All the headers set on the page.
    * @param gzipped      <code>true</code> if the content is sent gzipped;
    *                     <code>false</code> otherwise.
    */

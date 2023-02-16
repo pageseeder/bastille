@@ -16,9 +16,9 @@
 package org.pageseeder.bastille.security;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.pageseeder.bastille.util.Base32;
-
 
 /**
  * A utility class to obfuscate passwords.
@@ -29,12 +29,12 @@ import org.pageseeder.bastille.util.Base32;
  * make passwords harder to guess.
  *
  * @author Christophe Lauret
- * @version 26 September 2011
+ * @version Bastille 0.6.7
  */
 public final class Obfuscator {
 
   /** We use UTF-8. */
-  private static final Charset UTF8 = Charset.forName("utf-8");
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   /**
    * Utility class.
@@ -86,7 +86,7 @@ public final class Obfuscator {
    */
   public static String obfuscate(String clear) {
     StringBuilder obfuscated = new StringBuilder();
-    String base32 = Base32.encode(clear.toString().getBytes(UTF8));
+    String base32 = Base32.encode(clear.getBytes(UTF8));
     obfuscated.append(rot13(base32));
     obfuscated.append('1');
     long r = Math.round(Math.random() * Long.MAX_VALUE);

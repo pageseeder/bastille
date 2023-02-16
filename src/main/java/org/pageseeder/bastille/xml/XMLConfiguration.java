@@ -27,10 +27,13 @@ import org.pageseeder.berlioz.content.Environment;
  * <p>This class is used to ensure that the same configuration options are used by all generators
  * in this package.
  *
+ * @deprecated Will be removed in 0.12
+ *
  * @author Christophe Lauret
  * @version 0.6.8 - 8 June 2011
  * @since 0.6.1
  */
+@Deprecated
 public final class XMLConfiguration {
 
   /** Utility class */

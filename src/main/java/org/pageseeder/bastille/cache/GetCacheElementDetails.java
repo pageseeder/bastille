@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -37,7 +36,7 @@ import net.sf.ehcache.Element;
  * Display the details about an element in the cache.
  *
  * @author Christophe Lauret
- * @version 10 March 2013
+ * @version Bastille 0.8.3
  */
 @Beta
 public final class GetCacheElementDetails implements ContentGenerator {
@@ -46,7 +45,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetCacheElementDetails.class);
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
       Errors.noParameter(req, xml, "name");
@@ -84,7 +83,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
     xml.attribute("disabled", Boolean.toString(cache.isDisabled()));
 
     xml.openElement("element", true);
-    xml.attribute("key", key.toString());
+    xml.attribute("key", key);
     Element element = cache.getQuiet(key);
     if (element != null) {
       xml.attribute("creation-time", ISO8601.DATETIME.format(element.getCreationTime()));
@@ -167,9 +166,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
             } else {
               toElementObjectXML(f.get(o), xml);
             }
-          } catch (IllegalArgumentException ex) {
-            LOGGER.warn("Unable to extract object value field", ex);
-          } catch (IllegalAccessException ex) {
+          } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.warn("Unable to extract object value field", ex);
           }
           xml.closeElement();

@@ -18,7 +18,6 @@ package org.pageseeder.bastille.cache;
 import java.io.IOException;
 
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -32,13 +31,13 @@ import net.sf.ehcache.Ehcache;
  * Removes an entry from the cache content.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.4 - 1 February 2013
+ * @version Bastille 0.8.4
  */
 @Beta
 public final class RemoveCacheElement implements ContentGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Grab the cache name
     String name = req.getParameter("name", null);

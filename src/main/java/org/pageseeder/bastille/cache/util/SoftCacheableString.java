@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -37,7 +38,7 @@ import java.util.zip.GZIPOutputStream;
  * representation will be significantly smaller than their string value.
  *
  * @author Christophe Lauret
- * @version 21 March 2013
+ * @version Bastille 0.8.3
  */
 public final class SoftCacheableString implements Serializable {
 
@@ -50,7 +51,7 @@ public final class SoftCacheableString implements Serializable {
   /**
    * Using utf8 as the default charset.
    */
-  private static final Charset UTF8 = Charset.forName("utf8");
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   /**
    * Compressed version of the data.
@@ -71,7 +72,7 @@ public final class SoftCacheableString implements Serializable {
    */
   public SoftCacheableString(String data) {
     this._data = gzip(data);
-    this._s = new SoftReference<String>(data);
+    this._s = new SoftReference<>(data);
   }
 
   /**
@@ -81,7 +82,7 @@ public final class SoftCacheableString implements Serializable {
     String s = (this._s != null)? this._s.get() : null;
     if (s == null) {
       s = ungzip(this._data);
-      this._s = new SoftReference<String>(s);
+      this._s = new SoftReference<>(s);
     }
     return s;
   }

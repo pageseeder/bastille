@@ -19,7 +19,8 @@ package org.pageseeder.bastille.util;
  * A utility class to manipulate paths.
  *
  * @author Christophe Lauret
- * @version 25 November 2012.
+ *
+ * @version Bastille 0.12.0
  */
 public final class Paths {
 
@@ -50,7 +51,7 @@ public final class Paths {
       normalized = normalized.substring(2);
     }
     if (normalized.contains("/./")) {
-      normalized = normalized.replaceAll("/\\./", "/");
+      normalized = normalized.replace("/./", "/");
     }
     // parent
     while (normalized.indexOf("/../") > normalized.indexOf('/')+1) {
@@ -91,7 +92,7 @@ public final class Paths {
       }
       path.append("..");
     }
-    if (path.length() == 0 && t.length() > 0) {
+    if (path.length() == 0 && !t.isEmpty()) {
       path.append(t.substring(1));
     } else {
       path.append(t);

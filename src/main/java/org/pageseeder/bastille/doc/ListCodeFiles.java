@@ -53,8 +53,8 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
     File xslt = env.getPrivateFile("xslt");
 
     // XSLT documentation first
-    SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    toXML(xslt, xml, root, ISO8601Local);
+    SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    toXML(xslt, xml, root, iso8601Local);
   }
 
   /**
@@ -81,8 +81,6 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
       } else {
         xml.attribute("type", "file");
-        // TODO Remove `content-type`
-        xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
         xml.attribute("modified", iso.format(f.lastModified()));

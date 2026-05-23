@@ -2,7 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     signing
-    id("io.codearte.nexus-staging") version "0.30.0"
+    alias(libs.plugins.nexus.staging)
 }
 
 val title: String by project
@@ -32,18 +32,18 @@ repositories {
 }
 
 dependencies {
-    implementation("org.slf4j:slf4j-api:2.0.6")
-    implementation("net.sf.ehcache:ehcache:2.10.9.2")
-    implementation("commons-io:commons-io:2.11.0")
-    implementation("org.pageseeder.berlioz:pso-berlioz:0.12.2")
-    implementation("org.pageseeder.xmlwriter:pso-xmlwriter:1.0.4")
-    implementation("org.pageseeder.cobble:pso-cobble:0.3.2")
+    implementation(libs.slf4j.api)
+    implementation(libs.ehcache)
+    implementation(libs.commons.io)
+    implementation(libs.berlioz)
+    implementation(libs.xmlwriter)
+    implementation(libs.cobble)
 
-    compileOnly("ch.qos.logback:logback-core:1.3.5")
-    compileOnly("ch.qos.logback:logback-classic:1.3.5")
-    compileOnly("javax.servlet:javax.servlet-api:3.1.0")
+    compileOnly(libs.logback.core)
+    compileOnly(libs.logback.classic)
+    compileOnly(libs.servlet.api)
 
-    runtimeOnly("net.sf.saxon:Saxon-HE:11.5")
+    runtimeOnly(libs.saxon)
 }
 
 tasks.test {

@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    jacoco
     alias(libs.plugins.cyclonedx)
     alias(libs.plugins.jreleaser)
     alias(libs.plugins.sonarqube)
@@ -60,6 +61,14 @@ tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+    }
 }
 
 publishing {
@@ -113,6 +122,7 @@ sonarqube {
         property("sonar.organization", "pageseeder")
         property("sonar.projectKey", "pageseeder_bastille")
         property("sonar.token", providers.gradleProperty("sonarcloud.login").getOrElse(""))
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
 

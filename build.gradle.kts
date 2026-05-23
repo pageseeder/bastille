@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    alias(libs.plugins.cyclonedx)
     alias(libs.plugins.jreleaser)
     alias(libs.plugins.sonarqube)
 }
@@ -52,6 +53,10 @@ dependencies {
     runtimeOnly(libs.saxon)
 }
 
+tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {
+    xmlOutput.unsetConvention()
+}
+
 tasks.test {
     useJUnitPlatform()
 }
@@ -60,6 +65,13 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+            artifact(
+                tasks.named<org.cyclonedx.gradle.CyclonedxDirectTask>("cyclonedxDirectBom")
+                    .flatMap { it.jsonOutput }
+            ) {
+                classifier = "cyclonedx"
+                extension = "json"
+            }
             pom {
                 name.set(title)
                 description.set(project.description)

@@ -2,6 +2,7 @@ plugins {
     `java-library`
     `maven-publish`
     alias(libs.plugins.jreleaser)
+    alias(libs.plugins.sonarqube)
 }
 
 val title: String by project
@@ -90,6 +91,15 @@ publishing {
         maven {
             url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.organization", "pageseeder")
+        property("sonar.projectKey", "pageseeder_bastille")
+        property("sonar.token", providers.gradleProperty("sonarcloud.login").getOrElse(""))
     }
 }
 

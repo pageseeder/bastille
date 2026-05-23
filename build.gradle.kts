@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.cyclonedx)
     alias(libs.plugins.jreleaser)
     alias(libs.plugins.sonarqube)
+    alias(libs.plugins.versions)
 }
 
 val title: String by project

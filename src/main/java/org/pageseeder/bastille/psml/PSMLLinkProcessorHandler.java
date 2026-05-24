@@ -142,64 +142,47 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
 
   @Override
   public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-    // Copy the XML
-    if (this.copy != null) {
-      Attributes modified = attributes;
-      if (ELEMENT_BLOCKXREF.equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
-        // Update the references
-        String value = Paths.normalize(this.shift + attributes.getValue("href"));
-        modified = update(attributes, "href", value);
+    copyStartElement(uri, localName, qName, attributes);
+    processBlockxref(qName, attributes);
+  }
 
-      } else if ("image".equals(qName)) {
-        // Update the path to images
-        String value = Paths.normalize(this.shift + attributes.getValue("src"));
-        modified = update(attributes, "src", value);
-
-      } else if ("heading".equals(qName)) {
-        // Update the heading level
-        String value = Integer.toString(toLevel(attributes) + this.level);
-        modified = update(attributes, "level", value);
-
-      }
-      this.copy.startElement(uri, localName, qName, modified);
+  private void copyStartElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    if (this.copy == null) return;
+    Attributes modified = attributes;
+    if (ELEMENT_BLOCKXREF.equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
+      modified = update(attributes, "href", Paths.normalize(this.shift + attributes.getValue("href")));
+    } else if ("image".equals(qName)) {
+      modified = update(attributes, "src", Paths.normalize(this.shift + attributes.getValue("src")));
+    } else if ("heading".equals(qName)) {
+      modified = update(attributes, "level", Integer.toString(toLevel(attributes) + this.level));
     }
+    this.copy.startElement(uri, localName, qName, modified);
+  }
 
-    // Process the blockxref if there is one
-    if (ELEMENT_BLOCKXREF.equals(qName)) {
+  private void processBlockxref(String qName, Attributes attributes) throws SAXException {
+    if (!ELEMENT_BLOCKXREF.equals(qName)) return;
+    String type = attributes.getValue("type");
+    String mediatype = attributes.getValue("mediatype");
+    int level = toLevel(attributes);
+    if (this.depth >= MAX_DEPTH || !this.types.contains(type) || !isProcessable(mediatype)) return;
 
-      // Only process xref matching the correct xref type and media type
-      String type = attributes.getValue("type");
-      String mediatype = attributes.getValue("mediatype");
-      int level = toLevel(attributes);
-      if (this.depth < MAX_DEPTH && this.types.contains(type) && isProcessable(mediatype)) {
+    String path = this.source.getBase() + attributes.getValue("href");
+    if (path.indexOf('/') == 0) path = path.substring(1);
+    if (path.endsWith(".psml")) path = path.substring(0, path.length() - 5);
 
-        // compute path to target file
-        String base = this.source.getBase();
-        String path = base + attributes.getValue("href");
-        if (path.indexOf('/') == 0) {
-          path = path.substring(1);
-        }
-        if (path.endsWith(".psml")) {
-          path = path.substring(0, path.length()-5);
-        }
-
-        // grab the level (if we need to adjust the headings)
-
-        PSMLFile target = PSMLConfig.getFile(path);
-        if (target.exists()) {
-          if (this.copy != null) {
-            this.insideLink = true;
-            try {
-              PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
-            } catch (IOException ex) {
-              throw new SAXException("Unable to transclude content of "+target);
-            }
-          }
-        } else {
-          String comment = "Unable to find content for transclusion";
-          this.copy.comment(comment.toCharArray(), 0, comment.length());
+    PSMLFile target = PSMLConfig.getFile(path);
+    if (target.exists()) {
+      if (this.copy != null) {
+        this.insideLink = true;
+        try {
+          PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
+        } catch (IOException ex) {
+          throw new SAXException("Unable to transclude content of " + target);
         }
       }
+    } else {
+      String comment = "Unable to find content for transclusion";
+      this.copy.comment(comment.toCharArray(), 0, comment.length());
     }
   }
 

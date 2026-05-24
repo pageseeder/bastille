@@ -42,6 +42,8 @@ public final class GenericResource implements Serializable, CachedResource {
   /** As per requirement for <code>Serializable</code> */
   private static final long serialVersionUID = 2909918731971135622L;
 
+  private static final String GZIP_ETAG_SUFFIX = "-gzip\"";
+
   /** Where useful debug info goes. */
   private static final Logger LOGGER = LoggerFactory.getLogger(GenericResource.class);
 
@@ -225,10 +227,10 @@ public final class GenericResource implements Serializable, CachedResource {
             String value = (String) header.value();
             // Value adjust Etag for negociated content
             if ("etag".equalsIgnoreCase(name)) {
-              if (!gzipped && value.endsWith("-gzip\"")) {
-                value = value.replace("-gzip\"", "");
-              } else if (gzipped && !value.endsWith("-gzip\"")) {
-                value = value.substring(0, value.length()-1) + "-gzip\"";
+              if (!gzipped && value.endsWith(GZIP_ETAG_SUFFIX)) {
+                value = value.replace(GZIP_ETAG_SUFFIX, "");
+              } else if (gzipped && !value.endsWith(GZIP_ETAG_SUFFIX)) {
+                value = value.substring(0, value.length()-1) + GZIP_ETAG_SUFFIX;
               }
             }
             res.addHeader(name, value);
@@ -323,10 +325,10 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   private static String adjustEtag(String etag, boolean gzipped) {
     String value = etag;
-    if (!gzipped && value.endsWith("-gzip\"")) {
+    if (!gzipped && value.endsWith(GZIP_ETAG_SUFFIX)) {
       value = value.replace("-gzip", "");
-    } else if (gzipped && !value.endsWith("-gzip\"")) {
-      value = value.substring(0, value.length()-1) + "-gzip\"";
+    } else if (gzipped && !value.endsWith(GZIP_ETAG_SUFFIX)) {
+      value = value.substring(0, value.length()-1) + GZIP_ETAG_SUFFIX;
     }
     return value;
   }

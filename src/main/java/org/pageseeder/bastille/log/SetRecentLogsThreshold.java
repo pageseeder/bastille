@@ -41,6 +41,8 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
   /** A logger. */
   private static final Logger LOGGER = LoggerFactory.getLogger(SetRecentLogsThreshold.class);
 
+  private static final String PARAM_THRESHOLD = "threshold";
+
   /**
    * When this generator is instantiated, the logging framework information is loaded and initialized.
    *
@@ -58,9 +60,9 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
     if (info.supportsRecentEvents()) {
 
       //
-      String threshold = req.getParameter("threshold");
+      String threshold = req.getParameter(PARAM_THRESHOLD);
       if (threshold == null) {
-        Errors.noParameter(req, xml, "threshold");
+        Errors.noParameter(req, xml, PARAM_THRESHOLD);
         return;
       }
 
@@ -77,7 +79,7 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
         xml.closeElement();
 
       } catch (IllegalArgumentException ex) {
-        Errors.invalidParameter(req, xml, "threshold");
+        Errors.invalidParameter(req, xml, PARAM_THRESHOLD);
       }
 
     } else {

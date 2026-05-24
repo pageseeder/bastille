@@ -52,6 +52,8 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /** As per requirement by <code>Serializable</code> */
   private static final long serialVersionUID = -5976708169031065497L;
 
+  private static final String ACCEPT_ENCODING = "Accept-Encoding";
+
   /** HTTP status code, OK (200) by default. */
   private int status = SC_OK;
 
@@ -398,16 +400,16 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     if (value == null) {
       // Set if not found
       if (add) {
-        setHeader(HttpHeaders.VARY, "Accept-Encoding");
+        setHeader(HttpHeaders.VARY, ACCEPT_ENCODING);
       }
     } else if (!"*".equals(value)) {
-      if (value.contains("Accept-Encoding")) {
-        if (!add && "Accept-Encoding".equals(value)) {
+      if (value.contains(ACCEPT_ENCODING)) {
+        if (!add && ACCEPT_ENCODING.equals(value)) {
           this.headers.remove(HttpHeaders.VARY);
         }
       } else {
         if (add) {
-          setHeader(HttpHeaders.VARY, value + ",Accept-Encoding");
+          setHeader(HttpHeaders.VARY, value + "," + ACCEPT_ENCODING);
         }
       }
     }

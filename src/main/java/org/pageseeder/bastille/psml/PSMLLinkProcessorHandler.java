@@ -46,6 +46,8 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    */
   private static final int MAX_DEPTH = 8;
 
+  private static final String ELEMENT_BLOCKXREF = "blockxref";
+
   // class attributes
   // ----------------------------------------------------------------------------------------------
 
@@ -143,7 +145,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     // Copy the XML
     if (this.copy != null) {
       Attributes modified = attributes;
-      if ("blockxref".equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
+      if (ELEMENT_BLOCKXREF.equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
         // Update the references
         String value = Paths.normalize(this.shift + attributes.getValue("href"));
         modified = update(attributes, "href", value);
@@ -163,7 +165,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     }
 
     // Process the blockxref if there is one
-    if ("blockxref".equals(qName)) {
+    if (ELEMENT_BLOCKXREF.equals(qName)) {
 
       // Only process xref matching the correct xref type and media type
       String type = attributes.getValue("type");
@@ -211,7 +213,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
       this.copy.endElement(uri, localName, qName);
     }
 
-    if ("blockxref".equals(qName)) {
+    if (ELEMENT_BLOCKXREF.equals(qName)) {
       this.insideLink = false;
     }
   }

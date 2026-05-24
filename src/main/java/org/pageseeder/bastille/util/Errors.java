@@ -31,6 +31,8 @@ import org.pageseeder.xmlwriter.XMLWriter;
 @Beta
 public final class Errors {
 
+  private static final String CLIENT_ERROR_TYPE = "client";
+
   /**
    * Utility class.
    */
@@ -56,7 +58,7 @@ public final class Errors {
    */
   public static void noParameter(ContentRequest req, XMLWriter xml, String name) throws IOException {
     final String message = "The parameter '"+name+"' was not specified.";
-    error(req, xml, "client", message, ContentStatus.BAD_REQUEST);
+    error(req, xml, CLIENT_ERROR_TYPE, message, ContentStatus.BAD_REQUEST);
   }
 
   /**
@@ -75,7 +77,7 @@ public final class Errors {
    */
   public static void invalidParameter(ContentRequest req, XMLWriter xml, String name) throws IOException {
     final String message = "The parameter '"+name+"' is invalid.";
-    error(req, xml, "client", message, ContentStatus.BAD_REQUEST);
+    error(req, xml, CLIENT_ERROR_TYPE, message, ContentStatus.BAD_REQUEST);
   }
 
   /**
@@ -93,7 +95,7 @@ public final class Errors {
    */
   public static void noUser(ContentRequest req, XMLWriter xml) throws IOException {
     final String message = "The user must be logged in to access this information";
-    error(req, xml, "client", message, ContentStatus.FORBIDDEN);
+    error(req, xml, CLIENT_ERROR_TYPE, message, ContentStatus.FORBIDDEN);
   }
 
   // Generic errors

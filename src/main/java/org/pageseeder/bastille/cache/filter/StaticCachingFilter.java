@@ -254,7 +254,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       LOGGER.debug("Building static cached resource for {}", req.getRequestURI());
       long lastModified = r.getDateHeader(HttpHeaders.LAST_MODIFIED);
       long ttlMilliseconds = computeTimeToLiveMilliseconds(getCache());
-      String cacheControl = this.cacheControlPattern.replaceAll("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
+      String cacheControl = this.cacheControlPattern.replace("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
       long expires = System.currentTimeMillis() + ttlMilliseconds;
       resource = new StaticResource(r.getStatus(), r.getContentType(), r.toByteArray(), lastModified, cacheControl, expires);
 

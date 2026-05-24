@@ -45,10 +45,7 @@ public final class GetCacheElements implements ContentGenerator {
       Errors.noParameter(req, xml, "name");
       return;
     }
-    int page = req.getIntParameter("page", 1);
-    int perpage = req.getIntParameter("pagesize", 1000);
-
-    // TODO
+    // TODO (pagination with page/pagesize parameters not yet implemented)
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();

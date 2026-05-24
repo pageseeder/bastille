@@ -274,7 +274,6 @@ public final class GenericResource implements Serializable, CachedResource {
         }
       } else {
         if (isBodyParameterGzipped(headers)) {
-          content = null;
           throw new IllegalArgumentException("Non gzip content has been gzipped.");
         } else {
           content = body;

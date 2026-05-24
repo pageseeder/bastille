@@ -266,7 +266,6 @@ public final class StaticResource implements Serializable, CachedResource {
         }
       } else {
         if (GZIPUtils.isGzipped(body)) {
-          content = null;
           throw new IllegalArgumentException("Non gzip content has been gzipped.");
         } else {
           content = body;

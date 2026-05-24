@@ -55,7 +55,7 @@ public final class GetRecentLogsEvents implements ContentGenerator {
       // Write out the recent logs as XML
       xml.openElement("recent-logs");
       xml.attribute("level", info.getRecentEventThreshold().toString());
-      List<? extends XMLWritable> events = info.listRecentEvents();
+      List<XMLWritable> events = info.listRecentEvents();
       for (XMLWritable e : events) {
         e.toXML(xml);
       }

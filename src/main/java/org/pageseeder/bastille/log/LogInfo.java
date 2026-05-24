@@ -81,6 +81,6 @@ public interface LogInfo {
    *
    * @return Always a list (never <code>null</code>)
    */
-  List<? extends XMLWritable> listRecentEvents();
+  List<XMLWritable> listRecentEvents();
 
 }

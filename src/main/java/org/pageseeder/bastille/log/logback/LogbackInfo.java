@@ -107,8 +107,8 @@ public final class LogbackInfo implements LogInfo {
   }
 
   @Override
-  public List<? extends XMLWritable> listRecentEvents() {
-    return RecentEventsFilter.getCopyOfEvents();
+  public List<XMLWritable> listRecentEvents() {
+    return new ArrayList<>(RecentEventsFilter.getCopyOfEvents());
   }
 
   // private helpers

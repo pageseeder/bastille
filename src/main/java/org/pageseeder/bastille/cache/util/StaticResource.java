@@ -194,12 +194,12 @@ public final class StaticResource implements Serializable, CachedResource {
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
     List<HttpHeader<? extends Serializable>> headers = new ArrayList<>();
     // Set the headers of the HTTP response
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.CACHE_CONTROL, this.cacheControl));
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.ETAG, getETag(gzipped)));
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.LAST_MODIFIED, this.lastModified));
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.EXPIRES, this.expires));
+    headers.add(new HttpHeader<>(HttpHeaders.CACHE_CONTROL, this.cacheControl));
+    headers.add(new HttpHeader<>(HttpHeaders.ETAG, getETag(gzipped)));
+    headers.add(new HttpHeader<>(HttpHeaders.LAST_MODIFIED, this.lastModified));
+    headers.add(new HttpHeader<>(HttpHeaders.EXPIRES, this.expires));
     if (this.gzippable) {
-      headers.add(new HttpHeader<Serializable>(HttpHeaders.VARY, "Accept-Encoding"));
+      headers.add(new HttpHeader<>(HttpHeaders.VARY, "Accept-Encoding"));
     }
     return headers;
   }

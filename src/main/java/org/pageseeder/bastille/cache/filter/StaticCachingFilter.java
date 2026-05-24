@@ -186,29 +186,32 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
 
       // Let's invoke the underlying page
       if (doBuild) {
-        Ehcache cache = getCache();
-        try {
-          // Page is not cached - build the response, cache it, and send to client
-          resource = buildResource(req, res, chain);
-          if (resource.isOK()) {
-            LOGGER.debug("Resource OK (200) - adding to cache {} with key {}", cache.getName(), key);
-            cache.put(new Element(key, resource));
-          } else {
-            LOGGER.debug("Resource was not OK(200) - putting null into cache {} with key {}", cache.getName(), key);
-            // Must unlock the cache by inserting null element
-            cache.put(new Element(key, null));
-          }
-        } catch (Exception throwable) {
-          // Must unlock the cache by inserting null element
-          cache.put(new Element(key, null));
-          throw new ServletException(throwable);
-        }
+        resource = buildAndCache(key, req, res, chain);
       }
     } catch (LockTimeoutException ex) {
       // Do not release the lock since we never acquired it
       throw ex;
     }
     return resource;
+  }
+
+  private CachedResource buildAndCache(String key, HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      throws ServletException {
+    Ehcache cache = getCache();
+    try {
+      CachedResource resource = buildResource(req, res, chain);
+      if (resource.isOK()) {
+        LOGGER.debug("Resource OK (200) - adding to cache {} with key {}", cache.getName(), key);
+        cache.put(new Element(key, resource));
+      } else {
+        LOGGER.debug("Resource was not OK(200) - putting null into cache {} with key {}", cache.getName(), key);
+        cache.put(new Element(key, null));
+      }
+      return resource;
+    } catch (Exception throwable) {
+      cache.put(new Element(key, null));
+      throw new ServletException(throwable);
+    }
   }
 
   /**

@@ -131,37 +131,7 @@ public final class PSMLOverviews {
       PSMLOverviewHandler handler = new PSMLOverviewHandler();
       XMLReader reader = XMLHelper.makeXMLReader(handler);
       for (File f : files) {
-        xml.openElement("entry");
-        xml.attribute("name", f.getName());
-
-        try {
-          // Parse and make it resist bad files...
-          XMLHelper.parse(reader, f);
-
-          // Grab the title and summary
-          String title = handler.getTitle();
-          if (title != null) {
-            xml.element("title", title);
-          }
-          String summary = handler.getSummary();
-          if (summary != null) {
-            xml.element("summary", summary);
-          }
-
-          // Return the properties we could find
-          for (Entry<String, String> property : handler.getProperties().entrySet()) {
-            xml.openElement("property");
-            xml.attribute("name", property.getKey());
-            xml.attribute("value", property.getValue());
-            xml.closeElement();
-          }
-
-        } catch (SAXException ex) {
-          LOGGER.warn("Unparseable file found: {}", f.getName());
-          xml.attribute("error", "unparsable");
-        }
-
-        xml.closeElement();
+        processEntry(reader, handler, f, xml);
       }
     } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
@@ -181,6 +151,32 @@ public final class PSMLOverviews {
       if (subs != null) return Arrays.asList(subs);
     }
     return Collections.emptyList();
+  }
+
+  private static void processEntry(XMLReader reader, PSMLOverviewHandler handler, File f, XMLWriter xml) throws IOException {
+    xml.openElement("entry");
+    xml.attribute("name", f.getName());
+    try {
+      XMLHelper.parse(reader, f);
+      String title = handler.getTitle();
+      if (title != null) {
+        xml.element("title", title);
+      }
+      String summary = handler.getSummary();
+      if (summary != null) {
+        xml.element("summary", summary);
+      }
+      for (Entry<String, String> property : handler.getProperties().entrySet()) {
+        xml.openElement("property");
+        xml.attribute("name", property.getKey());
+        xml.attribute("value", property.getValue());
+        xml.closeElement();
+      }
+    } catch (SAXException ex) {
+      LOGGER.warn("Unparseable file found: {}", f.getName());
+      xml.attribute("error", "unparsable");
+    }
+    xml.closeElement();
   }
 
   /**

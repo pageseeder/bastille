@@ -194,15 +194,19 @@ public final class PSMLLinkProcessor {
   static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) throws IOException {
     try {
       XMLReader reader = XMLHelper.makeXMLReader(handler);
-      try {
-        XMLHelper.parse(reader, source.file());
-      } catch (SAXException ex) {
-        LOGGER.warn("Unparseable file found: {} ({})", source.file().getName(), ex.getMessage());
-      }
+      parseSilently(reader, source.file());
     } catch (ParserConfigurationException | SAXException ex) {
       throw new IOException(ex);
     }
     return handler.getLinks();
+  }
+
+  private static void parseSilently(XMLReader reader, File file) throws IOException {
+    try {
+      XMLHelper.parse(reader, file);
+    } catch (SAXException ex) {
+      LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
+    }
   }
 
   /**

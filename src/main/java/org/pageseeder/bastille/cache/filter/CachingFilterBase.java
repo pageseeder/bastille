@@ -95,7 +95,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    */
   @Override
   public void init(FilterConfig config) throws CacheException {
-    synchronized (this.getClass()) {
+    synchronized (CachingFilterBase.class) {
       if (this.blockingCache == null) {
         this.cacheName = config.getInitParameter("cache-name");
         if (this.cacheName != null && this.cacheName.length() > 0) {

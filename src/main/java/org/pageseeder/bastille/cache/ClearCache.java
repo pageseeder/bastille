@@ -17,6 +17,7 @@ package org.pageseeder.bastille.cache;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -79,7 +80,7 @@ public final class ClearCache implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());

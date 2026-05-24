@@ -18,9 +18,7 @@ package org.pageseeder.bastille.cache.util;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.jspecify.annotations.Nullable;
 
@@ -73,7 +71,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public Enumeration<String> getHeaders(String name) {
-    if (EXCLUDE.contains(name.toLowerCase())) return new EmptyEnumeration<>();
+    if (EXCLUDE.contains(name.toLowerCase())) return Collections.emptyEnumeration();
     else return super.getHeaders(name);
   }
 
@@ -89,29 +87,4 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
     else return super.getHeader(name);
   }
 
-  // An Empty enumeration
-  // ----------------------------------------------------------------------------------------------
-
-  /**
-   * An enumeration over an empty collection.
-   *
-   * <p>The {@link #hasMoreElements()} method always returns <code>false</code> and the
-   * {@link #nextElement()} method always throws a {@link NoSuchElementException}.
-   *
-   * @author Christophe Lauret
-   *
-   * @param <T> Type of object to enumerate.
-   */
-  private static class EmptyEnumeration<T> implements Enumeration<T> {
-
-    @Override
-    public boolean hasMoreElements() {
-      return false;
-    }
-
-    @Override
-    public T nextElement() {
-      throw new NoSuchElementException();
-    }
-  }
 }

@@ -106,7 +106,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(this.ancestor, f));
     if (f.exists()) {
-      SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
@@ -119,7 +119,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", ISO8601Local.format(f.lastModified()));
+        xml.attribute("modified", iso8601Local.format(f.lastModified()));
       }
 
     } else {

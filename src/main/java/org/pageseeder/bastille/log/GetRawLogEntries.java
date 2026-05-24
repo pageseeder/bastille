@@ -163,19 +163,10 @@ public final class GetRawLogEntries implements ContentGenerator {
   }
 
   private static Lines tail(File log, int maxLines) throws IOException {
-    BufferedReader reader = null;
     Lines lines = new Lines(maxLines);
-    // Extract the last max lines first
-    try {
-      reader = new BufferedReader(new FileReader(log));
+    try (BufferedReader reader = new BufferedReader(new FileReader(log))) {
       for (String line = reader.readLine(); line != null; line = reader.readLine()) {
         lines.add(line);
-      }
-    } catch (IOException ex) {
-      throw ex;
-    } finally {
-      if (reader != null) {
-        reader.close();
       }
     }
     return lines;

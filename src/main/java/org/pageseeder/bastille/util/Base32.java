@@ -56,21 +56,15 @@ public final class Base32 {
    * @return Encoded byte array <code>bytes</code> as a String.
    */
   public static String encode(final byte[] bytes) {
-    int i = 0, index = 0, digit = 0;
-    int currByte, nextByte;
+    int i = 0, index = 0, digit;
     StringBuilder base32 = new StringBuilder((bytes.length + 7) * 8 / 5);
 
     while (i < bytes.length) {
-      currByte = (bytes[i] >= 0)? bytes[i] : (bytes[i] + 256); // unsign
+      int currByte = toUnsigned(bytes[i]);
 
       /* Is the current digit going to span a byte boundary? */
       if (index > 3) {
-        if ((i + 1) < bytes.length) {
-          nextByte = (bytes[i + 1] >= 0)? bytes[i + 1] : (bytes[i + 1] + 256);
-        } else {
-          nextByte = 0;
-        }
-
+        int nextByte = (i + 1 < bytes.length) ? toUnsigned(bytes[i + 1]) : 0;
         digit = currByte & (0xFF >> index);
         index = (index + 5) % 8;
         digit <<= index;
@@ -96,46 +90,49 @@ public final class Base32 {
    * @return Decoded <code>base32</code> String as a raw byte array.
    */
   public static byte[] decode(final String base32) {
-    int i, index, lookup, offset, digit;
     byte[] bytes = new byte[base32.length() * 5 / 8];
-
-    for (i = 0, index = 0, offset = 0; i < base32.length(); i++) {
-      lookup = base32.charAt(i) - '0';
-
-      /* Skip chars outside the lookup table */
-      if (lookup < 0 || lookup >= BASE32_LOOKUP.length) {
-        continue;
-      }
-
-      digit = BASE32_LOOKUP[lookup];
-
-      /* If this digit is not in the table, ignore it */
-      if (digit == 0xFF) {
-        continue;
-      }
-
-      if (index <= 3) {
-        index = (index + 5) % 8;
-        if (index == 0) {
-          bytes[offset] |= digit;
-          offset++;
-          if (offset >= bytes.length) {
-            break;
-          }
-        } else {
-          bytes[offset] |= digit << (8 - index);
-        }
-      } else {
-        index = (index + 5) % 8;
-        bytes[offset] |= (digit >>> index);
-        offset++;
-
-        if (offset >= bytes.length) {
-          break;
-        }
-        bytes[offset] |= digit << (8 - index);
-      }
+    int[] state = {0, 0}; // state[0]=index, state[1]=offset
+    for (int i = 0; i < base32.length(); i++) {
+      int lookup = base32.charAt(i) - '0';
+      if (lookup < 0 || lookup >= BASE32_LOOKUP.length) continue;
+      int digit = BASE32_LOOKUP[lookup];
+      if (digit == 0xFF) continue;
+      if (applyDigit(bytes, digit, state)) break;
     }
     return bytes;
+  }
+
+  private static int toUnsigned(byte b) {
+    return b >= 0 ? b : b + 256;
+  }
+
+  /** Writes {@code digit} into {@code bytes} at the position encoded in {@code state} ([index, offset]).
+   *  Returns {@code true} when the output buffer is full and decoding should stop. */
+  private static boolean applyDigit(byte[] bytes, int digit, int[] state) {
+    int index = state[0];
+    int offset = state[1];
+    if (index <= 3) {
+      index = (index + 5) % 8;
+      if (index == 0) {
+        bytes[offset] |= digit;
+        state[0] = index;
+        state[1] = offset + 1;
+        return state[1] >= bytes.length;
+      }
+      bytes[offset] |= digit << (8 - index);
+    } else {
+      index = (index + 5) % 8;
+      bytes[offset] |= (digit >>> index);
+      offset++;
+      if (offset >= bytes.length) {
+        state[0] = index;
+        state[1] = offset;
+        return true;
+      }
+      bytes[offset] |= digit << (8 - index);
+    }
+    state[0] = index;
+    state[1] = offset;
+    return false;
   }
 }

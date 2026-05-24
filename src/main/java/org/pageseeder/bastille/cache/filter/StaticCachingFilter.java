@@ -130,7 +130,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     this.context = config.getServletContext();
     // Setting the Cache-Control pattern
     String cc = config.getInitParameter("cache-control");
-    if (cc != null && cc.length() > 0) {
+    if (cc != null && !cc.isEmpty()) {
       this.cacheControlPattern = cc;
     } else {
       this.cacheControlPattern = DEFAULT_CACHE_CONTROL;
@@ -138,7 +138,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     LOGGER.debug("Using Cache-Control: {}", this.cacheControlPattern);
     // Setting the threshold for the file size
     String st = config.getInitParameter("filesize-threshold");
-    if (st != null && st.length() > 0) {
+    if (st != null && !st.isEmpty()) {
       // TODO handle parsing errors
       this.sizeThreshold = Long.parseLong(st);
     } else {
@@ -349,7 +349,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       LOGGER.debug("Writing response OK (200) for {}", req.getRequestURI());
       res.setStatus(resource.getStatusCode());
       String contentType = resource.getContentType();
-      if (contentType != null && contentType.length() > 0) {
+      if (contentType != null && !contentType.isEmpty()) {
         res.setContentType(contentType);
       }
       resource.copyHeadersTo(res, sendGzip);

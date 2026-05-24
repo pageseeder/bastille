@@ -108,7 +108,7 @@ public final class PSMLConfig {
   public static PSMLFile getFolder(String pathInfo) {
     String path = Paths.normalize(pathInfo);
     File root = getRoot();
-    File file = (path.length() > 0)? new File(root, path) : root;
+    File file = path.isEmpty() ? root : new File(root, path);
     return new PSMLFile(path, file);
   }
 
@@ -216,7 +216,7 @@ public final class PSMLConfig {
    */
   private static String attach(String main, String pathInfo) {
     StringBuilder path = new StringBuilder(main);
-    if (pathInfo.length() > 0 && pathInfo.charAt(0) != '/') {
+    if (!pathInfo.isEmpty() && pathInfo.charAt(0) != '/') {
       path.append('/');
     }
     path.append(pathInfo);

@@ -388,17 +388,8 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    *            <code>false</code> to remove it.
    */
   public void adjustVaryAcceptEncoding(boolean add) {
-    String value = null;
-    // Find the value of the existing vary header if any
-    for (Entry<String, List<Serializable>> e : this.headers.entrySet()) {
-      if (HttpHeaders.VARY.equalsIgnoreCase(e.getKey())) {
-      List<Serializable> v = e.getValue();
-      value = v.isEmpty()? null : e.getValue().get(0).toString();
-        break;
-      }
-    }
+    String value = findVaryHeaderValue();
     if (value == null) {
-      // Set if not found
       if (add) {
         setHeader(HttpHeaders.VARY, ACCEPT_ENCODING);
       }
@@ -413,6 +404,16 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
         }
       }
     }
+  }
+
+  private @Nullable String findVaryHeaderValue() {
+    for (Entry<String, List<Serializable>> e : this.headers.entrySet()) {
+      if (HttpHeaders.VARY.equalsIgnoreCase(e.getKey())) {
+        List<Serializable> v = e.getValue();
+        return v.isEmpty() ? null : v.get(0).toString();
+      }
+    }
+    return null;
   }
 
   // inner classes

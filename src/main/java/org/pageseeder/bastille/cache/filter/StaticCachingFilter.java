@@ -198,7 +198,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
             // Must unlock the cache by inserting null element
             cache.put(new Element(key, null));
           }
-        } catch (Throwable throwable) {
+        } catch (Exception throwable) {
           // Must unlock the cache by inserting null element
           cache.put(new Element(key, null));
           throw new ServletException(throwable);

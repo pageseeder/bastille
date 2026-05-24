@@ -180,7 +180,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   private static final class Lines implements Iterable<String> {
 
     /** The actual lines stored. */
-    private final String[] lines;
+    private final String[] buffer;
 
     /** The total number of lines added */
     private int total = 0;
@@ -189,7 +189,7 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @param capacity The maximum number of lines to keep track of.
      */
     public Lines(int capacity) {
-      this.lines = new String[capacity];
+      this.buffer = new String[capacity];
     }
 
     /**
@@ -198,7 +198,7 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @param line The line to add.
      */
     private void add(String line) {
-      this.lines[this.total % this.lines.length] = line;
+      this.buffer[this.total % this.buffer.length] = line;
       this.total++;
     }
 
@@ -206,14 +206,14 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @return the maximum number of lines this object can hold.
      */
     public int capacity() {
-      return this.lines.length;
+      return this.buffer.length;
     }
 
     /**
      * @return index of the first line.
      */
     public int from() {
-      return this.total > this.lines.length? this.total - this.lines.length : 0;
+      return this.total > this.buffer.length? this.total - this.buffer.length : 0;
     }
 
     /**
@@ -227,8 +227,8 @@ public final class GetRawLogEntries implements ContentGenerator {
     public Iterator<String> iterator() {
       return new Iterator<String>() {
 
-        private int i = Lines.this.total > Lines.this.lines.length? Lines.this.total % Lines.this.lines.length : 0;
-        private final int upto = Lines.this.total > Lines.this.lines.length? this.i + Lines.this.lines.length : Lines.this.total;
+        private int i = Lines.this.total > Lines.this.buffer.length? Lines.this.total % Lines.this.buffer.length : 0;
+        private final int upto = Lines.this.total > Lines.this.buffer.length? this.i + Lines.this.buffer.length : Lines.this.total;
 
         @Override
         public boolean hasNext() {
@@ -237,7 +237,7 @@ public final class GetRawLogEntries implements ContentGenerator {
 
         @Override
         public String next() {
-          String next = Lines.this.lines[this.i % Lines.this.lines.length];
+          String next = Lines.this.buffer[this.i % Lines.this.buffer.length];
           this.i++;
           return next;
         }

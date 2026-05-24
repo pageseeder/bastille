@@ -19,6 +19,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.pageseeder.bastille.util.Base32;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A utility class to obfuscate passwords.
@@ -32,6 +34,8 @@ import org.pageseeder.bastille.util.Base32;
  * @version Bastille 0.6.7
  */
 public final class Obfuscator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Obfuscator.class);
 
   /** We use UTF-8. */
   private static final Charset UTF8 = StandardCharsets.UTF_8;
@@ -107,12 +111,12 @@ public final class Obfuscator {
    */
   public static void main(String[] args) {
     if (args.length < 1) {
-      System.err.println("Usage: Obfuscator [password]");
+      LOGGER.error("Usage: Obfuscator [password]");
       return;
     }
     String password = args[0];
     String obfuscated = obfuscate(password);
-    System.out.println(password+" -> OB1:"+obfuscated+" -> "+clear(obfuscated)+" (check)");
+    LOGGER.info("{} -> OB1:{} -> {} (check)", password, obfuscated, clear(obfuscated));
   }
 
   /**

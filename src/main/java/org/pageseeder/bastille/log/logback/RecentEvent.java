@@ -28,6 +28,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -54,6 +55,8 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
   /** As per requirement */
   private static final long serialVersionUID = 8445287374800936982L;
+
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RecentEvent.class);
 
   /** Timestamp created when this object is instantiated */
   private final long timestamp;
@@ -186,9 +189,8 @@ public final class RecentEvent implements XMLWritable, Serializable {
         final String name = Logger.class.getName();
         final LoggerContext context = logger.getLoggerContext();
         ste = CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth(), null);
-      } catch (Error error) {
-        System.err.println("Unable to extract caller data - this message will only be shown once");
-        error.printStackTrace();
+      } catch (LinkageError error) {
+        LOGGER.error("Unable to extract caller data - this message will only be shown once", error);
         callerDataExtractFailed = true;
       }
     }

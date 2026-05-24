@@ -249,27 +249,33 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   }
 
   @Override
-  public void startCDATA() throws SAXException {
+  public void startCDATA() {
+    // No-op
   }
 
   @Override
-  public void endCDATA() throws SAXException {
+  public void endCDATA() {
+    // No-op
   }
 
   @Override
-  public void startDTD(String name, String publicId, String systemId) throws SAXException {
+  public void startDTD(String name, String publicId, String systemId) {
+    // No-op
   }
 
   @Override
-  public void endDTD() throws SAXException {
+  public void endDTD() {
+    // No-op
   }
 
   @Override
-  public void startEntity(String name) throws SAXException {
+  public void startEntity(String name) {
+    // No-op
   }
 
   @Override
-  public void endEntity(String name) throws SAXException {
+  public void endEntity(String name) {
+    // No-op
   }
 
   // Other public methods

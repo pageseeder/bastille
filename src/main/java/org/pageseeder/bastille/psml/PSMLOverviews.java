@@ -176,14 +176,11 @@ public final class PSMLOverviews {
    * @return the list of XML files in the directory.
    */
   public static List<File> getContents(File dir) {
-    List<File> files = null;
     if (dir.exists() && dir.isDirectory()) {
       File[] subs = dir.listFiles(new PSMLFileFilter());
-      files = Arrays.asList(subs);
-    } else {
-      files = Collections.emptyList();
+      if (subs != null) return Arrays.asList(subs);
     }
-    return files;
+    return Collections.emptyList();
   }
 
   /**

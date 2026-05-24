@@ -64,7 +64,7 @@ public final class StaticResource implements Serializable, CachedResource {
   /**
    * The content type (MIME) of the content.
    */
-  private final String contentType;
+  private final @Nullable String contentType;
 
   /**
    * The status code of the response.
@@ -97,7 +97,7 @@ public final class StaticResource implements Serializable, CachedResource {
    * @param expires      When this resource expires
    *
    */
-  public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires) {
+  public StaticResource(int status, @Nullable String contentType, byte[] body, long modified, String cacheControl, long expires) {
     this.contentType = contentType;
     this.gzippable = HttpHeaderUtils.isCompressible(contentType);
     this.status = status;
@@ -111,7 +111,7 @@ public final class StaticResource implements Serializable, CachedResource {
    * @return the content type of the response.
    */
   @Override
-  public String getContentType() {
+  public @Nullable String getContentType() {
     return this.contentType;
   }
 

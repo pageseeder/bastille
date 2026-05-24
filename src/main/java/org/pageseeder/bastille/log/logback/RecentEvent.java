@@ -71,7 +71,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private final Level level;
 
   /** Message as passed by the filter */
-  private final String message;
+  private final @Nullable String message;
 
   /** Arguments as passed by the filter; transient because callers may pass non-serializable objects */
   private final transient @Nullable Object[] args;
@@ -99,7 +99,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @param args       The arguments
    * @param throwable  Any error (may be <code>null</code>).
    */
-  RecentEvent(@Nullable Marker marker, Logger logger, Level level, String message, @Nullable Object[] args, @Nullable Throwable throwable) {
+  RecentEvent(@Nullable Marker marker, Logger logger, Level level, @Nullable String message, @Nullable Object[] args, @Nullable Throwable throwable) {
     this.marker = marker;
     this.logger = logger;
     this.level = level;

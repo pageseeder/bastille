@@ -110,8 +110,11 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
-        for (File x : f.listFiles(DIRECTORIES_OR_PSML_FILES)) {
-          toXML(x, xml);
+        File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
+        if (children != null) {
+          for (File x : children) {
+            toXML(x, xml);
+          }
         }
 
       } else {

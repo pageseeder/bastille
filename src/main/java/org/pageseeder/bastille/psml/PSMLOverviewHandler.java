@@ -88,9 +88,7 @@ class PSMLOverviewHandler extends DefaultHandler {
        this.summary = this.buffer.toString();
        this.buffer = null;
      } else if ("property".equals(qName)) {
-       if (!this.properties.containsKey(this.property)) {
-        this.properties.put(this.property, this.buffer.toString());
-      }
+       if (this.buffer != null) this.properties.computeIfAbsent(this.property, k -> this.buffer.toString());
        this.property = null;
        this.buffer = null;
      }

@@ -185,12 +185,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void addHeader(String name, String value) {
-    List<Serializable> values = this.headers.get(name);
-    if (values == null) {
-      values = new LinkedList<>();
-      this.headers.put(name, values);
-    }
-    values.add(value);
+    this.headers.computeIfAbsent(name, k -> new LinkedList<>()).add(value);
     super.addHeader(name, value);
   }
 
@@ -204,12 +199,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void addDateHeader(String name, long date) {
-    List<Serializable> values = this.headers.get(name);
-    if (values == null) {
-      values = new LinkedList<>();
-      this.headers.put(name, values);
-    }
-    values.add(date);
+    this.headers.computeIfAbsent(name, k -> new LinkedList<>()).add(date);
     super.addDateHeader(name, date);
   }
 
@@ -223,12 +213,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
 
   @Override
   public void addIntHeader(String name, int value) {
-    List<Serializable> values = this.headers.get(name);
-    if (values == null) {
-      values = new LinkedList<>();
-      this.headers.put(name, values);
-    }
-    values.add(value);
+    this.headers.computeIfAbsent(name, k -> new LinkedList<>()).add(value);
     super.addIntHeader(name, value);
   }
 

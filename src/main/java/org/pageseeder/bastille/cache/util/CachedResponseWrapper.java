@@ -286,27 +286,27 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @return All the headersMap set/added on the response
    */
   public List<HttpHeader<? extends Serializable>> getAllHeaders() {
-    List<HttpHeader<? extends Serializable>> headers = new LinkedList<>();
+    List<HttpHeader<? extends Serializable>> result = new LinkedList<>();
     for (Map.Entry<String, List<Serializable>> headerEntry : this.headers.entrySet()) {
       String name = headerEntry.getKey();
       for (Serializable value : headerEntry.getValue()) {
         final Type type = HttpHeader.Type.determineType(value.getClass());
         switch (type) {
           case STRING:
-            headers.add(new HttpHeader<>(name, (String) value));
+            result.add(new HttpHeader<>(name, (String) value));
             break;
           case DATE:
-            headers.add(new HttpHeader<>(name, (Long) value));
+            result.add(new HttpHeader<>(name, (Long) value));
             break;
           case INT:
-            headers.add(new HttpHeader<>(name, (Integer) value));
+            result.add(new HttpHeader<>(name, (Integer) value));
             break;
           default:
             throw new IllegalArgumentException("No mapping for Header.Type: " + type);
         }
       }
     }
-    return headers;
+    return result;
   }
 
   /**

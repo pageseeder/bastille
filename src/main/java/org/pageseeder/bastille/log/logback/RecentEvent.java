@@ -134,8 +134,8 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
     // Format the message
     FormattingTuple ft = MessageFormatter.arrayFormat(this.message, this.args);
-    String message = ft.getMessage();
-    xml.attribute("message", message);
+    String formattedMessage = ft.getMessage();
+    xml.attribute("message", formattedMessage);
 
     // Any marker?
     if (this.marker != null) {

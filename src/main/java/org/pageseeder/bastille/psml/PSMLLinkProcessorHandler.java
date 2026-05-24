@@ -163,7 +163,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     if (!ELEMENT_BLOCKXREF.equals(qName)) return;
     String type = attributes.getValue("type");
     String mediatype = attributes.getValue("mediatype");
-    int level = toLevel(attributes);
+    int headingLevel = toLevel(attributes);
     if (this.depth >= MAX_DEPTH || !this.types.contains(type) || !isProcessable(mediatype)) return;
 
     String path = this.source.getBase() + attributes.getValue("href");
@@ -175,7 +175,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
       if (this.copy != null) {
         this.insideLink = true;
         try {
-          PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
+          PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, headingLevel));
         } catch (IOException ex) {
           throw new SAXException("Unable to transclude content of " + target);
         }

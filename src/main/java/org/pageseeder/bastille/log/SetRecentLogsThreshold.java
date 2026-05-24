@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public final class SetRecentLogsThreshold implements ContentGenerator {
 
   /** A logger. */
-  private final static Logger LOGGER = LoggerFactory.getLogger(SetRecentLogsThreshold.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SetRecentLogsThreshold.class);
 
   /**
    * When this generator is instantiated, the logging framework information is loaded and initialized.

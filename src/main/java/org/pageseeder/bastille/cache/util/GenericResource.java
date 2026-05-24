@@ -223,41 +223,29 @@ public final class GenericResource implements Serializable, CachedResource {
       String name = header.name();
       switch (header.type()) {
         case STRING:
-          if (setHeaders.contains(name)) {
-            String value = (String) header.value();
-            // Value adjust Etag for negociated content
-            if ("etag".equalsIgnoreCase(name)) {
-              if (!gzipped && value.endsWith(GZIP_ETAG_SUFFIX)) {
-                value = value.replace(GZIP_ETAG_SUFFIX, "");
-              } else if (gzipped && !value.endsWith(GZIP_ETAG_SUFFIX)) {
-                value = value.substring(0, value.length()-1) + GZIP_ETAG_SUFFIX;
-              }
-            }
-            res.addHeader(name, value);
-          } else {
-            setHeaders.add(name);
-            res.setHeader(name, (String) header.value());
-          }
+          applyStringHeader(res, name, (String) header.value(), setHeaders, gzipped);
           break;
         case DATE:
-          if (setHeaders.contains(name)) {
-            res.addDateHeader(name, (Long) header.value());
-          } else {
-            setHeaders.add(name);
-            res.setDateHeader(name, (Long) header.value());
-          }
+          if (setHeaders.contains(name)) res.addDateHeader(name, (Long) header.value());
+          else { setHeaders.add(name); res.setDateHeader(name, (Long) header.value()); }
           break;
         case INT:
-          if (setHeaders.contains(name)) {
-            res.addIntHeader(name, (Integer) header.value());
-          } else {
-            setHeaders.add(name);
-            res.setIntHeader(name, (Integer) header.value());
-          }
+          if (setHeaders.contains(name)) res.addIntHeader(name, (Integer) header.value());
+          else { setHeaders.add(name); res.setIntHeader(name, (Integer) header.value()); }
           break;
         default:
           throw new IllegalArgumentException("No mapping for Header: " + header);
       }
+    }
+  }
+
+  private void applyStringHeader(HttpServletResponse res, String name, String value,
+      Collection<String> setHeaders, boolean gzipped) {
+    if (setHeaders.contains(name)) {
+      res.addHeader(name, "etag".equalsIgnoreCase(name) ? adjustEtag(value, gzipped) : value);
+    } else {
+      setHeaders.add(name);
+      res.setHeader(name, value);
     }
   }
 

@@ -56,6 +56,10 @@ dependencies {
     runtimeOnly(libs.saxon)
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {
     xmlOutput.unsetConvention()
 }

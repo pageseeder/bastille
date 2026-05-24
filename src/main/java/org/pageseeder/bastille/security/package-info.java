@@ -16,4 +16,6 @@
 /**
  * Provides generators, servlets and filters to connect to a PageSeeder Server.
  */
+@NullMarked
 package org.pageseeder.bastille.security;
+import org.jspecify.annotations.NullMarked;

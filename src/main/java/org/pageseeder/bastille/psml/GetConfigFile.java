@@ -18,6 +18,7 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -79,7 +80,7 @@ public final class GetConfigFile implements ContentGenerator, Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetConfigFile.class);
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile psml = PSMLConfig.getConfigFile(path);

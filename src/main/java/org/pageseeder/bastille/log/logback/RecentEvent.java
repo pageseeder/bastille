@@ -27,6 +27,8 @@ import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
+import org.jspecify.annotations.Nullable;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -57,7 +59,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private final long _timestamp;
 
   /** Marker as passed by the filter */
-  private final Marker _marker;
+  private final @Nullable Marker _marker;
 
   /** Logger as passed by the filter */
   private final Logger _logger;
@@ -69,10 +71,10 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private final String _message;
 
   /** Arguments as passed by the filter */
-  private final Object[] _args;
+  private final @Nullable Object[] _args;
 
   /** Throwable as passed by the filter */
-  private final Throwable _throwable;
+  private final @Nullable Throwable _throwable;
 
   /**
    * The Logback API has changed, so we may have to fall back on previous version
@@ -82,7 +84,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
    */
-  private transient volatile String _xml = null;
+  private transient volatile @Nullable String _xml = null;
 
   /**
    * Creates a recent event using the objects send from the TurboFilter.
@@ -94,7 +96,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @param args       The arguments
    * @param throwable  Any error (may be <code>null</code>).
    */
-  RecentEvent(Marker marker, Logger logger, Level level, String message, Object[] args, Throwable throwable) {
+  RecentEvent(@Nullable Marker marker, Logger logger, Level level, String message, @Nullable Object[] args, @Nullable Throwable throwable) {
     this._marker = marker;
     this._logger = logger;
     this._level = level;
@@ -177,7 +179,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @param logger the logger for the event.
    * @return the stack trace element
    */
-  private static StackTraceElement[] toCallerData(Logger logger) {
+  private static @Nullable StackTraceElement[] toCallerData(Logger logger) {
     StackTraceElement[] ste = null;
     if (!_callerDataExtractFailed) {
       try {

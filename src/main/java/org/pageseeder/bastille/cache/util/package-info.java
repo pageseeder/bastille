@@ -32,4 +32,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+@NullMarked
 package org.pageseeder.bastille.cache.util;
+import org.jspecify.annotations.NullMarked;

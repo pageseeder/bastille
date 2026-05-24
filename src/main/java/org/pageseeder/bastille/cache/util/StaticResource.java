@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.http.HttpHeaderUtils;
 import org.pageseeder.berlioz.http.HttpHeaders;
 import org.slf4j.Logger;
@@ -127,7 +128,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
-  public byte[] getGzippedBody() {
+  public byte @Nullable [] getGzippedBody() {
     if (this._gzippable) return this._content;
     else return null;
   }
@@ -147,7 +148,7 @@ public final class StaticResource implements Serializable, CachedResource {
   }
 
   @Override
-  public byte[] getBody(boolean gzipped) throws IOException {
+  public byte @Nullable [] getBody(boolean gzipped) throws IOException {
     if (gzipped) return getGzippedBody();
     else return getUngzippedBody();
   }
@@ -224,7 +225,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the last modified date (in seconds)
    */
-  public static long toLastModified(String etag) {
+  public static long toLastModified(@Nullable String etag) {
     if (etag == null || etag.length() < 2) return -1;
     String raw = etag;
     // Remove quotes
@@ -254,7 +255,7 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    * @return the corresponding content.
    */
-  private static byte[] toStorableContent(byte[] body, boolean gzippable) {
+  private static byte @Nullable [] toStorableContent(byte[] body, boolean gzippable) {
     byte[] content = null;
     try {
       if (gzippable) {

@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.xmlwriter)
     implementation(libs.cobble)
 
+    compileOnly(libs.jspecify)
     compileOnly(libs.logback.core)
     compileOnly(libs.logback.classic)
     compileOnly(libs.servlet.api)

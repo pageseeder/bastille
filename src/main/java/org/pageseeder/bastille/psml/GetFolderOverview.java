@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -68,7 +69,7 @@ public final class GetFolderOverview implements ContentGenerator, Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFolderOverview.class);
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile psml = PSMLConfig.getFolder(path);

@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
@@ -62,12 +63,12 @@ public final class PSMLLinkProcessor {
   /**
    * Reuse the same cache manager to avoid I/O problems (configuration seems to be parsed for each getInstance).
    */
-  private static volatile CacheManager manager = null;
+  private static volatile @Nullable CacheManager manager = null;
 
   /**
    * The cache containing all the PSML entries.
    */
-  private static volatile Ehcache cache = null;
+  private static volatile @Nullable Ehcache cache = null;
 
   /**
    * Generate the overview documents for the files for the specified folder.
@@ -146,7 +147,7 @@ public final class PSMLLinkProcessor {
    *
    * @throws NullPointerException if the file is <code>null</code>.
    */
-  public static String getEtag(PSMLFile psml) {
+  public static @Nullable String getEtag(PSMLFile psml) {
     // Get all the files
     File file = psml.file();
     if (!file.exists()) return null;

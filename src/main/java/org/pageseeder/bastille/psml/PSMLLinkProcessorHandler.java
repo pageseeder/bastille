@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Paths;
 import org.pageseeder.berlioz.xml.XMLCopy;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -73,7 +74,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * <p>
    * MUST use the same XML writer.
    */
-  private final XMLCopy _copy;
+  private final @Nullable XMLCopy _copy;
 
   /**
    * The base path for the file currently being processed.
@@ -108,7 +109,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * @param source the source PSML document
    * @param xml    the XML writer to use.
    */
-  public PSMLLinkProcessorHandler(PSMLFile source, XMLWriter xml) {
+  public PSMLLinkProcessorHandler(PSMLFile source, @Nullable XMLWriter xml) {
     this._source = source;
     this._depth = 1;
     this._types = Collections.singletonList("transclude");

@@ -34,6 +34,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.HttpHeader.Type;
 import org.pageseeder.berlioz.http.HttpHeaders;
 
@@ -58,7 +59,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   private int _contentLength;
 
   /** The content type (MIME) */
-  private String _contentType;
+  private @Nullable String _contentType;
 
   /**
    * List of response headers.
@@ -79,7 +80,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /**
    * Only used if the writer is requested.
    */
-  private PrintWriter _writer;
+  private @Nullable PrintWriter _writer;
 
   /**
    * Creates a cached response wrapper.
@@ -176,7 +177,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   }
 
   @Override
-  public String getContentType() {
+  public @Nullable String getContentType() {
     return this._contentType;
   }
 
@@ -325,7 +326,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @param name the name of the header
    * @return All the headersMap set/added on the response
    */
-  public List<Serializable> getHeaderValues(String name) {
+  public @Nullable List<Serializable> getHeaderValues(String name) {
     return this._headers.get(name);
   }
 
@@ -335,7 +336,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @return All the headersMap set/added on the response
    */
   @Override
-  public String getHeader(String name) {
+  public @Nullable String getHeader(String name) {
     List<Serializable> values = this._headers.get(name);
     if (values != null && values.size() > 0) return values.get(0).toString();
     return null;

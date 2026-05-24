@@ -24,6 +24,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.HttpHeader.Type;
 import org.pageseeder.berlioz.http.HttpHeaders;
 import org.slf4j.Logger;
@@ -57,12 +58,12 @@ public final class GenericResource implements Serializable, CachedResource {
   /**
    * The content of the page.
    */
-  private final byte[] _content;
+  private final byte @Nullable [] _content;
 
   /**
    * The content type (MIME) of the content.
    */
-  private final String _contentType;
+  private final @Nullable String _contentType;
 
   /**
    * The status code of the response.
@@ -80,7 +81,7 @@ public final class GenericResource implements Serializable, CachedResource {
    * @param headers      The headers for this cached resource.
    *
    */
-  public GenericResource(int status, String contentType, byte[] body,
+  public GenericResource(int status, @Nullable String contentType, byte[] body,
       boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers) {
     if (headers != null) {
       this._headers.addAll(headers);
@@ -95,7 +96,7 @@ public final class GenericResource implements Serializable, CachedResource {
    * @return the content type of the response.
    */
   @Override
-  public String getContentType() {
+  public @Nullable String getContentType() {
     return this._contentType;
   }
 
@@ -124,7 +125,7 @@ public final class GenericResource implements Serializable, CachedResource {
    *
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
-  public byte[] getGzippedBody() {
+  public byte @Nullable [] getGzippedBody() {
     if (this._storeGzipped) return this._content;
     else return null;
   }
@@ -159,7 +160,7 @@ public final class GenericResource implements Serializable, CachedResource {
   }
 
   @Override
-  public byte[] getBody(boolean gzipped) throws IOException {
+  public byte @Nullable [] getBody(boolean gzipped) throws IOException {
     if (gzipped) return getGzippedBody();
     else return getUngzippedBody();
   }
@@ -199,7 +200,7 @@ public final class GenericResource implements Serializable, CachedResource {
   }
 
   @Override
-  public String getETag(boolean gzipped) {
+  public @Nullable String getETag(boolean gzipped) {
     for (HttpHeader<? extends Serializable> h : this._headers) {
       if (HttpHeaders.ETAG.equals(h.name())) return adjustEtag(h.value().toString(), gzipped);
     }
@@ -270,7 +271,7 @@ public final class GenericResource implements Serializable, CachedResource {
    *
    * @return the corresponding content.
    */
-  private static byte[] toStorableContent(byte[] body, boolean storeGzipped,
+  private static byte @Nullable [] toStorableContent(byte[] body, boolean storeGzipped,
       Collection<HttpHeader<? extends Serializable>> headers) {
     byte[] content = null;
     try {

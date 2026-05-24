@@ -1,5 +1,6 @@
 [versions]
 berlioz      = "0.12.6"
+jspecify     = "1.0.0"
 cobble       = "0.3.2"
 commons-io   = "2.22.0"
 ehcache      = "2.10.9.2"
@@ -15,6 +16,7 @@ xmlwriter    = "1.0.4"
 
 [libraries]
 berlioz        = { module = "org.pageseeder.berlioz:pso-berlioz",         version.ref = "berlioz" }
+jspecify       = { module = "org.jspecify:jspecify",                      version.ref = "jspecify" }
 cobble         = { module = "org.pageseeder.cobble:pso-cobble",           version.ref = "cobble" }
 commons-io     = { module = "commons-io:commons-io",                      version.ref = "commons-io" }
 ehcache        = { module = "net.sf.ehcache:ehcache",                     version.ref = "ehcache" }

@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.CachedResource;
 import org.pageseeder.bastille.cache.util.CachedResponseWrapper;
 import org.pageseeder.bastille.cache.util.GenericResource;
@@ -100,10 +101,10 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   private static final int MILLISECONDS_PER_SECOND = 1000;
 
   /** Formatter for HTTP dates. */
-  private HttpDateFormat httpDateFormatter;
+  private @Nullable HttpDateFormat httpDateFormatter;
 
   /** The cache control pattern */
-  private String cacheControlPattern;
+  private @Nullable String cacheControlPattern;
 
   /** The cache control pattern */
   private long sizeThreshold;
@@ -111,7 +112,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * The servlet context.
    */
-  private ServletContext _context = null;
+  private @Nullable ServletContext _context = null;
 
   @Override
   public CacheManager getCacheManager() {
@@ -380,7 +381,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    *
    * @return The corresponding file or <code>null</code> if the file path could not be guessed
    */
-  private static File getResourceFile(ServletContext context, HttpServletRequest req) {
+  private static @Nullable File getResourceFile(ServletContext context, HttpServletRequest req) {
     File f = (File)req.getAttribute(FILE_REQUEST_ATTRIBUTE);
     if (f == null) {
       String filepath = context.getRealPath(decode(req.getRequestURI()));

@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.jspecify.annotations.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -82,7 +84,7 @@ public final class StaticRequestWrapper extends HttpServletRequestWrapper {
   }
 
   @Override
-  public String getHeader(String name) {
+  public @Nullable String getHeader(String name) {
     if (EXCLUDE.contains(name.toLowerCase())) return null;
     else return super.getHeader(name);
   }

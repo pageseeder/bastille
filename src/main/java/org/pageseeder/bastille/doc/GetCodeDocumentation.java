@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -38,7 +39,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
 public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     return null;
   }
 

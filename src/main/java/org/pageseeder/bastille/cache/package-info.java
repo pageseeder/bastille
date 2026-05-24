@@ -16,4 +16,6 @@
 /**
  * A collection of useful generators for caching.
  */
+@NullMarked
 package org.pageseeder.bastille.cache;
+import org.jspecify.annotations.NullMarked;

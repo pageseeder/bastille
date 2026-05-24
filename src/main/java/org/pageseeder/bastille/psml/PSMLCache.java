@@ -17,6 +17,7 @@ package org.pageseeder.bastille.psml;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +52,12 @@ public final class PSMLCache {
   /**
    * Reuse the same cache manager to avoid I/O problems (configuration seems to be parsed for each getInstance).
    */
-  private static volatile CacheManager manager = null;
+  private static volatile @Nullable CacheManager manager = null;
 
   /**
    * The cache containing all the PSML entries.
    */
-  private static volatile Ehcache cache = null;
+  private static volatile @Nullable Ehcache cache = null;
 
   /**
    * Return the cached content of the specified PSML file.

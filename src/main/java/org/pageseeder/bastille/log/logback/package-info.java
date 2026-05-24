@@ -16,4 +16,6 @@
 /**
  * An implementation for Logback.
  */
+@NullMarked
 package org.pageseeder.bastille.log.logback;
+import org.jspecify.annotations.NullMarked;

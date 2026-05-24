@@ -18,6 +18,8 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A path/file value pair for a PSML document.
  *
@@ -39,7 +41,7 @@ public final class PSMLFile implements Serializable {
   /**
    * The actual file.
    */
-  private final File _file;
+  private final @Nullable File _file;
 
   /**
    * Creates a new PSML File.
@@ -47,7 +49,7 @@ public final class PSMLFile implements Serializable {
    * @param path The path to the file from the root directory
    * @param file The actual file corresponding to this path.
    */
-  protected PSMLFile(String path, File file) {
+  protected PSMLFile(String path, @Nullable File file) {
     this._path = path;
     this._file = file;
   }
@@ -66,7 +68,7 @@ public final class PSMLFile implements Serializable {
    *
    * @return The actual file.
    */
-  public File file() {
+  public @Nullable File file() {
     return this._file;
   }
 

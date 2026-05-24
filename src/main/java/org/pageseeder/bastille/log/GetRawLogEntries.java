@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -136,7 +137,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @return The first matching instance
    */
-  private static File findLog(LogInfo info, String name) {
+  private static @Nullable File findLog(LogInfo info, String name) {
     // Identify the log directory to read
     for (File f : info.listLogDirectories()) {
       File log = new File(f, name);
@@ -154,7 +155,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @return The first matching instance
    */
-  private static String getLevel(String line) {
+  private static @Nullable String getLevel(String line) {
     for (String level : LEVELS) {
       if (line.contains(level)) return level;
     }

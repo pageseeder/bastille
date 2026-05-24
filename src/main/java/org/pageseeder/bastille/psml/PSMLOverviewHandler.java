@@ -18,6 +18,7 @@ package org.pageseeder.bastille.psml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -33,17 +34,17 @@ class PSMLOverviewHandler extends DefaultHandler {
    /**
     * The internal buffer.
     */
-   private StringBuilder buffer = null;
+   private @Nullable StringBuilder buffer = null;
 
    /**
     * The title if found (first heading).
     */
-   private String title = null;
+   private @Nullable String title = null;
 
    /**
     * The summary if found (first paragraph).
     */
-   private String summary = null;
+   private @Nullable String summary = null;
 
    /**
     * The internal buffer.
@@ -53,7 +54,7 @@ class PSMLOverviewHandler extends DefaultHandler {
    /**
     * A state variable indicating that a property is being looked for.
     */
-   private String property = null;
+   private @Nullable String property = null;
 
    @Override
    public void startDocument() throws SAXException {
@@ -105,14 +106,14 @@ class PSMLOverviewHandler extends DefaultHandler {
    /**
     * @return the title (content of first <code>heading1</code> element).
     */
-   public String getTitle() {
+   public @Nullable String getTitle() {
      return this.title;
    }
 
    /**
     * @return the summary of the file (content of first <code>para</code> element).
     */
-   public String getSummary() {
+   public @Nullable String getSummary() {
      return this.summary;
    }
 

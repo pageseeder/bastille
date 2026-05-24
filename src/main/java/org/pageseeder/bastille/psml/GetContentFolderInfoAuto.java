@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -52,10 +53,10 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
   /**
    * The content folder to recompute the
    */
-  private volatile File ancestor = null;
+  private volatile @Nullable File ancestor = null;
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String pathInfo = req.getBerliozPath();
     PSMLFile psml = PSMLConfig.getContentFolder(pathInfo);
     if (!psml.exists()) return null;

@@ -28,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.CachedResource;
 import org.pageseeder.bastille.cache.util.GZIPUtils;
 import org.pageseeder.berlioz.http.HttpHeaderUtils;
@@ -63,7 +64,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   /**
    * The cache name can be set through init parameters. If it is set it is stored here.
    */
-  private String cacheName;
+  private @Nullable String cacheName;
 
   /**
    * The actual cache holding the web pages.
@@ -71,7 +72,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * <p>We use a blocking cache as ensure that all threads use the same instance of when they
    * share the same cache name
    */
-  private BlockingCache _cache;
+  private @Nullable BlockingCache _cache;
 
   /**
    * A thread local flag to check whether the filter has been invoked multiple times by the same
@@ -203,7 +204,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @param key The key for the cached resource
    * @return The cached resource for the specified key.
    */
-  protected final CachedResource getResourceFromCache(String key) {
+  protected final @Nullable CachedResource getResourceFromCache(String key) {
     Element element = this._cache.get(key);
     if (element == null || element.getObjectValue() == null) return null;
     return (CachedResource)element.getObjectValue();
@@ -229,7 +230,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    *
    * @return the name of the cache to use for this filter.
    */
-  protected final String getCacheName() {
+  protected final @Nullable String getCacheName() {
     return this.cacheName;
   }
 

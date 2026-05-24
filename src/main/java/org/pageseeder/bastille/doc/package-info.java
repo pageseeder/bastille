@@ -16,4 +16,6 @@
 /**
  * A collection of generators for viewing documentation.
  */
+@NullMarked
 package org.pageseeder.bastille.doc;
+import org.jspecify.annotations.NullMarked;

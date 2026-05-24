@@ -138,40 +138,42 @@ public final class GetCacheElementDetails implements ContentGenerator {
     if (o instanceof String) {
       xml.writeText(o.toString());
     } else {
-      Class<?> c = o.getClass();
-      Field[] fields =c.getFields();
-      for (Field f : fields) {
+      for (Field f : o.getClass().getFields()) {
         if (f.isAccessible()) {
-          Class<?> t = f.getType();
           xml.openElement("value", true);
           xml.attribute("name", f.getName());
-          xml.attribute("class", t.getName());
-          // TODO Handle more primitive types
-          // TODO Handle arrays
+          xml.attribute("class", f.getType().getName());
           try {
-            if (t == Integer.TYPE) {
-              xml.writeText(Integer.toString(f.getInt(o)));
-            } else if (t == Long.TYPE) {
-              xml.writeText(Long.toString(f.getLong(o)));
-            } else if (t == Short.TYPE) {
-              xml.writeText(Short.toString(f.getShort(o)));
-            } else if (t == Float.TYPE) {
-              xml.writeText(Float.toString(f.getFloat(o)));
-            } else if (t == Double.TYPE) {
-              xml.writeText(Double.toString(f.getDouble(o)));
-            } else if (t == Boolean.TYPE) {
-              xml.writeText(Boolean.toString(f.getBoolean(o)));
-            } else if (t == Character.TYPE) {
-              xml.writeText(Character.toString(f.getChar(o)));
-            } else {
-              toElementObjectXML(f.get(o), xml);
-            }
+            writeFieldValue(f, o, xml);
           } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.warn("Unable to extract object value field", ex);
           }
           xml.closeElement();
         }
       }
+    }
+  }
+
+  // TODO Handle more primitive types; TODO Handle arrays
+  private static void writeFieldValue(Field f, Object o, XMLWriter xml)
+      throws IllegalAccessException, IOException {
+    Class<?> t = f.getType();
+    if (t == Integer.TYPE) {
+      xml.writeText(Integer.toString(f.getInt(o)));
+    } else if (t == Long.TYPE) {
+      xml.writeText(Long.toString(f.getLong(o)));
+    } else if (t == Short.TYPE) {
+      xml.writeText(Short.toString(f.getShort(o)));
+    } else if (t == Float.TYPE) {
+      xml.writeText(Float.toString(f.getFloat(o)));
+    } else if (t == Double.TYPE) {
+      xml.writeText(Double.toString(f.getDouble(o)));
+    } else if (t == Boolean.TYPE) {
+      xml.writeText(Boolean.toString(f.getBoolean(o)));
+    } else if (t == Character.TYPE) {
+      xml.writeText(Character.toString(f.getChar(o)));
+    } else {
+      toElementObjectXML(f.get(o), xml);
     }
   }
 

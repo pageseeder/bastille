@@ -56,12 +56,12 @@ public final class SoftCacheableString implements Serializable {
   /**
    * Compressed version of the data.
    */
-  private final byte[] _data;
+  private final byte[] data;
 
   /**
    * A soft reference, which may be removed by the garbage collector and is transient, so it won't be serialized.
    */
-  private transient SoftReference<String> _s;
+  private transient SoftReference<String> softRef;
 
   /**
    * Creates a new cached string.
@@ -71,18 +71,18 @@ public final class SoftCacheableString implements Serializable {
    * @throws NullPointerException If the data is <code>null</code>
    */
   public SoftCacheableString(String data) {
-    this._data = gzip(data);
-    this._s = new SoftReference<>(data);
+    this.data = gzip(data);
+    this.softRef = new SoftReference<>(data);
   }
 
   /**
    * @return the string value.
    */
   public String get() {
-    String s = (this._s != null)? this._s.get() : null;
+    String s = (this.softRef != null)? this.softRef.get() : null;
     if (s == null) {
-      s = ungzip(this._data);
-      this._s = new SoftReference<>(s);
+      s = ungzip(this.data);
+      this.softRef = new SoftReference<>(s);
     }
     return s;
   }

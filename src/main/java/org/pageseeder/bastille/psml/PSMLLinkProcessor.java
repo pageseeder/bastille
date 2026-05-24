@@ -93,7 +93,7 @@ public final class PSMLLinkProcessor {
       // Check for freshness
       long modified = System.currentTimeMillis();
       if (entry != null) {
-        modified = lastModified(entry._linked);
+        modified = lastModified(entry.linked);
       }
 
       // Attempt to grab the content
@@ -255,34 +255,34 @@ public final class PSMLLinkProcessor {
     /**
      * The data to store.
      */
-    private final String _data;
+    private final String data;
 
     /**
      * The list
      */
-    private final List<File> _linked;
+    private final List<File> linked;
 
     /**
      * @param data the XML data.
      * @param linked the list of files linked.
      */
     public CachedProcessed(String data, List<File> linked) {
-      this._data = data;
-      this._linked = linked;
+      this.data = data;
+      this.linked = linked;
     }
 
     /**
      * @return the data to store.
      */
     public String data() {
-      return this._data;
+      return this.data;
     }
 
     /**
      * @return the linked files.
      */
     public List<File> linked() {
-      return this._linked;
+      return this.linked;
     }
   }
 

@@ -72,13 +72,13 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * <p>We use a blocking cache as ensure that all threads use the same instance of when they
    * share the same cache name
    */
-  private @Nullable BlockingCache _cache;
+  private @Nullable BlockingCache blockingCache;
 
   /**
    * A thread local flag to check whether the filter has been invoked multiple times by the same
    * thread.
    */
-  private final VisitedFlag _visits = new VisitedFlag();
+  private final VisitedFlag visits = new VisitedFlag();
 
   /**
    * Initialises blockingCache to use.
@@ -96,7 +96,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
   @Override
   public void init(FilterConfig config) throws CacheException {
     synchronized (this.getClass()) {
-      if (this._cache == null) {
+      if (this.blockingCache == null) {
         this.cacheName = config.getInitParameter("cache-name");
         if (this.cacheName != null && this.cacheName.length() > 0) {
           LOGGER.debug("Using configured cacheName of {}.", this.cacheName);
@@ -115,8 +115,8 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
           BlockingCache newBlockingCache = new BlockingCache(cache);
           getCacheManager().replaceCacheWithDecoratedCache(cache, newBlockingCache);
         }
-        this._cache = (BlockingCache) getCacheManager().getEhcache(localCacheName);
-        this._cache.setTimeoutMillis(5000);
+        this.blockingCache = (BlockingCache) getCacheManager().getEhcache(localCacheName);
+        this.blockingCache.setTimeoutMillis(5000);
       }
     }
   }
@@ -170,7 +170,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
       chain.doFilter(req, res);
 
     // This filter already been used (probably a configuration error)
-    } else if (this._visits.hasVisited()) {
+    } else if (this.visits.hasVisited()) {
       LOGGER.warn("This filter was invoked twice for {} and will be ignored - check your config",
           req.getRequestURI());
       chain.doFilter(req, res);
@@ -178,7 +178,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
     // Let's go
     } else {
       try {
-        this._visits.markAsVisited();
+        this.visits.markAsVisited();
         CachedResource resource = getResource(req, res, chain);
         if (resource.isOK()) {
           if (res.isCommitted()) {
@@ -192,7 +192,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
       } catch (CacheException ex) {
         LOGGER.error("Unable to construct cache entry", ex);
       } finally {
-        this._visits.remove();
+        this.visits.remove();
       }
     }
   }
@@ -205,7 +205,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @return The cached resource for the specified key.
    */
   protected final @Nullable CachedResource getResourceFromCache(String key) {
-    Element element = this._cache.get(key);
+    Element element = this.blockingCache.get(key);
     if (element == null || element.getObjectValue() == null) return null;
     return (CachedResource)element.getObjectValue();
   }
@@ -216,7 +216,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
    * @return the used by this filter.
    */
   protected final Ehcache getCache() {
-    return this._cache;
+    return this.blockingCache;
   }
 
   /**

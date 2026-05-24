@@ -48,27 +48,27 @@ public final class GenericResource implements Serializable, CachedResource {
   /**
    * List of response HTTP headers to include in response.
    */
-  private final List<HttpHeader<? extends Serializable>> _headers = new ArrayList<>();
+  private final List<HttpHeader<? extends Serializable>> headers = new ArrayList<>();
 
   /**
    * Indicates whether we store the compressed version of the content.
    */
-  private final boolean _storeGzipped;
+  private final boolean storeGzipped;
 
   /**
    * The content of the page.
    */
-  private final byte @Nullable [] _content;
+  private final byte @Nullable [] content;
 
   /**
    * The content type (MIME) of the content.
    */
-  private final @Nullable String _contentType;
+  private final @Nullable String contentType;
 
   /**
    * The status code of the response.
    */
-  private final int _status;
+  private final int status;
 
   /**
    * Creates a PageInfo object representing the "page".
@@ -84,12 +84,12 @@ public final class GenericResource implements Serializable, CachedResource {
   public GenericResource(int status, @Nullable String contentType, byte[] body,
       boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers) {
     if (headers != null) {
-      this._headers.addAll(headers);
+      this.headers.addAll(headers);
     }
-    this._contentType = contentType;
-    this._storeGzipped = storeGzipped;
-    this._status = status;
-    this._content = toStorableContent(body, storeGzipped, headers);
+    this.contentType = contentType;
+    this.storeGzipped = storeGzipped;
+    this.status = status;
+    this.content = toStorableContent(body, storeGzipped, headers);
   }
 
   /**
@@ -97,7 +97,7 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   @Override
   public @Nullable String getContentType() {
-    return this._contentType;
+    return this.contentType;
   }
 
   /**
@@ -105,19 +105,19 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   @Override
   public int getStatusCode() {
-    return this._status;
+    return this.status;
   }
 
   @Override
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
     // TODO Adjust the etag?
-    return this._headers;
+    return this.headers;
   }
 
   @Override
   public boolean hasContent() {
-    if (this._content == null) return false;
-    return this._storeGzipped? GZIPUtils.shouldGzippedBodyBeZero(this._content) : this._content.length != 0;
+    if (this.content == null) return false;
+    return this.storeGzipped? GZIPUtils.shouldGzippedBodyBeZero(this.content) : this.content.length != 0;
   }
 
   /**
@@ -126,7 +126,7 @@ public final class GenericResource implements Serializable, CachedResource {
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
   public byte @Nullable [] getGzippedBody() {
-    if (this._storeGzipped) return this._content;
+    if (this.storeGzipped) return this.content;
     else return null;
   }
 
@@ -140,8 +140,8 @@ public final class GenericResource implements Serializable, CachedResource {
    * @throws IOException if thrown whil ungzippind the content.
    */
   public byte[] getUngzippedBody() throws IOException {
-    if (this._storeGzipped) return GZIPUtils.ungzip(this._content);
-    else return this._content;
+    if (this.storeGzipped) return GZIPUtils.ungzip(this.content);
+    else return this.content;
   }
 
   /**
@@ -149,14 +149,14 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   @Override
   public boolean hasGzippedBody() {
-    return this._storeGzipped && this._content != null;
+    return this.storeGzipped && this.content != null;
   }
 
   /**
    * @return <code>true</code> if there is a non-null ungzipped body
    */
   public boolean hasUngzippedBody() {
-    return !this._storeGzipped && this._content != null;
+    return !this.storeGzipped && this.content != null;
   }
 
   @Override
@@ -173,7 +173,7 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   @Override
   public boolean isOK() {
-    return this._status == HttpServletResponse.SC_OK;
+    return this.status == HttpServletResponse.SC_OK;
   }
 
   /**
@@ -183,7 +183,7 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   @Override
   public long getLastModified() {
-    for (HttpHeader<? extends Serializable> h : this._headers) {
+    for (HttpHeader<? extends Serializable> h : this.headers) {
       if (HttpHeaders.LAST_MODIFIED.equalsIgnoreCase(h.name())) {
         final Type type = h.type();
         switch (type) {
@@ -201,7 +201,7 @@ public final class GenericResource implements Serializable, CachedResource {
 
   @Override
   public @Nullable String getETag(boolean gzipped) {
-    for (HttpHeader<? extends Serializable> h : this._headers) {
+    for (HttpHeader<? extends Serializable> h : this.headers) {
       if (HttpHeaders.ETAG.equals(h.name())) return adjustEtag(h.value().toString(), gzipped);
     }
     return null;
@@ -217,7 +217,7 @@ public final class GenericResource implements Serializable, CachedResource {
   public void copyHeadersTo(HttpServletResponse res, boolean gzipped) {
     // Track which headers have been set so all headers of the same name after the first are added
     Collection<String> setHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-    for (HttpHeader<? extends Serializable> header : this._headers) {
+    for (HttpHeader<? extends Serializable> header : this.headers) {
       String name = header.name();
       switch (header.type()) {
         case STRING:

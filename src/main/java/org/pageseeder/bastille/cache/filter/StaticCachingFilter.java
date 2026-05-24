@@ -112,7 +112,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * The servlet context.
    */
-  private @Nullable ServletContext _context = null;
+  private @Nullable ServletContext context = null;
 
   @Override
   public CacheManager getCacheManager() {
@@ -127,7 +127,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   @Override
   public void init(FilterConfig config) throws CacheException {
     super.init(config);
-    this._context = config.getServletContext();
+    this.context = config.getServletContext();
     // Setting the Cache-Control pattern
     String cc = config.getInitParameter("cache-control");
     if (cc != null && cc.length() > 0) {
@@ -172,7 +172,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
         long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
 
         // Get last modified from file (also rounded to the second)
-        File f = getResourceFile(this._context, req);
+        File f = getResourceFile(this.context, req);
         long fmodified = f == null? 0 : f.lastModified() / MILLISECONDS_PER_SECOND;
 
         // Check for freshness
@@ -279,7 +279,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     // Cache disabled by parameter
     if ("false".equals(req.getParameter("berlioz-cache"))) return false;
     // Check the file
-    File f = getResourceFile(this._context, req);
+    File f = getResourceFile(this.context, req);
     return f != null && (f == null || f.length() <= this.sizeThreshold);
   }
 

@@ -71,7 +71,7 @@ public final class SizeEstimator {
   public boolean checkInMemorySample(Ehcache cache) {
     Sample sample = this.inMemorySamples.get(cache.getName());
     int elements = cache.getSize();
-    if (sample == null || sample.elements() * RESAMPLE_FACTOR < elements || sample._bytesize == 0) {
+    if (sample == null || sample.elements() * RESAMPLE_FACTOR < elements || sample.bytesize == 0) {
       long bytesize = elements > 0? cache.calculateInMemorySize() : 0;
       sample = new Sample(elements, bytesize);
       this.inMemorySamples.put(cache.getName(), sample);
@@ -181,20 +181,20 @@ public final class SizeEstimator {
     /**
      * Number of elements in the sample.
      */
-    private final int _elements;
+    private final int elements;
 
     /**
      * The size in bytes for that number of elements.
      */
-    private final long _bytesize;
+    private final long bytesize;
 
     /**
      * @param elements Number of elements
      * @param bytesize The size in bytes
      */
     public Sample(int elements, long bytesize) {
-      this._elements = elements;
-      this._bytesize = bytesize;
+      this.elements = elements;
+      this.bytesize = bytesize;
     }
 
     /**
@@ -204,17 +204,17 @@ public final class SizeEstimator {
      * @return the estimated size
      */
     public long estimate(int elements) {
-      if (this._elements == elements) return this._bytesize;
-      if (this._elements == 0) return 0;
+      if (this.elements == elements) return this.bytesize;
+      if (this.elements == 0) return 0;
       // XXX: May be larger than MAX_LONG?
-      return (this._bytesize * elements) / this._elements;
+      return (this.bytesize * elements) / this.elements;
     }
 
     /**
      * @return the number of elements in the sample
      */
     public int elements() {
-      return this._elements;
+      return this.elements;
     }
   }
 }

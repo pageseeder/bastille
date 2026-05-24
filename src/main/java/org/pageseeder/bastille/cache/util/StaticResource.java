@@ -54,37 +54,37 @@ public final class StaticResource implements Serializable, CachedResource {
   /**
    * Indicates whether we store the compressed version of the content.
    */
-  private final boolean _gzippable;
+  private final boolean gzippable;
 
   /**
    * The content of the page.
    */
-  private final byte[] _content;
+  private final byte[] content;
 
   /**
    * The content type (MIME) of the content.
    */
-  private final String _contentType;
+  private final String contentType;
 
   /**
    * The status code of the response.
    */
-  private final int _status;
+  private final int status;
 
   /**
    * The last modified date.
    */
-  private final long _lastModified;
+  private final long lastModified;
 
   /**
    * The Cache control header.
    */
-  private final String _cacheControl;
+  private final String cacheControl;
 
   /**
    * When the resource expires
    */
-  private final long _expires;
+  private final long expires;
 
   /**
    * Creates a PageInfo object representing the "page".
@@ -98,13 +98,13 @@ public final class StaticResource implements Serializable, CachedResource {
    *
    */
   public StaticResource(int status, String contentType, byte[] body, long modified, String cacheControl, long expires) {
-    this._contentType = contentType;
-    this._gzippable = HttpHeaderUtils.isCompressible(contentType);
-    this._status = status;
-    this._lastModified = (modified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND;
-    this._content = toStorableContent(body, this._gzippable);
-    this._cacheControl = cacheControl;
-    this._expires = expires;
+    this.contentType = contentType;
+    this.gzippable = HttpHeaderUtils.isCompressible(contentType);
+    this.status = status;
+    this.lastModified = (modified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND;
+    this.content = toStorableContent(body, this.gzippable);
+    this.cacheControl = cacheControl;
+    this.expires = expires;
   }
 
   /**
@@ -112,7 +112,7 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   @Override
   public String getContentType() {
-    return this._contentType;
+    return this.contentType;
   }
 
   /**
@@ -120,7 +120,7 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   @Override
   public int getStatusCode() {
-    return this._status;
+    return this.status;
   }
 
   /**
@@ -129,7 +129,7 @@ public final class StaticResource implements Serializable, CachedResource {
    * @return the gzipped version of the body if the content is stores gzipped or <code>null</code>
    */
   public byte @Nullable [] getGzippedBody() {
-    if (this._gzippable) return this._content;
+    if (this.gzippable) return this.content;
     else return null;
   }
 
@@ -143,8 +143,8 @@ public final class StaticResource implements Serializable, CachedResource {
    * @throws IOException if thrown while ungzipping the content.
    */
   public byte[] getUngzippedBody() throws IOException {
-    if (this._gzippable) return GZIPUtils.ungzip(this._content);
-    else return this._content;
+    if (this.gzippable) return GZIPUtils.ungzip(this.content);
+    else return this.content;
   }
 
   @Override
@@ -155,13 +155,13 @@ public final class StaticResource implements Serializable, CachedResource {
 
   @Override
   public boolean hasContent() {
-    if (this._content == null) return false;
-    return this._gzippable? !GZIPUtils.shouldGzippedBodyBeZero(this._content) : this._content.length != 0;
+    if (this.content == null) return false;
+    return this.gzippable? !GZIPUtils.shouldGzippedBodyBeZero(this.content) : this.content.length != 0;
   }
 
   @Override
   public boolean hasGzippedBody() {
-    return this._gzippable && this._content != null;
+    return this.gzippable && this.content != null;
   }
 
   /**
@@ -172,7 +172,7 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   @Override
   public boolean isOK() {
-    return this._status == HttpServletResponse.SC_OK;
+    return this.status == HttpServletResponse.SC_OK;
   }
 
   /**
@@ -182,23 +182,23 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   @Override
   public long getLastModified() {
-    return this._lastModified;
+    return this.lastModified;
   }
 
   @Override
   public String getETag(boolean gzipped) {
-    return toEtag(this._lastModified / MILLISECONDS_PER_SECOND, gzipped);
+    return toEtag(this.lastModified / MILLISECONDS_PER_SECOND, gzipped);
   }
 
   @Override
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
     List<HttpHeader<? extends Serializable>> headers = new ArrayList<>();
     // Set the headers of the HTTP response
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.CACHE_CONTROL, this._cacheControl));
+    headers.add(new HttpHeader<Serializable>(HttpHeaders.CACHE_CONTROL, this.cacheControl));
     headers.add(new HttpHeader<Serializable>(HttpHeaders.ETAG, getETag(gzipped)));
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.LAST_MODIFIED, this._lastModified));
-    headers.add(new HttpHeader<Serializable>(HttpHeaders.EXPIRES, this._expires));
-    if (this._gzippable) {
+    headers.add(new HttpHeader<Serializable>(HttpHeaders.LAST_MODIFIED, this.lastModified));
+    headers.add(new HttpHeader<Serializable>(HttpHeaders.EXPIRES, this.expires));
+    if (this.gzippable) {
       headers.add(new HttpHeader<Serializable>(HttpHeaders.VARY, "Accept-Encoding"));
     }
     return headers;
@@ -206,11 +206,11 @@ public final class StaticResource implements Serializable, CachedResource {
 
   @Override
   public void copyHeadersTo(HttpServletResponse res, boolean gzipped) {
-    res.setHeader(HttpHeaders.CACHE_CONTROL, this._cacheControl);
+    res.setHeader(HttpHeaders.CACHE_CONTROL, this.cacheControl);
     res.setHeader(HttpHeaders.ETAG, getETag(gzipped));
-    res.setDateHeader(HttpHeaders.LAST_MODIFIED, this._lastModified);
-    res.setDateHeader(HttpHeaders.EXPIRES, this._expires);
-    if (this._gzippable) {
+    res.setDateHeader(HttpHeaders.LAST_MODIFIED, this.lastModified);
+    res.setDateHeader(HttpHeaders.EXPIRES, this.expires);
+    if (this.gzippable) {
       res.setHeader(HttpHeaders.VARY, "Accept-Encoding");
     }
   }

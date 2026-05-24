@@ -52,39 +52,39 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   /**
    * The current depth.
    */
-  private final int _depth;
+  private final int depth;
 
   /**
    * The list of outbound cross-references found.
    */
-  private final List<String> _types;
+  private final List<String> types;
 
   /**
    * The list of outbound cross-references found.
    */
-  private final List<File> _links;
+  private final List<File> links;
 
   /**
    * The path prefix to add to referenced documents such as images and paths.
    */
-  private final String _shift;
+  private final String shift;
 
   /**
    * The XMLCopy handler to make it easier to perform the copy from the handler method.
    * <p>
    * MUST use the same XML writer.
    */
-  private final @Nullable XMLCopy _copy;
+  private final @Nullable XMLCopy copy;
 
   /**
    * The base path for the file currently being processed.
    */
-  private final PSMLFile _source;
+  private final PSMLFile source;
 
   /**
    * The heading level to adjust.
    */
-  private final int _level;
+  private final int level;
 
   // state variable
   // ----------------------------------------------------------------------------------------------
@@ -110,14 +110,14 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * @param xml    the XML writer to use.
    */
   public PSMLLinkProcessorHandler(PSMLFile source, @Nullable XMLWriter xml) {
-    this._source = source;
-    this._depth = 1;
-    this._types = Collections.singletonList("transclude");
-    this._shift = "";
-    this._copy = xml != null? new XMLCopy(xml) : null;
-    this._links = new ArrayList<>();
-    this._links.add(source.file());
-    this._level = 0;
+    this.source = source;
+    this.depth = 1;
+    this.types = Collections.singletonList("transclude");
+    this.shift = "";
+    this.copy = xml != null? new XMLCopy(xml) : null;
+    this.links = new ArrayList<>();
+    this.links.add(source.file());
+    this.level = 0;
   }
 
   /**
@@ -128,38 +128,38 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * @param level  the level attribute from the cross-reference.
    */
   public PSMLLinkProcessorHandler(PSMLFile source, PSMLLinkProcessorHandler parent, int level) {
-    this._source = source;
-    this._depth = parent._depth + 1;
-    this._types = parent._types;
-    this._copy = parent._copy;
-    this._links = parent._links;
-    this._links.add(source.file());
-    this._shift = Paths.path(parent._source.getBase(), source.getBase())+"/";
-    this._level = parent._level + level;
+    this.source = source;
+    this.depth = parent.depth + 1;
+    this.types = parent.types;
+    this.copy = parent.copy;
+    this.links = parent.links;
+    this.links.add(source.file());
+    this.shift = Paths.path(parent.source.getBase(), source.getBase())+"/";
+    this.level = parent.level + level;
   }
 
   @Override
   public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
     // Copy the XML
-    if (this._copy != null) {
+    if (this.copy != null) {
       Attributes modified = attributes;
       if ("blockxref".equals(qName) || "xref".equals(qName) || "reversexref".equals(qName)) {
         // Update the references
-        String value = Paths.normalize(this._shift + attributes.getValue("href"));
+        String value = Paths.normalize(this.shift + attributes.getValue("href"));
         modified = update(attributes, "href", value);
 
       } else if ("image".equals(qName)) {
         // Update the path to images
-        String value = Paths.normalize(this._shift + attributes.getValue("src"));
+        String value = Paths.normalize(this.shift + attributes.getValue("src"));
         modified = update(attributes, "src", value);
 
       } else if ("heading".equals(qName)) {
         // Update the heading level
-        String value = Integer.toString(toLevel(attributes) + this._level);
+        String value = Integer.toString(toLevel(attributes) + this.level);
         modified = update(attributes, "level", value);
 
       }
-      this._copy.startElement(uri, localName, qName, modified);
+      this.copy.startElement(uri, localName, qName, modified);
     }
 
     // Process the blockxref if there is one
@@ -169,10 +169,10 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
       String type = attributes.getValue("type");
       String mediatype = attributes.getValue("mediatype");
       int level = toLevel(attributes);
-      if (this._depth < MAX_DEPTH && this._types.contains(type) && isProcessable(mediatype)) {
+      if (this.depth < MAX_DEPTH && this.types.contains(type) && isProcessable(mediatype)) {
 
         // compute path to target file
-        String base = this._source.getBase();
+        String base = this.source.getBase();
         String path = base + attributes.getValue("href");
         if (path.indexOf('/') == 0) {
           path = path.substring(1);
@@ -185,7 +185,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
 
         PSMLFile target = PSMLConfig.getFile(path);
         if (target.exists()) {
-          if (this._copy != null) {
+          if (this.copy != null) {
             this.insideLink = true;
             try {
               PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, level));
@@ -195,7 +195,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
           }
         } else {
           String comment = "Unable to find content for transclusion";
-          this._copy.comment(comment.toCharArray(), 0, comment.length());
+          this.copy.comment(comment.toCharArray(), 0, comment.length());
         }
       }
     }
@@ -207,8 +207,8 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   @Override
   public void endElement(String uri, String localName, String qName) throws SAXException {
     // Copy the XML
-    if (this._copy != null) {
-      this._copy.endElement(uri, localName, qName);
+    if (this.copy != null) {
+      this.copy.endElement(uri, localName, qName);
     }
 
     if ("blockxref".equals(qName)) {
@@ -219,32 +219,32 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
   @Override
   public void characters(char[] ch, int start, int length) throws SAXException {
     // Copy the XML
-    if (this._copy != null && !this.insideLink) {
-      this._copy.characters(ch, start, length);
+    if (this.copy != null && !this.insideLink) {
+      this.copy.characters(ch, start, length);
     }
   }
 
   @Override
   public void startPrefixMapping(String prefix, String uri) throws SAXException {
     // Copy the XML
-    if (this._copy != null) {
-      this._copy.startPrefixMapping(prefix, uri);
+    if (this.copy != null) {
+      this.copy.startPrefixMapping(prefix, uri);
     }
   }
 
   @Override
   public void processingInstruction(String target, String data) throws SAXException {
     // Copy the XML
-    if (this._copy != null) {
-      this._copy.processingInstruction(target, data);
+    if (this.copy != null) {
+      this.copy.processingInstruction(target, data);
     }
   }
 
   @Override
   public void comment(char[] ch, int start, int length) throws SAXException {
     // Copy the XML
-    if (this._copy != null) {
-      this._copy.comment(ch, start, length);
+    if (this.copy != null) {
+      this.copy.comment(ch, start, length);
     }
   }
 
@@ -279,7 +279,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
    * @return the links
    */
   public List<File> getLinks() {
-    return this._links;
+    return this.links;
   }
 
   // Private helpers

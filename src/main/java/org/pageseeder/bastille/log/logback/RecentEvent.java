@@ -56,35 +56,35 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private static final long serialVersionUID = 8445287374800936982L;
 
   /** Timestamp created when this object is instantiated */
-  private final long _timestamp;
+  private final long timestamp;
 
   /** Marker as passed by the filter */
-  private final @Nullable Marker _marker;
+  private final @Nullable Marker marker;
 
   /** Logger as passed by the filter */
-  private final Logger _logger;
+  private final Logger logger;
 
   /** Level as passed by the filter */
-  private final Level _level;
+  private final Level level;
 
   /** Message as passed by the filter */
-  private final String _message;
+  private final String message;
 
   /** Arguments as passed by the filter */
-  private final @Nullable Object[] _args;
+  private final @Nullable Object[] args;
 
   /** Throwable as passed by the filter */
-  private final @Nullable Throwable _throwable;
+  private final @Nullable Throwable throwable;
 
   /**
    * The Logback API has changed, so we may have to fall back on previous version
    */
-  private static volatile boolean _callerDataExtractFailed = false;
+  private static volatile boolean callerDataExtractFailed = false;
 
   /**
    * If the XML has been computed, we store it here, it won't be serialized though...
    */
-  private transient volatile @Nullable String _xml = null;
+  private transient volatile @Nullable String cachedXml = null;
 
   /**
    * Creates a recent event using the objects send from the TurboFilter.
@@ -97,21 +97,21 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @param throwable  Any error (may be <code>null</code>).
    */
   RecentEvent(@Nullable Marker marker, Logger logger, Level level, String message, @Nullable Object[] args, @Nullable Throwable throwable) {
-    this._marker = marker;
-    this._logger = logger;
-    this._level = level;
-    this._message = message;
-    this._args = args;
-    this._throwable = throwable;
-    this._timestamp = System.currentTimeMillis();
+    this.marker = marker;
+    this.logger = logger;
+    this.level = level;
+    this.message = message;
+    this.args = args;
+    this.throwable = throwable;
+    this.timestamp = System.currentTimeMillis();
   }
 
   @Override
   public void toXML(XMLWriter xml) throws IOException {
-    if (this._xml == null) {
-      this._xml = toXML();
+    if (this.cachedXml == null) {
+      this.cachedXml = toXML();
     }
-    xml.writeXML(this._xml);
+    xml.writeXML(this.cachedXml);
   }
 
   // Private helpers
@@ -127,38 +127,38 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private String toXML() throws IOException {
     XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("event");
-    xml.attribute("level", this._level.toString());
-    xml.attribute("logger", this._logger.getName());
-    xml.attribute("timestamp", Long.toString(this._timestamp));
-    xml.attribute("datetime", ISO8601.DATETIME.format(this._timestamp));
+    xml.attribute("level", this.level.toString());
+    xml.attribute("logger", this.logger.getName());
+    xml.attribute("timestamp", Long.toString(this.timestamp));
+    xml.attribute("datetime", ISO8601.DATETIME.format(this.timestamp));
 
     // Format the message
-    FormattingTuple ft = MessageFormatter.arrayFormat(this._message, this._args);
+    FormattingTuple ft = MessageFormatter.arrayFormat(this.message, this.args);
     String message = ft.getMessage();
     xml.attribute("message", message);
 
     // Any marker?
-    if (this._marker != null) {
-      xml.attribute("marker", this._marker.getName());
+    if (this.marker != null) {
+      xml.attribute("marker", this.marker.getName());
     }
 
-    Throwable throwable = this._throwable;
-    if (throwable == null) {
+    Throwable t = this.throwable;
+    if (t == null) {
       // Check if throwable included in array of arguments
-      throwable = ft.getThrowable();
+      t = ft.getThrowable();
     }
 
     // Let's try to return some throwable information...
-    if (throwable != null) {
+    if (t != null) {
 
       // If caller info is available
-      StackTraceElement[] caller = toCallerData(this._logger);
+      StackTraceElement[] caller = toCallerData(this.logger);
       if (caller != null && caller.length > 0) {
         toXML(xml, caller[0]);
       }
 
-      ThrowableProxy proxy = new ThrowableProxy(throwable);
-      LoggerContext lc = this._logger.getLoggerContext();
+      ThrowableProxy proxy = new ThrowableProxy(t);
+      LoggerContext lc = this.logger.getLoggerContext();
       if (lc.isPackagingDataEnabled()) {
         proxy.calculatePackagingData();
       }
@@ -181,7 +181,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    */
   private static @Nullable StackTraceElement[] toCallerData(Logger logger) {
     StackTraceElement[] ste = null;
-    if (!_callerDataExtractFailed) {
+    if (!callerDataExtractFailed) {
       try {
         final String name = Logger.class.getName();
         final LoggerContext context = logger.getLoggerContext();
@@ -189,7 +189,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
       } catch (Error error) {
         System.err.println("Unable to extract caller data - this message will only be shown once");
         error.printStackTrace();
-        _callerDataExtractFailed = true;
+        callerDataExtractFailed = true;
       }
     }
     return ste;

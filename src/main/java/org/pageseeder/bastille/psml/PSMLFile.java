@@ -36,12 +36,12 @@ public final class PSMLFile implements Serializable {
   /**
    * The path to the file from the PSML root folder.
    */
-  private final String _path;
+  private final String path;
 
   /**
    * The actual file.
    */
-  private final @Nullable File _file;
+  private final @Nullable File file;
 
   /**
    * Creates a new PSML File.
@@ -50,8 +50,8 @@ public final class PSMLFile implements Serializable {
    * @param file The actual file corresponding to this path.
    */
   protected PSMLFile(String path, @Nullable File file) {
-    this._path = path;
-    this._file = file;
+    this.path = path;
+    this.file = file;
   }
 
   /**
@@ -60,7 +60,7 @@ public final class PSMLFile implements Serializable {
    * @return The path to the file from the PSML root folder.
    */
   public String path() {
-    return this._path;
+    return this.path;
   }
 
   /**
@@ -69,7 +69,7 @@ public final class PSMLFile implements Serializable {
    * @return The actual file.
    */
   public @Nullable File file() {
-    return this._file;
+    return this.file;
   }
 
 
@@ -83,7 +83,7 @@ public final class PSMLFile implements Serializable {
    * @throws NullPointerException if the psml folder is <code>null</code>.
    */
   public String getBase() {
-    return "/" + this._path.substring(0, this._path.length() - this._file.getName().length());
+    return "/" + this.path.substring(0, this.path.length() - this.file.getName().length());
   }
 
   /**
@@ -93,12 +93,12 @@ public final class PSMLFile implements Serializable {
    *         <code>false</code> otherwise.
    */
   public boolean exists() {
-    return this._file != null && this._file.exists();
+    return this.file != null && this.file.exists();
   }
 
   @Override
   public String toString() {
-    return this._path+(exists()? " OK" : "!NOT_FOUND");
+    return this.path+(exists()? " OK" : "!NOT_FOUND");
   }
 
 }

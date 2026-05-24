@@ -149,6 +149,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
 
   @Override
   public void destroy() {
+    // No cleanup required: this filter holds no resources that need explicit release
   }
 
   /**

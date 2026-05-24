@@ -153,6 +153,7 @@ public final class Logs {
 
     @Override
     public void init() {
+      // No initialization needed: NoLogInfo has no backing framework to set up
     }
 
     @Override
@@ -167,6 +168,7 @@ public final class Logs {
 
     @Override
     public void setRecentEventThreshold(LogLevel level) {
+      // No-op: NoLogInfo does not support recent events (supportsRecentEvents() returns false)
     }
 
     @Override

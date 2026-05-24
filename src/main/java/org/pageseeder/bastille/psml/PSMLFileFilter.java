@@ -30,6 +30,7 @@ public final class PSMLFileFilter implements FileFilter {
    * Creates new file filter.
    */
   public PSMLFileFilter() {
+    // No state to initialize
   }
 
   @Override

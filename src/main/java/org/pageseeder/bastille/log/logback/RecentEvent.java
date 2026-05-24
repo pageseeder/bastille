@@ -70,8 +70,8 @@ public final class RecentEvent implements XMLWritable, Serializable {
   /** Message as passed by the filter */
   private final String message;
 
-  /** Arguments as passed by the filter */
-  private final @Nullable Object[] args;
+  /** Arguments as passed by the filter; transient because callers may pass non-serializable objects */
+  private final transient @Nullable Object[] args;
 
   /** Throwable as passed by the filter */
   private final @Nullable Throwable throwable;

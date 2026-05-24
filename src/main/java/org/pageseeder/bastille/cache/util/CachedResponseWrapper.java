@@ -80,9 +80,9 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   private final FilterOutputStream out;
 
   /**
-   * Only used if the writer is requested.
+   * Only used if the writer is requested; not serialized since it can be reconstructed.
    */
-  private @Nullable PrintWriter writer;
+  private transient @Nullable PrintWriter writer;
 
   /**
    * Creates a cached response wrapper.
@@ -421,7 +421,9 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   /**
    * A custom {@link javax.servlet.ServletOutputStream} for this wrapper.
    */
-  public static final class FilterOutputStream extends ServletOutputStream {
+  public static final class FilterOutputStream extends ServletOutputStream implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Underlying output stream

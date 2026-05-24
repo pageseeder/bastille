@@ -85,9 +85,7 @@ public final class GenericResource implements Serializable, CachedResource {
    */
   public GenericResource(int status, @Nullable String contentType, byte[] body,
       boolean storeGzipped, Collection<HttpHeader<? extends Serializable>> headers) {
-    if (headers != null) {
-      this.headers.addAll(headers);
-    }
+    this.headers.addAll(headers);
     this.contentType = contentType;
     this.storeGzipped = storeGzipped;
     this.status = status;

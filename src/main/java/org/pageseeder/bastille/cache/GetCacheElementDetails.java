@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
+import org.jspecify.annotations.Nullable;
+
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -74,7 +76,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(Ehcache cache, String key, XMLWriter xml) throws IOException {
+  private static void toXML(@Nullable Ehcache cache, String key, XMLWriter xml) throws IOException {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());
@@ -116,7 +118,7 @@ public final class GetCacheElementDetails implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toElementValueXML(Object o, XMLWriter xml) throws IOException {
+  private static void toElementValueXML(@Nullable Object o, XMLWriter xml) throws IOException {
     if (o == null) return;
     xml.openElement("value", true);
     xml.attribute("class", o.getClass().getName());

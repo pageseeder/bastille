@@ -17,6 +17,8 @@ package org.pageseeder.bastille.cache;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
+
 import org.pageseeder.bastille.cache.util.SizeEstimator;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -62,7 +64,7 @@ public final class GetCacheInfo implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
     if (cache == null) return;
     Status status = cache.getStatus();
     xml.openElement("cache", true);

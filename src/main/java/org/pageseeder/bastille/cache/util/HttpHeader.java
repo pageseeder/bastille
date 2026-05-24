@@ -17,6 +17,7 @@ package org.pageseeder.bastille.cache.util;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -128,10 +129,8 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
    * @throws NullPointerException if either parameter is <code>null</code>.
    */
   public HttpHeader(String name, T value) {
-    if (name == null) throw new NullPointerException("Header cannnot have a null name");
-    if (value == null) throw new NullPointerException("Header cannnot have a null value");
-    this.name = name;
-    this.value = value;
+    this.name = Objects.requireNonNull(name, "Header cannot have a null name");
+    this.value = Objects.requireNonNull(value, "Header cannot have a null value");
     this.type = Type.determineType(value.getClass());
   }
 

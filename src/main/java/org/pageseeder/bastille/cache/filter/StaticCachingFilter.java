@@ -281,7 +281,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     if ("false".equals(req.getParameter("berlioz-cache"))) return false;
     // Check the file
     File f = getResourceFile(this.context, req);
-    return f != null && (f == null || f.length() <= this.sizeThreshold);
+    return f != null && f.length() <= this.sizeThreshold;
   }
 
   /**

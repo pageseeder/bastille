@@ -34,8 +34,7 @@ public final class PSMLFileFilter implements FileFilter {
   }
 
   @Override
-  public boolean accept(File file) throws NullPointerException {
-    if (file == null) throw new NullPointerException("The specified file is null.");
+  public boolean accept(File file) {
     String name = file.getName();
     int dot = name.lastIndexOf('.');
     if (dot == -1) return false;

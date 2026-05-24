@@ -153,7 +153,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
 
       // If caller info is available
       StackTraceElement[] caller = toCallerData(this.logger);
-      if (caller != null && caller.length > 0) {
+      if (caller != null) {
         toXML(xml, caller[0]);
       }
 

@@ -18,6 +18,8 @@ package org.pageseeder.bastille.cache;
 import java.io.IOException;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -62,7 +64,7 @@ public final class GetCacheElements implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());

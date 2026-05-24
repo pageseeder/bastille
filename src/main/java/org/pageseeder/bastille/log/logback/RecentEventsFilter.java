@@ -71,7 +71,7 @@ public final class RecentEventsFilter extends TurboFilter {
    */
   @Override
   public FilterReply decide(@Nullable Marker marker, Logger logger, Level level, @Nullable String m, @Nullable Object[] a, @Nullable Throwable t) {
-    if (level.isGreaterOrEqual(threshold) && (m != null || a != null || t != null)) {
+    if (level.isGreaterOrEqual(threshold)) {
       RecentEvent e = new RecentEvent(marker, logger, level, m, a, t);
       RECENT.add(e);
       if (RECENT.size() > MAX_HOLD_SIZE) {

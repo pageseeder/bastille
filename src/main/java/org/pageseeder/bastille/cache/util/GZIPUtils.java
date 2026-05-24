@@ -15,6 +15,8 @@
  */
 package org.pageseeder.bastille.cache.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,7 +70,7 @@ public final class GZIPUtils {
    * @return <code>true</code> if gzipped;
    *         <code>false</code> if <code>null</code>, less than two bytes or not gzipped.
    */
-  public static boolean isGzipped(byte[] candidate) {
+  public static boolean isGzipped(byte @Nullable [] candidate) {
     if (candidate == null || candidate.length < 2) return false;
     else return (candidate[0] == GZIP_ID1_BYTE && candidate[1] == GZIP_ID2_BYTE);
   }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -42,7 +43,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
   private static final FileFilter DIRECTORIES_OR_XSLT_FILES = file -> file.isDirectory() || file.getName().endsWith(".xsl");
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     return null;
   }
 
@@ -53,8 +54,8 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
     File xslt = env.getPrivateFile("xslt");
 
     // XSLT documentation first
-    SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    toXML(xslt, xml, root, ISO8601Local);
+    SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    toXML(xslt, xml, root, iso8601Local);
   }
 
   /**
@@ -81,8 +82,6 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
       } else {
         xml.attribute("type", "file");
-        // TODO Remove `content-type`
-        xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
         xml.attribute("modified", iso.format(f.lastModified()));

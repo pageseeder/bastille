@@ -108,7 +108,7 @@ public final class PSMLConfig {
   public static PSMLFile getFolder(String pathInfo) {
     String path = Paths.normalize(pathInfo);
     File root = getRoot();
-    File file = (path.length() > 0)? new File(root, path) : root;
+    File file = path.isEmpty() ? root : new File(root, path);
     return new PSMLFile(path, file);
   }
 
@@ -150,7 +150,7 @@ public final class PSMLConfig {
    */
   public static File getRoot(boolean create) {
     String name = GlobalSettings.get(BASTILLE_PSML_ROOT, DEFAULT_PSML_ROOT);
-    File folder = new File(GlobalSettings.getRepository(), name);
+    File folder = new File(GlobalSettings.getAppData(), name);
     if (create && !folder.exists()) {
       LOGGER.warn("Creating PSML root folder ({})", name);
       boolean created = folder.mkdirs();
@@ -216,7 +216,7 @@ public final class PSMLConfig {
    */
   private static String attach(String main, String pathInfo) {
     StringBuilder path = new StringBuilder(main);
-    if (pathInfo.length() > 0 && pathInfo.charAt(0) != '/') {
+    if (!pathInfo.isEmpty() && pathInfo.charAt(0) != '/') {
       path.append('/');
     }
     path.append(pathInfo);

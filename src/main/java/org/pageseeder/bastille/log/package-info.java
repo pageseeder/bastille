@@ -20,4 +20,6 @@
  *
  * <p><b>THERE SHOULD BE NO DEPENDENCY ON SPECIFIC LOGGING FRAMEWORKS</b></p>
  */
+@NullMarked
 package org.pageseeder.bastille.log;
+import org.jspecify.annotations.NullMarked;

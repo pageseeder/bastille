@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -53,7 +52,7 @@ public final class GetContentFolderOverviewAuto implements ContentGenerator, Cac
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     // Get all the files

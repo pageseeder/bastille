@@ -18,6 +18,7 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -68,7 +69,7 @@ public final class GetContentFileAuto implements ContentGenerator, Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFileAuto.class);
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String pathInfo = req.getBerliozPath();
     PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
     if (!psml.exists()) return null;

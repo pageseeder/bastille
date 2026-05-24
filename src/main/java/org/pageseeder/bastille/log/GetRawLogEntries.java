@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -136,7 +137,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @return The first matching instance
    */
-  private static File findLog(LogInfo info, String name) {
+  private static @Nullable File findLog(LogInfo info, String name) {
     // Identify the log directory to read
     for (File f : info.listLogDirectories()) {
       File log = new File(f, name);
@@ -154,7 +155,7 @@ public final class GetRawLogEntries implements ContentGenerator {
    *
    * @return The first matching instance
    */
-  private static String getLevel(String line) {
+  private static @Nullable String getLevel(String line) {
     for (String level : LEVELS) {
       if (line.contains(level)) return level;
     }
@@ -188,7 +189,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   private static final class Lines implements Iterable<String> {
 
     /** The actual lines stored. */
-    private final String[] _lines;
+    private final String[] lines;
 
     /** The total number of lines added */
     private int total = 0;
@@ -197,7 +198,7 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @param capacity The maximum number of lines to keep track of.
      */
     public Lines(int capacity) {
-      this._lines = new String[capacity];
+      this.lines = new String[capacity];
     }
 
     /**
@@ -206,7 +207,7 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @param line The line to add.
      */
     private void add(String line) {
-      this._lines[this.total % this._lines.length] = line;
+      this.lines[this.total % this.lines.length] = line;
       this.total++;
     }
 
@@ -214,14 +215,14 @@ public final class GetRawLogEntries implements ContentGenerator {
      * @return the maximum number of lines this object can hold.
      */
     public int capacity() {
-      return this._lines.length;
+      return this.lines.length;
     }
 
     /**
      * @return index of the first line.
      */
     public int from() {
-      return this.total > this._lines.length? this.total - this._lines.length : 0;
+      return this.total > this.lines.length? this.total - this.lines.length : 0;
     }
 
     /**
@@ -235,8 +236,8 @@ public final class GetRawLogEntries implements ContentGenerator {
     public Iterator<String> iterator() {
       return new Iterator<String>() {
 
-        private int i = Lines.this.total > Lines.this._lines.length? Lines.this.total % Lines.this._lines.length : 0;
-        private final int upto = Lines.this.total > Lines.this._lines.length? this.i + Lines.this._lines.length : Lines.this.total;
+        private int i = Lines.this.total > Lines.this.lines.length? Lines.this.total % Lines.this.lines.length : 0;
+        private final int upto = Lines.this.total > Lines.this.lines.length? this.i + Lines.this.lines.length : Lines.this.total;
 
         @Override
         public boolean hasNext() {
@@ -245,7 +246,7 @@ public final class GetRawLogEntries implements ContentGenerator {
 
         @Override
         public String next() {
-          String next = Lines.this._lines[this.i % Lines.this._lines.length];
+          String next = Lines.this.lines[this.i % Lines.this.lines.length];
           this.i++;
           return next;
         }

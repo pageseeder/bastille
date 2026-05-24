@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Marker;
 
 import ch.qos.logback.classic.Level;
@@ -69,7 +70,7 @@ public final class RecentEventsFilter extends TurboFilter {
    * @return Always neutral.
    */
   @Override
-  public FilterReply decide(Marker marker, Logger logger, Level level, String m, Object[] a, Throwable t) {
+  public FilterReply decide(@Nullable Marker marker, Logger logger, Level level, @Nullable String m, @Nullable Object[] a, @Nullable Throwable t) {
     if (level.isGreaterOrEqual(threshold) && (m != null || a != null || t != null)) {
       RecentEvent e = new RecentEvent(marker, logger, level, m, a, t);
       RECENT.add(e);

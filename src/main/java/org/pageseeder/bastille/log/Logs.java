@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.log.logback.LogbackInfo;
 import org.pageseeder.xmlwriter.XMLWritable;
 import org.slf4j.Logger;
@@ -71,12 +72,12 @@ public final class Logs {
   /**
    * The framework in use.
    */
-  private static volatile LoggingFramework framework = null;
+  private static volatile @Nullable LoggingFramework framework = null;
 
   /**
    * The framework in use.
    */
-  private static volatile LogInfo info = null;
+  private static volatile @Nullable LogInfo info = null;
 
   /**
    * Utility class.

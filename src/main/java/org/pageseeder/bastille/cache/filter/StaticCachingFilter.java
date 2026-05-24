@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.CachedResource;
 import org.pageseeder.bastille.cache.util.CachedResponseWrapper;
 import org.pageseeder.bastille.cache.util.GenericResource;
@@ -100,10 +101,10 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   private static final int MILLISECONDS_PER_SECOND = 1000;
 
   /** Formatter for HTTP dates. */
-  private HttpDateFormat httpDateFormatter;
+  private @Nullable HttpDateFormat httpDateFormatter;
 
   /** The cache control pattern */
-  private String cacheControlPattern;
+  private @Nullable String cacheControlPattern;
 
   /** The cache control pattern */
   private long sizeThreshold;
@@ -111,7 +112,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * The servlet context.
    */
-  private ServletContext _context = null;
+  private @Nullable ServletContext context = null;
 
   @Override
   public CacheManager getCacheManager() {
@@ -126,10 +127,10 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   @Override
   public void init(FilterConfig config) throws CacheException {
     super.init(config);
-    this._context = config.getServletContext();
+    this.context = config.getServletContext();
     // Setting the Cache-Control pattern
     String cc = config.getInitParameter("cache-control");
-    if (cc != null && cc.length() > 0) {
+    if (cc != null && !cc.isEmpty()) {
       this.cacheControlPattern = cc;
     } else {
       this.cacheControlPattern = DEFAULT_CACHE_CONTROL;
@@ -137,7 +138,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     LOGGER.debug("Using Cache-Control: {}", this.cacheControlPattern);
     // Setting the threshold for the file size
     String st = config.getInitParameter("filesize-threshold");
-    if (st != null && st.length() > 0) {
+    if (st != null && !st.isEmpty()) {
       // TODO handle parsing errors
       this.sizeThreshold = Long.parseLong(st);
     } else {
@@ -171,7 +172,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
         long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
 
         // Get last modified from file (also rounded to the second)
-        File f = getResourceFile(this._context, req);
+        File f = getResourceFile(this.context, req);
         long fmodified = f == null? 0 : f.lastModified() / MILLISECONDS_PER_SECOND;
 
         // Check for freshness
@@ -278,7 +279,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     // Cache disabled by parameter
     if ("false".equals(req.getParameter("berlioz-cache"))) return false;
     // Check the file
-    File f = getResourceFile(this._context, req);
+    File f = getResourceFile(this.context, req);
     return f != null && (f == null || f.length() <= this.sizeThreshold);
   }
 
@@ -348,7 +349,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       LOGGER.debug("Writing response OK (200) for {}", req.getRequestURI());
       res.setStatus(resource.getStatusCode());
       String contentType = resource.getContentType();
-      if (contentType != null && contentType.length() > 0) {
+      if (contentType != null && !contentType.isEmpty()) {
         res.setContentType(contentType);
       }
       resource.copyHeadersTo(res, sendGzip);
@@ -380,7 +381,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    *
    * @return The corresponding file or <code>null</code> if the file path could not be guessed
    */
-  private static File getResourceFile(ServletContext context, HttpServletRequest req) {
+  private static @Nullable File getResourceFile(ServletContext context, HttpServletRequest req) {
     File f = (File)req.getAttribute(FILE_REQUEST_ATTRIBUTE);
     if (f == null) {
       String filepath = context.getRealPath(decode(req.getRequestURI()));

@@ -21,6 +21,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An interface for cached resources.
  *
@@ -33,7 +35,7 @@ public interface CachedResource {
   /**
    * @return the content type of the response.
    */
-  String getContentType();
+  @Nullable String getContentType();
 
   /**
    * @return the HTTP status code of the response.
@@ -54,7 +56,7 @@ public interface CachedResource {
    *
    * @throws IOException if thrown while ungzipping the content.
    */
-  byte[] getBody(boolean gzipped) throws IOException;
+  byte @Nullable [] getBody(boolean gzipped) throws IOException;
 
   /**
    * @return <code>true</code> if the body is not <code>null</code> and would not result in a 0-length content.
@@ -89,7 +91,7 @@ public interface CachedResource {
    *
    * @return the etag if there is an "Etag" header defined; <code>null</code> otherwise.
    */
-  String getETag(boolean gzipped);
+  @Nullable String getETag(boolean gzipped);
 
   /**
    * @return All the headers set on the page.

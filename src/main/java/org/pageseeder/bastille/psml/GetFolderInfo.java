@@ -20,6 +20,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
@@ -40,12 +41,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
   /**
    * Filters XML files only.
    */
-  private static final FileFilter DIRECTORIES_OR_PSML_FILES = new FileFilter() {
-    @Override
-    public boolean accept(File file) {
-      return file.isDirectory() || file.getName().endsWith(PSMLConfig.DEFAULT_PSML_EXTENSION);
-    }
-  };
+  private static final FileFilter DIRECTORIES_OR_PSML_FILES = file -> file.isDirectory() || file.getName().endsWith(PSMLConfig.DEFAULT_PSML_EXTENSION);
 
   /**
    * Logger for debugging
@@ -55,10 +51,10 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
   /**
    * The content folder to recompute the
    */
-  private volatile File ancestor = null;
+  private volatile @Nullable File ancestor = null;
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getFolder(path);
@@ -110,7 +106,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(this.ancestor, f));
     if (f.exists()) {
-      SimpleDateFormat ISO8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+      SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
@@ -123,7 +119,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", ISO8601Local.format(f.lastModified()));
+        xml.attribute("modified", iso8601Local.format(f.lastModified()));
       }
 
     } else {

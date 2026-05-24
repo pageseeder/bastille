@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
@@ -65,12 +66,12 @@ public final class PSMLOverviews {
   /**
    * Reuse the same cache manager to avoid I/O problems (configuration seems to be parsed for each getInstance).
    */
-  private static volatile CacheManager manager = null;
+  private static volatile @Nullable CacheManager manager = null;
 
   /**
    * The cache containing all the PSML entries.
    */
-  private static volatile Ehcache cache = null;
+  private static volatile @Nullable Ehcache cache = null;
 
   /**
    * Generate the overview documents for the files for the specified folder.

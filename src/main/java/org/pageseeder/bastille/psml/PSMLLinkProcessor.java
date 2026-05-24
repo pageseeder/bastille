@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
@@ -62,12 +63,12 @@ public final class PSMLLinkProcessor {
   /**
    * Reuse the same cache manager to avoid I/O problems (configuration seems to be parsed for each getInstance).
    */
-  private static volatile CacheManager manager = null;
+  private static volatile @Nullable CacheManager manager = null;
 
   /**
    * The cache containing all the PSML entries.
    */
-  private static volatile Ehcache cache = null;
+  private static volatile @Nullable Ehcache cache = null;
 
   /**
    * Generate the overview documents for the files for the specified folder.
@@ -92,7 +93,7 @@ public final class PSMLLinkProcessor {
       // Check for freshness
       long modified = System.currentTimeMillis();
       if (entry != null) {
-        modified = lastModified(entry._linked);
+        modified = lastModified(entry.linked);
       }
 
       // Attempt to grab the content
@@ -146,7 +147,7 @@ public final class PSMLLinkProcessor {
    *
    * @throws NullPointerException if the file is <code>null</code>.
    */
-  public static String getEtag(PSMLFile psml) {
+  public static @Nullable String getEtag(PSMLFile psml) {
     // Get all the files
     File file = psml.file();
     if (!file.exists()) return null;
@@ -254,34 +255,34 @@ public final class PSMLLinkProcessor {
     /**
      * The data to store.
      */
-    private final String _data;
+    private final String data;
 
     /**
      * The list
      */
-    private final List<File> _linked;
+    private final List<File> linked;
 
     /**
      * @param data the XML data.
      * @param linked the list of files linked.
      */
     public CachedProcessed(String data, List<File> linked) {
-      this._data = data;
-      this._linked = linked;
+      this.data = data;
+      this.linked = linked;
     }
 
     /**
      * @return the data to store.
      */
     public String data() {
-      return this._data;
+      return this.data;
     }
 
     /**
      * @return the linked files.
      */
     public List<File> linked() {
-      return this._linked;
+      return this.linked;
     }
   }
 

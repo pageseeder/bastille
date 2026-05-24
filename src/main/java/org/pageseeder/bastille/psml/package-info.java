@@ -16,4 +16,6 @@
 /**
  * Contains classes and generators for manipulating PSML.
  */
+@NullMarked
 package org.pageseeder.bastille.psml;
+import org.jspecify.annotations.NullMarked;

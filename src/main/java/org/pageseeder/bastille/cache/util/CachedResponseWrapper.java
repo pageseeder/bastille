@@ -34,6 +34,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.HttpHeader.Type;
 import org.pageseeder.berlioz.http.HttpHeaders;
 
@@ -52,34 +53,34 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   private static final long serialVersionUID = -5976708169031065497L;
 
   /** HTTP status code, OK (200) by default. */
-  private int _status = SC_OK;
+  private int status = SC_OK;
 
   /** The length of the content in bytes */
-  private int _contentLength;
+  private int contentLength;
 
   /** The content type (MIME) */
-  private String _contentType;
+  private @Nullable String contentType;
 
   /**
    * List of response headers.
    */
-  private final Map<String, List<Serializable>> _headers =
+  private final Map<String, List<Serializable>> headers =
       new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
   /**
    * Cookies.
    */
-  private final List<Cookie> _cookies = new ArrayList<>();
+  private final List<Cookie> cookies = new ArrayList<>();
 
   /**
    * A servlet output stream backed by a byte array.
    */
-  private final FilterOutputStream _out;
+  private final FilterOutputStream out;
 
   /**
    * Only used if the writer is requested.
    */
-  private PrintWriter _writer;
+  private @Nullable PrintWriter writer;
 
   /**
    * Creates a cached response wrapper.
@@ -88,12 +89,12 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   public CachedResponseWrapper(HttpServletResponse res) {
     super(res);
-    this._out = new FilterOutputStream();
+    this.out = new FilterOutputStream();
   }
 
   @Override
   public ServletOutputStream getOutputStream() {
-    return this._out;
+    return this.out;
   }
 
   /**
@@ -103,15 +104,15 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public PrintWriter getWriter() throws IOException {
-    if (this._writer == null) {
-      this._writer = new PrintWriter(new OutputStreamWriter(this._out, getCharacterEncoding()), true);
+    if (this.writer == null) {
+      this.writer = new PrintWriter(new OutputStreamWriter(this.out, getCharacterEncoding()), true);
     }
-    return this._writer;
+    return this.writer;
   }
 
   @Override
   public void setStatus(int status) {
-    this._status = status;
+    this.status = status;
     super.setStatus(status);
   }
 
@@ -125,7 +126,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public void sendError(int code, String string) throws IOException {
-    this._status = code;
+    this.status = code;
     super.sendError(code, string);
   }
 
@@ -139,7 +140,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public void sendError(int code) throws IOException {
-    this._status = code;
+    this.status = code;
     super.sendError(code);
   }
 
@@ -153,39 +154,39 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public void sendRedirect(String url) throws IOException {
-    this._status = HttpServletResponse.SC_MOVED_TEMPORARILY;
+    this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
     super.sendRedirect(url);
   }
 
   @Override
   public void setStatus(int code, String msg) {
-    this._status = code;
+    this.status = code;
     super.setStatus(code);
   }
 
   @Override
   public void setContentLength(int length) {
-    this._contentLength = length;
+    this.contentLength = length;
     super.setContentLength(length);
   }
 
   @Override
   public void setContentType(String type) {
-    this._contentType = type;
+    this.contentType = type;
     super.setContentType(type);
   }
 
   @Override
-  public String getContentType() {
-    return this._contentType;
+  public @Nullable String getContentType() {
+    return this.contentType;
   }
 
   @Override
   public void addHeader(String name, String value) {
-    List<Serializable> values = this._headers.get(name);
+    List<Serializable> values = this.headers.get(name);
     if (values == null) {
       values = new LinkedList<>();
-      this._headers.put(name, values);
+      this.headers.put(name, values);
     }
     values.add(value);
     super.addHeader(name, value);
@@ -195,16 +196,16 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void setHeader(String name, String value) {
     List<Serializable> values = new LinkedList<>();
     values.add(value);
-    this._headers.put(name, values);
+    this.headers.put(name, values);
     super.setHeader(name, value);
   }
 
   @Override
   public void addDateHeader(String name, long date) {
-    List<Serializable> values = this._headers.get(name);
+    List<Serializable> values = this.headers.get(name);
     if (values == null) {
       values = new LinkedList<>();
-      this._headers.put(name, values);
+      this.headers.put(name, values);
     }
     values.add(date);
     super.addDateHeader(name, date);
@@ -214,16 +215,16 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void setDateHeader(String name, long date) {
     List<Serializable> values = new LinkedList<>();
     values.add(date);
-    this._headers.put(name, values);
+    this.headers.put(name, values);
     super.setDateHeader(name, date);
   }
 
   @Override
   public void addIntHeader(String name, int value) {
-    List<Serializable> values = this._headers.get(name);
+    List<Serializable> values = this.headers.get(name);
     if (values == null) {
       values = new LinkedList<>();
-      this._headers.put(name, values);
+      this.headers.put(name, values);
     }
     values.add(value);
     super.addIntHeader(name, value);
@@ -233,13 +234,13 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void setIntHeader(String name, int value) {
     List<Serializable> values = new LinkedList<>();
     values.add(value);
-    this._headers.put(name, values);
+    this.headers.put(name, values);
     super.setIntHeader(name, value);
   }
 
   @Override
   public void addCookie(Cookie cookie) {
-    this._cookies.add(cookie);
+    this.cookies.add(cookie);
     super.addCookie(cookie);
   }
 
@@ -262,11 +263,11 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public void reset() {
     super.reset();
-    this._cookies.clear();
-    this._headers.clear();
-    this._status = SC_OK;
-    this._contentType = null;
-    this._contentLength = 0;
+    this.cookies.clear();
+    this.headers.clear();
+    this.status = SC_OK;
+    this.contentType = null;
+    this.contentLength = 0;
   }
 
   // Class specific methods
@@ -277,21 +278,21 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   @Override
   public int getStatus() {
-    return this._status;
+    return this.status;
   }
 
   /**
    * @return the content length.
    */
   public int getContentLength() {
-    return this._contentLength;
+    return this.contentLength;
   }
 
   /**
    * @return all the cookies.
    */
   public Collection<Cookie> getCookies() {
-    return this._cookies;
+    return this.cookies;
   }
 
   /**
@@ -299,7 +300,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   public List<HttpHeader<? extends Serializable>> getAllHeaders() {
     List<HttpHeader<? extends Serializable>> headers = new LinkedList<>();
-    for (Map.Entry<String, List<Serializable>> headerEntry : this._headers.entrySet()) {
+    for (Map.Entry<String, List<Serializable>> headerEntry : this.headers.entrySet()) {
       String name = headerEntry.getKey();
       for (Serializable value : headerEntry.getValue()) {
         final Type type = HttpHeader.Type.determineType(value.getClass());
@@ -325,8 +326,8 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @param name the name of the header
    * @return All the headersMap set/added on the response
    */
-  public List<Serializable> getHeaderValues(String name) {
-    return this._headers.get(name);
+  public @Nullable List<Serializable> getHeaderValues(String name) {
+    return this.headers.get(name);
   }
 
 
@@ -335,8 +336,8 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @return All the headersMap set/added on the response
    */
   @Override
-  public String getHeader(String name) {
-    List<Serializable> values = this._headers.get(name);
+  public @Nullable String getHeader(String name) {
+    List<Serializable> values = this.headers.get(name);
     if (values != null && values.size() > 0) return values.get(0).toString();
     return null;
   }
@@ -347,7 +348,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @return the value of the header as a date.
    */
   public long getDateHeader(String name) {
-    List<Serializable> values = this._headers.get(name);
+    List<Serializable> values = this.headers.get(name);
     if (values != null && values.size() > 0) {
       Serializable value = values.get(0);
       if (value instanceof Long) return (Long)value;
@@ -365,17 +366,17 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    * @throws IOException if thrown by the underlying output stream or writer
    */
   public void flush() throws IOException {
-    if (this._writer != null) {
-      this._writer.flush();
+    if (this.writer != null) {
+      this.writer.flush();
     }
-    this._out.flush();
+    this.out.flush();
   }
 
   /**
    * @return the content of the underlying stream as a byte array.
    */
   public byte[] toByteArray() {
-    return this._out.toByteArray();
+    return this.out.toByteArray();
   }
 
   /**
@@ -387,7 +388,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   public void adjustVaryAcceptEncoding(boolean add) {
     String value = null;
     // Find the value of the existing vary header if any
-    for (Entry<String, List<Serializable>> e : this._headers.entrySet()) {
+    for (Entry<String, List<Serializable>> e : this.headers.entrySet()) {
       if (HttpHeaders.VARY.equalsIgnoreCase(e.getKey())) {
       List<Serializable> v = e.getValue();
       value = v.isEmpty()? null : e.getValue().get(0).toString();
@@ -402,7 +403,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     } else if (!"*".equals(value)) {
       if (value.contains("Accept-Encoding")) {
         if (!add && "Accept-Encoding".equals(value)) {
-          this._headers.remove(HttpHeaders.VARY);
+          this.headers.remove(HttpHeaders.VARY);
         }
       } else {
         if (add) {

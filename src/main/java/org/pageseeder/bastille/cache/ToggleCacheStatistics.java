@@ -17,6 +17,7 @@ package org.pageseeder.bastille.cache;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -36,8 +37,7 @@ public final class ToggleCacheStatistics implements ContentGenerator {
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Grab the cache name
-    String name = req.getParameter("name", null);
-    boolean enable = "true".equals(req.getParameter("enable"));
+    String name = req.getParameter("name", "");
 
     // Get the cache manager
     CacheManager manager = CacheManager.getInstance();
@@ -71,7 +71,7 @@ public final class ToggleCacheStatistics implements ContentGenerator {
    *
    * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());

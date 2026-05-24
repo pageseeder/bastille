@@ -39,14 +39,7 @@ public final class ListAvailableLogFiles implements ContentGenerator {
   /**
    * Only accepts files ending with ".log".
    */
-  private static final FileFilter LOG_FILES = new FileFilter() {
-
-    @Override
-    public boolean accept(File file) {
-      return file.isFile() && file.getName().endsWith(".log");
-    }
-
-  };
+  private static final FileFilter LOG_FILES = file -> file.isFile() && file.getName().endsWith(".log");
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {

@@ -16,4 +16,6 @@
 /**
  * Where utility classes go.
  */
+@NullMarked
 package org.pageseeder.bastille.util;
+import org.jspecify.annotations.NullMarked;

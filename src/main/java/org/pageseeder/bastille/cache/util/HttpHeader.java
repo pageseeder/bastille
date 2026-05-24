@@ -59,7 +59,7 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
     /**
      * The underlying class for the specified type.
      */
-    private final Class<? extends Serializable> _type;
+    private final Class<? extends Serializable> typeClass;
 
     /**
      * Create a new Type
@@ -67,14 +67,14 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
      * @param type The class used for this type.
      */
     Type(Class<? extends Serializable> type) {
-      this._type = type;
+      this.typeClass = type;
     }
 
     /**
      * @return The header type class this Type represents
      */
     public Class<? extends Serializable> getTypeClass() {
-      return this._type;
+      return this.typeClass;
     }
 
     /**
@@ -107,17 +107,17 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
   /**
    * The name of the header.
    */
-  private final String _name;
+  private final String name;
 
   /**
    * The value.
    */
-  private final T _value;
+  private final T value;
 
   /**
    * The type of value for this header.
    */
-  private final Type _type;
+  private final Type type;
 
   /**
    * Create a new Header.
@@ -130,39 +130,39 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
   public HttpHeader(String name, T value) {
     if (name == null) throw new NullPointerException("Header cannnot have a null name");
     if (value == null) throw new NullPointerException("Header cannnot have a null value");
-    this._name = name;
-    this._value = value;
-    this._type = Type.determineType(value.getClass());
+    this.name = name;
+    this.value = value;
+    this.type = Type.determineType(value.getClass());
   }
 
   /**
    * @return Name of the header; never <code>null</code>
    */
   public String name() {
-    return this._name;
+    return this.name;
   }
 
   /**
    * @return Value for the header; never <code>null</code>
    */
   public T value() {
-     return this._value;
+     return this.value;
   }
 
   /**
    * @return The header type
    */
   public Type type() {
-     return this._type;
+     return this.type;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((this._name == null) ? 0 : this._name.hashCode());
-    result = prime * result + ((this._type == null) ? 0 : this._type.hashCode());
-    result = prime * result + ((this._value == null) ? 0 : this._value.hashCode());
+    result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+    result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
+    result = prime * result + ((this.value == null) ? 0 : this.value.hashCode());
     return result;
   }
 
@@ -172,21 +172,21 @@ public final class HttpHeader<T extends Serializable> implements Serializable {
     if (o == null) return false;
     if (getClass() != o.getClass()) return false;
     HttpHeader<?> other = (HttpHeader<?>) o;
-    if (this._name == null) {
-      if (other._name != null) return false;
-    } else if (!this._name.equals(other._name)) return false;
-    if (this._type == null) {
-      if (other._type != null) return false;
-    } else if (!this._type.equals(other._type)) return false;
-    if (this._value == null) {
-      if (other._value != null) return false;
-    } else if (!this._value.equals(other._value)) return false;
+    if (this.name == null) {
+      if (other.name != null) return false;
+    } else if (!this.name.equals(other.name)) return false;
+    if (this.type == null) {
+      if (other.type != null) return false;
+    } else if (!this.type.equals(other.type)) return false;
+    if (this.value == null) {
+      if (other.value != null) return false;
+    } else if (!this.value.equals(other.value)) return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return "Header<" + this._type.getTypeClass().getSimpleName() + "> [name=" + this._name + ", value=" + this._value + "]";
+    return "Header<" + this.type.getTypeClass().getSimpleName() + "> [name=" + this.name + ", value=" + this.value + "]";
   }
 
 }

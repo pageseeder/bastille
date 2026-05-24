@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
-import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -49,7 +49,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderOverview.class);
 
   @Override
-  public String getETag(ContentRequest req) {
+  public @Nullable String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getContentFolder(path);
@@ -59,7 +59,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws BerliozException, IOException {
+  public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
     String path = req.getParameter("path");

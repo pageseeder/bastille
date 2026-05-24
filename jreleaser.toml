@@ -1,0 +1,38 @@
+[project]
+name = "bastille"
+description = "Bastille"
+longDescription = """
+Bastille provides a collection of APIs and Berlioz generator implementations
+to provide basic functionalities for Berlioz Websites.
+"""
+tags = ["java", "berlioz"]
+authors = ["Christophe Lauret", "Jean-Baptiste Reure", "Carlos Cabral"]
+license = "Apache-2.0"
+vendor = "Allette Systems"
+
+[project.links]
+homepage = "https://www.pageseeder.org/projects/bastille.html"
+license = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+
+[project.languages.java]
+groupId = "org.pageseeder.bastille"
+
+[release.github]
+owner = "pageseeder"
+name = "bastille"
+username = "pageseeder"
+branch = "master"
+skipTag = true
+skipRelease = true
+
+[signing]
+active = "ALWAYS"
+
+[signing.pgp]
+armored = true
+mode = "FILE"
+
+[deploy.maven.mavenCentral.sonatype]
+active = "ALWAYS"
+url = "https://central.sonatype.com/api/v1/publisher"
+stagingRepositories = ["build/staging-deploy"]

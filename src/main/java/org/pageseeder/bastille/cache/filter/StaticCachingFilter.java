@@ -388,7 +388,6 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       String filepath = context.getRealPath(decode(req.getRequestURI()));
       // filepath may be null on Windows due to case sensitivity, pfff...
       if (filepath != null) {
-  //      LOGGER.debug("Resource path: {}", filepath);
         f = new File(filepath);
         req.setAttribute(FILE_REQUEST_ATTRIBUTE, f);
       }

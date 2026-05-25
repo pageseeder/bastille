@@ -72,7 +72,7 @@ public final class SizeEstimator {
     Sample sample = this.inMemorySamples.get(cache.getName());
     int elements = cache.getSize();
     if (sample == null || sample.elements() * RESAMPLE_FACTOR < elements || sample.bytesize == 0) {
-      long bytesize = elements > 0? cache.calculateInMemorySize() : 0;
+      long bytesize = elements > 0? cache.getStatistics().getLocalHeapSizeInBytes() : 0;
       sample = new Sample(elements, bytesize);
       this.inMemorySamples.put(cache.getName(), sample);
       return elements > 0;
@@ -91,7 +91,7 @@ public final class SizeEstimator {
     Sample sample = this.onDiskSamples.get(cache.getName());
     int elements = cache.getSize();
     if (sample == null || sample.elements()*2 < elements) {
-      long bytesize = elements > 0? cache.calculateOnDiskSize() : 0;
+      long bytesize = elements > 0? cache.getStatistics().getLocalDiskSizeInBytes() : 0;
       sample = new Sample(elements, bytesize);
       this.onDiskSamples.put(cache.getName(), sample);
       return elements > 0;

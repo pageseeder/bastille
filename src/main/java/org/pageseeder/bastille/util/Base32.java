@@ -56,7 +56,9 @@ public final class Base32 {
    * @return Encoded byte array <code>bytes</code> as a String.
    */
   public static String encode(final byte[] bytes) {
-    int i = 0, index = 0, digit;
+    int i = 0;
+    int index = 0;
+    int digit;
     StringBuilder base32 = new StringBuilder((bytes.length + 7) * 8 / 5);
 
     while (i < bytes.length) {
@@ -94,10 +96,10 @@ public final class Base32 {
     int[] state = {0, 0}; // state[0]=index, state[1]=offset
     for (int i = 0; i < base32.length(); i++) {
       int lookup = base32.charAt(i) - '0';
-      if (lookup < 0 || lookup >= BASE32_LOOKUP.length) continue;
-      int digit = BASE32_LOOKUP[lookup];
-      if (digit == 0xFF) continue;
-      if (applyDigit(bytes, digit, state)) break;
+      if (lookup >= 0 && lookup < BASE32_LOOKUP.length) {
+        int digit = BASE32_LOOKUP[lookup];
+        if (digit != 0xFF && applyDigit(bytes, digit, state)) break;
+      }
     }
     return bytes;
   }

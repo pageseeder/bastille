@@ -88,14 +88,7 @@ class SizeEstimatorTest {
     Map<String, Object> map = (Map<String, Object>) mapField.get(estimator);
 
     // Instantiate the private Sample class via reflection
-    Class<?> sampleClass = null;
-    for (Class<?> inner : SizeEstimator.class.getDeclaredClasses()) {
-      if (inner.getSimpleName().equals("Sample")) {
-        sampleClass = inner;
-        break;
-      }
-    }
-    assertNotNull(sampleClass, "Sample inner class not found");
+    Class<?> sampleClass = Class.forName(SizeEstimator.class.getName() + "$Sample");
     java.lang.reflect.Constructor<?> ctor = sampleClass.getDeclaredConstructor(int.class, long.class);
     ctor.setAccessible(true);
     Object sample = ctor.newInstance(elements, bytesize);

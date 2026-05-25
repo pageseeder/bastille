@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Errors;
@@ -237,6 +238,7 @@ public final class GetRawLogEntries implements ContentGenerator {
 
         @Override
         public String next() {
+          if (!hasNext()) throw new NoSuchElementException();
           String next = Lines.this.buffer[this.i % Lines.this.buffer.length];
           this.i++;
           return next;

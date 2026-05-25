@@ -22,6 +22,7 @@ import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.content.Location;
+import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 
 import javax.servlet.http.Cookie;
@@ -50,7 +51,7 @@ class GetCodeDocumentationTest {
   @BeforeEach
   void setUp() {
     generator = new GetCodeDocumentation();
-    xml = new XMLStringWriter(false);
+    xml = new XMLStringWriter(XML.NamespaceAware.No);
     request = new StubRequest(tempDir.toFile());
   }
 

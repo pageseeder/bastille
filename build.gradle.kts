@@ -54,6 +54,9 @@ dependencies {
     compileOnly(libs.servlet.api)
 
     runtimeOnly(libs.saxon)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 }
 
 tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {

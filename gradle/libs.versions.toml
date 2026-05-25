@@ -1,5 +1,6 @@
 [versions]
 berlioz      = "0.12.6"
+junit        = "5.11.4"
 jspecify     = "1.0.0"
 cobble       = "0.3.2"
 commons-io   = "2.22.0"
@@ -26,6 +27,8 @@ saxon          = { module = "net.sf.saxon:Saxon-HE",                      versio
 servlet-api    = { module = "javax.servlet:javax.servlet-api",            version.ref = "servlet-api" }
 slf4j-api      = { module = "org.slf4j:slf4j-api",                       version.ref = "slf4j" }
 xmlwriter      = { module = "org.pageseeder.xmlwriter:pso-xmlwriter",     version.ref = "xmlwriter" }
+junit-bom      = { module = "org.junit:junit-bom",                        version.ref = "junit" }
+junit-jupiter  = { module = "org.junit.jupiter:junit-jupiter",            version.ref = "junit" }
 
 [plugins]
 cyclonedx  = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }

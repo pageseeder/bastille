@@ -177,6 +177,7 @@ public final class PSMLConfig {
    */
   public static String load(PSMLFile psml) throws IOException {
     File file = psml.file();
+    if (file == null) throw new IOException("No file associated with PSML path: " + psml.path());
     XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("psml-file");
     xml.attribute("name", file.getName());

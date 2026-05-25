@@ -59,7 +59,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getFolder(path);
     File f = folder.file();
-    if (!f.exists()) return null;
+    if (f == null || !f.exists()) return null;
     return Long.toString(f.lastModified());
   }
 
@@ -86,9 +86,10 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
       req.setStatus(ContentStatus.NOT_FOUND);
     }
 
-    if (FileUtils.contains(this.ancestor, folder.file())) {
+    File folderFile = folder.file();
+    if (folderFile != null && FileUtils.contains(this.ancestor, folderFile)) {
       LOGGER.info("Retrieving content folder information for {}", req.getBerliozPath());
-      toXML(folder.file(), xml);
+      toXML(folderFile, xml);
     } else {
       LOGGER.warn("Attempted to access unauthorizes private file {}", req.getBerliozPath());
     }

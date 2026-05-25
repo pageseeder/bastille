@@ -325,7 +325,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
   @Override
   public @Nullable String getHeader(String name) {
     List<Serializable> values = this.headers.get(name);
-    if (values != null && values.size() > 0) return values.get(0).toString();
+    if (values != null && !values.isEmpty()) return values.get(0).toString();
     return null;
   }
 

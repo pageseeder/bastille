@@ -139,8 +139,12 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     // Setting the threshold for the file size
     String st = config.getInitParameter("filesize-threshold");
     if (st != null && !st.isEmpty()) {
-      // TODO handle parsing errors
-      this.sizeThreshold = Long.parseLong(st);
+      try {
+        this.sizeThreshold = Long.parseLong(st);
+      } catch (NumberFormatException ex) {
+        LOGGER.warn("Invalid filesize-threshold value '{}', using default", st);
+        this.sizeThreshold = DEFAULT_FILESIZE_THRESHOLD;
+      }
     } else {
       this.sizeThreshold = DEFAULT_FILESIZE_THRESHOLD;
     }
@@ -257,7 +261,8 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       LOGGER.debug("Building static cached resource for {}", req.getRequestURI());
       long lastModified = r.getDateHeader(HttpHeaders.LAST_MODIFIED);
       long ttlMilliseconds = computeTimeToLiveMilliseconds(getCache());
-      String cacheControl = this.cacheControlPattern.replace("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
+      String pattern = this.cacheControlPattern != null ? this.cacheControlPattern : DEFAULT_CACHE_CONTROL;
+      String cacheControl = pattern.replace("%TTL", Long.toString(ttlMilliseconds / MILLISECONDS_PER_SECOND));
       long expires = System.currentTimeMillis() + ttlMilliseconds;
       resource = new StaticResource(r.getStatus(), r.getContentType(), r.toByteArray(), lastModified, cacheControl, expires);
 

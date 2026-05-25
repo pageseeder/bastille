@@ -74,6 +74,7 @@ public final class GetContentFileAuto implements ContentGenerator, Cacheable {
     PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
     if (!psml.exists()) return null;
     File f = psml.file();
+    if (f == null) return null;
     return Long.toString(f.lastModified());
   }
 

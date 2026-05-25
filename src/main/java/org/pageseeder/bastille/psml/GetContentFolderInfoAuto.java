@@ -61,6 +61,7 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
     PSMLFile psml = PSMLConfig.getContentFolder(pathInfo);
     if (!psml.exists()) return null;
     File f = psml.file();
+    if (f == null) return null;
     return Long.toString(f.lastModified());
   }
 
@@ -101,8 +102,11 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
 
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
-        for (File x : f.listFiles(DIRECTORIES_OR_PSML_FILES)) {
-          toXML(x, xml);
+        File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
+        if (children != null) {
+          for (File x : children) {
+            toXML(x, xml);
+          }
         }
 
       } else {

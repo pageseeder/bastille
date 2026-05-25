@@ -83,6 +83,7 @@ public final class PSMLFile implements Serializable {
    * @throws NullPointerException if the psml folder is <code>null</code>.
    */
   public String getBase() {
+    if (this.file == null) throw new NullPointerException("PSML file is null");
     return "/" + this.path.substring(0, this.path.length() - this.file.getName().length());
   }
 

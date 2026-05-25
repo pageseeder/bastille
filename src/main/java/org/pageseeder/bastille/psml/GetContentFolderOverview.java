@@ -53,7 +53,9 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getContentFolder(path);
-    List<File> files = PSMLOverviews.getContents(folder.file());
+    File dir = folder.file();
+    if (dir == null) return null;
+    List<File> files = PSMLOverviews.getContents(dir);
     long mostrecent = PSMLOverviews.lastModified(files);
     return folder.path() + '_' + mostrecent;
   }
@@ -79,7 +81,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
 
     // Get all the files
     File dir = folder.file();
-    if (dir.exists() && dir.isDirectory()) {
+    if (dir != null && dir.exists() && dir.isDirectory()) {
       String data = PSMLOverviews.getOverview(folder);
       xml.writeXML(data);
     }

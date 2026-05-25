@@ -201,7 +201,8 @@ public final class PSMLLinkProcessor {
     return handler.getLinks();
   }
 
-  private static void parseSilently(XMLReader reader, File file) throws IOException {
+  private static void parseSilently(XMLReader reader, @Nullable File file) throws IOException {
+    if (file == null) return;
     try {
       XMLHelper.parse(reader, file);
     } catch (SAXException ex) {

@@ -145,7 +145,8 @@ public final class PSMLOverviews {
    * @param dir the directory
    * @return the list of XML files in the directory.
    */
-  public static List<File> getContents(File dir) {
+  public static List<File> getContents(@Nullable File dir) {
+    if (dir == null) return Collections.emptyList();
     if (dir.exists() && dir.isDirectory()) {
       File[] subs = dir.listFiles(new PSMLFileFilter());
       if (subs != null) return Arrays.asList(subs);

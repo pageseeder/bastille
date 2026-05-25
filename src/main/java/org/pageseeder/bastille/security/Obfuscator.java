@@ -116,7 +116,9 @@ public final class Obfuscator {
     }
     String password = args[0];
     String obfuscated = obfuscate(password);
-    LOGGER.info("{} -> OB1:{} -> {} (check)", password, obfuscated, clear(obfuscated));
+    if (LOGGER.isInfoEnabled()) {
+      LOGGER.info("{} -> OB1:{} -> {} (check)", password, obfuscated, clear(obfuscated));
+    }
   }
 
   /**

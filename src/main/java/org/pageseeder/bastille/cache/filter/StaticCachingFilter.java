@@ -45,7 +45,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.constructs.blocking.LockTimeoutException;
 
 /**
  * A caching filter for static resources such as scripts, images, styles, etc..
@@ -168,33 +167,28 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     String key = calculateKey(req);
     CachedResource resource = null;
     boolean doBuild = true;
-    try {
-      resource = getResourceFromCache(key);
-      // We've got a cached resource, let's check for freshness
-      if (resource != null) {
+    resource = getResourceFromCache(key);
+    // We've got a cached resource, let's check for freshness
+    if (resource != null) {
 
-        // Get last modified date of resource (rounded to the second)
-        long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
+      // Get last modified date of resource (rounded to the second)
+      long modified = resource.getLastModified() / MILLISECONDS_PER_SECOND;
 
-        // Get last modified from file (also rounded to the second)
-        File f = getResourceFile(this.context, req);
-        long fmodified = f == null? 0 : f.lastModified() / MILLISECONDS_PER_SECOND;
+      // Get last modified from file (also rounded to the second)
+      File f = getResourceFile(this.context, req);
+      long fmodified = f == null? 0 : f.lastModified() / MILLISECONDS_PER_SECOND;
 
-        // Check for freshness
-        if (fmodified > modified || fmodified == 0) {
-          LOGGER.debug("Resource {} updated since last cached", key);
-        } else {
-          doBuild = false;
-        }
+      // Check for freshness
+      if (fmodified > modified || fmodified == 0) {
+        LOGGER.debug("Resource {} updated since last cached", key);
+      } else {
+        doBuild = false;
       }
+    }
 
-      // Let's invoke the underlying page
-      if (doBuild) {
-        resource = buildAndCache(key, req, res, chain);
-      }
-    } catch (LockTimeoutException ex) {
-      // Do not release the lock since we never acquired it
-      throw ex;
+    // Let's invoke the underlying page
+    if (doBuild) {
+      resource = buildAndCache(key, req, res, chain);
     }
     return resource;
   }
@@ -295,7 +289,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   /**
    * @return A lazily created HttpDateFormatter instance scoped to this filter.
    */
-  protected HttpDateFormat getHttpDateFormatter() {
+  private HttpDateFormat getHttpDateFormatter() {
     if (this.httpDateFormatter == null) {
       // Delay init since SimpleDateFormat is expensive to create
       this.httpDateFormatter = new HttpDateFormat();
@@ -427,11 +421,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   private static String decode(String encoded) {
     try {
       return URLDecoder.decode(encoded, "utf-8");
-    } catch (IllegalArgumentException ex) {
-      // Might simply be a badly written path
-      return encoded;
-    } catch (UnsupportedEncodingException ex) {
-      // XXX: maybe we should throw an exception instead
+    } catch (IllegalArgumentException | UnsupportedEncodingException ex) {
       return encoded;
     }
   }

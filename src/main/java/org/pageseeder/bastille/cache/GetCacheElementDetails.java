@@ -136,7 +136,6 @@ public final class GetCacheElementDetails implements ContentGenerator {
    * @throws IOException If an error occurs while writing the XML
    */
   private static void toElementObjectXML(Object o, XMLWriter xml) throws IOException {
-    if (o == null) return;
     if (o instanceof String) {
       xml.writeText(o.toString());
     } else {

@@ -59,7 +59,7 @@ public final class StaticResource implements Serializable, CachedResource {
   /**
    * The content of the page.
    */
-  private final byte[] content;
+  private final byte @Nullable [] content;
 
   /**
    * The content type (MIME) of the content.

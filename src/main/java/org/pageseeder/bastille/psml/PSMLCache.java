@@ -16,6 +16,8 @@
 package org.pageseeder.bastille.psml;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -52,12 +54,12 @@ public final class PSMLCache {
   /**
    * Reuse the same cache manager to avoid I/O problems (configuration seems to be parsed for each getInstance).
    */
-  private static volatile @Nullable CacheManager manager = null;
+  private static final AtomicReference<@Nullable CacheManager> managerRef = new AtomicReference<>(null);
 
   /**
    * The cache containing all the PSML entries.
    */
-  private static volatile @Nullable Ehcache cache = null;
+  private static final AtomicReference<@Nullable Ehcache> cacheRef = new AtomicReference<>(null);
 
   /**
    * Return the cached content of the specified PSML file.
@@ -68,9 +70,8 @@ public final class PSMLCache {
    * @throws IOException If thrown while loading the file.
    */
   public static String getContent(PSMLFile psml) throws IOException {
-    // Initialise if required.
-    if (cache == null) { init(); }
-    // Attempt to grab the content
+    Ehcache cache = cacheRef.get();
+    if (cache == null) { init(); cache = Objects.requireNonNull(cacheRef.get()); }
     Element cached = cache.get(psml.path());
     String data = null;
     if (cached == null || cached.getLastUpdateTime() < psml.file().lastModified()) {
@@ -86,18 +87,18 @@ public final class PSMLCache {
    * Initialises the cache for PSML files.
    */
   private static synchronized void init() {
-    // Create cache
-    if (manager == null) {
+    if (managerRef.get() == null) {
       LOGGER.info("Initialising cache for PSML data");
-      manager = CacheManager.getInstance();
-      // May have been created with another service.
-      cache = manager.getEhcache(CACHE_NAME);
-      if (cache == null) {
+      CacheManager manager = CacheManager.getInstance();
+      managerRef.set(manager);
+      Ehcache ehcache = manager.getEhcache(CACHE_NAME);
+      if (ehcache == null) {
         LOGGER.warn("No cache exists for PSML data! Create a new cache entry for {} in your cache config!", CACHE_NAME);
         manager.addCache(CACHE_NAME);
         LOGGER.info("Created new cache named {} to store PSML data", CACHE_NAME);
-        cache = manager.getEhcache(CACHE_NAME);
+        ehcache = manager.getEhcache(CACHE_NAME);
       }
+      cacheRef.set(ehcache);
     }
   }
 }

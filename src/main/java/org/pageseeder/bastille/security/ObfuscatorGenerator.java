@@ -32,7 +32,7 @@ public final class ObfuscatorGenerator implements ContentGenerator {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String password = req.getParameter("password", "");
-    if (password.length() > 0) {
+    if (!password.isEmpty()) {
 
       String clear = password;
       String obscur = password;

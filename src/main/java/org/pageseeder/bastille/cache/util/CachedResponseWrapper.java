@@ -336,7 +336,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
    */
   public long getDateHeader(String name) {
     List<Serializable> values = this.headers.get(name);
-    if (values != null && values.size() > 0) {
+    if (values != null && !values.isEmpty()) {
       Serializable value = values.get(0);
       if (value instanceof Long) return (Long)value;
       else if (value instanceof String) {

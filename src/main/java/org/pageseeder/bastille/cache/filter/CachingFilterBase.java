@@ -98,7 +98,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
     synchronized (CachingFilterBase.class) {
       if (this.blockingCache == null) {
         this.cacheName = config.getInitParameter("cache-name");
-        if (this.cacheName != null && this.cacheName.length() > 0) {
+        if (this.cacheName != null && !this.cacheName.isEmpty()) {
           LOGGER.debug("Using configured cacheName of {}.", this.cacheName);
         } else {
           LOGGER.debug("No cacheName configured - using default of {}.", getDefaultCacheName());

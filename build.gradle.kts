@@ -54,6 +54,10 @@ dependencies {
     compileOnly(libs.servlet.api)
 
     runtimeOnly(libs.saxon)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.servlet.api)
 }
 
 dependencyLocking {

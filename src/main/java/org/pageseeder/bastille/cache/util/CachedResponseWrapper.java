@@ -47,10 +47,7 @@ import org.pageseeder.berlioz.http.HttpHeaders;
  *
  * @version Bastille 11.0
  */
-public final class CachedResponseWrapper extends HttpServletResponseWrapper implements Serializable {
-
-  /** As per requirement by <code>Serializable</code> */
-  private static final long serialVersionUID = -5976708169031065497L;
+public final class CachedResponseWrapper extends HttpServletResponseWrapper {
 
   private static final String ACCEPT_ENCODING = "Accept-Encoding";
 

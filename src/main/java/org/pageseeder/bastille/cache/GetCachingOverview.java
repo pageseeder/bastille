@@ -80,8 +80,8 @@ public final class GetCachingOverview implements ContentGenerator {
       SizeEstimator estimator = SizeEstimator.singleton();
       xml.openElement("info");
       xml.attribute("size", cache.getSize());
-      xml.attribute("memory-store-size",    Long.toString(cache.getMemoryStoreSize()));
-      xml.attribute("disk-store-size",      cache.getDiskStoreSize());
+      xml.attribute("memory-store-size",    Long.toString(cache.getStatistics().getLocalHeapSize()));
+      xml.attribute("disk-store-size",      Long.toString(cache.getStatistics().getLocalDiskSize()));
       xml.attribute("in-memory-size",       Long.toString(estimator.getInMemorySize(cache)));
       xml.attribute("on-disk-size",         Long.toString(estimator.getOnDiskSize(cache)));
       xml.attribute("statistics-enabled",  "false");

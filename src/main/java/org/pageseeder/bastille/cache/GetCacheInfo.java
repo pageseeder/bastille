@@ -30,6 +30,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
@@ -78,8 +79,8 @@ public final class GetCacheInfo implements ContentGenerator {
       SizeEstimator estimator = SizeEstimator.singleton();
       xml.openElement("info");
       xml.attribute("size", cache.getSize());
-      xml.attribute("memory-store-size",    Long.toString(cache.getMemoryStoreSize()));
-      xml.attribute("disk-store-size",      cache.getDiskStoreSize());
+      xml.attribute("memory-store-size",    Long.toString(cache.getStatistics().getLocalHeapSize()));
+      xml.attribute("disk-store-size",      Long.toString(cache.getStatistics().getLocalDiskSize()));
       xml.attribute("in-memory-size",       Long.toString(estimator.getInMemorySize(cache)));
       xml.attribute("on-disk-size",         Long.toString(estimator.getOnDiskSize(cache)));
       xml.closeElement();
@@ -115,13 +116,14 @@ public final class GetCacheInfo implements ContentGenerator {
     xml.attribute("max-bytes-local-disk-percentage-set", Boolean.toString(config.isMaxBytesLocalDiskPercentageSet()));
     xml.attribute("max-bytes-local-heap", Long.toString(config.getMaxBytesLocalHeap()));
     xml.attribute("max-bytes-local-heap-percentage-set", Boolean.toString(config.isMaxBytesLocalHeapPercentageSet()));
-    xml.attribute("disk-persistent",   Boolean.toString(config.isDiskPersistent()));
+    PersistenceConfiguration pc = config.getPersistenceConfiguration();
+    xml.attribute("disk-persistent",   Boolean.toString(pc != null && pc.getStrategy() == PersistenceConfiguration.Strategy.LOCALRESTARTABLE));
     xml.attribute("eternal",           Boolean.toString(config.isEternal()));
     xml.attribute("clear-on-flush",    Boolean.toString(config.isClearOnFlush()));
     xml.attribute("copy-on-read",      Boolean.toString(config.isCopyOnRead()));
     xml.attribute("copy-on-write",     Boolean.toString(config.isCopyOnWrite()));
     xml.attribute("count-based-tuned", Boolean.toString(config.isCountBasedTuned()));
-    xml.attribute("overflow-to-disk",  Boolean.toString(config.isOverflowToDisk()));
+    xml.attribute("overflow-to-disk",  Boolean.toString(pc != null && pc.getStrategy() == PersistenceConfiguration.Strategy.LOCALTEMPSWAP));
     if (config.isMaxBytesLocalDiskPercentageSet()) {
       xml.attribute("max-bytes-local-disk-percentage",  config.getMaxBytesLocalDiskPercentage());
     }

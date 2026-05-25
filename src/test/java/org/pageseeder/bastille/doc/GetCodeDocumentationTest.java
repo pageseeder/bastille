@@ -117,14 +117,14 @@ class GetCodeDocumentationTest {
     @Override public String[] getParameterValues(String name) { return null; }
     @Override public Enumeration<String> getParameterNames() { return Collections.emptyEnumeration(); }
     @Override public Object getAttribute(String name) { return null; }
-    @Override public void setAttribute(String name, Object value) {}
+    @Override public void setAttribute(String name, Object value) { /* no-op stub */ }
     @Override public Date getDateParameter(String name) { return null; }
     @Override public Cookie[] getCookies() { return new Cookie[0]; }
     @Override public HttpSession getSession() { return null; }
     @Override public Environment getEnvironment() { return new StubEnvironment(privateRoot); }
     @Override public Location getLocation() { return null; }
     @Override public void setStatus(ContentStatus status) { this.lastStatus = status; }
-    @Override public void setRedirect(String url, ContentStatus status) {}
+    @Override public void setRedirect(String url, ContentStatus status) { /* no-op stub */ }
   }
 
   static class StubEnvironment implements Environment {
@@ -135,7 +135,7 @@ class GetCodeDocumentationTest {
     }
 
     @Override public File getPublicFolder() { return root; }
-    @Override public File getPrivateFolder() { return root; }
+    @Override public File getPrivateFolder() { return getPublicFolder(); }
     @Override public File getPublicFile(String path) { return new File(root, path); }
     @Override public File getPrivateFile(String path) { return new File(root, path); }
     @Override public String getProperty(String name) { return null; }

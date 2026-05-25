@@ -96,12 +96,12 @@ class HttpHeaderTest {
 
   @Test
   void equals_null() {
-    assertNotEquals(new HttpHeader<>("X-Header", "v"), null);
+    assertNotEquals(null, new HttpHeader<>("X-Header", "v"));
   }
 
   @Test
   void equals_differentClass() {
-    assertNotEquals(new HttpHeader<>("X-Header", "v"), "X-Header");
+    assertNotEquals("X-Header", new HttpHeader<>("X-Header", "v"));
   }
 
   @Test

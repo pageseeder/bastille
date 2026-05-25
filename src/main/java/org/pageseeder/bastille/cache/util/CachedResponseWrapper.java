@@ -414,7 +414,7 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper impl
     /**
      * Underlying output stream
      */
-    private final ByteArrayOutputStream stream;
+    private final transient ByteArrayOutputStream stream;
 
     /**
      * Creates a FilterServletOutputStream backed by a byte array output stream.

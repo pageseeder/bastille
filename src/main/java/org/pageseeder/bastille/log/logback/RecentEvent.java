@@ -65,7 +65,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
   private final @Nullable Marker marker;
 
   /** Logger as passed by the filter */
-  private final Logger logger;
+  private final Logger eventLogger;
 
   /** Level as passed by the filter */
   private final Level level;
@@ -101,7 +101,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
    */
   RecentEvent(@Nullable Marker marker, Logger logger, Level level, @Nullable String message, @Nullable Object[] args, @Nullable Throwable throwable) {
     this.marker = marker;
-    this.logger = logger;
+    this.eventLogger = logger;
     this.level = level;
     this.message = message;
     this.args = args;
@@ -131,7 +131,7 @@ public final class RecentEvent implements XMLWritable, Serializable {
     XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No, false);
     xml.openElement("event");
     xml.attribute("level", this.level.toString());
-    xml.attribute("logger", this.logger.getName());
+    xml.attribute("logger", this.eventLogger.getName());
     xml.attribute("timestamp", Long.toString(this.timestamp));
     xml.attribute("datetime", ISO8601.DATETIME.format(this.timestamp));
 
@@ -155,13 +155,13 @@ public final class RecentEvent implements XMLWritable, Serializable {
     if (t != null) {
 
       // If caller info is available
-      StackTraceElement[] caller = toCallerData(this.logger);
-      if (caller != null) {
+      StackTraceElement[] caller = toCallerData(this.eventLogger);
+      if (caller.length > 0) {
         toXML(xml, caller[0]);
       }
 
       ThrowableProxy proxy = new ThrowableProxy(t);
-      LoggerContext lc = this.logger.getLoggerContext();
+      LoggerContext lc = this.eventLogger.getLoggerContext();
       if (lc.isPackagingDataEnabled()) {
         proxy.calculatePackagingData();
       }
@@ -182,19 +182,19 @@ public final class RecentEvent implements XMLWritable, Serializable {
    * @param logger the logger for the event.
    * @return the stack trace element
    */
-  private static @Nullable StackTraceElement[] toCallerData(Logger logger) {
-    StackTraceElement[] ste = null;
+  private static StackTraceElement[] toCallerData(Logger logger) {
     if (!callerDataExtractFailed) {
       try {
         final String name = Logger.class.getName();
         final LoggerContext context = logger.getLoggerContext();
-        ste = CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth(), null);
+        StackTraceElement[] ste = CallerData.extract(new Throwable(), name, context.getMaxCallerDataDepth(), null);
+        if (ste != null) return ste;
       } catch (LinkageError error) {
         LOGGER.error("Unable to extract caller data - this message will only be shown once", error);
         callerDataExtractFailed = true;
       }
     }
-    return ste;
+    return new StackTraceElement[0];
   }
 
   /**

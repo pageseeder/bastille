@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.log.logback.LogbackInfo;
@@ -72,12 +73,12 @@ public final class Logs {
   /**
    * The framework in use.
    */
-  private static volatile @Nullable LoggingFramework framework = null;
+  private static final AtomicReference<@Nullable LoggingFramework> frameworkRef = new AtomicReference<>(null);
 
   /**
-   * The framework in use.
+   * The log info in use.
    */
-  private static volatile @Nullable LogInfo info = null;
+  private static final AtomicReference<@Nullable LogInfo> infoRef = new AtomicReference<>(null);
 
   /**
    * Utility class.
@@ -91,10 +92,12 @@ public final class Logs {
    * @return the logging framework in use by the system.
    */
   public static LoggingFramework getLoggingFramework() {
-    if (framework == null) {
+    LoggingFramework fw = frameworkRef.get();
+    if (fw == null) {
       initFramework();
+      fw = Objects.requireNonNull(frameworkRef.get());
     }
-    return framework;
+    return fw;
   }
 
   /**
@@ -103,10 +106,12 @@ public final class Logs {
    * @return the logging framework in use by the system.
    */
   public static LogInfo getLogInfo() {
-    if (info == null) {
+    LogInfo logInfo = infoRef.get();
+    if (logInfo == null) {
       initLogInfo();
+      logInfo = Objects.requireNonNull(infoRef.get());
     }
-    return info;
+    return logInfo;
   }
 
   // private helpers
@@ -127,20 +132,20 @@ public final class Logs {
         fm = LoggingFramework.NOP;
       }
     }
-    framework = fm;
+    frameworkRef.set(fm);
   }
 
   /**
    * Initialise the log info by guessing from the implementation.
    */
   private static synchronized void initLogInfo() {
-    if (framework == null) {
+    if (frameworkRef.get() == null) {
       initFramework();
     }
-    if (Objects.requireNonNull(framework) == LoggingFramework.LOGBACK) {
-      info = new LogbackInfo();
+    if (Objects.requireNonNull(frameworkRef.get()) == LoggingFramework.LOGBACK) {
+      infoRef.set(new LogbackInfo());
     } else {
-      info = new NoLogInfo();
+      infoRef.set(new NoLogInfo());
     }
   }
 

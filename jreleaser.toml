@@ -21,7 +21,7 @@ groupId = "org.pageseeder.bastille"
 owner = "pageseeder"
 name = "bastille"
 username = "pageseeder"
-branch = "master"
+branch = "main"
 skipTag = true
 skipRelease = true
 

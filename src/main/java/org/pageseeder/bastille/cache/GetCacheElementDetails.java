@@ -100,7 +100,6 @@ public final class GetCacheElementDetails implements ContentGenerator {
       xml.attribute("expired", Boolean.toString(element.isExpired()));
       xml.attribute("serialized-size", Long.toString(element.getSerializedSize()));
 
-      // TODO
       Object o = element.getObjectValue();
       toElementValueXML(o, xml);
 
@@ -155,7 +154,6 @@ public final class GetCacheElementDetails implements ContentGenerator {
     }
   }
 
-  // TODO Handle more primitive types; TODO Handle arrays
   private static void writeFieldValue(Field f, Object o, XMLWriter xml)
       throws IllegalAccessException, IOException {
     Class<?> t = f.getType();

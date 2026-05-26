@@ -66,14 +66,14 @@ public final class Paths {
   /**
    * Computes the path from a path to another.
    *
-   * <pre>
+   * <pre>{@code
    * /          to /      => .
    * /a         to /a     => .
    * /a         to /b     => ../b
    * /a/a/../c  to /a     => ../../a
    * /          to /b     => b
    * /          to /b/c   => b/c
-   * </pre>
+   * }</pre>
    *
    * @param from The path to start from
    * @param to   The path to arrive at

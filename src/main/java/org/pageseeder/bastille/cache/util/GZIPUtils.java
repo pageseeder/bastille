@@ -62,9 +62,9 @@ public final class GZIPUtils {
    * Checks the first two bytes of the candidate byte array for the magic number 0x677a.
    *
    * <p>This magic number was obtained from /usr/share/file/magic. The line for gzip is:
-   * <pre>
+   * <pre>{@code
    * >>14    beshort 0x677a          (gzipped)
-   * </pre>
+   * }</pre>
    *
    * @param candidate the byte array to check
    * @return <code>true</code> if gzipped;

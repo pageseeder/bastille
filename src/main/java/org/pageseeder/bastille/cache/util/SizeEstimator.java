@@ -25,11 +25,20 @@ import net.sf.ehcache.Ehcache;
  * and the number of elements.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3
+ *
+ * @version Bastille 0.13.1
+ * @since Bastille 0.8.3
  */
+@SuppressWarnings("java:S6548")
 public final class SizeEstimator {
 
-  /** Singleton instance */
+  /**
+   * Singleton instance.
+   *
+   * <p>SizeEstimator is intentionally shared because cache size samples are global process-level estimates
+   * keyed by cache name. The singleton is eagerly initialized, has no external resources, and uses concurrent
+   * collections for shared state.
+   * */
   private static final SizeEstimator SINGLETON = new SizeEstimator();
 
   /**

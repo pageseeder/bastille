@@ -17,6 +17,7 @@ package org.pageseeder.bastille.security;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 
 import org.pageseeder.bastille.util.Base32;
 import org.slf4j.Logger;
@@ -39,6 +40,9 @@ public final class Obfuscator {
 
   /** We use UTF-8. */
   private static final Charset UTF8 = StandardCharsets.UTF_8;
+
+  /** Secure source of randomness for obfuscation noise. */
+  private static final SecureRandom RANDOM = new SecureRandom();
 
   /**
    * Utility class.
@@ -93,7 +97,7 @@ public final class Obfuscator {
     String base32 = Base32.encode(clear.getBytes(UTF8));
     obfuscated.append(rot13(base32));
     obfuscated.append('1');
-    long r = Math.round(Math.random() * Long.MAX_VALUE);
+    long r = RANDOM.nextLong() & Long.MAX_VALUE; // Ensure we get a positive value
     final int maxbase = 36;
     obfuscated.append(Long.toString(r, maxbase));
     return toMixCase(reverse(obfuscated)).toString();
@@ -144,9 +148,8 @@ public final class Obfuscator {
   private static CharSequence toMixCase(CharSequence word) {
     StringBuilder mixed = new StringBuilder();
     final int length = word.length();
-    final double fifty_percent = 0.5;
     for (int i = 0; i < length; i++) {
-      boolean up = Math.random() > fifty_percent;
+      boolean up = RANDOM.nextBoolean();
       mixed.append(up? Character.toUpperCase(word.charAt(i)) : Character.toLowerCase(word.charAt(i)));
     }
     return mixed;

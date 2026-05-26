@@ -35,7 +35,7 @@ import net.sf.ehcache.Element;
  * Display the elements in the cache.
  *
  * @author Christophe Lauret
- * @version Bastille 0.6.7
+ * @version Bastille 0.12.1
  */
 @Beta
 public final class GetCacheElements implements ContentGenerator {
@@ -43,7 +43,7 @@ public final class GetCacheElements implements ContentGenerator {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
     String name = req.getParameter("name");
-    if (name == null || "".equals(name)) {
+    if (name == null || name.isEmpty()) {
       Errors.noParameter(req, xml, "name");
       return;
     }

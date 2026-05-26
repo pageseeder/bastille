@@ -54,7 +54,7 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * </ul>
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3
+ * @version Bastille 0.12.1
  */
 public abstract class CachingFilterBase implements Filter, CachingFilter {
 
@@ -272,10 +272,12 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
     }
 
     // Writing out content
-    res.setContentLength(body.length);
-    OutputStream out = new BufferedOutputStream(res.getOutputStream());
-    out.write(body);
-    out.flush();
+    if (body != null) {
+      res.setContentLength(body.length);
+      OutputStream out = new BufferedOutputStream(res.getOutputStream());
+      out.write(body);
+      out.flush();
+    }
   }
 
   /**

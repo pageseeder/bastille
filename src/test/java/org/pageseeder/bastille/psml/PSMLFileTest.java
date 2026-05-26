@@ -29,35 +29,11 @@ class PSMLFileTest {
   @TempDir
   Path tempDir;
 
-  // --- path() ---
-
-  @Test
-  void path_returnsConstructorValue() {
-    PSMLFile psml = new PSMLFile("content/foo/bar.psml", null);
-    assertEquals("content/foo/bar.psml", psml.path());
-  }
-
-  // --- file() ---
-
   @Test
   void file_returnsConstructorValue() {
     File f = new File("/some/path/bar.psml");
     PSMLFile psml = new PSMLFile("content/bar.psml", f);
     assertEquals(f, psml.file());
-  }
-
-  @Test
-  void file_nullAllowed() {
-    PSMLFile psml = new PSMLFile("content/bar.psml", null);
-    assertNull(psml.file());
-  }
-
-  // --- exists() ---
-
-  @Test
-  void exists_nullFile_returnsFalse() {
-    PSMLFile psml = new PSMLFile("content/missing.psml", null);
-    assertFalse(psml.exists());
   }
 
   @Test
@@ -74,8 +50,6 @@ class PSMLFileTest {
     PSMLFile psml = new PSMLFile("content/present.psml", f);
     assertTrue(psml.exists());
   }
-
-  // --- getBase() ---
 
   @Test
   void getBase_fileInSubfolder() {

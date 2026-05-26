@@ -17,14 +17,15 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.Serializable;
-
-import org.jspecify.annotations.Nullable;
+import java.util.Objects;
 
 /**
  * A path/file value pair for a PSML document.
  *
  * @author Christophe Lauret
- * @version 20 November 2012
+ *
+ * @version Bastille 0.13.0
+ * @since Bastille 0.7.0
  */
 public final class PSMLFile implements Serializable {
 
@@ -41,7 +42,7 @@ public final class PSMLFile implements Serializable {
   /**
    * The actual file.
    */
-  private final @Nullable File file;
+  private final File file;
 
   /**
    * Creates a new PSML File.
@@ -49,9 +50,9 @@ public final class PSMLFile implements Serializable {
    * @param path The path to the file from the root directory
    * @param file The actual file corresponding to this path.
    */
-  protected PSMLFile(String path, @Nullable File file) {
-    this.path = path;
-    this.file = file;
+  PSMLFile(String path, File file) {
+    this.path = Objects.requireNonNull(path, "Path cannot be null");
+    this.file = Objects.requireNonNull(file, "File cannot be null");
   }
 
   /**
@@ -68,10 +69,9 @@ public final class PSMLFile implements Serializable {
    *
    * @return The actual file.
    */
-  public @Nullable File file() {
+  public File file() {
     return this.file;
   }
-
 
   /**
    * Returns the base path for the specified PSML.
@@ -83,7 +83,6 @@ public final class PSMLFile implements Serializable {
    * @throws NullPointerException if the psml folder is <code>null</code>.
    */
   public String getBase() {
-    if (this.file == null) throw new NullPointerException("PSML file is null");
     return "/" + this.path.substring(0, this.path.length() - this.file.getName().length());
   }
 
@@ -94,7 +93,7 @@ public final class PSMLFile implements Serializable {
    *         <code>false</code> otherwise.
    */
   public boolean exists() {
-    return this.file != null && this.file.exists();
+    return this.file.exists();
   }
 
   @Override

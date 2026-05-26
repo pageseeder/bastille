@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.13.0
+ * @version Bastille 0.12.1
  * @since Bastille 0.7.0
  */
 public final class PSMLFile implements Serializable {
@@ -79,8 +79,6 @@ public final class PSMLFile implements Serializable {
    * <p>The base path is the path to the folder for the given PSML file.
    *
    * @return the base path for the specified PSML folder
-   *
-   * @throws NullPointerException if the psml folder is <code>null</code>.
    */
   public String getBase() {
     return "/" + this.path.substring(0, this.path.length() - this.file.getName().length());

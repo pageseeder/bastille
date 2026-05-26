@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
  * }</pre>
  *
  * @author Christophe Lauret
- * @version 0.7.5 - 25 October 2012
- * @since 0.7.0
+ * @version Bastille 0.12.1
+ * @since Bastille 0.7.0
  */
 public final class GetContentFolderOverview implements ContentGenerator, Cacheable {
 
@@ -54,7 +54,6 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getContentFolder(path);
     File dir = folder.file();
-    if (dir == null) return null;
     List<File> files = PSMLOverviews.getContents(dir);
     long mostrecent = PSMLOverviews.lastModified(files);
     return folder.path() + '_' + mostrecent;
@@ -81,7 +80,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
 
     // Get all the files
     File dir = folder.file();
-    if (dir != null && dir.exists() && dir.isDirectory()) {
+    if (dir.exists() && dir.isDirectory()) {
       String data = PSMLOverviews.getOverview(folder);
       xml.writeXML(data);
     }

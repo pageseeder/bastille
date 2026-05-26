@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
  * documents.
  *
  * @author Christophe Lauret
- * @version 0.7.5 - 25 October 2012
- * @since 0.7.5
+ * @version Bastille 0.12.1
+ * @since Bastille 0.7.5
  */
 public final class GetContentFileAuto implements ContentGenerator, Cacheable {
 
@@ -74,7 +74,6 @@ public final class GetContentFileAuto implements ContentGenerator, Cacheable {
     PSMLFile psml = PSMLConfig.getContentFile(pathInfo);
     if (!psml.exists()) return null;
     File f = psml.file();
-    if (f == null) return null;
     return Long.toString(f.lastModified());
   }
 

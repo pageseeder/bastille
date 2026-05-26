@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * Returns information about a file in the WEB-INF/psml based on the specified by the path info.
  *
  * @author Christophe Lauret
+ * @version Bastille 0.12.1
  */
 public final class GetFolderInfo implements ContentGenerator, Cacheable {
 
@@ -48,27 +49,19 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFolderInfo.class);
 
-  /**
-   * The content folder to recompute the
-   */
-  private volatile @Nullable File ancestor = null;
-
   @Override
   public @Nullable String getETag(ContentRequest req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile folder = PSMLConfig.getFolder(path);
     File f = folder.file();
-    if (f == null || !f.exists()) return null;
     return Long.toString(f.lastModified());
   }
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
     // Initialise
-    if (this.ancestor == null) {
-      this.ancestor = PSMLConfig.getRoot();
-    }
+    File ancestor = PSMLConfig.getRoot();
 
     // Check that the path has been specified
     String path = req.getParameter("path");
@@ -87,9 +80,9 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     }
 
     File folderFile = folder.file();
-    if (folderFile != null && FileUtils.contains(this.ancestor, folderFile)) {
+    if (FileUtils.contains(ancestor, folderFile)) {
       LOGGER.info("Retrieving content folder information for {}", req.getBerliozPath());
-      toXML(folderFile, xml);
+      toXML(ancestor, folderFile, xml);
     } else {
       LOGGER.warn("Attempted to access unauthorizes private file {}", req.getBerliozPath());
     }
@@ -102,10 +95,10 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
    * @param xml the xml where the file information goes to.
    * @throws IOException Should any IO occurs while retrieving the info or writing XML.
    */
-  private void toXML(File f, XMLWriter xml) throws IOException {
+  private void toXML(File ancestor, File f, XMLWriter xml) throws IOException {
     xml.openElement("file");
     xml.attribute("name", f.getName());
-    xml.attribute("path", FileUtils.path(this.ancestor, f));
+    xml.attribute("path", FileUtils.path(ancestor, f));
     if (f.exists()) {
       SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -114,7 +107,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
         File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
         if (children != null) {
           for (File x : children) {
-            toXML(x, xml);
+            toXML(ancestor, x, xml);
           }
         }
 

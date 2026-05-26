@@ -66,11 +66,11 @@ import org.slf4j.LoggerFactory;
  * <h3>Error handling</h3>
  * <p>If the file cannot be found or read, the status of this generator will be set to 'NOT_FOUND'.</p>
  *
- * @ps.note If the path resolves to a location outside the PSML folder, this generator will not read the file.
+ * <p>If the path resolves to a location outside the PSML folder, this generator will not read the file.
  *
  * @author Christophe Lauret
- * @version 0.7.5 - 25 October 2012
- * @since 0.7.0
+ * @version Bastille 0.12.1
+ * @since Bastille 0.7.0
  */
 public final class GetConfigFile implements ContentGenerator, Cacheable {
 
@@ -86,7 +86,6 @@ public final class GetConfigFile implements ContentGenerator, Cacheable {
     PSMLFile psml = PSMLConfig.getConfigFile(path);
     if (!psml.exists()) return null;
     File f = psml.file();
-    if (f == null) return null;
     return Long.toString(f.lastModified());
   }
 

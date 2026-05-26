@@ -64,7 +64,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * and <code>POST</code> methods are equivalent.
  *
  * @author Christophe Lauret
- * @version Bastille 0.11.0
+ * @version Bastille 0.12.1
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {
 
@@ -325,7 +325,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       String ifNoneMatch = req.getHeader(HttpHeaders.IF_NONE_MATCH);
       if (ifNoneMatch != null) {
         String etag = resource.getETag(ifNoneMatch.contains("-gzip"));
-        if (etag.equals(ifNoneMatch)) {
+        if (ifNoneMatch.equals(etag)) {
           LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_NONE_MATCH);
           resource.copyHeadersTo(res, sendGzip);
           res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);

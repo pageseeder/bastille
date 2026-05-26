@@ -287,17 +287,6 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   }
 
   /**
-   * @return A lazily created HttpDateFormatter instance scoped to this filter.
-   */
-  private HttpDateFormat getHttpDateFormatter() {
-    if (this.httpDateFormatter == null) {
-      // Delay init since SimpleDateFormat is expensive to create
-      this.httpDateFormatter = new HttpDateFormat();
-    }
-    return this.httpDateFormatter;
-  }
-
-  /**
    * Writes the response from a PageInfo object.
    *
    * <p>This method actually performs the conditional GET and returns 304 if not modified,

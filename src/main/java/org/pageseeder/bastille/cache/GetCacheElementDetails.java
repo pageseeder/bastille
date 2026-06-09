@@ -139,17 +139,15 @@ public final class GetCacheElementDetails implements ContentGenerator {
       xml.writeText(o.toString());
     } else {
       for (Field f : o.getClass().getFields()) {
-        if (f.isAccessible()) {
-          xml.openElement("value", true);
-          xml.attribute("name", f.getName());
-          xml.attribute("class", f.getType().getName());
-          try {
-            writeFieldValue(f, o, xml);
-          } catch (IllegalArgumentException | IllegalAccessException ex) {
-            LOGGER.warn("Unable to extract object value field", ex);
-          }
-          xml.closeElement();
+        xml.openElement("value", true);
+        xml.attribute("name", f.getName());
+        xml.attribute("class", f.getType().getName());
+        try {
+          writeFieldValue(f, o, xml);
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
+          LOGGER.warn("Unable to extract object value field", ex);
         }
+        xml.closeElement();
       }
     }
   }

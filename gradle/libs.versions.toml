@@ -1,7 +1,7 @@
 [versions]
-berlioz      = "0.12.6"
-junit        = "5.11.4"
-jspecify     = "1.0.0"
+berlioz      = "0.13.5"
+junit        = "5.14.4"
+jspecify     = "1.0.1"
 cobble       = "0.3.2"
 commons-io   = "2.22.0"
 ehcache      = "2.10.9.2"
@@ -10,10 +10,10 @@ cyclonedx    = "3.2.4"
 jreleaser    = "1.24.0"
 sonarqube    = "7.3.0.8198"
 versions     = "0.54.0"
-saxon        = "11.7"
-servlet-api  = "3.1.0"
-slf4j        = "2.0.17"
-xmlwriter    = "1.0.4"
+saxon        = "13.0"
+servlet-api  = "4.0.1"
+slf4j        = "2.0.18"
+xmlwriter    = "1.1.1"
 
 [libraries]
 berlioz        = { module = "org.pageseeder.berlioz:pso-berlioz",         version.ref = "berlioz" }
@@ -25,13 +25,13 @@ logback-classic = { module = "ch.qos.logback:logback-classic",            versio
 logback-core   = { module = "ch.qos.logback:logback-core",                version.ref = "logback" }
 saxon          = { module = "net.sf.saxon:Saxon-HE",                      version.ref = "saxon" }
 servlet-api    = { module = "javax.servlet:javax.servlet-api",            version.ref = "servlet-api" }
-slf4j-api      = { module = "org.slf4j:slf4j-api",                       version.ref = "slf4j" }
+slf4j-api      = { module = "org.slf4j:slf4j-api",                        version.ref = "slf4j" }
 xmlwriter      = { module = "org.pageseeder.xmlwriter:pso-xmlwriter",     version.ref = "xmlwriter" }
 junit-bom      = { module = "org.junit:junit-bom",                        version.ref = "junit" }
 junit-jupiter  = { module = "org.junit.jupiter:junit-jupiter",            version.ref = "junit" }
 
 [plugins]
 cyclonedx  = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
-jreleaser  = { id = "org.jreleaser",   version.ref = "jreleaser" }
-sonarqube  = { id = "org.sonarqube",             version.ref = "sonarqube" }
+jreleaser  = { id = "org.jreleaser", version.ref = "jreleaser" }
+sonarqube  = { id = "org.sonarqube", version.ref = "sonarqube" }
 versions   = { id = "com.github.ben-manes.versions", version.ref = "versions" }

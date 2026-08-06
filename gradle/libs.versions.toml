@@ -6,10 +6,10 @@ cobble       = "0.3.2"
 commons-io   = "2.22.0"
 ehcache      = "2.10.9.2"
 logback      = "1.6.1"
-cyclonedx    = "3.2.4"
-jreleaser    = "1.24.0"
-sonarqube    = "7.3.0.8198"
-versions     = "0.54.0"
+cyclonedx    = "3.3.0"
+jreleaser    = "1.25.0"
+sonarqube    = "7.3.1.8318"
+versions     = "0.59.0"
 saxon        = "13.0"
 servlet-api  = "4.0.1"
 slf4j        = "2.0.18"
@@ -34,4 +34,4 @@ junit-jupiter  = { module = "org.junit.jupiter:junit-jupiter",            versio
 cyclonedx  = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jreleaser  = { id = "org.jreleaser", version.ref = "jreleaser" }
 sonarqube  = { id = "org.sonarqube", version.ref = "sonarqube" }
-versions   = { id = "com.github.ben-manes.versions", version.ref = "versions" }
+versions   = { id = "io.github.ben-manes.versions", version.ref = "versions" }

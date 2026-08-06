@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  *          But you will need to use the <code>GetFile</code> generator instead.
  *
  * @author Christophe Lauret
- * @version 0.7.5 - 25 October 2012
+ * @version 0.13.0
  * @since 0.7.0
  */
 public final class GetContentFile implements ContentGenerator, Cacheable {

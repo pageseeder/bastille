@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * <p>If the file is a directory, lists the files corresponding to the specified directory.
  *
  * @author Christophe Lauret
- * @version 0.12.1
+ * @version 0.13.0
  * @since 0.7.0
  */
 public final class GetContentFolderInfo implements ContentGenerator, Cacheable {

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Returns a file from the path.
  *
  * @author Christophe Lauret
- * @version 0.7.0 - 6 October 2012
+ * @version 0.13.0
  * @since 0.7.0
  */
 public final class GetFile implements ContentGenerator, Cacheable {

@@ -37,7 +37,7 @@ import net.sf.ehcache.Element;
  * Display the details about an element in the cache.
  *
  * @author Christophe Lauret
- * @version 0.8.3
+ * @version 0.13.0
  */
 @Beta
 public final class GetCacheElementDetails implements ContentGenerator {

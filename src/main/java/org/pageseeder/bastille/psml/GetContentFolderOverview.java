@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * }</pre>
  *
  * @author Christophe Lauret
- * @version 0.12.1
+ * @version 0.13.0
  * @since 0.7.0
  */
 public final class GetContentFolderOverview implements ContentGenerator, Cacheable {

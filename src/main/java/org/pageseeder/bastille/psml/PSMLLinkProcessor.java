@@ -39,7 +39,7 @@ import net.sf.ehcache.Element;
  * A utility class to process links in PSML data.
  *
  * @author Christophe Lauret
- * @version 25 November 2012
+ * @version 0.13.0
  */
 public final class PSMLLinkProcessor {
 

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  *
  * @author Christophe Lauret
- * @version 0.8.6
+ * @version 0.13.0
  * @since 0.8.5
  */
 public final class SetRecentLogsThreshold implements ContentGenerator {

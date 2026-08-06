@@ -41,7 +41,7 @@ import net.sf.ehcache.Element;
  * A utility class to generate the overview data.
  *
  * @author Christophe Lauret
- * @version 0.6.35 - 21 May 2012
+ * @version 0.13.0
  * @since 0.6.33
  */
 public final class PSMLOverviews {

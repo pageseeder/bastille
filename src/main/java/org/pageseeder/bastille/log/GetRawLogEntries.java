@@ -33,7 +33,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version 0.8.6
+ * @version 0.13.0
  * @since 0.8.5
  */
 @Beta

@@ -100,33 +100,18 @@ public final class PSMLLinkProcessor {
 
         // Process
         XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No);
-        try {
+        xml.openElement("psml-file");
+        xml.attribute("name", file.getName());
+        xml.attribute("base", psml.getBase());
+        xml.attribute("status", "ok");
+        List<File> linked = processLinks(psml, xml);
+        xml.closeElement();
+        xml.flush();
 
-          xml.openElement("psml-file");
-          xml.attribute("name", file.getName());
-          xml.attribute("base", psml.getBase());
-          xml.attribute("status", "ok");
-          List<File> linked = processLinks(psml, xml);
-          xml.closeElement();
-          xml.flush();
-
-          // Cache
-          data = xml.toString();
-          entry = new CachedProcessed(data, linked);
-          cache.put(new Element(psml.path(), entry));
-
-        } catch (IOException ex) {
-
-          xml = new XMLStringWriter(XML.NamespaceAware.No);
-          xml.openElement("psml-file");
-          xml.attribute("name", file.getName());
-          xml.attribute("base", psml.getBase());
-          xml.attribute("status", "error");
-          xml.writeComment(ex.getMessage());
-          xml.closeElement();
-          xml.flush();
-          data = xml.toString();
-        }
+        // Cache
+        data = xml.toString();
+        entry = new CachedProcessed(data, linked);
+        cache.put(new Element(psml.path(), entry));
 
       } else {
         data = entry.data();
@@ -172,10 +157,8 @@ public final class PSMLLinkProcessor {
    * @param xml    The XML output.
    *
    * @return the list of processed links
-   *
-   * @throws IOException Should any error occur.
    */
-  private static List<File> processLinks(PSMLFile source, XMLWriter xml) throws IOException {
+  private static List<File> processLinks(PSMLFile source, XMLWriter xml) {
     PSMLLinkProcessorHandler handler = new PSMLLinkProcessorHandler(source, xml);
     return processLinks(source, handler);
   }

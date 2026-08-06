@@ -24,17 +24,14 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jspecify.annotations.Nullable;
+import org.pageseeder.berlioz.BerliozException;
+import org.pageseeder.berlioz.xml.Xml;
 import org.pageseeder.xmlwriter.XML;
-import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -128,14 +125,9 @@ public final class PSMLOverviews {
     base = "/" + base.substring(0, base.length() - dir.getName().length());
     xml.attribute("base", base);
 
-    try {
-      PSMLOverviewHandler handler = new PSMLOverviewHandler();
-      XMLReader reader = XMLHelper.makeXMLReader(handler);
-      for (File f : files) {
-        processEntry(reader, handler, f, xml);
-      }
-    } catch (ParserConfigurationException | SAXException ex) {
-      throw new IOException(ex);
+    PSMLOverviewHandler handler = new PSMLOverviewHandler();
+    for (File f : files) {
+      processEntry(handler, f, xml);
     }
     xml.closeElement();
   }
@@ -155,11 +147,11 @@ public final class PSMLOverviews {
     return Collections.emptyList();
   }
 
-  private static void processEntry(XMLReader reader, PSMLOverviewHandler handler, File f, XMLWriter xml) throws IOException {
+  private static void processEntry(PSMLOverviewHandler handler, File f, XMLWriter xml) throws IOException {
     xml.openElement("entry");
     xml.attribute("name", f.getName());
     try {
-      XMLHelper.parse(reader, f);
+      Xml.parse(handler, f, false);
       String title = handler.getTitle();
       if (title != null) {
         xml.element("title", title);
@@ -174,7 +166,7 @@ public final class PSMLOverviews {
         xml.attribute("value", property.getValue());
         xml.closeElement();
       }
-    } catch (SAXException ex) {
+    } catch (BerliozException ex) {
       LOGGER.warn("Unparseable file found: {}", f.getName());
       xml.attribute("error", "unparsable");
     }

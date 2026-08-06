@@ -22,17 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jspecify.annotations.Nullable;
+import org.pageseeder.berlioz.BerliozException;
+import org.pageseeder.berlioz.xml.Xml;
 import org.pageseeder.xmlwriter.XML;
-import org.pageseeder.xmlwriter.XMLHelper;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 import org.pageseeder.xmlwriter.XMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -194,22 +191,15 @@ public final class PSMLLinkProcessor {
    * @throws IOException Should any error occur.
    */
   static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) throws IOException {
-    try {
-      XMLReader reader = XMLHelper.makeXMLReader(handler);
-      parseSilently(reader, source.file());
-    } catch (ParserConfigurationException | SAXException ex) {
-      throw new IOException(ex);
+    File file = source.file();
+    if (file != null) {
+      try {
+        Xml.parse(handler, file, false);
+      } catch (BerliozException ex) {
+        LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
+      }
     }
     return handler.getLinks();
-  }
-
-  private static void parseSilently(XMLReader reader, @Nullable File file) throws IOException {
-    if (file == null) return;
-    try {
-      XMLHelper.parse(reader, file);
-    } catch (SAXException ex) {
-      LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
-    }
   }
 
   /**

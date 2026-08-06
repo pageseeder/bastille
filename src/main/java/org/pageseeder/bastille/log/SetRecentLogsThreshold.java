@@ -17,7 +17,6 @@ package org.pageseeder.bastille.log;
 
 import java.io.IOException;
 
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
@@ -60,27 +59,17 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
     if (info.supportsRecentEvents()) {
 
       //
-      String threshold = req.getParameter(PARAM_THRESHOLD);
-      if (threshold == null) {
-        Errors.noParameter(req, xml, PARAM_THRESHOLD);
-        return;
-      }
+      LogLevel level = req.parameter(PARAM_THRESHOLD).asEnum(LogLevel.class).required();
 
-      try {
-        LogLevel was = info.getRecentEventThreshold();
-        LogLevel level = LogLevel.valueOf(threshold);
-        info.setRecentEventThreshold(level);
-        LOGGER.info("Switching recent log levels from {} to {}", was, level);
+      LogLevel was = info.getRecentEventThreshold();
+      info.setRecentEventThreshold(level);
+      LOGGER.info("Switching recent log levels from {} to {}", was, level);
 
-        // Write out the new threshold
-        xml.openElement("recent-logs-threshold");
-        xml.attribute("level", info.getRecentEventThreshold().toString());
-        xml.attribute("was", was.toString());
-        xml.closeElement();
-
-      } catch (IllegalArgumentException ex) {
-        Errors.invalidParameter(req, xml, PARAM_THRESHOLD);
-      }
+      // Write out the new threshold
+      xml.openElement("recent-logs-threshold");
+      xml.attribute("level", info.getRecentEventThreshold().toString());
+      xml.attribute("was", was.toString());
+      xml.closeElement();
 
     } else {
 

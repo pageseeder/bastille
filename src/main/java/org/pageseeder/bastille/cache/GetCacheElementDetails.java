@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 
 import org.jspecify.annotations.Nullable;
 
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -48,17 +47,8 @@ public final class GetCacheElementDetails implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
-    String name = req.getParameter("name");
-    if (name == null || "".equals(name)) {
-      Errors.noParameter(req, xml, "name");
-      return;
-    }
-
-    String key = req.getParameter("key");
-    if (key == null || "".equals(key)) {
-      Errors.noParameter(req, xml, "key");
-      return;
-    }
+    String name = req.parameter("name").asString().required();
+    String key = req.parameter("key").asString().required();
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();

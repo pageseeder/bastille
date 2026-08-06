@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -42,11 +41,7 @@ public final class GetCacheElements implements ContentGenerator {
 
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
-    String name = req.getParameter("name");
-    if (name == null || name.isEmpty()) {
-      Errors.noParameter(req, xml, "name");
-      return;
-    }
+    String name = req.parameter("name").asString().required();
     // TODO (pagination with page/pagesize parameters not yet implemented)
 
     // Identify the cache

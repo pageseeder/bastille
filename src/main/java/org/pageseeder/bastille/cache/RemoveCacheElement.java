@@ -17,7 +17,6 @@ package org.pageseeder.bastille.cache;
 
 import java.io.IOException;
 
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -40,18 +39,8 @@ public final class RemoveCacheElement implements ContentGenerator {
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Grab the cache name
-    String name = req.getParameter("name", null);
-    String key = req.getParameter("key", null);
-
-    // Check required parameters
-    if (name == null) {
-      Errors.noParameter(req, xml, "name");
-      return;
-    }
-    if (key == null) {
-      Errors.noParameter(req, xml, "key");
-      return;
-    }
+    String name = req.parameter("name").asString().required();
+    String key = req.parameter("key").asString().required();
 
     // Get the cache manager
     CacheManager manager = CacheManager.getInstance();

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -63,11 +62,7 @@ public final class GetContentFolderOverview implements ContentGenerator, Cacheab
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
     LOGGER.debug(req.getBerliozPath());
 
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
+    String path = req.parameter("path").asString().required();
 
     // Get all the files
     PSMLFile folder = PSMLConfig.getContentFolder(path);

@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.Beta;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -54,17 +53,9 @@ public final class GetRawLogEntries implements ContentGenerator {
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // the line
-    int lines = req.getIntParameter("lines", DEFAULT_MAX_LINES);
-    if (lines <= 0) {
-      Errors.invalidParameter(req, xml, "lines");
-      return;
-    }
+    int lines = req.parameter("lines").asInt().clamp(1, Integer.MAX_VALUE).optional(DEFAULT_MAX_LINES);
 
-    String name = req.getParameter("name");
-    if (name == null) {
-      Errors.noParameter(req, xml, "name");
-      return;
-    }
+    String name = req.parameter("name").asString().required();
 
     // Get the information about the log framework
     LogInfo info = Logs.getLogInfo();

@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -86,11 +85,7 @@ public final class GetContentFile implements ContentGenerator, Cacheable {
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
     // Identify the file
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
+    String path = req.parameter("path").asString().required();
 
     PSMLFile psml = PSMLConfig.getContentFile(path);
     LOGGER.debug("Retrieving {}", psml);

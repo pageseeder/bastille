@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -76,11 +75,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
     }
 
     // Identify the folder
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
+    String path = req.parameter("path").asString().required();
 
     File folder = new File(this.ancestor, path);
 

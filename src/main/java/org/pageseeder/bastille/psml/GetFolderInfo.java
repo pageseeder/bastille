@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
@@ -64,11 +63,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     File ancestor = PSMLConfig.getRoot();
 
     // Check that the path has been specified
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
+    String path = req.parameter("path").asString().required();
 
     // Grab the file
     PSMLFile folder = PSMLConfig.getFolder(path);

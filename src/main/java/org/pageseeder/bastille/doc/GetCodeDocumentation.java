@@ -20,12 +20,14 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.bastille.util.Errors;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.ContentGenerator;
 import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Environment;
+import org.pageseeder.berlioz.error.HttpException;
+import org.pageseeder.berlioz.error.InvalidParameterException;
+import org.pageseeder.berlioz.error.ProblemDetails;
 import org.pageseeder.cobble.CobbleException;
 import org.pageseeder.cobble.XMLGenerator;
 import org.pageseeder.xmlwriter.XMLWriter;
@@ -46,18 +48,13 @@ public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
   @Override
   public void process(ContentRequest req, XMLWriter xml) throws IOException {
 
-    String path = req.getParameter("path");
-    if (path == null) {
-      Errors.noParameter(req, xml, "path");
-      return;
-    }
+    String path = req.parameter("path").asString().required();
 
     Environment env = req.getEnvironment();
     File code = env.getPrivateFile(path);
 
     if (!XMLGenerator.isSupported(path) || !code.exists()) {
-      Errors.invalidParameter(req, xml, "path");
-      return;
+      throw InvalidParameterException.constraintFailed("path", path, "must reference a supported, existing file");
     }
 
     // Generate the document
@@ -67,7 +64,7 @@ public final class GetCodeDocumentation implements ContentGenerator, Cacheable {
       docgen.generate(w);
       xml.writeXML(w.toString());
     } catch (CobbleException ex) {
-      Errors.error(req, xml, "server", ex.getMessage(), ContentStatus.INTERNAL_SERVER_ERROR);
+      throw HttpException.of(ProblemDetails.of(ContentStatus.INTERNAL_SERVER_ERROR).detail(ex.getMessage()));
     }
 
   }

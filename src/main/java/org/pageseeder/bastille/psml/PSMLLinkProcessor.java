@@ -91,7 +91,7 @@ public final class PSMLLinkProcessor {
       // Check for freshness
       long modified = System.currentTimeMillis();
       if (entry != null) {
-        modified = lastModified(entry.linked);
+        modified = PSMLOverviews.lastModified(entry.linked);
       }
 
       // Attempt to grab the content
@@ -158,7 +158,7 @@ public final class PSMLLinkProcessor {
       if (cached != null) {
         CachedProcessed entry = (CachedProcessed)cached.getObjectValue();
         if (entry != null) {
-          modified = lastModified(entry.linked());
+          modified = PSMLOverviews.lastModified(entry.linked());
         }
       }
     }
@@ -198,21 +198,6 @@ public final class PSMLLinkProcessor {
       }
     }
     return handler.getLinks();
-  }
-
-  /**
-   * @param files the list of files to check
-   * @return the date of the last modified file in the list.
-   */
-  private static long lastModified(List<File> files) {
-    long mostrecent = 0;
-    for (File f : files) {
-      long date = f.lastModified();
-      if (date > mostrecent) {
-        mostrecent = date;
-      }
-    }
-    return mostrecent;
   }
 
   /**

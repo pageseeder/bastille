@@ -16,8 +16,13 @@
 package org.pageseeder.bastille.util;
 
 import org.pageseeder.berlioz.util.FileUtils;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * A utility class to manipulate paths.
@@ -32,6 +37,12 @@ public final class Paths {
    * The default media type returned when a file's media type is unknown.
    */
   private static final String DEFAULT_MEDIA_TYPE = "application/octet-stream";
+
+  /**
+   * Formatter for the "modified" attribute used by {@link #toXml(File, File, FileFilter, XmlWriter)},
+   * in the local time zone.
+   */
+  private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * Utility class.
@@ -118,6 +129,43 @@ public final class Paths {
       path.append(t);
     }
     return path.toString();
+  }
+
+  /**
+   * Serialises the specified file as XML, recursing into directories and filtering their
+   * children using the given filter.
+   *
+   * @param ancestor the root file the "path" attribute is computed from.
+   * @param f        the file to serialise.
+   * @param filter   the filter used to select files when recursing into a directory.
+   * @param xml      the xml where the file information goes to.
+   */
+  public static void toXml(File ancestor, File f, FileFilter filter, XmlWriter xml) {
+    xml.openElement("file");
+    xml.attribute("name", f.getName());
+    String path = FileUtils.path(ancestor, f);
+    xml.attribute("path", path != null ? path : "");
+    if (f.exists()) {
+      if (f.isDirectory()) {
+        xml.attribute("type", "folder");
+        File[] children = f.listFiles(filter);
+        if (children != null) {
+          for (File x : children) {
+            toXml(ancestor, x, filter, xml);
+          }
+        }
+
+      } else {
+        xml.attribute("type", "file");
+        xml.attribute("media-type", getMediaType(f));
+        xml.attribute("length", Long.toString(f.length()));
+        xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
+      }
+
+    } else {
+      xml.attribute("status", "not-found");
+    }
+    xml.closeElement();
   }
 
 }

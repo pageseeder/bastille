@@ -17,9 +17,6 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Paths;
@@ -51,11 +48,6 @@ public final class GetFolderInfo implements XmlGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFolderInfo.class);
 
-  /**
-   * Formatter for the "modified" attribute, in the local time zone.
-   */
-  private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
   @Override
   public @Nullable String getETag(Request req) {
     String path = req.getParameter("path");
@@ -86,46 +78,12 @@ public final class GetFolderInfo implements XmlGenerator, Cacheable {
     File folderFile = folder.file();
     if (FileUtils.contains(ancestor, folderFile)) {
       LOGGER.info("Retrieving content folder information for {}", req.getBerliozPath());
-      toXml(ancestor, folderFile, xml);
+      Paths.toXml(ancestor, folderFile, DIRECTORIES_OR_PSML_FILES, xml);
     } else {
       LOGGER.warn("Attempted to access unauthorizes private file {}", req.getBerliozPath());
     }
 
     return response;
-  }
-
-  /**
-   * Serialise the specified file as XML.
-   *
-   * @param f   the file.
-   * @param xml the xml where the file information goes to.
-   */
-  private void toXml(File ancestor, File f, XmlWriter xml) {
-    xml.openElement("file");
-    xml.attribute("name", f.getName());
-    xml.attribute("path", FileUtils.path(ancestor, f));
-    if (f.exists()) {
-      if (f.isDirectory()) {
-        xml.attribute("type", "folder");
-        File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
-        if (children != null) {
-          for (File x : children) {
-            toXml(ancestor, x, xml);
-          }
-        }
-
-      } else {
-        xml.attribute("type", "file");
-        xml.attribute("content-type", Paths.getMediaType(f));
-        xml.attribute("media-type", Paths.getMediaType(f));
-        xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
-      }
-
-    } else {
-      xml.attribute("status", "not-found");
-    }
-    xml.closeElement();
   }
 
 }

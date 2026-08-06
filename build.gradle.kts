@@ -8,9 +8,9 @@ plugins {
     alias(libs.plugins.versions)
 }
 
-val title: String by project
-val website: String by project
-val gitName: String by project
+val title: String = project.property("title") as String
+val website: String = project.property("website") as String
+val gitName: String = project.property("gitName") as String
 
 group       = "org.pageseeder.bastille"
 version     = file("version.txt").readText().trim()
@@ -152,6 +152,6 @@ jreleaser {
 }
 
 tasks.wrapper {
-    gradleVersion = "8.14.4"
+    gradleVersion = "9.6.1"
     distributionType = Wrapper.DistributionType.ALL
 }

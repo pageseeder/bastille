@@ -96,7 +96,7 @@ public final class PSMLLinkProcessor {
 
       // Attempt to grab the content
       String data = null;
-      if (cached == null || cached.getLastUpdateTime() < modified) {
+      if (entry == null || cached.getLastUpdateTime() < modified) {
 
         // Process
         XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No);

@@ -17,7 +17,6 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -25,6 +24,7 @@ import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Request;
 import org.pageseeder.berlioz.content.Response;
 import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.error.ProblemDetails;
 import org.pageseeder.berlioz.xml.XmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +109,10 @@ public final class GetConfigFile implements XmlGenerator, Cacheable {
     try {
       data = PSMLCache.getContent(psml);
     } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
+      LOGGER.warn("Unable to load {}", psml, ex);
+      return Response.problem(ProblemDetails.of(ContentStatus.INTERNAL_SERVER_ERROR)
+          .detail("Unable to load PSML file: " + psml.path())
+          .diagnostic(ex));
     }
 
     // Write on the output

@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  * <p>If the file is a directory, lists the files corresponding to the specified directory.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
- * @since Bastille 0.7.5
+ * @version 0.12.1
+ * @since 0.7.5
  */
 public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheable {
 

@@ -32,7 +32,7 @@ import net.sf.ehcache.CacheManager;
  * Defines methods common to all caching HTTP filters.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3
+ * @version 0.8.3
  */
 @Beta
 public interface CachingFilter {

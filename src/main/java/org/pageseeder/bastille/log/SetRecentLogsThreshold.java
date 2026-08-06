@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6
- * @since Bastille 0.8.5
+ * @version 0.8.6
+ * @since 0.8.5
  */
 public final class SetRecentLogsThreshold implements ContentGenerator {
 

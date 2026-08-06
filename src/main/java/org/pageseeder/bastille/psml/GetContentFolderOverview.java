@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * }</pre>
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
- * @since Bastille 0.7.0
+ * @version 0.12.1
+ * @since 0.7.0
  */
 public final class GetContentFolderOverview implements ContentGenerator, Cacheable {
 

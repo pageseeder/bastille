@@ -22,7 +22,7 @@ package org.pageseeder.bastille.log;
  * being detected.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.5
+ * @version 0.8.5
  */
 public final class UnexpectedFrameworkException extends RuntimeException {
 

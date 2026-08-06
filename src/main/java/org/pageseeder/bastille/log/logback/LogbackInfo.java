@@ -41,8 +41,8 @@ import ch.qos.logback.core.FileAppender;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.6
- * @since Bastille 0.8.5
+ * @version 0.8.6
+ * @since 0.8.5
  */
 public final class LogbackInfo implements LogInfo {
 

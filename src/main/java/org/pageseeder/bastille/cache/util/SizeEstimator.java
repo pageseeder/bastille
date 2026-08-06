@@ -26,8 +26,8 @@ import net.sf.ehcache.Ehcache;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.13.1
- * @since Bastille 0.8.3
+ * @version 0.13.1
+ * @since 0.8.3
  */
 @SuppressWarnings("java:S6548")
 public final class SizeEstimator {

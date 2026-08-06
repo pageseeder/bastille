@@ -33,8 +33,8 @@ import ch.qos.logback.core.spi.FilterReply;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.12.1
- * @since Bastille 0.8.5
+ * @version 0.12.1
+ * @since 0.8.5
  */
 @SuppressWarnings("java:S6548") // This singleton is intentional.
 public final class RecentEventsFilter extends TurboFilter {

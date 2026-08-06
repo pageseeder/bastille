@@ -25,7 +25,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * A generator to obfuscate or see passwords in clear.
  *
  * @author Christophe Lauret
- * @version Bastille 0.6.7
+ * @version 0.6.7
  */
 public final class ObfuscatorGenerator implements ContentGenerator {
 

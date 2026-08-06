@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * otherwise it is sent raw.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3
+ * @version 0.8.3
  */
 public final class StaticResource implements Serializable, CachedResource {
 

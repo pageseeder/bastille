@@ -31,7 +31,7 @@ import net.sf.ehcache.Element;
  * A class to get the PSML from the cache.
  *
  * @author Christophe Lauret
- * @version Bastille 0.7.0
+ * @version 0.7.0
  */
 public final class PSMLCache {
 

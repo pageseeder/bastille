@@ -38,7 +38,7 @@ import java.util.zip.GZIPOutputStream;
  * representation will be significantly smaller than their string value.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.3
+ * @version 0.8.3
  */
 public final class SoftCacheableString implements Serializable {
 

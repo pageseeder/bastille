@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Returns information about a file in the WEB-INF/psml based on the specified by the path info.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
+ * @version 0.12.1
  */
 public final class GetFolderInfo implements ContentGenerator, Cacheable {
 

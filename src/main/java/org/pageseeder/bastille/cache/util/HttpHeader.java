@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Eric Dalquist
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3
+ * @version 0.8.3
  *
  * @param <T> The type of Header value being stored. Must implement {@link Serializable}
  */

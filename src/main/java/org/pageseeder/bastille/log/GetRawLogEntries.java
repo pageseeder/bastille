@@ -33,8 +33,8 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the log entries from the specified log file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6
- * @since Bastille 0.8.5
+ * @version 0.8.6
+ * @since 0.8.5
  */
 @Beta
 public final class GetRawLogEntries implements ContentGenerator {

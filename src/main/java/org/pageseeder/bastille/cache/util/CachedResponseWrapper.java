@@ -45,7 +45,7 @@ import org.pageseeder.berlioz.http.HttpHeaders;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 11.0
+ * @version 11.0
  */
 public final class CachedResponseWrapper extends HttpServletResponseWrapper {
 

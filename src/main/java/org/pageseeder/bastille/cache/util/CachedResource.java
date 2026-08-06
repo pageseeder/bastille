@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3 - 30 January 2013
+ * @version 0.8.3 - 30 January 2013
  */
 public interface CachedResource {
 

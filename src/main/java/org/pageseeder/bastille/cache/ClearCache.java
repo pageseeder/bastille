@@ -33,7 +33,7 @@ import net.sf.ehcache.Ehcache;
  * <p>Otherwise, all caches are cleared.
  *
  * @author Christophe Lauret
- * @version Bastille 0.6.7
+ * @version 0.6.7
  */
 @Beta
 public final class ClearCache implements ContentGenerator {

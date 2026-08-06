@@ -33,7 +33,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the XSLT documentation using the Cobble format
  *
  * @author Christophe Lauret
- * @version Bastille 0.9.0
+ * @version 0.9.0
  */
 public final class ListCodeFiles implements ContentGenerator, Cacheable {
 

@@ -68,8 +68,8 @@ import org.slf4j.LoggerFactory;
  * <p>If the path resolves to a location outside the PSML folder, this generator will not read the file.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
- * @since Bastille 0.7.0
+ * @version 0.12.1
+ * @since 0.7.0
  */
 public final class GetConfigFile implements ContentGenerator, Cacheable {
 

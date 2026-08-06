@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
  * documents.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
- * @since Bastille 0.7.5
+ * @version 0.12.1
+ * @since 0.7.5
  */
 public final class GetContentFileAuto implements ContentGenerator, Cacheable {
 

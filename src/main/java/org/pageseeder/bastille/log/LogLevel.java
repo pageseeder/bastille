@@ -19,7 +19,7 @@ package org.pageseeder.bastille.log;
  * A logging level common to all frameworks for use by local interfaces.
  *
  * @author Christophe Lauret
- * @version Bastille 0.8.6
+ * @version 0.8.6
  */
 public enum LogLevel {
 

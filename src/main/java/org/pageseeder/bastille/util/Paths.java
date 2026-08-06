@@ -20,7 +20,7 @@ package org.pageseeder.bastille.util;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.12.0
+ * @version 0.12.0
  */
 public final class Paths {
 

@@ -24,7 +24,7 @@ package org.pageseeder.bastille.util;
  * @see <a href="http://tools.ietf.org/html/rfc3548">RFC 3568 - The Base16, Base32, and Base64 Data Encodings</a>
  *
  * @author Christophe Lauret
- * @version Bastille 0.6.7
+ * @version 0.6.7
  */
 public final class Base32 {
 

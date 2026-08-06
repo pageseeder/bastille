@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * make passwords harder to guess.
  *
  * @author Christophe Lauret
- * @version Bastille 0.6.7
+ * @version 0.6.7
  */
 public final class Obfuscator {
 

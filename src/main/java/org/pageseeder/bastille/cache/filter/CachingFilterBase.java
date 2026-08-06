@@ -54,7 +54,7 @@ import net.sf.ehcache.constructs.blocking.BlockingCache;
  * </ul>
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
+ * @version 0.12.1
  */
 public abstract class CachingFilterBase implements Filter, CachingFilter {
 

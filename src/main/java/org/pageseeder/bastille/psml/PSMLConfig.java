@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * PSML configuration.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
+ * @version 0.12.1
  */
 public final class PSMLConfig {
 

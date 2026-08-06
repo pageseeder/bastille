@@ -48,8 +48,8 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.12.1
- * @since Bastille 0.8.5
+ * @version 0.12.1
+ * @since 0.8.5
  */
 public final class RecentEvent implements XMLWritable, Serializable {
 

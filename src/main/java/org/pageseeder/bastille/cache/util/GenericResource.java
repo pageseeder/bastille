@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version Bastille 0.8.3 - 26 January 2013
+ * @version 0.8.3 - 26 January 2013
  */
 public final class GenericResource implements Serializable, CachedResource {
 

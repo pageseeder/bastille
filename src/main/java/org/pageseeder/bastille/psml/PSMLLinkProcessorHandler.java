@@ -16,7 +16,6 @@
 package org.pageseeder.bastille.psml;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -174,11 +173,7 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     if (target.exists()) {
       if (this.copy != null) {
         this.insideLink = true;
-        try {
-          PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, headingLevel));
-        } catch (IOException ex) {
-          throw new SAXException("Unable to transclude content of " + target);
-        }
+        PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, headingLevel));
       }
     } else {
       String comment = "Unable to find content for transclusion";

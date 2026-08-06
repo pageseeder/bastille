@@ -187,10 +187,8 @@ public final class PSMLLinkProcessor {
    * @param handler The XML output.
    *
    * @return the list of processed links
-   *
-   * @throws IOException Should any error occur.
    */
-  static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) throws IOException {
+  static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) {
     File file = source.file();
     if (file != null) {
       try {

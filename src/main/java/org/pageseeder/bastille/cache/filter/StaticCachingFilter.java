@@ -17,8 +17,8 @@ package org.pageseeder.bastille.cache.filter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.servlet.FilterChain;
@@ -64,7 +64,7 @@ import net.sf.ehcache.config.CacheConfiguration;
  * and <code>POST</code> methods are equivalent.
  *
  * @author Christophe Lauret
- * @version Bastille 0.12.1
+ * @version Bastille 0.13.0
  */
 public final class StaticCachingFilter extends CachingFilterBase implements CachingFilter {
 
@@ -409,8 +409,8 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
    */
   private static String decode(String encoded) {
     try {
-      return URLDecoder.decode(encoded, "utf-8");
-    } catch (IllegalArgumentException | UnsupportedEncodingException ex) {
+      return URLDecoder.decode(encoded, StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException ex) {
       return encoded;
     }
   }

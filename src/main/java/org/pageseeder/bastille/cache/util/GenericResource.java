@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Lauret
  *
- * @version 0.8.3 - 26 January 2013
+ * @version 0.13.0
  */
 public final class GenericResource implements Serializable, CachedResource {
 
@@ -188,7 +188,7 @@ public final class GenericResource implements Serializable, CachedResource {
         final Type type = h.type();
         switch (type) {
           case STRING:
-            return new HttpDateFormat().parse((String) h.value()).getTime();
+            return new HttpDateFormat().parse((String) h.value()).toEpochMilli();
           case DATE:
             return (Long)h.value();
           default:

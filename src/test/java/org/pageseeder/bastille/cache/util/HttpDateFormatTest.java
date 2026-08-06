@@ -17,10 +17,7 @@ package org.pageseeder.bastille.cache.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,67 +28,61 @@ class HttpDateFormatTest {
   @Test
   void format_knownDate() {
     // RFC 2616 Section 3.3.1 example: Sun, 06 Nov 1994 08:49:37 GMT
-    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
-    cal.set(1994, Calendar.NOVEMBER, 6, 8, 49, 37);
-    cal.set(Calendar.MILLISECOND, 0);
-    assertEquals("Sun, 06 Nov 1994 08:49:37 GMT", formatter.format(cal.getTime()));
+    Instant date = Instant.parse("1994-11-06T08:49:37Z");
+    assertEquals("Sun, 06 Nov 1994 08:49:37 GMT", formatter.format(date));
   }
 
   @Test
   void parse_validDate() {
-    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.US);
-    cal.set(1994, Calendar.NOVEMBER, 6, 8, 49, 37);
-    cal.set(Calendar.MILLISECOND, 0);
-    Date expected = cal.getTime();
-
-    Date parsed = formatter.parse("Sun, 06 Nov 1994 08:49:37 GMT");
-    assertEquals(expected.getTime(), parsed.getTime());
+    Instant expected = Instant.parse("1994-11-06T08:49:37Z");
+    Instant parsed = formatter.parse("Sun, 06 Nov 1994 08:49:37 GMT");
+    assertEquals(expected, parsed);
   }
 
   @Test
   void parse_invalidDate_returnsEpoch() {
-    Date result = formatter.parse("not-a-valid-date");
-    assertEquals(0L, result.getTime());
+    Instant result = formatter.parse("not-a-valid-date");
+    assertEquals(Instant.EPOCH, result);
   }
 
   @Test
   void parse_emptyString_returnsEpoch() {
-    Date result = formatter.parse("");
-    assertEquals(0L, result.getTime());
+    Instant result = formatter.parse("");
+    assertEquals(Instant.EPOCH, result);
   }
 
   @Test
   void roundTrip_secondPrecision() {
     // HTTP dates have second precision — trim sub-second
-    Date original = new Date((System.currentTimeMillis() / 1000) * 1000);
+    Instant original = Instant.ofEpochSecond(System.currentTimeMillis() / 1000);
     String formatted = formatter.format(original);
-    Date parsed = formatter.parse(formatted);
-    assertEquals(original.getTime(), parsed.getTime());
+    Instant parsed = formatter.parse(formatted);
+    assertEquals(original, parsed);
   }
 
   @Test
   void format_containsGmt() {
-    String result = formatter.format(new Date(0));
+    String result = formatter.format(Instant.EPOCH);
     assertTrue(result.endsWith("GMT"));
   }
 
   @Test
   void format_epoch() {
-    String result = formatter.format(new Date(0));
+    String result = formatter.format(Instant.EPOCH);
     assertTrue(result.contains("1970"));
   }
 
   @Test
   void threadSafety_concurrentFormatAndParse() throws InterruptedException {
-    Date date = new Date(1000000000000L);
+    Instant date = Instant.ofEpochMilli(1000000000000L);
     Thread[] threads = new Thread[10];
     boolean[] failed = {false};
 
     for (int i = 0; i < threads.length; i++) {
       threads[i] = new Thread(() -> {
         String formatted = formatter.format(date);
-        Date parsed = formatter.parse(formatted);
-        if (parsed.getTime() / 1000 != date.getTime() / 1000) {
+        Instant parsed = formatter.parse(formatted);
+        if (parsed.getEpochSecond() != date.getEpochSecond()) {
           failed[0] = true;
         }
       });

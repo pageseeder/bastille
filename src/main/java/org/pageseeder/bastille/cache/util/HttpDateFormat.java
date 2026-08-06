@@ -15,11 +15,11 @@
  */
 package org.pageseeder.bastille.cache.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * A date format to produce and parse dates compliant with the RFC 2616 - HTTP/1.1 protocol.
@@ -42,22 +42,16 @@ import java.util.TimeZone;
  * For example: <code>Sun, 07 Jan 2013 04:17:56 GMT</code>
  *
  * @author Christophe Lauret
- * @version 0.8.3
+ * @version 0.13.0
  */
 public final class HttpDateFormat {
 
   /**
-   * The HTTP date formatter.
+   * The HTTP date formatter. {@link DateTimeFormatter} is immutable and thread-safe, so a
+   * single shared instance can be reused without synchronization.
    */
-  private final SimpleDateFormat format;
-
-  /**
-   * Creates a new formatter.
-   */
-  public HttpDateFormat() {
-    this.format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-    this.format.setTimeZone(TimeZone.getTimeZone("GMT"));
-  }
+  private static final DateTimeFormatter FORMAT =
+      DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US).withZone(ZoneOffset.UTC);
 
   /**
    * Formats the specified date.
@@ -66,8 +60,8 @@ public final class HttpDateFormat {
    *
    * @return A date formatted in accordance with Section 3.3.1 of RFC 2616
    */
-  public synchronized String format(Date date) {
-    return this.format.format(date);
+  public String format(Instant date) {
+    return FORMAT.format(date);
   }
 
   /**
@@ -78,13 +72,13 @@ public final class HttpDateFormat {
    *
    * @param date a date formatted in accordance with Section 3.3.1 of RFC 2616
    *
-   * @return the parsed date or <code>0L</code>
+   * @return the parsed date or the epoch
    */
-  public synchronized Date parse(String date) {
+  public Instant parse(String date) {
     try {
-      return this.format.parse(date);
-    } catch (ParseException e) {
-      return new Date(0);
+      return Instant.from(FORMAT.parse(date));
+    } catch (DateTimeParseException ex) {
+      return Instant.EPOCH;
     }
   }
 }

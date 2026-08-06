@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.Instant;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -326,9 +326,9 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
       // Check "If-Modified-Since" header
       long ifModifiedSince = req.getDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
       if (ifModifiedSince != -1) {
-        Date requestDate = new Date(ifModifiedSince);
-        Date resourceDate = new Date(resource.getLastModified());
-        if (!requestDate.before(resourceDate)) {
+        Instant requestDate = Instant.ofEpochMilli(ifModifiedSince);
+        Instant resourceDate = Instant.ofEpochMilli(resource.getLastModified());
+        if (!requestDate.isBefore(resourceDate)) {
           LOGGER.debug("Returning Not Modified (304) for {} from {}", req.getRequestURI(), HttpHeaders.IF_MODIFIED_SINCE);
           resource.copyHeadersTo(res, sendGzip);
           res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);

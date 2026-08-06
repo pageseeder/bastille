@@ -18,7 +18,9 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -35,8 +37,7 @@ import org.slf4j.LoggerFactory;
  * <p>If the file is a directory, lists the files corresponding to the specified directory.
  *
  * @author Christophe Lauret
- * @version 0.12.1
- * @since 0.7.5
+ * @version 0.13.0
  */
 public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheable {
 
@@ -49,6 +50,11 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
    * Logger for debugging
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderInfoAuto.class);
+
+  /**
+   * Formatter for the "modified" attribute, in the local time zone.
+   */
+  private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * The content folder to recompute the
@@ -97,8 +103,6 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(this.ancestor, f));
     if (f.exists()) {
-      SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
         File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
@@ -113,7 +117,7 @@ public final class GetContentFolderInfoAuto implements ContentGenerator, Cacheab
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", iso8601Local.format(f.lastModified()));
+        xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
       }
 
     } else {

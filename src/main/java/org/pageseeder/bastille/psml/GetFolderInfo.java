@@ -18,7 +18,9 @@ package org.pageseeder.bastille.psml;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -47,6 +49,11 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
    * Logger for debugging
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetFolderInfo.class);
+
+  /**
+   * Formatter for the "modified" attribute, in the local time zone.
+   */
+  private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   @Override
   public @Nullable String getETag(ContentRequest req) {
@@ -95,8 +102,6 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(ancestor, f));
     if (f.exists()) {
-      SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-
       if (f.isDirectory()) {
         xml.attribute("type", "folder");
         File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
@@ -111,7 +116,7 @@ public final class GetFolderInfo implements ContentGenerator, Cacheable {
         xml.attribute("content-type", getMediaType(f));
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", iso8601Local.format(f.lastModified()));
+        xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
       }
 
     } else {

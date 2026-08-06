@@ -18,8 +18,9 @@ package org.pageseeder.bastille.doc;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -33,7 +34,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * Returns the XSLT documentation using the Cobble format
  *
  * @author Christophe Lauret
- * @version 0.9.0
+ * @version 0.13.0
  */
 public final class ListCodeFiles implements ContentGenerator, Cacheable {
 
@@ -41,6 +42,11 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
    * Filters XML files only.
    */
   private static final FileFilter DIRECTORIES_OR_XSLT_FILES = file -> file.isDirectory() || file.getName().endsWith(".xsl");
+
+  /**
+   * Formatter for the "modified" attribute, in the local time zone.
+   */
+  private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   @Override
   public @Nullable String getETag(ContentRequest req) {
@@ -54,8 +60,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
     File xslt = env.getPrivateFile("xslt");
 
     // XSLT documentation first
-    SimpleDateFormat iso8601Local = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    toXML(xslt, xml, root, iso8601Local);
+    toXML(xslt, xml, root);
   }
 
   /**
@@ -65,7 +70,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
    * @param xml the xml where the file information goes to.
    * @throws IOException Should any IO occurs while retrieving the info or writing XML.
    */
-  private void toXML(File f, XMLWriter xml, File ancestor, DateFormat iso) throws IOException {
+  private void toXML(File f, XMLWriter xml, File ancestor) throws IOException {
     xml.openElement("file");
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(ancestor, f));
@@ -76,7 +81,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
         File[] children = f.listFiles(DIRECTORIES_OR_XSLT_FILES);
         if (children != null) {
           for (File x : children) {
-            toXML(x, xml, ancestor, iso);
+            toXML(x, xml, ancestor);
           }
         }
 
@@ -84,7 +89,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
         xml.attribute("type", "file");
         xml.attribute("media-type", getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
-        xml.attribute("modified", iso.format(f.lastModified()));
+        xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
       }
 
     } else {

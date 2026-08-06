@@ -22,6 +22,7 @@ import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.content.Location;
+import org.pageseeder.berlioz.error.InvalidParameterException;
 import org.pageseeder.xmlwriter.XML;
 import org.pageseeder.xmlwriter.XMLStringWriter;
 
@@ -61,38 +62,33 @@ class GetCodeDocumentationTest {
   }
 
   @Test
-  void process_noPathParameter_writesClientError() throws IOException {
-    generator.process(request, xml);
-    String output = xml.toString();
-    assertTrue(output.contains("<error"), "Should write an error element");
-    assertTrue(output.contains("type=\"client\""), "Error type should be 'client'");
-    assertTrue(output.contains("path"), "Error message should mention the 'path' parameter");
-    assertEquals(ContentStatus.BAD_REQUEST, request.lastStatus);
+  void process_noPathParameter_throwsInvalidParameterException() {
+    InvalidParameterException ex = assertThrows(InvalidParameterException.class,
+        () -> generator.process(request, xml));
+    assertEquals(400, ex.getHttpCode());
+    assertEquals("path", ex.getParameterName());
+    assertEquals(InvalidParameterException.Reason.REQUIRED, ex.getReason());
   }
 
   @Test
-  void process_unsupportedFileType_writesClientError() throws IOException {
+  void process_unsupportedFileType_throwsInvalidParameterException() throws IOException {
     Path txtFile = Files.createFile(tempDir.resolve("style.txt"));
     request.setParameter("path", txtFile.getFileName().toString());
 
-    generator.process(request, xml);
-
-    String output = xml.toString();
-    assertTrue(output.contains("<error"), "Should write an error element for unsupported file type");
-    assertTrue(output.contains("type=\"client\""), "Error type should be 'client'");
-    assertEquals(ContentStatus.BAD_REQUEST, request.lastStatus);
+    InvalidParameterException ex = assertThrows(InvalidParameterException.class,
+        () -> generator.process(request, xml));
+    assertEquals(400, ex.getHttpCode());
+    assertEquals("path", ex.getParameterName());
   }
 
   @Test
-  void process_xslFileDoesNotExist_writesClientError() throws IOException {
+  void process_xslFileDoesNotExist_throwsInvalidParameterException() {
     request.setParameter("path", "nonexistent.xsl");
 
-    generator.process(request, xml);
-
-    String output = xml.toString();
-    assertTrue(output.contains("<error"), "Should write an error element for missing file");
-    assertTrue(output.contains("type=\"client\""), "Error type should be 'client'");
-    assertEquals(ContentStatus.BAD_REQUEST, request.lastStatus);
+    InvalidParameterException ex = assertThrows(InvalidParameterException.class,
+        () -> generator.process(request, xml));
+    assertEquals(400, ex.getHttpCode());
+    assertEquals("path", ex.getParameterName());
   }
 
   // --- Stubs ---

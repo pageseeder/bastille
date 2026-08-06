@@ -15,13 +15,12 @@
  */
 package org.pageseeder.bastille.cache;
 
-import java.io.IOException;
-
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -33,10 +32,10 @@ import net.sf.ehcache.Ehcache;
  * @version 0.13.0
  */
 @Beta
-public final class RemoveCacheElement implements ContentGenerator {
+public final class RemoveCacheElement implements XmlGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
 
     // Grab the cache name
     String name = req.parameter("name").asString().required();
@@ -48,6 +47,7 @@ public final class RemoveCacheElement implements ContentGenerator {
 
     // Clear a specific cache
     Ehcache cache = manager.getEhcache(name);
+    Response response = Response.ok();
     if (cache != null) {
 
       boolean removed = cache.remove(key);
@@ -67,10 +67,12 @@ public final class RemoveCacheElement implements ContentGenerator {
       xml.openElement("no-cache");
       xml.attribute("name", name);
       xml.closeElement();
-      req.setStatus(ContentStatus.NOT_FOUND);
+      response = Response.status(ContentStatus.NOT_FOUND);
     }
 
     xml.closeElement();
+
+    return response;
   }
 
 }

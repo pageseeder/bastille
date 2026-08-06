@@ -15,14 +15,14 @@
  */
 package org.pageseeder.bastille.log;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 import org.pageseeder.xmlwriter.XMLWritable;
-import org.pageseeder.xmlwriter.XMLWriter;
 
 /**
  * Returns a list of the most recent logs entries.
@@ -35,7 +35,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * @version 0.8.6
  * @since 0.8.5
  */
-public final class GetRecentLogsEvents implements ContentGenerator {
+public final class GetRecentLogsEvents implements XmlGenerator {
 
   /**
    * When this generator is instantiated, the logging framework information is loaded and initialized.
@@ -48,7 +48,7 @@ public final class GetRecentLogsEvents implements ContentGenerator {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     LogInfo info = Logs.getLogInfo();
     if (info.supportsRecentEvents()) {
 
@@ -57,9 +57,11 @@ public final class GetRecentLogsEvents implements ContentGenerator {
       xml.attribute("level", info.getRecentEventThreshold().toString());
       List<XMLWritable> events = info.listRecentEvents();
       for (XMLWritable e : events) {
-        e.toXML(xml);
+        xml.asXml(e);
       }
       xml.closeElement();
+
+      return Response.ok();
 
     } else {
 
@@ -67,8 +69,9 @@ public final class GetRecentLogsEvents implements ContentGenerator {
       xml.openElement("no-recent-logs");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
                      + "Switch to the LogBack library https://logback.qos.ch";
-      xml.writeComment(message);
-      req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+      xml.comment(message);
+
+      return Response.status(ContentStatus.SERVICE_UNAVAILABLE);
 
     }
 

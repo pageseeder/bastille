@@ -15,16 +15,15 @@
  */
 package org.pageseeder.bastille.cache;
 
-import java.io.IOException;
-
 import org.jspecify.annotations.Nullable;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -40,21 +39,21 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * @version 0.6.7
  */
 @Beta
-public final class GetCacheInfo implements ContentGenerator {
+public final class GetCacheInfo implements XmlGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     String name = req.getParameter("name");
     if (name == null || "".equals(name)) {
-      req.setStatus(ContentStatus.NOT_FOUND);
-      return;
+      return Response.status(ContentStatus.NOT_FOUND);
     }
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();
     Ehcache cache = manager.getEhcache(name);
-    toXML(cache, xml);
+    toXml(cache, xml);
 
+    return Response.ok();
   }
 
   /**
@@ -62,10 +61,8 @@ public final class GetCacheInfo implements ContentGenerator {
    *
    * @param cache The cache
    * @param xml   The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXml(@Nullable Ehcache cache, XmlWriter xml) {
     if (cache == null) return;
     Status status = cache.getStatus();
     xml.openElement("cache", true);
@@ -87,7 +84,7 @@ public final class GetCacheInfo implements ContentGenerator {
     }
 
     // Configuration
-    toXML(cache.getCacheConfiguration(), xml);
+    toXml(cache.getCacheConfiguration(), xml);
 
     // Statistics
     if (status == Status.STATUS_ALIVE) {
@@ -104,10 +101,8 @@ public final class GetCacheInfo implements ContentGenerator {
    *
    * @param config The cache configuration
    * @param xml    The XML Writer.
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(CacheConfiguration config, XMLWriter xml) throws IOException {
+  private static void toXml(CacheConfiguration config, XmlWriter xml) {
     // configuration
     xml.openElement("configuration");
     xml.attribute("disk-spool-buffer-size-mb", config.getDiskSpoolBufferSizeMB());

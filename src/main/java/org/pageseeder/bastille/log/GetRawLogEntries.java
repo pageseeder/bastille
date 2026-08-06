@@ -19,15 +19,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 /**
  * Returns the log entries from the specified log file.
@@ -37,7 +39,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * @since 0.8.5
  */
 @Beta
-public final class GetRawLogEntries implements ContentGenerator {
+public final class GetRawLogEntries implements XmlGenerator {
 
   /**
    * Levels to look for.
@@ -50,7 +52,7 @@ public final class GetRawLogEntries implements ContentGenerator {
   private static final int DEFAULT_MAX_LINES = 1000;
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
 
     // the line
     int lines = req.parameter("lines").asInt().clamp(1, Integer.MAX_VALUE).optional(DEFAULT_MAX_LINES);
@@ -71,6 +73,7 @@ public final class GetRawLogEntries implements ContentGenerator {
         xml.attribute("name", name);
         tail(log, xml, lines);
         xml.closeElement();
+        return Response.ok();
 
       } else {
 
@@ -78,7 +81,7 @@ public final class GetRawLogEntries implements ContentGenerator {
         xml.openElement("no-log");
         xml.attribute("name", name);
         xml.closeElement();
-        req.setStatus(ContentStatus.NOT_FOUND);
+        return Response.status(ContentStatus.NOT_FOUND);
       }
 
     } else {
@@ -87,9 +90,9 @@ public final class GetRawLogEntries implements ContentGenerator {
       xml.openElement("no-log");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support the listing log files.\n"
           + "Switch to the LogBack library https://logback.qos.ch";
-      xml.writeComment(message);
+      xml.comment(message);
       xml.closeElement();
-      req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+      return Response.status(ContentStatus.SERVICE_UNAVAILABLE);
 
     }
   }
@@ -100,12 +103,15 @@ public final class GetRawLogEntries implements ContentGenerator {
    * @param log      The log file to read.
    * @param xml      The XML writer
    * @param maxLines The maximum amount of lines to include in the result.
-   *
-   * @throws IOException If thrown while reading the file or writing the XML out
    */
-  private static void tail(File log, XMLWriter xml, int maxLines) throws IOException {
+  private static void tail(File log, XmlWriter xml, int maxLines) {
     // Get the tail
-    Lines lines = tail(log, maxLines);
+    Lines lines;
+    try {
+      lines = tail(log, maxLines);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
 
     // Write the lines out
     int n = lines.from();
@@ -116,7 +122,7 @@ public final class GetRawLogEntries implements ContentGenerator {
       if (level != null) {
         xml.attribute("level", level);
       }
-      xml.writeText(line);
+      xml.text(line);
       xml.closeElement();
     }
   }

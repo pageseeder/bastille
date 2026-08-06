@@ -17,13 +17,15 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 import org.pageseeder.berlioz.content.Cacheable;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @version 0.7.5 - 25 October 2012
  * @since 0.7.5
  */
-public final class GetContentFolderOverviewAuto implements ContentGenerator, Cacheable {
+public final class GetContentFolderOverviewAuto implements XmlGenerator, Cacheable {
 
   /**
    * Logger for this generator.
@@ -44,7 +46,7 @@ public final class GetContentFolderOverviewAuto implements ContentGenerator, Cac
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderOverviewAuto.class);
 
   @Override
-  public String getETag(ContentRequest req) {
+  public String getETag(Request req) {
     PSMLFile folder = PSMLConfig.getContentFolder(req.getBerliozPath());
     List<File> files = PSMLOverviews.getContents(folder.file());
     long mostrecent = PSMLOverviews.lastModified(files);
@@ -52,7 +54,7 @@ public final class GetContentFolderOverviewAuto implements ContentGenerator, Cac
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     LOGGER.debug(req.getBerliozPath());
 
     // Get all the files
@@ -60,16 +62,24 @@ public final class GetContentFolderOverviewAuto implements ContentGenerator, Cac
     LOGGER.debug("Retrieving overview for {}", folder);
 
     // If the PSML does not exist
+    Response response = Response.ok();
     if (!folder.exists()) {
-      req.setStatus(ContentStatus.NOT_FOUND);
+      response = Response.status(ContentStatus.NOT_FOUND);
     }
 
     // Get all the files
     File dir = folder.file();
     if (dir.exists() && dir.isDirectory()) {
-      String data = PSMLOverviews.getOverview(folder);
-      xml.writeXML(data);
+      String data;
+      try {
+        data = PSMLOverviews.getOverview(folder);
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+      xml.xml(data);
     }
+
+    return response;
   }
 
 }

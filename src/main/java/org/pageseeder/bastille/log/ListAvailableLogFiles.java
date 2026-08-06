@@ -17,14 +17,14 @@ package org.pageseeder.bastille.log;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
 import org.pageseeder.berlioz.util.ISO8601;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 /**
  * Returns the log entries from the specified log file.
@@ -34,7 +34,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * @since 0.8.5
  */
 @Beta
-public final class ListAvailableLogFiles implements ContentGenerator {
+public final class ListAvailableLogFiles implements XmlGenerator {
 
   /**
    * Only accepts files ending with ".log".
@@ -42,7 +42,7 @@ public final class ListAvailableLogFiles implements ContentGenerator {
   private static final FileFilter LOG_FILES = file -> file.isFile() && file.getName().endsWith(".log");
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
 
     // Get the information about the log framework
     LogInfo info = Logs.getLogInfo();
@@ -57,14 +57,16 @@ public final class ListAvailableLogFiles implements ContentGenerator {
           xml.attribute("path", f.getPath());
           File[] logs = f.listFiles(LOG_FILES);
           for (File log : logs) {
-            toXML(log, xml);
+            toXml(log, xml);
           }
           xml.closeElement();
         } else {
-          toXML(f, xml);
+          toXml(f, xml);
         }
       }
       xml.closeElement();
+
+      return Response.ok();
 
     } else {
 
@@ -72,9 +74,10 @@ public final class ListAvailableLogFiles implements ContentGenerator {
       xml.openElement("no-log-directories");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
           + "Switch to the LogBack library https://logback.qos.ch";
-      xml.writeComment(message);
+      xml.comment(message);
       xml.closeElement();
-      req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+
+      return Response.status(ContentStatus.SERVICE_UNAVAILABLE);
 
     }
   }
@@ -84,10 +87,8 @@ public final class ListAvailableLogFiles implements ContentGenerator {
    *
    * @param log the log file
    * @param xml The XML writer
-   *
-   * @throws IOException If thrown while writing the XML.
    */
-  private static void toXML(File log, XMLWriter xml) throws IOException {
+  private static void toXml(File log, XmlWriter xml) {
     xml.openElement("log-file");
     xml.attribute("name", log.getName());
     xml.attribute("size", Long.toString(log.length()));

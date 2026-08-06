@@ -15,12 +15,11 @@
  */
 package org.pageseeder.bastille.log;
 
-import java.io.IOException;
-
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @version 0.13.0
  * @since 0.8.5
  */
-public final class SetRecentLogsThreshold implements ContentGenerator {
+public final class SetRecentLogsThreshold implements XmlGenerator {
 
   /** A logger. */
   private static final Logger LOGGER = LoggerFactory.getLogger(SetRecentLogsThreshold.class);
@@ -53,7 +52,7 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
 
     LogInfo info = Logs.getLogInfo();
     if (info.supportsRecentEvents()) {
@@ -71,14 +70,17 @@ public final class SetRecentLogsThreshold implements ContentGenerator {
       xml.attribute("was", was.toString());
       xml.closeElement();
 
+      return Response.ok();
+
     } else {
 
       // No recent logs
       xml.openElement("no-recent-logs");
       String message = "The logging framework in use '"+Logs.getLoggingFramework()+"' does not support recent logs.\n"
                      + "Switch to the LogBack library https://logback.qos.ch";
-      xml.writeComment(message);
-      req.setStatus(ContentStatus.SERVICE_UNAVAILABLE);
+      xml.comment(message);
+
+      return Response.status(ContentStatus.SERVICE_UNAVAILABLE);
 
     }
 

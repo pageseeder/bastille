@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * PSML configuration.
  *
  * @author Christophe Lauret
- * @version 0.12.1
+ * @version 0.13.0
  */
 public final class PSMLConfig {
 
@@ -66,6 +66,11 @@ public final class PSMLConfig {
   public static final String DEFAULT_PSML_EXTENSION = ".psml";
 
   /**
+   * The name of the folder containing content files, relative to the PSML root.
+   */
+  public static final String CONTENT_FOLDER = "content";
+
+  /**
    * Returns the config file from the path.
    *
    * @param pathInfo The path info from within the "config" folder.
@@ -84,7 +89,7 @@ public final class PSMLConfig {
    * @return The corresponding PSML file.
    */
   public static PSMLFile getContentFile(String pathInfo) {
-    return getFile(attach("content", pathInfo));
+    return getFile(attach(CONTENT_FOLDER, pathInfo));
   }
 
   /**
@@ -95,7 +100,16 @@ public final class PSMLConfig {
    * @return A PSML file for a folder in the content folder.
    */
   public static PSMLFile getContentFolder(String pathInfo) {
-    return getFolder(attach("content", pathInfo));
+    return getFolder(attach(CONTENT_FOLDER, pathInfo));
+  }
+
+  /**
+   * Returns the root folder for content files.
+   *
+   * @return the "content" folder within the PSML root folder.
+   */
+  public static File getContentRoot() {
+    return new File(getRoot(), CONTENT_FOLDER);
   }
 
   /**

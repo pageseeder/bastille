@@ -49,11 +49,6 @@ public final class GetContentFolderInfo implements XmlGenerator, Cacheable {
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetContentFolderInfo.class);
 
-  /**
-   * The content folder to recompute the
-   */
-  private volatile @Nullable File ancestor = null;
-
   @Override
   public @Nullable String getETag(Request req) {
     String path = req.getParameter("path");
@@ -67,20 +62,16 @@ public final class GetContentFolderInfo implements XmlGenerator, Cacheable {
   @Override
   public Response generate(Request req, XmlWriter xml) {
 
-    // Initialise
-    if (this.ancestor == null) {
-      File root = PSMLConfig.getRoot();
-      this.ancestor = new File(root, "content");
-    }
+    File ancestor = PSMLConfig.getContentRoot();
 
     // Identify the folder
     String path = req.parameter("path").asString().required();
 
-    File folder = new File(this.ancestor, path);
+    File folder = new File(ancestor, path);
 
-    if (FileUtils.contains(this.ancestor, folder)) {
+    if (FileUtils.contains(ancestor, folder)) {
       LOGGER.info("Retrieving content folder information for {}", path);
-      Paths.toXml(this.ancestor, folder, DIRECTORIES_OR_PSML_FILES, xml);
+      Paths.toXml(ancestor, folder, DIRECTORIES_OR_PSML_FILES, xml);
     } else {
       LOGGER.warn("Attempted to access unauthorizes private file {}", path);
     }

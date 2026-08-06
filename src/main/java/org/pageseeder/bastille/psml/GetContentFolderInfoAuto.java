@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
+import org.pageseeder.bastille.util.Paths;
 import org.pageseeder.berlioz.content.Cacheable;
 import org.pageseeder.berlioz.content.Request;
 import org.pageseeder.berlioz.content.Response;
@@ -115,8 +116,8 @@ public final class GetContentFolderInfoAuto implements XmlGenerator, Cacheable {
 
       } else {
         xml.attribute("type", "file");
-        xml.attribute("content-type", getMediaType(f));
-        xml.attribute("media-type", getMediaType(f));
+        xml.attribute("content-type", Paths.getMediaType(f));
+        xml.attribute("media-type", Paths.getMediaType(f));
         xml.attribute("length", Long.toString(f.length()));
         xml.attribute("modified", ISO8601_LOCAL.format(Instant.ofEpochMilli(f.lastModified()).atZone(ZoneId.systemDefault())));
       }
@@ -125,17 +126,6 @@ public final class GetContentFolderInfoAuto implements XmlGenerator, Cacheable {
       xml.attribute("status", "not-found");
     }
     xml.closeElement();
-  }
-
-  /**
-   * Returns the MIME type of the given file based on the global MIME properties
-   *
-   * @param f The file
-   * @return the corresponding MIME type
-   */
-  private String getMediaType(File f) {
-    String mime = FileUtils.getMediaType(f);
-    return (mime != null)? mime : "application/octet-stream";
   }
 
 }

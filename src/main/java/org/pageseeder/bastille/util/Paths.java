@@ -15,6 +15,10 @@
  */
 package org.pageseeder.bastille.util;
 
+import org.pageseeder.berlioz.util.FileUtils;
+
+import java.io.File;
+
 /**
  * A utility class to manipulate paths.
  *
@@ -25,9 +29,25 @@ package org.pageseeder.bastille.util;
 public final class Paths {
 
   /**
+   * The default media type returned when a file's media type is unknown.
+   */
+  private static final String DEFAULT_MEDIA_TYPE = "application/octet-stream";
+
+  /**
    * Utility class.
    */
   private Paths() {
+  }
+
+  /**
+   * Returns the media type of the given file based on the global MIME properties.
+   *
+   * @param f The file
+   * @return the corresponding media type, or {@value #DEFAULT_MEDIA_TYPE} if unknown
+   */
+  public static String getMediaType(File f) {
+    String mime = FileUtils.getMediaType(f);
+    return (mime != null)? mime : DEFAULT_MEDIA_TYPE;
   }
 
   /**

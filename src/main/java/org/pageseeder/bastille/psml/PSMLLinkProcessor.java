@@ -190,12 +190,10 @@ public final class PSMLLinkProcessor {
    */
   static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) {
     File file = source.file();
-    if (file != null) {
-      try {
-        Xml.parse(handler, file, false);
-      } catch (BerliozException ex) {
-        LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
-      }
+    try {
+      Xml.parse(handler, file, false);
+    } catch (BerliozException ex) {
+      LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
     }
     return handler.getLinks();
   }

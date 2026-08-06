@@ -17,18 +17,18 @@ package org.pageseeder.bastille.doc;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.Environment;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
 import org.pageseeder.berlioz.util.FileUtils;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 /**
  * Returns the XSLT documentation using the Cobble format
@@ -36,7 +36,7 @@ import org.pageseeder.xmlwriter.XMLWriter;
  * @author Christophe Lauret
  * @version 0.13.0
  */
-public final class ListCodeFiles implements ContentGenerator, Cacheable {
+public final class ListCodeFiles implements XmlGenerator, Cacheable {
 
   /**
    * Filters XML files only.
@@ -49,18 +49,20 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
   private static final DateTimeFormatter ISO8601_LOCAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
   @Override
-  public @Nullable String getETag(ContentRequest req) {
+  public @Nullable String getETag(Request req) {
     return null;
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     Environment env = req.getEnvironment();
     File root = env.getPrivateFolder();
     File xslt = env.getPrivateFile("xslt");
 
     // XSLT documentation first
-    toXML(xslt, xml, root);
+    toXml(xslt, xml, root);
+
+    return Response.ok();
   }
 
   /**
@@ -68,9 +70,8 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
    *
    * @param f   the file.
    * @param xml the xml where the file information goes to.
-   * @throws IOException Should any IO occurs while retrieving the info or writing XML.
    */
-  private void toXML(File f, XMLWriter xml, File ancestor) throws IOException {
+  private void toXml(File f, XmlWriter xml, File ancestor) {
     xml.openElement("file");
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(ancestor, f));
@@ -81,7 +82,7 @@ public final class ListCodeFiles implements ContentGenerator, Cacheable {
         File[] children = f.listFiles(DIRECTORIES_OR_XSLT_FILES);
         if (children != null) {
           for (File x : children) {
-            toXML(x, xml, ancestor);
+            toXml(x, xml, ancestor);
           }
         }
 

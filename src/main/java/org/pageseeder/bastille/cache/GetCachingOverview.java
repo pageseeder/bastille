@@ -15,16 +15,16 @@
  */
 package org.pageseeder.bastille.cache;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -34,13 +34,13 @@ import net.sf.ehcache.Status;
  * Display a summary of the information about the cache in the application.
  *
  * @author Christophe Lauret
- * @version 0.6.7
+ * @version 0.13.0
  */
 @Beta
-public final class GetCachingOverview implements ContentGenerator {
+public final class GetCachingOverview implements XmlGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     List<CacheManager> managers = CacheManager.ALL_CACHE_MANAGERS;
     for (CacheManager manager : managers) {
       xml.openElement("cache-manager", true);
@@ -50,12 +50,13 @@ public final class GetCachingOverview implements ContentGenerator {
       String[] names = manager.getCacheNames();
       for (String name : names) {
         Ehcache cache = manager.getEhcache(name);
-        toXML(cache, xml);
+        toXml(cache, xml);
       }
 
       xml.closeElement();
     }
 
+    return Response.ok();
   }
 
   /**
@@ -63,10 +64,8 @@ public final class GetCachingOverview implements ContentGenerator {
    *
    * @param cache The cache
    * @param xml   The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXml(@Nullable Ehcache cache, XmlWriter xml) {
     if (cache == null) return;
     Status status = cache.getStatus();
     xml.openElement("cache", true);

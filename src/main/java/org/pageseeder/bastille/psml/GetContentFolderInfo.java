@@ -17,17 +17,17 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
 import org.pageseeder.berlioz.util.FileUtils;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.xml.XmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Christophe Lauret
  * @version 0.13.0
  */
-public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
+public final class GetContentFolderInfo implements XmlGenerator, Cacheable {
 
   /**
    * Filters XML files only.
@@ -62,7 +62,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
   private volatile @Nullable File ancestor = null;
 
   @Override
-  public @Nullable String getETag(ContentRequest req) {
+  public @Nullable String getETag(Request req) {
     String path = req.getParameter("path");
     if (path == null) return null;
     PSMLFile psml = PSMLConfig.getContentFolder(path);
@@ -72,7 +72,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
   }
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
 
     // Initialise
     if (this.ancestor == null) {
@@ -87,10 +87,12 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
 
     if (FileUtils.contains(this.ancestor, folder)) {
       LOGGER.info("Retrieving content folder information for {}", path);
-      toXML(folder, xml);
+      toXml(folder, xml);
     } else {
       LOGGER.warn("Attempted to access unauthorizes private file {}", path);
     }
+
+    return Response.ok();
   }
 
   /**
@@ -98,9 +100,8 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
    *
    * @param f   the file.
    * @param xml the xml where the file information goes to.
-   * @throws IOException Should any IO occurs while retrieving the info or writing XML.
    */
-  private void toXML(File f, XMLWriter xml) throws IOException {
+  private void toXml(File f, XmlWriter xml) {
     xml.openElement("file");
     xml.attribute("name", f.getName());
     xml.attribute("path", FileUtils.path(this.ancestor, f));
@@ -110,7 +111,7 @@ public final class GetContentFolderInfo implements ContentGenerator, Cacheable {
         File[] children = f.listFiles(DIRECTORIES_OR_PSML_FILES);
         if (children != null) {
           for (File x : children) {
-            toXML(x, xml);
+            toXml(x, xml);
           }
         }
 

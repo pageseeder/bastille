@@ -15,22 +15,21 @@
  */
 package org.pageseeder.bastille.security;
 
-import java.io.IOException;
-
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 /**
  * A generator to obfuscate or see passwords in clear.
  *
  * @author Christophe Lauret
- * @version 0.6.7
+ * @version 0.13.0
  */
-public final class ObfuscatorGenerator implements ContentGenerator {
+public final class ObfuscatorGenerator implements XmlGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     String password = req.getParameter("password", "");
     if (!password.isEmpty()) {
 
@@ -51,6 +50,7 @@ public final class ObfuscatorGenerator implements ContentGenerator {
       xml.emptyElement("no-password");
     }
 
+    return Response.ok();
   }
 
 }

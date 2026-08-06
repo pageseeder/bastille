@@ -15,17 +15,17 @@
  */
 package org.pageseeder.bastille.cache;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
 import org.jspecify.annotations.Nullable;
 
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
 import org.pageseeder.berlioz.util.ISO8601;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.xml.XmlWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,21 +40,22 @@ import net.sf.ehcache.Element;
  * @version 0.13.0
  */
 @Beta
-public final class GetCacheElementDetails implements ContentGenerator {
+public final class GetCacheElementDetails implements XmlGenerator {
 
   /** Where useful debug info goes. */
   private static final Logger LOGGER = LoggerFactory.getLogger(GetCacheElementDetails.class);
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     String name = req.parameter("name").asString().required();
     String key = req.parameter("key").asString().required();
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();
     Ehcache cache = manager.getEhcache(name);
-    toXML(cache, key, xml);
+    toXml(cache, key, xml);
 
+    return Response.ok();
   }
 
   /**
@@ -63,10 +64,8 @@ public final class GetCacheElementDetails implements ContentGenerator {
    * @param cache The cache
    * @param key   The key of the cache entry
    * @param xml   The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(@Nullable Ehcache cache, String key, XMLWriter xml) throws IOException {
+  private static void toXml(@Nullable Ehcache cache, String key, XmlWriter xml) {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());
@@ -104,10 +103,8 @@ public final class GetCacheElementDetails implements ContentGenerator {
    *
    * @param o   Object to serialize as XML
    * @param xml The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toElementValueXML(@Nullable Object o, XMLWriter xml) throws IOException {
+  private static void toElementValueXML(@Nullable Object o, XmlWriter xml) {
     if (o == null) return;
     xml.openElement("value", true);
     xml.attribute("class", o.getClass().getName());
@@ -121,12 +118,10 @@ public final class GetCacheElementDetails implements ContentGenerator {
    *
    * @param o   Object to serialize as XML
    * @param xml The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toElementObjectXML(Object o, XMLWriter xml) throws IOException {
+  private static void toElementObjectXML(Object o, XmlWriter xml) {
     if (o instanceof String) {
-      xml.writeText(o.toString());
+      xml.text(o.toString());
     } else {
       for (Field f : o.getClass().getFields()) {
         xml.openElement("value", true);
@@ -142,23 +137,23 @@ public final class GetCacheElementDetails implements ContentGenerator {
     }
   }
 
-  private static void writeFieldValue(Field f, Object o, XMLWriter xml)
-      throws IllegalAccessException, IOException {
+  private static void writeFieldValue(Field f, Object o, XmlWriter xml)
+      throws IllegalAccessException {
     Class<?> t = f.getType();
     if (t == Integer.TYPE) {
-      xml.writeText(Integer.toString(f.getInt(o)));
+      xml.text(Integer.toString(f.getInt(o)));
     } else if (t == Long.TYPE) {
-      xml.writeText(Long.toString(f.getLong(o)));
+      xml.text(Long.toString(f.getLong(o)));
     } else if (t == Short.TYPE) {
-      xml.writeText(Short.toString(f.getShort(o)));
+      xml.text(Short.toString(f.getShort(o)));
     } else if (t == Float.TYPE) {
-      xml.writeText(Float.toString(f.getFloat(o)));
+      xml.text(Float.toString(f.getFloat(o)));
     } else if (t == Double.TYPE) {
-      xml.writeText(Double.toString(f.getDouble(o)));
+      xml.text(Double.toString(f.getDouble(o)));
     } else if (t == Boolean.TYPE) {
-      xml.writeText(Boolean.toString(f.getBoolean(o)));
+      xml.text(Boolean.toString(f.getBoolean(o)));
     } else if (t == Character.TYPE) {
-      xml.writeText(Character.toString(f.getChar(o)));
+      xml.text(Character.toString(f.getChar(o)));
     } else {
       toElementObjectXML(f.get(o), xml);
     }

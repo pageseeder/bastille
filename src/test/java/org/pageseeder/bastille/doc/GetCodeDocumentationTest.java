@@ -23,8 +23,7 @@ import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.content.Location;
 import org.pageseeder.berlioz.error.InvalidParameterException;
-import org.pageseeder.xmlwriter.XML;
-import org.pageseeder.xmlwriter.XMLStringWriter;
+import org.pageseeder.berlioz.xml.XmlStringBuilder;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
@@ -46,13 +45,13 @@ class GetCodeDocumentationTest {
   Path tempDir;
 
   private GetCodeDocumentation generator;
-  private XMLStringWriter xml;
+  private XmlStringBuilder xml;
   private StubRequest request;
 
   @BeforeEach
   void setUp() {
     generator = new GetCodeDocumentation();
-    xml = new XMLStringWriter(XML.NamespaceAware.No);
+    xml = new XmlStringBuilder();
     request = new StubRequest(tempDir.toFile());
   }
 
@@ -64,7 +63,7 @@ class GetCodeDocumentationTest {
   @Test
   void process_noPathParameter_throwsInvalidParameterException() {
     InvalidParameterException ex = assertThrows(InvalidParameterException.class,
-        () -> generator.process(request, xml));
+        () -> generator.generate(request, xml));
     assertEquals(400, ex.getHttpCode());
     assertEquals("path", ex.getParameterName());
     assertEquals(InvalidParameterException.Reason.REQUIRED, ex.getReason());
@@ -76,7 +75,7 @@ class GetCodeDocumentationTest {
     request.setParameter("path", txtFile.getFileName().toString());
 
     InvalidParameterException ex = assertThrows(InvalidParameterException.class,
-        () -> generator.process(request, xml));
+        () -> generator.generate(request, xml));
     assertEquals(400, ex.getHttpCode());
     assertEquals("path", ex.getParameterName());
   }
@@ -86,7 +85,7 @@ class GetCodeDocumentationTest {
     request.setParameter("path", "nonexistent.xsl");
 
     InvalidParameterException ex = assertThrows(InvalidParameterException.class,
-        () -> generator.process(request, xml));
+        () -> generator.generate(request, xml));
     assertEquals(400, ex.getHttpCode());
     assertEquals("path", ex.getParameterName());
   }

@@ -22,8 +22,7 @@ import org.pageseeder.berlioz.content.ContentRequest;
 import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.content.Location;
-import org.pageseeder.xmlwriter.XML;
-import org.pageseeder.xmlwriter.XMLStringWriter;
+import org.pageseeder.berlioz.xml.XmlStringBuilder;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
@@ -45,13 +44,13 @@ class ListCodeFilesTest {
   Path tempDir;
 
   private ListCodeFiles generator;
-  private XMLStringWriter xml;
+  private XmlStringBuilder xml;
   private StubRequest request;
 
   @BeforeEach
   void setUp() {
     generator = new ListCodeFiles();
-    xml = new XMLStringWriter(XML.NamespaceAware.No);
+    xml = new XmlStringBuilder();
     request = new StubRequest(tempDir.toFile());
   }
 
@@ -61,9 +60,9 @@ class ListCodeFilesTest {
   }
 
   @Test
-  void process_noXsltFolder_writesNotFoundStatus() throws IOException {
+  void process_noXsltFolder_writesNotFoundStatus() {
     // No xslt subdirectory created — it doesn't exist
-    generator.process(request, xml);
+    generator.generate(request, xml);
     String output = xml.toString();
     assertTrue(output.contains("status=\"not-found\""), "Should report xslt folder as not found");
   }
@@ -72,7 +71,7 @@ class ListCodeFilesTest {
   void process_emptyXsltFolder_writesFolderElement() throws IOException {
     Files.createDirectory(tempDir.resolve("xslt"));
 
-    generator.process(request, xml);
+    generator.generate(request, xml);
 
     String output = xml.toString();
     assertTrue(output.contains("type=\"folder\""), "Should report xslt as a folder");
@@ -84,7 +83,7 @@ class ListCodeFilesTest {
     Path xsltDir = Files.createDirectory(tempDir.resolve("xslt"));
     Files.createFile(xsltDir.resolve("template.xsl"));
 
-    generator.process(request, xml);
+    generator.generate(request, xml);
 
     String output = xml.toString();
     assertTrue(output.contains("type=\"folder\""), "xslt dir should be reported as folder");
@@ -98,7 +97,7 @@ class ListCodeFilesTest {
     Files.createFile(xsltDir.resolve("readme.txt"));
     Files.createFile(xsltDir.resolve("config.xml"));
 
-    generator.process(request, xml);
+    generator.generate(request, xml);
 
     String output = xml.toString();
     assertFalse(output.contains("readme.txt"), "Non-XSL files should be filtered out");
@@ -111,7 +110,7 @@ class ListCodeFilesTest {
     Path subDir = Files.createDirectory(xsltDir.resolve("sub"));
     Files.createFile(subDir.resolve("nested.xsl"));
 
-    generator.process(request, xml);
+    generator.generate(request, xml);
 
     String output = xml.toString();
     assertTrue(output.contains("name=\"sub\""), "Subdirectory should be listed");
@@ -125,7 +124,7 @@ class ListCodeFilesTest {
     Files.createFile(xsltDir.resolve("ignored.txt"));
     Files.createDirectory(xsltDir.resolve("subdir"));
 
-    generator.process(request, xml);
+    generator.generate(request, xml);
 
     String output = xml.toString();
     assertTrue(output.contains("name=\"kept.xsl\""), "XSL file should be listed");

@@ -15,16 +15,16 @@
  */
 package org.pageseeder.bastille.cache;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentGenerator;
-import org.pageseeder.berlioz.content.ContentRequest;
+import org.pageseeder.berlioz.content.Request;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.content.XmlGenerator;
 import org.pageseeder.berlioz.util.ISO8601;
-import org.pageseeder.xmlwriter.XMLWriter;
+import org.pageseeder.berlioz.xml.XmlWriter;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -37,18 +37,19 @@ import net.sf.ehcache.Element;
  * @version 0.13.0
  */
 @Beta
-public final class GetCacheElements implements ContentGenerator {
+public final class GetCacheElements implements XmlGenerator {
 
   @Override
-  public void process(ContentRequest req, XMLWriter xml) throws IOException {
+  public Response generate(Request req, XmlWriter xml) {
     String name = req.parameter("name").asString().required();
     // TODO (pagination with page/pagesize parameters not yet implemented)
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();
     Ehcache cache = manager.getEhcache(name);
-    toXML(cache, xml);
+    toXml(cache, xml);
 
+    return Response.ok();
   }
 
   /**
@@ -56,10 +57,8 @@ public final class GetCacheElements implements ContentGenerator {
    *
    * @param cache The cache
    * @param xml   The XML Writer
-   *
-   * @throws IOException If an error occurs while writing the XML
    */
-  private static void toXML(@Nullable Ehcache cache, XMLWriter xml) throws IOException {
+  private static void toXml(@Nullable Ehcache cache, XmlWriter xml) {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());

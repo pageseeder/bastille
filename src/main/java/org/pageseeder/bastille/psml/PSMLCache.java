@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jspecify.annotations.Nullable;
+import org.pageseeder.berlioz.content.ContentStatus;
+import org.pageseeder.berlioz.content.Response;
+import org.pageseeder.berlioz.error.ProblemDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,21 @@ public final class PSMLCache {
       data = (String)cached.getObjectValue();
     }
     return data;
+  }
+
+  /**
+   * Builds the problem response for a PSML file that could not be loaded.
+   *
+   * @param psml The PSML file that failed to load.
+   * @param ex   The cause of the failure.
+   *
+   * @return A response reporting the error.
+   */
+  static Response problemLoading(PSMLFile psml, IOException ex) {
+    LOGGER.warn("Unable to load {}", psml, ex);
+    return Response.problem(ProblemDetails.of(ContentStatus.INTERNAL_SERVER_ERROR)
+        .detail("Unable to load PSML file: " + psml.path())
+        .diagnostic(ex));
   }
 
   /**

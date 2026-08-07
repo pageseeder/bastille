@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.pageseeder.bastille.cache.util.SizeEstimator;
 import org.pageseeder.berlioz.Beta;
-import org.pageseeder.berlioz.content.ContentStatus;
 import org.pageseeder.berlioz.content.Request;
 import org.pageseeder.berlioz.content.Response;
 import org.pageseeder.berlioz.content.XmlGenerator;
@@ -43,10 +42,7 @@ public final class GetCacheInfo implements XmlGenerator {
 
   @Override
   public Response generate(Request req, XmlWriter xml) {
-    String name = req.getParameter("name");
-    if (name == null || "".equals(name)) {
-      return Response.status(ContentStatus.NOT_FOUND);
-    }
+    String name = req.parameter("name").asString().required();
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();

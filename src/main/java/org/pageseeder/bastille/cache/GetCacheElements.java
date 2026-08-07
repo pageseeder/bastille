@@ -84,7 +84,7 @@ public final class GetCacheElements implements XmlGenerator {
     int to = (int) Math.min((long) from + pageSize, total);
 
     xml.openElement("keys");
-    xml.attribute("count", to - from);
+    xml.attribute("count", (long)to - from);
     xml.attribute("total", total);
     xml.attribute("page", page);
     xml.attribute("pagesize", pageSize);

@@ -35,7 +35,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * Display information about the cache.
  *
  * @author Christophe Lauret
- * @version 0.6.7
+ * @version 0.13.0
  */
 @Beta
 public final class GetCacheInfo implements XmlGenerator {

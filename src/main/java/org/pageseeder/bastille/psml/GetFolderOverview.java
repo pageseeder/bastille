@@ -17,7 +17,6 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -101,7 +100,7 @@ public final class GetFolderOverview implements XmlGenerator, Cacheable {
       try {
         data = PSMLOverviews.getOverview(folder);
       } catch (IOException ex) {
-        throw new UncheckedIOException(ex);
+        return PSMLCache.problemLoading(folder, ex);
       }
       xml.xml(data);
     }

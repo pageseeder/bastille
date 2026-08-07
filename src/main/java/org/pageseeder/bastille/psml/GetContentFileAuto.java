@@ -17,7 +17,6 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.berlioz.content.Cacheable;
@@ -98,7 +97,7 @@ public final class GetContentFileAuto implements XmlGenerator, Cacheable {
     try {
       data = PSMLCache.getContent(psml);
     } catch (IOException ex) {
-      throw new UncheckedIOException(ex);
+      return PSMLCache.problemLoading(psml, ex);
     }
 
     // Write on the output

@@ -36,7 +36,7 @@ public final class ToggleCacheStatistics implements XmlGenerator {
   public Response generate(Request req, XmlWriter xml) {
 
     // Grab the cache name
-    String name = req.getParameter("name", "");
+    String name = req.parameter("name").asString().defaultValue("");
 
     // Get the cache manager
     CacheManager manager = CacheManager.getInstance();

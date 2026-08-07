@@ -208,7 +208,6 @@ public final class PSMLConfig {
     // The requested file could not be found
     } else {
       xml.attribute("status", "not-found");
-      // TODO FIX error message
       xml.writeText("Unable to find file: "+psml.path());
       LOGGER.debug("{} does not exist", file.getAbsolutePath());
     }

@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Paths;
+import org.pageseeder.berlioz.BerliozException;
 import org.pageseeder.berlioz.xml.XMLCopy;
 import org.pageseeder.xmlwriter.XMLWriter;
 import org.slf4j.LoggerFactory;
@@ -173,7 +174,11 @@ class PSMLLinkProcessorHandler extends DefaultHandler implements ContentHandler,
     if (target.exists()) {
       if (this.copy != null) {
         this.insideLink = true;
-        PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, headingLevel));
+        try {
+          PSMLLinkProcessor.processLinks(target, new PSMLLinkProcessorHandler(target, this, headingLevel));
+        } catch (BerliozException ex) {
+          throw new SAXException("Unable to transclude content of " + target, ex);
+        }
       }
     } else {
       String comment = "Unable to find content for transclusion";

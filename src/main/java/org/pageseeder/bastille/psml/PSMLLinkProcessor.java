@@ -100,18 +100,32 @@ public final class PSMLLinkProcessor {
 
         // Process
         XMLStringWriter xml = new XMLStringWriter(XML.NamespaceAware.No);
-        xml.openElement("psml-file");
-        xml.attribute("name", file.getName());
-        xml.attribute("base", psml.getBase());
-        xml.attribute("status", "ok");
-        List<File> linked = processLinks(psml, xml);
-        xml.closeElement();
-        xml.flush();
+        try {
+          xml.openElement("psml-file");
+          xml.attribute("name", file.getName());
+          xml.attribute("base", psml.getBase());
+          xml.attribute("status", "ok");
+          List<File> linked = processLinks(psml, xml);
+          xml.closeElement();
+          xml.flush();
 
-        // Cache
-        data = xml.toString();
-        entry = new CachedProcessed(data, linked);
-        cache.put(new Element(psml.path(), entry));
+          // Cache
+          data = xml.toString();
+          entry = new CachedProcessed(data, linked);
+          cache.put(new Element(psml.path(), entry));
+
+        } catch (BerliozException ex) {
+          LOGGER.warn("Unable to process links for {} ({})", file.getName(), ex.getMessage());
+          xml = new XMLStringWriter(XML.NamespaceAware.No);
+          xml.openElement("psml-file");
+          xml.attribute("name", file.getName());
+          xml.attribute("base", psml.getBase());
+          xml.attribute("status", "error");
+          xml.writeComment(ex.getMessage());
+          xml.closeElement();
+          xml.flush();
+          data = xml.toString();
+        }
 
       } else {
         data = entry.data();
@@ -157,8 +171,10 @@ public final class PSMLLinkProcessor {
    * @param xml    The XML output.
    *
    * @return the list of processed links
+   *
+   * @throws BerliozException Should the file fail to parse.
    */
-  private static List<File> processLinks(PSMLFile source, XMLWriter xml) {
+  private static List<File> processLinks(PSMLFile source, XMLWriter xml) throws BerliozException {
     PSMLLinkProcessorHandler handler = new PSMLLinkProcessorHandler(source, xml);
     return processLinks(source, handler);
   }
@@ -170,14 +186,11 @@ public final class PSMLLinkProcessor {
    * @param handler The XML output.
    *
    * @return the list of processed links
+   *
+   * @throws BerliozException Should the file fail to parse.
    */
-  static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) {
-    File file = source.file();
-    try {
-      Xml.parse(handler, file, false);
-    } catch (BerliozException ex) {
-      LOGGER.warn("Unparseable file found: {} ({})", file.getName(), ex.getMessage());
-    }
+  static List<File> processLinks(PSMLFile source, PSMLLinkProcessorHandler handler) throws BerliozException {
+    Xml.parse(handler, source.file(), false);
     return handler.getLinks();
   }
 

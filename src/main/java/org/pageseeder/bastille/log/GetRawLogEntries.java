@@ -55,7 +55,7 @@ public final class GetRawLogEntries implements XmlGenerator {
   public Response generate(Request req, XmlWriter xml) {
 
     // the line
-    int lines = req.parameter("lines").asInt().clamp(1, Integer.MAX_VALUE).optional(DEFAULT_MAX_LINES);
+    int lines = req.parameter("lines").asInt().clamp(1, Integer.MAX_VALUE).defaultValue(DEFAULT_MAX_LINES);
 
     String name = req.parameter("name").asString().required();
 

@@ -18,6 +18,9 @@ package org.pageseeder.bastille.cache.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.Ehcache;
 
 /**
@@ -31,6 +34,11 @@ import net.sf.ehcache.Ehcache;
  */
 @SuppressWarnings("java:S6548")
 public final class SizeEstimator {
+
+  /**
+   * Logger for this class.
+   */
+  private static final Logger LOGGER = LoggerFactory.getLogger(SizeEstimator.class);
 
   /**
    * Singleton instance.
@@ -81,12 +89,34 @@ public final class SizeEstimator {
     Sample sample = this.inMemorySamples.get(cache.getName());
     int elements = cache.getSize();
     if (sample == null || sample.elements() * RESAMPLE_FACTOR < elements || sample.bytesize == 0) {
-      long bytesize = elements > 0? cache.getStatistics().getLocalHeapSizeInBytes() : 0;
+      long bytesize = elements > 0? computeLocalHeapSizeInBytes(cache) : 0;
       sample = new Sample(elements, bytesize);
       this.inMemorySamples.put(cache.getName(), sample);
       return elements > 0;
     }
     return false;
+  }
+
+  /**
+   * Invokes EHCache's reflective heap size calculation, tolerating environments where it is unavailable.
+   *
+   * <p>EHCache 2.x sizes objects by walking the object graph with {@code Field#setAccessible}, which
+   * throws {@code InaccessibleObjectException} (wrapped in a plain {@code RuntimeException}) on JDK 16+
+   * because {@code java.base} no longer opens {@code java.lang} to unnamed modules by default. Rather
+   * than let that take down the whole generator, fall back to an unknown size (0).
+   *
+   * @param cache The cache
+   * @return the size in bytes, or 0 if it could not be calculated.
+   */
+  private static long computeLocalHeapSizeInBytes(Ehcache cache) {
+    try {
+      return cache.getStatistics().getLocalHeapSizeInBytes();
+    } catch (RuntimeException ex) {
+      LOGGER.warn("Unable to calculate in-memory size for cache '{}': {}"
+          + " (add '--add-opens java.base/java.lang=ALL-UNNAMED' to JVM args to enable size calculation)",
+          cache.getName(), ex.getMessage());
+      return 0;
+    }
   }
 
   /**
@@ -100,12 +130,28 @@ public final class SizeEstimator {
     Sample sample = this.onDiskSamples.get(cache.getName());
     int elements = cache.getSize();
     if (sample == null || sample.elements()*2 < elements) {
-      long bytesize = elements > 0? cache.getStatistics().getLocalDiskSizeInBytes() : 0;
+      long bytesize = elements > 0? computeLocalDiskSizeInBytes(cache) : 0;
       sample = new Sample(elements, bytesize);
       this.onDiskSamples.put(cache.getName(), sample);
       return elements > 0;
     }
     return false;
+  }
+
+  /**
+   * Invokes EHCache's disk size calculation, tolerating environments where it is unavailable.
+   *
+   * @param cache The cache
+   * @return the size in bytes, or 0 if it could not be calculated.
+   * @see #computeLocalHeapSizeInBytes(Ehcache)
+   */
+  private static long computeLocalDiskSizeInBytes(Ehcache cache) {
+    try {
+      return cache.getStatistics().getLocalDiskSizeInBytes();
+    } catch (RuntimeException ex) {
+      LOGGER.warn("Unable to calculate on-disk size for cache '{}': {}", cache.getName(), ex.getMessage());
+      return 0;
+    }
   }
 
   /**

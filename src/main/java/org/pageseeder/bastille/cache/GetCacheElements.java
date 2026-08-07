@@ -15,6 +15,7 @@
  */
 package org.pageseeder.bastille.cache;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -39,15 +40,22 @@ import net.sf.ehcache.Element;
 @Beta
 public final class GetCacheElements implements XmlGenerator {
 
+  /** Default number of elements per page. */
+  private static final int DEFAULT_PAGE_SIZE = 100;
+
+  /** Maximum number of elements per page. */
+  private static final int MAX_PAGE_SIZE = 1000;
+
   @Override
   public Response generate(Request req, XmlWriter xml) {
     String name = req.parameter("name").asString().required();
-    // TODO (pagination with page/pagesize parameters not yet implemented)
+    int page = req.parameter("page").asInt().clamp(1, Integer.MAX_VALUE).defaultValue(1);
+    int pageSize = req.parameter("pagesize").asInt().clamp(1, MAX_PAGE_SIZE).defaultValue(DEFAULT_PAGE_SIZE);
 
     // Identify the cache
     CacheManager manager = CacheManager.getInstance();
     Ehcache cache = manager.getEhcache(name);
-    toXml(cache, xml);
+    toXml(cache, page, pageSize, xml);
 
     return Response.ok();
   }
@@ -55,10 +63,12 @@ public final class GetCacheElements implements XmlGenerator {
   /**
    * Returns detailed information about the cache.
    *
-   * @param cache The cache
-   * @param xml   The XML Writer
+   * @param cache    The cache
+   * @param page     The page of elements to return (1-based)
+   * @param pageSize The number of elements per page
+   * @param xml      The XML Writer
    */
-  private static void toXml(@Nullable Ehcache cache, XmlWriter xml) {
+  private static void toXml(@Nullable Ehcache cache, int page, int pageSize, XmlWriter xml) {
     if (cache == null) return;
     xml.openElement("cache", true);
     xml.attribute("name", cache.getName());
@@ -66,11 +76,19 @@ public final class GetCacheElements implements XmlGenerator {
     xml.attribute("status", cache.getStatus().toString());
     xml.attribute("disabled", Boolean.toString(cache.isDisabled()));
 
-    // Keys
+    // Keys sorted for a stable order across pages
     List<?> keys = cache.getKeys();
+    keys.sort(Comparator.comparing(Object::toString));
+    int total = keys.size();
+    int from = (int) Math.min((long) (page - 1) * pageSize, total);
+    int to = (int) Math.min((long) from + pageSize, total);
+
     xml.openElement("keys");
-    xml.attribute("count", keys.size());
-    for (Object key : keys) {
+    xml.attribute("count", to - from);
+    xml.attribute("total", total);
+    xml.attribute("page", page);
+    xml.attribute("pagesize", pageSize);
+    for (Object key : keys.subList(from, to)) {
       xml.openElement("element");
       xml.attribute("key", key.toString());
       Element element = cache.getQuiet(key);

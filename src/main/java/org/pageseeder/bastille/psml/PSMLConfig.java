@@ -17,7 +17,9 @@ package org.pageseeder.bastille.psml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Paths;
 import org.pageseeder.berlioz.GlobalSettings;
 import org.pageseeder.berlioz.xml.XMLCopy;
@@ -69,6 +71,16 @@ public final class PSMLConfig {
    * The name of the folder containing content files, relative to the PSML root.
    */
   public static final String CONTENT_FOLDER = "content";
+
+  /**
+   * Memoized PSML root folder, so that the config lookup and filesystem check in {@link #getRoot(boolean)}
+   * only run once instead of on every call. Cleared whenever the global settings are reloaded.
+   */
+  private static final AtomicReference<@Nullable File> rootRef = new AtomicReference<>(null);
+
+  static {
+    GlobalSettings.registerListener(() -> rootRef.set(null));
+  }
 
   /**
    * Returns the config file from the path.
@@ -163,6 +175,9 @@ public final class PSMLConfig {
    * @return the XML Root folder as defined in the configuration or "xml" if undefined.
    */
   public static File getRoot(boolean create) {
+    File cached = rootRef.get();
+    if (cached != null) return cached;
+
     String name = GlobalSettings.get(BASTILLE_PSML_ROOT, DEFAULT_PSML_ROOT);
     File folder = new File(GlobalSettings.getAppData(), name);
     if (create && !folder.exists()) {
@@ -173,6 +188,11 @@ public final class PSMLConfig {
       }
     } else if (!folder.isDirectory()) {
       LOGGER.warn("PSML root folder ({}) is not a directory!", name);
+    }
+
+    // Only cache once resolved to an actual directory; otherwise keep retrying on the next call.
+    if (folder.isDirectory()) {
+      rootRef.set(folder);
     }
     return folder;
   }

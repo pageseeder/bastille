@@ -78,7 +78,7 @@ public final class GetCacheElements implements XmlGenerator {
 
     // Keys sorted for a stable order across pages
     List<?> keys = cache.getKeys();
-    keys.sort(Comparator.comparing(Object::toString));
+    keys.sort(Comparator.comparing(String::valueOf));
     int total = keys.size();
     int from = (int) Math.min((long) (page - 1) * pageSize, total);
     int to = (int) Math.min((long) from + pageSize, total);

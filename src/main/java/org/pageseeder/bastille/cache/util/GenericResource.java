@@ -110,8 +110,15 @@ public final class GenericResource implements Serializable, CachedResource {
 
   @Override
   public List<HttpHeader<? extends Serializable>> getHeaders(boolean gzipped) {
-    // TODO Adjust the etag?
-    return this.headers;
+    List<HttpHeader<? extends Serializable>> adjusted = new ArrayList<>(this.headers.size());
+    for (HttpHeader<? extends Serializable> header : this.headers) {
+      if (HttpHeaders.ETAG.equals(header.name())) {
+        adjusted.add(new HttpHeader<>(HttpHeaders.ETAG, adjustEtag(header.value().toString(), gzipped)));
+      } else {
+        adjusted.add(header);
+      }
+    }
+    return adjusted;
   }
 
   @Override

@@ -55,7 +55,8 @@ import net.sf.ehcache.config.CacheConfiguration;
  *
  * <h3>GZip compression</h3>
  * <p>This filter will automatically compress resources such as styles and scripts while leaving
- * images uncompressed. This is done based on the media type of the resource.
+ * images uncompressed. This is done based on the media type of the resource, and only applied
+ * when the resource body is at least {@link Resources#DEFAULT_MIN_GZIP_SIZE} bytes.
  * <p>If this use agent does not support GZip encoding, the resource is served uncompressed.
  *
  * <h3>Cache Key</h3>
@@ -263,8 +264,9 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     } else {
 
       LOGGER.debug("Building generic cached resource {}", req.getRequestURI());
-      boolean gzip = Resources.isCompressible(r.getContentType());
-      resource = new GenericResource(r.getStatus(), r.getContentType(), r.toByteArray(), gzip, r.getAllHeaders());
+      byte[] body = r.toByteArray();
+      boolean gzip = Resources.isCompressible(r.getContentType(), body.length);
+      resource = new GenericResource(r.getStatus(), r.getContentType(), body, gzip, r.getAllHeaders());
 
     }
     return resource;

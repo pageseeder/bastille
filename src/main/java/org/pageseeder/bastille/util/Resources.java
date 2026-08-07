@@ -35,6 +35,16 @@ import org.slf4j.LoggerFactory;
 public final class Resources {
 
   /**
+   * The minimum content length (in bytes) below which GZIP compression is not worth applying.
+   *
+   * <p>GZIP adds a fixed overhead (~20 bytes for the header/trailer) and rarely finds enough
+   * redundancy in very small payloads to offset it, so compressing below this size can end up
+   * larger than the original and simply wastes CPU. 1024 bytes (1 KB) is a common threshold used
+   * by CDNs and web servers (e.g. CloudFront) as a reasonable balance.
+   */
+  public static final int DEFAULT_MIN_GZIP_SIZE = 1024;
+
+  /**
    * A logger.
    */
   private static final Logger LOGGER = LoggerFactory.getLogger(Resources.class);
@@ -72,6 +82,22 @@ public final class Resources {
         || contentType.endsWith("xml")
         || contentType.endsWith("json")
         || contentType.endsWith("javascript");
+  }
+
+  /**
+   * Indicates whether a resource is worth compressing given its content type and length.
+   *
+   * <p>In addition to the content type being compressible, the content must be at least
+   * {@link #DEFAULT_MIN_GZIP_SIZE} bytes for GZIP to be worthwhile.
+   *
+   * @param contentType The content type of the resource.
+   * @param length      The length of the resource body in bytes.
+   *
+   * @return <code>true</code> if the content type is compressible and the content is large
+   *         enough for compression to be worthwhile; <code>false</code> otherwise.
+   */
+  public static boolean isCompressible(@Nullable String contentType, int length) {
+    return length >= DEFAULT_MIN_GZIP_SIZE && isCompressible(contentType);
   }
 
   /**

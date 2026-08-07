@@ -99,7 +99,7 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   public StaticResource(int status, @Nullable String contentType, byte[] body, long modified, String cacheControl, long expires) {
     this.contentType = contentType;
-    this.gzippable = Resources.isCompressible(contentType);
+    this.gzippable = Resources.isCompressible(contentType, body.length);
     this.status = status;
     this.lastModified = (modified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND;
     this.content = toStorableContent(body, this.gzippable);

@@ -23,7 +23,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jspecify.annotations.Nullable;
-import org.pageseeder.berlioz.http.HttpHeaderUtils;
+import org.pageseeder.bastille.util.Resources;
 import org.pageseeder.berlioz.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public final class StaticResource implements Serializable, CachedResource {
    */
   public StaticResource(int status, @Nullable String contentType, byte[] body, long modified, String cacheControl, long expires) {
     this.contentType = contentType;
-    this.gzippable = HttpHeaderUtils.isCompressible(contentType);
+    this.gzippable = Resources.isCompressible(contentType);
     this.status = status;
     this.lastModified = (modified / MILLISECONDS_PER_SECOND) * MILLISECONDS_PER_SECOND;
     this.content = toStorableContent(body, this.gzippable);

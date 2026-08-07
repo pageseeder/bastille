@@ -18,7 +18,11 @@ package org.pageseeder.bastille.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.jspecify.annotations.Nullable;
+import org.pageseeder.berlioz.http.HttpAcceptHeader;
+import org.pageseeder.berlioz.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +58,31 @@ public final class Resources {
       LOGGER.warn("An error occurred while retrieving resource", ex);
       return null;
     }
+  }
+
+  /**
+   * Indicates whether a resource with the given content type is compressible.
+   *
+   * @param contentType The content type of the resource.
+   * @return <code>true</code> if the content type is compressible; <code>false</code> otherwise.
+   */
+  public static boolean isCompressible(@Nullable String contentType) {
+    if (contentType == null) return false;
+    return contentType.startsWith("text")
+        || contentType.endsWith("xml")
+        || contentType.endsWith("json")
+        || contentType.endsWith("javascript");
+  }
+
+  /**
+   * Indicates whether the client accepts GZip compression.
+   *
+   * @param req The servlet request we are processing.
+   * @return <code>true</code> if the 'Accept-Encoding' header contains "gzip"; <code>false</code> otherwise.
+   */
+  public static boolean acceptsGZipCompression(HttpServletRequest req) {
+    String encoding = req.getHeader(HttpHeaders.ACCEPT_ENCODING);
+    return HttpAcceptHeader.accepts(encoding, "gzip");
   }
 
 }

@@ -35,7 +35,7 @@ import org.pageseeder.bastille.cache.util.GenericResource;
 import org.pageseeder.bastille.cache.util.HttpDateFormat;
 import org.pageseeder.bastille.cache.util.StaticRequestWrapper;
 import org.pageseeder.bastille.cache.util.StaticResource;
-import org.pageseeder.berlioz.http.HttpHeaderUtils;
+import org.pageseeder.bastille.util.Resources;
 import org.pageseeder.berlioz.http.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,7 +263,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
     } else {
 
       LOGGER.debug("Building generic cached resource {}", req.getRequestURI());
-      boolean gzip = HttpHeaderUtils.isCompressible(r.getContentType());
+      boolean gzip = Resources.isCompressible(r.getContentType());
       resource = new GenericResource(r.getStatus(), r.getContentType(), r.toByteArray(), gzip, r.getAllHeaders());
 
     }
@@ -303,7 +303,7 @@ public final class StaticCachingFilter extends CachingFilterBase implements Cach
   public void writeResponse(HttpServletRequest req, HttpServletResponse res, CachedResource resource)
       throws IOException, ServletException {
 
-    boolean sendGzip = resource.hasContent() && resource.hasGzippedBody() && HttpHeaderUtils.acceptsGZipCompression(req);
+    boolean sendGzip = resource.hasContent() && resource.hasGzippedBody() && Resources.acceptsGZipCompression(req);
 
     if (resource instanceof StaticResource) {
 

@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.cache.util.CachedResource;
 import org.pageseeder.bastille.cache.util.GZIPUtils;
-import org.pageseeder.berlioz.http.HttpHeaderUtils;
+import org.pageseeder.bastille.util.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -261,7 +261,7 @@ public abstract class CachingFilterBase implements Filter, CachingFilter {
       // Discarding returned body and returning a 0-length body content
       body = new byte[0];
 
-    } else if (resource.hasGzippedBody() && HttpHeaderUtils.acceptsGZipCompression(req)) {
+    } else if (resource.hasGzippedBody() && Resources.acceptsGZipCompression(req)) {
       // Client accepts GZIP, let's send it compressed
       body = resource.getBody(true);
       GZIPUtils.addGzipHeader(res);

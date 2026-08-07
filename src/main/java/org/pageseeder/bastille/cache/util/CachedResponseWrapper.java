@@ -45,7 +45,7 @@ import org.pageseeder.berlioz.http.HttpHeaders;
  *
  * @author Christophe Lauret
  *
- * @version 11.0
+ * @version 0.13.0
  */
 public final class CachedResponseWrapper extends HttpServletResponseWrapper {
 
@@ -77,9 +77,9 @@ public final class CachedResponseWrapper extends HttpServletResponseWrapper {
   private final FilterOutputStream out;
 
   /**
-   * Only used if the writer is requested; not serialized since it can be reconstructed.
+   * Only used if the writer is requested.
    */
-  private transient @Nullable PrintWriter writer;
+  private @Nullable PrintWriter writer;
 
   /**
    * Creates a cached response wrapper.

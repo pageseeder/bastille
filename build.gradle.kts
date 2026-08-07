@@ -43,7 +43,6 @@ repositories {
 dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.ehcache)
-    implementation(libs.commons.io)
     implementation(libs.berlioz)
     implementation(libs.xmlwriter)
     implementation(libs.cobble)

@@ -18,7 +18,6 @@ package org.pageseeder.bastille.util;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * A utility class to return resources.
  *
  * @author Christophe Lauret
+ * @version 0.13.0
  */
 public final class Resources {
 
@@ -47,20 +47,13 @@ public final class Resources {
    * @return the corresponding byte array or <code>null</code> if not found or I/O error occurs.
    */
   public static byte @Nullable [] getResource(String name) {
-    byte[] data = null;
-    InputStream in = null;
-    try {
-      ClassLoader loader = Resources.class.getClassLoader();
-      in = loader.getResourceAsStream(name);
-      if (in != null) {
-        data = IOUtils.toByteArray(in);
-      }
+    ClassLoader loader = Resources.class.getClassLoader();
+    try (InputStream in = loader.getResourceAsStream(name)) {
+      return in != null ? in.readAllBytes() : null;
     } catch (IOException ex) {
       LOGGER.warn("An error occurred while retrieving resource", ex);
-    } finally {
-      IOUtils.closeQuietly(in);
+      return null;
     }
-    return data;
   }
 
 }

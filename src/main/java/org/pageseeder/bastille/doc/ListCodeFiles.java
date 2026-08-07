@@ -17,6 +17,9 @@ package org.pageseeder.bastille.doc;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.pageseeder.bastille.util.Paths;
@@ -25,6 +28,7 @@ import org.pageseeder.berlioz.content.Environment;
 import org.pageseeder.berlioz.content.Request;
 import org.pageseeder.berlioz.content.Response;
 import org.pageseeder.berlioz.content.XmlGenerator;
+import org.pageseeder.berlioz.util.SHA256;
 import org.pageseeder.berlioz.xml.XmlWriter;
 
 /**
@@ -42,7 +46,32 @@ public final class ListCodeFiles implements XmlGenerator, Cacheable {
 
   @Override
   public @Nullable String getETag(Request req) {
-    return null;
+    Environment env = req.getEnvironment();
+    File xslt = env.getPrivateFile("xslt");
+    List<File> files = new ArrayList<>();
+    collect(xslt, files);
+    files.sort(Comparator.comparing(File::getAbsolutePath));
+    StringBuilder key = new StringBuilder();
+    for (File f : files) {
+      key.append(f.getAbsolutePath()).append(f.length()).append('>').append(f.lastModified()).append('|');
+    }
+    return SHA256.hash(key.toString());
+  }
+
+  /**
+   * Recursively collects the files matched by {@link #DIRECTORIES_OR_XSLT_FILES} under the given
+   * directory, mirroring the tree that {@link Paths#toXml(File, File, FileFilter, XmlWriter)} walks.
+   */
+  private static void collect(File dir, List<File> files) {
+    File[] children = dir.listFiles(DIRECTORIES_OR_XSLT_FILES);
+    if (children == null) return;
+    for (File child : children) {
+      if (child.isDirectory()) {
+        collect(child, files);
+      } else {
+        files.add(child);
+      }
+    }
   }
 
   @Override

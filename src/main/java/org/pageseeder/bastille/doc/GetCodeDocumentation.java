@@ -42,7 +42,12 @@ public final class GetCodeDocumentation implements XmlGenerator, Cacheable {
 
   @Override
   public @Nullable String getETag(Request req) {
-    return null;
+    String path = req.getParameter("path");
+    if (path == null) return null;
+    Environment env = req.getEnvironment();
+    File code = env.getPrivateFile(path);
+    if (!code.exists()) return null;
+    return Long.toString(code.lastModified());
   }
 
   @Override
